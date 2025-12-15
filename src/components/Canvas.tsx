@@ -347,10 +347,8 @@ export function Canvas({
       ref={svgRef}
       width={CANVAS_SIZE}
       height={CANVAS_SIZE}
-      style={{
-        border: '1px solid #ccc',
-        backgroundColor: backgroundColor || '#ffffff',
-      }}
+      className="border border-gray-300"
+      style={{ backgroundColor: backgroundColor || '#ffffff' }}
       onMouseDown={handleCanvasMouseDown}
       onClick={(e) => e.stopPropagation()}
     >

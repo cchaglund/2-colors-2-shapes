@@ -4,7 +4,6 @@ import { Toolbar } from './components/Toolbar';
 import { LayerPanel } from './components/LayerPanel';
 import { useCanvasState } from './hooks/useCanvasState';
 import { getTodayChallenge } from './utils/dailyChallenge';
-import './App.css';
 
 function App() {
   const challenge = useMemo(() => getTodayChallenge(), []);
@@ -43,7 +42,7 @@ function App() {
       : null;
 
   return (
-    <div className="app">
+    <div className="flex h-screen overflow-hidden">
       <Toolbar
         challenge={challenge}
         backgroundColorIndex={canvasState.backgroundColorIndex}
@@ -52,7 +51,10 @@ function App() {
         onReset={handleReset}
       />
 
-      <main className="canvas-container" onClick={() => selectShape(null)}>
+      <main
+        className="flex-1 flex items-center justify-center canvas-bg-checkered"
+        onClick={() => selectShape(null)}
+      >
         <Canvas
           shapes={canvasState.shapes}
           selectedShapeId={canvasState.selectedShapeId}
@@ -77,15 +79,21 @@ function App() {
       />
 
       {showResetConfirm && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h3>Reset Canvas?</h3>
-            <p>This will delete all shapes and cannot be undone.</p>
-            <div className="modal-buttons">
-              <button className="cancel-btn" onClick={cancelReset}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-1000">
+          <div className="bg-white p-6 rounded-xl max-w-100 text-center shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
+            <h3 className="m-0 mb-3 text-xl">Reset Canvas?</h3>
+            <p className="m-0 mb-5 text-gray-500">This will delete all shapes and cannot be undone.</p>
+            <div className="flex gap-3 justify-center">
+              <button
+                className="px-6 py-2.5 rounded-md border-none cursor-pointer text-sm font-medium transition-colors bg-gray-200 text-gray-700 hover:bg-gray-300"
+                onClick={cancelReset}
+              >
                 Cancel
               </button>
-              <button className="confirm-btn" onClick={confirmReset}>
+              <button
+                className="px-6 py-2.5 rounded-md border-none cursor-pointer text-sm font-medium transition-colors bg-red-500 text-white hover:bg-red-600"
+                onClick={confirmReset}
+              >
                 Reset
               </button>
             </div>

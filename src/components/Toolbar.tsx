@@ -1,6 +1,5 @@
 import type { DailyChallenge } from '../types';
 import { SHAPE_NAMES } from '../utils/shapeHelpers';
-import './Toolbar.css';
 
 interface ToolbarProps {
   challenge: DailyChallenge;
@@ -18,19 +17,19 @@ export function Toolbar({
   onReset,
 }: ToolbarProps) {
   return (
-    <div className="toolbar">
-      <div className="toolbar-section">
-        <h3>Today's Challenge</h3>
-        <p className="date">{challenge.date}</p>
+    <div className="w-55 bg-neutral-100 border-r border-gray-300 p-4 overflow-y-auto">
+      <div className="mb-6">
+        <h3 className="m-0 text-base text-gray-700">Today's Challenge</h3>
+        <p className="mt-1 mb-0 text-sm text-gray-500">{challenge.date}</p>
       </div>
 
-      <div className="toolbar-section">
-        <h4>Colors</h4>
-        <div className="color-swatches">
+      <div className="mb-6">
+        <h4 className="m-0 mb-3 text-xs uppercase text-gray-500">Colors</h4>
+        <div className="flex gap-2">
           {challenge.colors.map((color, index) => (
             <div
               key={index}
-              className="color-swatch"
+              className="w-10 h-10 rounded-lg border-2 border-black/20"
               style={{ backgroundColor: color }}
               title={color}
             />
@@ -38,17 +37,17 @@ export function Toolbar({
         </div>
       </div>
 
-      <div className="toolbar-section">
-        <h4>Add Shape</h4>
-        <div className="shape-buttons">
+      <div className="mb-6">
+        <h4 className="m-0 mb-3 text-xs uppercase text-gray-500">Add Shape</h4>
+        <div className="flex flex-col gap-2">
           {challenge.shapes.map((shape, shapeIndex) => (
-            <div key={shape} className="shape-row">
-              <span className="shape-label">{SHAPE_NAMES[shape]}</span>
-              <div className="color-buttons">
+            <div key={shape} className="flex items-center justify-between">
+              <span className="text-sm">{SHAPE_NAMES[shape]}</span>
+              <div className="flex gap-1">
                 {challenge.colors.map((color, colorIndex) => (
                   <button
                     key={colorIndex}
-                    className="add-shape-btn"
+                    className="w-8 h-8 border-2 border-black/20 rounded-md cursor-pointer text-lg font-bold text-white/90 drop-shadow-sm transition-transform hover:scale-110 hover:shadow-md"
                     style={{ backgroundColor: color }}
                     onClick={() =>
                       onAddShape(shapeIndex as 0 | 1, colorIndex as 0 | 1)
@@ -64,11 +63,15 @@ export function Toolbar({
         </div>
       </div>
 
-      <div className="toolbar-section">
-        <h4>Background</h4>
-        <div className="background-buttons">
+      <div className="mb-6">
+        <h4 className="m-0 mb-3 text-xs uppercase text-gray-500">Background</h4>
+        <div className="flex gap-2">
           <button
-            className={`bg-btn ${backgroundColorIndex === null ? 'active' : ''}`}
+            className={`w-10 h-10 border-2 rounded-lg cursor-pointer text-base text-black/50 transition-transform hover:scale-105 ${
+              backgroundColorIndex === null
+                ? 'border-blue-600 shadow-[0_0_0_2px_rgba(0,102,255,0.3)]'
+                : 'border-black/20'
+            }`}
             onClick={() => onSetBackground(null)}
             style={{ backgroundColor: '#fff' }}
             title="White background"
@@ -78,7 +81,11 @@ export function Toolbar({
           {challenge.colors.map((color, index) => (
             <button
               key={index}
-              className={`bg-btn ${backgroundColorIndex === index ? 'active' : ''}`}
+              className={`w-10 h-10 border-2 rounded-lg cursor-pointer text-base text-black/50 transition-transform hover:scale-105 ${
+                backgroundColorIndex === index
+                  ? 'border-blue-600 shadow-[0_0_0_2px_rgba(0,102,255,0.3)]'
+                  : 'border-black/20'
+              }`}
               onClick={() => onSetBackground(index as 0 | 1)}
               style={{ backgroundColor: color }}
               title={`${color} background`}
@@ -89,15 +96,18 @@ export function Toolbar({
         </div>
       </div>
 
-      <div className="toolbar-section">
-        <button className="reset-btn" onClick={onReset}>
+      <div className="mb-6">
+        <button
+          className="w-full py-2.5 px-4 bg-red-500 text-white border-none rounded-md cursor-pointer text-sm font-medium transition-colors hover:bg-red-600"
+          onClick={onReset}
+        >
           Reset Canvas
         </button>
       </div>
 
-      <div className="toolbar-section help">
-        <h4>Controls</h4>
-        <ul>
+      <div className="mt-auto">
+        <h4 className="m-0 mb-3 text-xs uppercase text-gray-500">Controls</h4>
+        <ul className="m-0 pl-4 text-xs text-gray-500 space-y-1">
           <li>Drag shape to move</li>
           <li>Drag corners to resize</li>
           <li>Drag circle to rotate</li>

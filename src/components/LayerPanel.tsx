@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import type { Shape, DailyChallenge } from '../types';
-import './LayerPanel.css';
 
 interface LayerPanelProps {
   shapes: Shape[];
@@ -54,25 +53,27 @@ export function LayerPanel({
   };
 
   return (
-    <div className="layer-panel">
-      <h3>Layers</h3>
+    <div className="w-75 bg-neutral-100 border-l border-gray-300 p-4 overflow-y-auto">
+      <h3 className="m-0 mb-4 text-sm uppercase text-gray-500">Layers</h3>
       {sortedShapes.length === 0 ? (
-        <p className="empty-message">No shapes yet. Add one!</p>
+        <p className="text-gray-400 text-sm text-center py-5">No shapes yet. Add one!</p>
       ) : (
-        <ul className="layer-list">
+        <ul className="list-none p-0 m-0">
           {sortedShapes.map((shape) => (
             <li
               key={shape.id}
-              className={`layer-item ${shape.id === selectedShapeId ? 'selected' : ''}`}
+              className={`group flex items-center gap-2 p-2 rounded cursor-pointer transition-colors ${
+                shape.id === selectedShapeId ? 'bg-blue-100' : 'hover:bg-gray-200'
+              }`}
               onClick={() => onSelectShape(shape.id)}
             >
               <div
-                className="layer-color-preview"
+                className="w-5 h-5 rounded border border-black/20 shrink-0"
                 style={{ backgroundColor: challenge.colors[shape.colorIndex] }}
               />
               {editingId === shape.id ? (
                 <input
-                  className="layer-name-input"
+                  className="flex-1 text-sm py-0.5 px-1 border border-blue-600 rounded outline-none min-w-0"
                   value={editValue}
                   onChange={(e) => setEditValue(e.target.value)}
                   onBlur={finishEditing}
@@ -82,7 +83,7 @@ export function LayerPanel({
                 />
               ) : (
                 <span
-                  className="layer-name"
+                  className="flex-1 text-sm overflow-hidden text-ellipsis whitespace-nowrap cursor-text"
                   onDoubleClick={(e) => {
                     e.stopPropagation();
                     startEditing(shape);
@@ -91,8 +92,9 @@ export function LayerPanel({
                   {shape.name}
                 </span>
               )}
-              <div className="layer-actions">
+              <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
+                  className="w-6 h-6 p-0 border border-gray-300 bg-white rounded cursor-pointer text-[10px] flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
                   title="Bring to front"
                   disabled={isTopLayer(shape)}
                   onClick={(e) => {
@@ -103,6 +105,7 @@ export function LayerPanel({
                   ⬆⬆
                 </button>
                 <button
+                  className="w-6 h-6 p-0 border border-gray-300 bg-white rounded cursor-pointer text-[10px] flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
                   title="Move up"
                   disabled={isTopLayer(shape)}
                   onClick={(e) => {
@@ -113,6 +116,7 @@ export function LayerPanel({
                   ⬆
                 </button>
                 <button
+                  className="w-6 h-6 p-0 border border-gray-300 bg-white rounded cursor-pointer text-[10px] flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
                   title="Move down"
                   disabled={isBottomLayer(shape)}
                   onClick={(e) => {
@@ -123,6 +127,7 @@ export function LayerPanel({
                   ⬇
                 </button>
                 <button
+                  className="w-6 h-6 p-0 border border-gray-300 bg-white rounded cursor-pointer text-[10px] flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
                   title="Send to back"
                   disabled={isBottomLayer(shape)}
                   onClick={(e) => {
@@ -133,7 +138,7 @@ export function LayerPanel({
                   ⬇⬇
                 </button>
                 <button
-                  className="delete-btn"
+                  className="w-6 h-6 p-0 border border-gray-300 bg-white rounded cursor-pointer text-[10px] flex items-center justify-center text-red-600 ml-1 hover:bg-red-50 disabled:opacity-30 disabled:cursor-not-allowed"
                   title="Delete"
                   onClick={(e) => {
                     e.stopPropagation();
