@@ -101,7 +101,11 @@ export function Toolbar({
           <li>Drag shape to move</li>
           <li>Drag corners to resize</li>
           <li>Drag circle to rotate</li>
-          <li>Hold Shift for 15° snap</li>
+          <li>Arrow keys to move</li>
+          <li>Period/Comma to rotate</li>
+          <li>Hold Shift for larger steps</li>
+          <li>w to undo, Shift+w to redo</li>
+          <li>c to duplicate selected</li>
         </ul>
       </div>
     </div>

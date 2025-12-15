@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Shape, CanvasState, DailyChallenge } from '../types';
 import { generateId } from '../utils/shapeHelpers';
 import { getTodayDate } from '../utils/dailyChallenge';
 
 const STORAGE_KEY = '2colors2shapes_canvas';
+const MAX_HISTORY = 50;
 
 interface StoredData {
   date: string;
@@ -37,7 +38,7 @@ const initialCanvasState: CanvasState = {
 };
 
 export function useCanvasState(challenge: DailyChallenge) {
-  const [canvasState, setCanvasState] = useState<CanvasState>(() => {
+  const [canvasState, setCanvasStateInternal] = useState<CanvasState>(() => {
     const stored = loadFromStorage();
     // Only restore if it's the same day
     if (stored && stored.date === getTodayDate()) {
@@ -45,6 +46,59 @@ export function useCanvasState(challenge: DailyChallenge) {
     }
     return initialCanvasState;
   });
+
+  // History for undo/redo
+  // Use ref for the history array (not needed for rendering) and state for indices (needed for canUndo/canRedo)
+  const historyRef = useRef<CanvasState[]>([canvasState]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+  const [historyLength, setHistoryLength] = useState(1);
+  const isUndoRedoRef = useRef(false);
+  const lastHistoryTimeRef = useRef(0);
+  const COALESCE_MS = 300; // Coalesce changes within this time window
+
+  // Wrapper that adds to history
+  const setCanvasState = useCallback(
+    (
+      updater: CanvasState | ((prev: CanvasState) => CanvasState),
+      addToHistory = true
+    ) => {
+      setCanvasStateInternal((prev) => {
+        const newState =
+          typeof updater === 'function' ? updater(prev) : updater;
+
+        if (addToHistory && !isUndoRedoRef.current) {
+          const now = Date.now();
+          const shouldCoalesce = now - lastHistoryTimeRef.current < COALESCE_MS;
+          lastHistoryTimeRef.current = now;
+
+          setHistoryIndex((currentIndex) => {
+            if (shouldCoalesce && currentIndex > 0) {
+              // Replace the last history entry instead of adding new one
+              historyRef.current[currentIndex] = newState;
+              return currentIndex;
+            }
+
+            // Remove any future history if we're not at the end
+            historyRef.current = historyRef.current.slice(0, currentIndex + 1);
+            // Add new state
+            historyRef.current.push(newState);
+            // Limit history size
+            if (historyRef.current.length > MAX_HISTORY) {
+              historyRef.current = historyRef.current.slice(1);
+              setHistoryLength(historyRef.current.length);
+              return currentIndex; // Index stays same when we trim from start
+            } else {
+              setHistoryLength(historyRef.current.length);
+              return currentIndex + 1;
+            }
+          });
+        }
+
+        return newState;
+      });
+    },
+    []
+  );
 
   // Persist to localStorage on changes
   useEffect(() => {
@@ -54,52 +108,137 @@ export function useCanvasState(challenge: DailyChallenge) {
     });
   }, [canvasState]);
 
+  const undo = useCallback(() => {
+    setHistoryIndex((currentIndex) => {
+      if (currentIndex > 0) {
+        isUndoRedoRef.current = true;
+        const newIndex = currentIndex - 1;
+        setCanvasStateInternal(historyRef.current[newIndex]);
+        setTimeout(() => {
+          isUndoRedoRef.current = false;
+        }, 0);
+        return newIndex;
+      }
+      return currentIndex;
+    });
+  }, []);
+
+  const redo = useCallback(() => {
+    setHistoryIndex((currentIndex) => {
+      if (currentIndex < historyRef.current.length - 1) {
+        isUndoRedoRef.current = true;
+        const newIndex = currentIndex + 1;
+        setCanvasStateInternal(historyRef.current[newIndex]);
+        setTimeout(() => {
+          isUndoRedoRef.current = false;
+        }, 0);
+        return newIndex;
+      }
+      return currentIndex;
+    });
+  }, []);
+
+  const canUndo = historyIndex > 0;
+  const canRedo = historyIndex < historyLength - 1;
+
   const addShape = useCallback(
     (shapeIndex: 0 | 1, colorIndex: 0 | 1) => {
       const shapeType = challenge.shapes[shapeIndex];
-      const maxZIndex = Math.max(0, ...canvasState.shapes.map((s) => s.zIndex));
 
-      const newShape: Shape = {
-        id: generateId(),
-        type: shapeType,
-        x: 350, // Center of 800x800 canvas
-        y: 350,
-        size: 100,
-        rotation: 0,
-        colorIndex,
-        zIndex: maxZIndex + 1,
-      };
+      setCanvasState((prev) => {
+        const maxZIndex = Math.max(0, ...prev.shapes.map((s) => s.zIndex));
 
-      setCanvasState((prev) => ({
-        ...prev,
-        shapes: [...prev.shapes, newShape],
-        selectedShapeId: newShape.id,
-      }));
+        // Generate name like A1, A2, B1, B2 (A = first shape type, B = second)
+        const shapeLetter = shapeIndex === 0 ? 'A' : 'B';
+        const totalCount = prev.shapes.length + 1;
+        const defaultName = `${shapeLetter}${totalCount}`;
+
+        const newShape: Shape = {
+          id: generateId(),
+          type: shapeType,
+          name: defaultName,
+          x: 350, // Center of 800x800 canvas
+          y: 350,
+          size: 100,
+          rotation: 0,
+          colorIndex,
+          zIndex: maxZIndex + 1,
+        };
+
+        return {
+          ...prev,
+          shapes: [...prev.shapes, newShape],
+          selectedShapeId: newShape.id,
+        };
+      });
     },
-    [challenge.shapes, canvasState.shapes]
+    [challenge.shapes, setCanvasState]
   );
 
-  const updateShape = useCallback((id: string, updates: Partial<Shape>) => {
-    setCanvasState((prev) => ({
-      ...prev,
-      shapes: prev.shapes.map((s) => (s.id === id ? { ...s, ...updates } : s)),
-    }));
-  }, []);
+  const duplicateShape = useCallback(
+    (id: string) => {
+      setCanvasState((prev) => {
+        const shape = prev.shapes.find((s) => s.id === id);
+        if (!shape) return prev;
 
-  const deleteShape = useCallback((id: string) => {
-    setCanvasState((prev) => ({
-      ...prev,
-      shapes: prev.shapes.filter((s) => s.id !== id),
-      selectedShapeId: prev.selectedShapeId === id ? null : prev.selectedShapeId,
-    }));
-  }, []);
+        const maxZIndex = Math.max(0, ...prev.shapes.map((s) => s.zIndex));
+        const totalCount = prev.shapes.length + 1;
+        const shapeIndex = challenge.shapes.indexOf(shape.type) as 0 | 1;
+        const shapeLetter = shapeIndex === 0 ? 'A' : 'B';
 
-  const selectShape = useCallback((id: string | null) => {
-    setCanvasState((prev) => ({
-      ...prev,
-      selectedShapeId: id,
-    }));
-  }, []);
+        const newShape: Shape = {
+          ...shape,
+          id: generateId(),
+          name: `${shapeLetter}${totalCount}`,
+          x: shape.x + 20, // Offset slightly
+          y: shape.y + 20,
+          zIndex: maxZIndex + 1,
+        };
+
+        return {
+          ...prev,
+          shapes: [...prev.shapes, newShape],
+          selectedShapeId: newShape.id,
+        };
+      });
+    },
+    [challenge.shapes, setCanvasState]
+  );
+
+  const updateShape = useCallback(
+    (id: string, updates: Partial<Shape>) => {
+      setCanvasState((prev) => ({
+        ...prev,
+        shapes: prev.shapes.map((s) => (s.id === id ? { ...s, ...updates } : s)),
+      }));
+    },
+    [setCanvasState]
+  );
+
+  const deleteShape = useCallback(
+    (id: string) => {
+      setCanvasState((prev) => ({
+        ...prev,
+        shapes: prev.shapes.filter((s) => s.id !== id),
+        selectedShapeId: prev.selectedShapeId === id ? null : prev.selectedShapeId,
+      }));
+    },
+    [setCanvasState]
+  );
+
+  const selectShape = useCallback(
+    (id: string | null) => {
+      // Selection changes don't go into history
+      setCanvasState(
+        (prev) => ({
+          ...prev,
+          selectedShapeId: id,
+        }),
+        false
+      );
+    },
+    [setCanvasState]
+  );
 
   const moveLayer = useCallback(
     (id: string, direction: 'up' | 'down' | 'top' | 'bottom') => {
@@ -151,28 +290,36 @@ export function useCanvasState(challenge: DailyChallenge) {
         return { ...prev, shapes: newShapes };
       });
     },
-    []
+    [setCanvasState]
   );
 
-  const setBackgroundColor = useCallback((colorIndex: 0 | 1 | null) => {
-    setCanvasState((prev) => ({
-      ...prev,
-      backgroundColorIndex: colorIndex,
-    }));
-  }, []);
+  const setBackgroundColor = useCallback(
+    (colorIndex: 0 | 1 | null) => {
+      setCanvasState((prev) => ({
+        ...prev,
+        backgroundColorIndex: colorIndex,
+      }));
+    },
+    [setCanvasState]
+  );
 
   const resetCanvas = useCallback(() => {
     setCanvasState(initialCanvasState);
-  }, []);
+  }, [setCanvasState]);
 
   return {
     canvasState,
     addShape,
+    duplicateShape,
     updateShape,
     deleteShape,
     selectShape,
     moveLayer,
     setBackgroundColor,
     resetCanvas,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
   };
 }

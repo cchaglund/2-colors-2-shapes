@@ -1,5 +1,5 @@
+import { useState } from 'react';
 import type { Shape, DailyChallenge } from '../types';
-import { SHAPE_NAMES } from '../utils/shapeHelpers';
 import './LayerPanel.css';
 
 interface LayerPanelProps {
@@ -9,6 +9,7 @@ interface LayerPanelProps {
   onSelectShape: (id: string | null) => void;
   onMoveLayer: (id: string, direction: 'up' | 'down' | 'top' | 'bottom') => void;
   onDeleteShape: (id: string) => void;
+  onRenameShape: (id: string, name: string) => void;
 }
 
 export function LayerPanel({
@@ -18,7 +19,10 @@ export function LayerPanel({
   onSelectShape,
   onMoveLayer,
   onDeleteShape,
+  onRenameShape,
 }: LayerPanelProps) {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState('');
   // Sort by zIndex descending (top layer first in list)
   const sortedShapes = [...shapes].sort((a, b) => b.zIndex - a.zIndex);
 
@@ -26,6 +30,28 @@ export function LayerPanel({
     shape.zIndex === Math.max(...shapes.map((s) => s.zIndex));
   const isBottomLayer = (shape: Shape) =>
     shape.zIndex === Math.min(...shapes.map((s) => s.zIndex));
+
+  const startEditing = (shape: Shape) => {
+    setEditingId(shape.id);
+    setEditValue(shape.name);
+  };
+
+  const finishEditing = () => {
+    if (editingId && editValue.trim()) {
+      onRenameShape(editingId, editValue.trim());
+    }
+    setEditingId(null);
+    setEditValue('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      finishEditing();
+    } else if (e.key === 'Escape') {
+      setEditingId(null);
+      setEditValue('');
+    }
+  };
 
   return (
     <div className="layer-panel">
@@ -44,7 +70,27 @@ export function LayerPanel({
                 className="layer-color-preview"
                 style={{ backgroundColor: challenge.colors[shape.colorIndex] }}
               />
-              <span className="layer-name">{SHAPE_NAMES[shape.type]}</span>
+              {editingId === shape.id ? (
+                <input
+                  className="layer-name-input"
+                  value={editValue}
+                  onChange={(e) => setEditValue(e.target.value)}
+                  onBlur={finishEditing}
+                  onKeyDown={handleKeyDown}
+                  onClick={(e) => e.stopPropagation()}
+                  autoFocus
+                />
+              ) : (
+                <span
+                  className="layer-name"
+                  onDoubleClick={(e) => {
+                    e.stopPropagation();
+                    startEditing(shape);
+                  }}
+                >
+                  {shape.name}
+                </span>
+              )}
               <div className="layer-actions">
                 <button
                   title="Bring to front"

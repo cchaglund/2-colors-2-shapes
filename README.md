@@ -17,7 +17,11 @@ The same date always generates the same colors and shapes (seed-based randomizat
 - **Figma-style manipulation**:
   - Drag shapes to move them
   - Drag corner handles to resize
-  - Drag rotation handle to rotate (hold Shift for 15° snapping)
+  - Drag rotation handles to rotate (handles on all 4 sides, hold Shift for 15° snapping)
+  - Arrow keys to move selected shape (hold Shift for 10px steps)
+  - Period/Comma keys to rotate (hold Shift for 15° steps)
+  - w to undo, Shift+w to redo
+  - c to duplicate selected shape
 - **Layer system**:
   - Reorder shapes (bring to front, send to back, move up/down)
   - Visual layer panel showing all shapes

@@ -1,5 +1,5 @@
 .layer-panel {
-  width: 250px;
+  width: 300px;
   background: #f5f5f5;
   border-left: 1px solid #ddd;
   padding: 16px;
@@ -58,6 +58,17 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  cursor: text;
+}
+
+.layer-name-input {
+  flex: 1;
+  font-size: 14px;
+  padding: 2px 4px;
+  border: 1px solid #0066ff;
+  border-radius: 3px;
+  outline: none;
+  min-width: 0;
 }
 
 .layer-actions {

@@ -13,12 +13,15 @@ function App() {
   const {
     canvasState,
     addShape,
+    duplicateShape,
     updateShape,
     deleteShape,
     selectShape,
     moveLayer,
     setBackgroundColor,
     resetCanvas,
+    undo,
+    redo,
   } = useCanvasState(challenge);
 
   const handleReset = () => {
@@ -57,6 +60,9 @@ function App() {
           challenge={challenge}
           onSelectShape={selectShape}
           onUpdateShape={updateShape}
+          onDuplicateShape={duplicateShape}
+          onUndo={undo}
+          onRedo={redo}
         />
       </main>
 
@@ -67,6 +73,7 @@ function App() {
         onSelectShape={selectShape}
         onMoveLayer={moveLayer}
         onDeleteShape={deleteShape}
+        onRenameShape={(id, name) => updateShape(id, { name })}
       />
 
       {showResetConfirm && (

@@ -3,6 +3,7 @@ export type ShapeType = 'circle' | 'square' | 'triangle' | 'pentagon' | 'hexagon
 export interface Shape {
   id: string;
   type: ShapeType;
+  name: string;
   x: number;
   y: number;
   size: number;

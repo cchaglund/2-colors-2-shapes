@@ -11,14 +11,11 @@ interface ShapeElementProps {
 export function ShapeElement({
   shape,
   color,
-  isSelected,
   onSelect,
 }: ShapeElementProps) {
   const { element, props } = getShapeSVGData(shape.type, shape.size);
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    console.log('mouse down');
-    
     e.stopPropagation();
     onSelect(shape.id);
   };
@@ -27,15 +24,12 @@ export function ShapeElement({
 
   const commonProps = {
     fill: color,
-    stroke: isSelected ? '#000' : 'none',
-    strokeWidth: isSelected ? 2 : 0,
-    strokeDasharray: isSelected ? '5,5' : 'none',
     style: { cursor: 'move' },
     onMouseDown: handleMouseDown,
   };
 
   return (
-    <g transform={transform} data-shape-id={shape.id} onClick={() => console.log('hmm')}>
+    <g transform={transform} data-shape-id={shape.id}>
       {element === 'ellipse' && <ellipse {...props} {...commonProps} />}
       {element === 'rect' && <rect {...props} {...commonProps} />}
       {element === 'polygon' && <polygon {...props} {...commonProps} />}

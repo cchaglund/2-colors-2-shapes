@@ -1,7 +1,10 @@
 import { useRef, useCallback, useState, useEffect } from 'react';
 import type { Shape, DailyChallenge } from '../types';
 import { ShapeElement } from './ShapeElement';
-import { TransformHandles } from './TransformHandles';
+import {
+  TransformInteractionLayer,
+  TransformVisualLayer,
+} from './TransformHandles';
 
 interface CanvasProps {
   shapes: Shape[];
@@ -10,6 +13,9 @@ interface CanvasProps {
   challenge: DailyChallenge;
   onSelectShape: (id: string | null) => void;
   onUpdateShape: (id: string, updates: Partial<Shape>) => void;
+  onDuplicateShape: (id: string) => void;
+  onUndo: () => void;
+  onRedo: () => void;
 }
 
 type DragMode = 'none' | 'move' | 'resize' | 'rotate';
@@ -35,6 +41,9 @@ export function Canvas({
   challenge,
   onSelectShape,
   onUpdateShape,
+  onDuplicateShape,
+  onUndo,
+  onRedo,
 }: CanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [dragState, setDragState] = useState<DragState | null>(null);
@@ -241,6 +250,95 @@ export function Canvas({
     };
   }, [dragState, shapes, getSVGPoint, onUpdateShape]);
 
+  // Handle keyboard shortcuts (movement, rotation, undo/redo, duplicate)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Skip if user is typing in an input
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+
+      // Undo/Redo (w / Shift+w)
+      if (e.code === 'KeyW' || e.key.toLowerCase() === 'w') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          onRedo();
+        } else {
+          onUndo();
+        }
+        return;
+      }
+
+      // Duplicate (c) - only when shape is selected
+      if (e.code === 'KeyC' || e.key.toLowerCase() === 'c') {
+        if (selectedShape) {
+          e.preventDefault();
+          onDuplicateShape(selectedShape.id);
+          return;
+        }
+      }
+
+      // Movement and rotation shortcuts require a selected shape
+      if (!selectedShape) return;
+
+      const SMALL_MOVE = 1;
+      const LARGE_MOVE = 10;
+      const SMALL_ROTATE = 1;
+      const LARGE_ROTATE = 15;
+
+      const moveStep = e.shiftKey ? LARGE_MOVE : SMALL_MOVE;
+      const rotateStep = e.shiftKey ? LARGE_ROTATE : SMALL_ROTATE;
+
+      let dx = 0;
+      let dy = 0;
+      let dRotation = 0;
+
+      switch (e.code) {
+        case 'ArrowUp':
+          dy = -moveStep;
+          break;
+        case 'ArrowDown':
+          dy = moveStep;
+          break;
+        case 'ArrowLeft':
+          dx = -moveStep;
+          break;
+        case 'ArrowRight':
+          dx = moveStep;
+          break;
+        case 'Period':
+          dRotation = rotateStep;
+          break;
+        case 'Comma':
+          dRotation = -rotateStep;
+          break;
+        default:
+          return;
+      }
+
+      e.preventDefault();
+
+      if (dx !== 0 || dy !== 0) {
+        onUpdateShape(selectedShape.id, {
+          x: selectedShape.x + dx,
+          y: selectedShape.y + dy,
+        });
+      }
+
+      if (dRotation !== 0) {
+        onUpdateShape(selectedShape.id, {
+          rotation: selectedShape.rotation + dRotation,
+        });
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedShape, onUpdateShape, onUndo, onRedo, onDuplicateShape]);
+
   // Sort shapes by zIndex for rendering
   const sortedShapes = [...shapes].sort((a, b) => a.zIndex - b.zIndex);
 
@@ -256,7 +354,7 @@ export function Canvas({
       onMouseDown={handleCanvasMouseDown}
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Render shapes with transform handles inline (after selected shape) */}
+      {/* Render shapes with invisible interaction layer inline */}
       {sortedShapes.map((shape) => (
         <g key={shape.id}>
           <g onMouseDown={(e) => handleShapeMouseDown(e, shape.id)}>
@@ -267,9 +365,9 @@ export function Canvas({
               onSelect={onSelectShape}
             />
           </g>
-          {/* Render transform handles right after the selected shape */}
+          {/* Render invisible interaction layer inline for proper click ordering */}
           {shape.id === selectedShapeId && (
-            <TransformHandles
+            <TransformInteractionLayer
               shape={shape}
               onMoveStart={handleMoveStart}
               onResizeStart={handleResizeStart}
@@ -278,6 +376,9 @@ export function Canvas({
           )}
         </g>
       ))}
+
+      {/* Render visible transform UI on top of everything */}
+      {selectedShape && <TransformVisualLayer shape={selectedShape} />}
     </svg>
   );
 }
