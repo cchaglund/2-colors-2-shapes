@@ -104,38 +104,51 @@ export function useCanvasState(challenge: DailyChallenge) {
   const moveLayer = useCallback(
     (id: string, direction: 'up' | 'down' | 'top' | 'bottom') => {
       setCanvasState((prev) => {
-        const shapes = [...prev.shapes];
-        const shape = shapes.find((s) => s.id === id);
-        if (!shape) return prev;
-
-        const sortedByZ = [...shapes].sort((a, b) => a.zIndex - b.zIndex);
+        const sortedByZ = [...prev.shapes].sort((a, b) => a.zIndex - b.zIndex);
         const currentIndex = sortedByZ.findIndex((s) => s.id === id);
+        if (currentIndex === -1) return prev;
 
-        let targetIndex: number;
-        switch (direction) {
-          case 'up':
-            targetIndex = Math.min(currentIndex + 1, sortedByZ.length - 1);
-            break;
-          case 'down':
-            targetIndex = Math.max(currentIndex - 1, 0);
-            break;
-          case 'top':
-            targetIndex = sortedByZ.length - 1;
-            break;
-          case 'bottom':
-            targetIndex = 0;
-            break;
+        let newShapes: Shape[];
+
+        if (direction === 'up' && currentIndex < sortedByZ.length - 1) {
+          // Swap with the shape above
+          newShapes = prev.shapes.map((s) => {
+            if (s.id === id) {
+              return { ...s, zIndex: sortedByZ[currentIndex + 1].zIndex };
+            }
+            if (s.id === sortedByZ[currentIndex + 1].id) {
+              return { ...s, zIndex: sortedByZ[currentIndex].zIndex };
+            }
+            return s;
+          });
+        } else if (direction === 'down' && currentIndex > 0) {
+          // Swap with the shape below
+          newShapes = prev.shapes.map((s) => {
+            if (s.id === id) {
+              return { ...s, zIndex: sortedByZ[currentIndex - 1].zIndex };
+            }
+            if (s.id === sortedByZ[currentIndex - 1].id) {
+              return { ...s, zIndex: sortedByZ[currentIndex].zIndex };
+            }
+            return s;
+          });
+        } else if (direction === 'top' && currentIndex < sortedByZ.length - 1) {
+          // Move to top: give it a zIndex higher than the current max
+          const maxZ = sortedByZ[sortedByZ.length - 1].zIndex;
+          newShapes = prev.shapes.map((s) =>
+            s.id === id ? { ...s, zIndex: maxZ + 1 } : s
+          );
+        } else if (direction === 'bottom' && currentIndex > 0) {
+          // Move to bottom: give it a zIndex lower than the current min
+          const minZ = sortedByZ[0].zIndex;
+          newShapes = prev.shapes.map((s) =>
+            s.id === id ? { ...s, zIndex: minZ - 1 } : s
+          );
+        } else {
+          return prev;
         }
 
-        if (targetIndex === currentIndex) return prev;
-
-        // Swap zIndex values
-        const targetShape = sortedByZ[targetIndex];
-        const tempZ = shape.zIndex;
-        shape.zIndex = targetShape.zIndex;
-        targetShape.zIndex = tempZ;
-
-        return { ...prev, shapes };
+        return { ...prev, shapes: newShapes };
       });
     },
     []

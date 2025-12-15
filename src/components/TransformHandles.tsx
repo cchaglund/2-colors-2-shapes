@@ -2,12 +2,14 @@ import type { Shape } from '../types';
 
 interface TransformHandlesProps {
   shape: Shape;
+  onMoveStart: (e: React.MouseEvent) => void;
   onResizeStart: (e: React.MouseEvent, corner: string) => void;
   onRotateStart: (e: React.MouseEvent) => void;
 }
 
 export function TransformHandles({
   shape,
+  onMoveStart,
   onResizeStart,
   onRotateStart,
 }: TransformHandlesProps) {
@@ -26,6 +28,16 @@ export function TransformHandles({
 
   return (
     <g transform={transform} style={{ pointerEvents: 'all' }}>
+      {/* Invisible fill rect for dragging */}
+      <rect
+        x={0}
+        y={0}
+        width={shape.size}
+        height={shape.size}
+        fill="transparent"
+        style={{ cursor: 'move' }}
+        onMouseDown={onMoveStart}
+      />
       {/* Bounding box */}
       <rect
         x={0}
@@ -35,6 +47,7 @@ export function TransformHandles({
         fill="none"
         stroke="#0066ff"
         strokeWidth={1}
+        style={{ pointerEvents: 'none' }}
       />
 
       {/* Corner resize handles */}

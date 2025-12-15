@@ -17,6 +17,8 @@ export function ShapeElement({
   const { element, props } = getShapeSVGData(shape.type, shape.size);
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    console.log('mouse down');
+    
     e.stopPropagation();
     onSelect(shape.id);
   };
@@ -33,7 +35,7 @@ export function ShapeElement({
   };
 
   return (
-    <g transform={transform} data-shape-id={shape.id}>
+    <g transform={transform} data-shape-id={shape.id} onClick={() => console.log('hmm')}>
       {element === 'ellipse' && <ellipse {...props} {...commonProps} />}
       {element === 'rect' && <rect {...props} {...commonProps} />}
       {element === 'polygon' && <polygon {...props} {...commonProps} />}

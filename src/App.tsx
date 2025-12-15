@@ -49,7 +49,7 @@ function App() {
         onReset={handleReset}
       />
 
-      <main className="canvas-container">
+      <main className="canvas-container" onClick={() => selectShape(null)}>
         <Canvas
           shapes={canvasState.shapes}
           selectedShapeId={canvasState.selectedShapeId}

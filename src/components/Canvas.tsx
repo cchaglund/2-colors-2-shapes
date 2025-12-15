@@ -16,6 +16,7 @@ type DragMode = 'none' | 'move' | 'resize' | 'rotate';
 
 interface DragState {
   mode: DragMode;
+  shapeId: string;
   startX: number;
   startY: number;
   startShapeX: number;
@@ -70,6 +71,7 @@ export function Canvas({
       const point = getSVGPoint(e.clientX, e.clientY);
       setDragState({
         mode: 'move',
+        shapeId: shape.id,
         startX: point.x,
         startY: point.y,
         startShapeX: shape.x,
@@ -90,6 +92,7 @@ export function Canvas({
       const point = getSVGPoint(e.clientX, e.clientY);
       setDragState({
         mode: 'resize',
+        shapeId: selectedShape.id,
         startX: point.x,
         startY: point.y,
         startShapeX: selectedShape.x,
@@ -110,6 +113,28 @@ export function Canvas({
       const point = getSVGPoint(e.clientX, e.clientY);
       setDragState({
         mode: 'rotate',
+        shapeId: selectedShape.id,
+        startX: point.x,
+        startY: point.y,
+        startShapeX: selectedShape.x,
+        startShapeY: selectedShape.y,
+        startSize: selectedShape.size,
+        startRotation: selectedShape.rotation,
+        resizeCorner: '',
+      });
+    },
+    [selectedShape, getSVGPoint]
+  );
+
+  const handleMoveStart = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (!selectedShape) return;
+
+      const point = getSVGPoint(e.clientX, e.clientY);
+      setDragState({
+        mode: 'move',
+        shapeId: selectedShape.id,
         startX: point.x,
         startY: point.y,
         startShapeX: selectedShape.x,
@@ -126,14 +151,17 @@ export function Canvas({
     if (!dragState || dragState.mode === 'none') return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!selectedShape || !dragState) return;
+      if (!dragState) return;
+
+      const draggedShape = shapes.find((s) => s.id === dragState.shapeId);
+      if (!draggedShape) return;
 
       const point = getSVGPoint(e.clientX, e.clientY);
 
       if (dragState.mode === 'move') {
         const dx = point.x - dragState.startX;
         const dy = point.y - dragState.startY;
-        onUpdateShape(selectedShape.id, {
+        onUpdateShape(dragState.shapeId, {
           x: dragState.startShapeX + dx,
           y: dragState.startShapeY + dy,
         });
@@ -144,13 +172,17 @@ export function Canvas({
         // Calculate new size based on drag distance
         let sizeDelta = 0;
         if (dragState.resizeCorner === 'se') {
+          // Dragging right/down increases size
           sizeDelta = Math.max(dx, dy);
         } else if (dragState.resizeCorner === 'nw') {
-          sizeDelta = -Math.max(dx, dy);
+          // Dragging left/up increases size
+          sizeDelta = Math.max(-dx, -dy);
         } else if (dragState.resizeCorner === 'ne') {
-          sizeDelta = Math.max(-dx, dy);
-        } else if (dragState.resizeCorner === 'sw') {
+          // Dragging right/up increases size
           sizeDelta = Math.max(dx, -dy);
+        } else if (dragState.resizeCorner === 'sw') {
+          // Dragging left/down increases size
+          sizeDelta = Math.max(-dx, dy);
         }
 
         const newSize = Math.max(20, dragState.startSize + sizeDelta);
@@ -168,15 +200,15 @@ export function Canvas({
           newX = dragState.startShapeX + (dragState.startSize - newSize);
         }
 
-        onUpdateShape(selectedShape.id, {
+        onUpdateShape(dragState.shapeId, {
           size: newSize,
           x: newX,
           y: newY,
         });
       } else if (dragState.mode === 'rotate') {
         // Calculate angle from shape center to mouse
-        const centerX = selectedShape.x + selectedShape.size / 2;
-        const centerY = selectedShape.y + selectedShape.size / 2;
+        const centerX = draggedShape.x + draggedShape.size / 2;
+        const centerY = draggedShape.y + draggedShape.size / 2;
 
         const startAngle = Math.atan2(
           dragState.startY - centerY,
@@ -192,7 +224,7 @@ export function Canvas({
           newRotation = Math.round(newRotation / 15) * 15;
         }
 
-        onUpdateShape(selectedShape.id, { rotation: newRotation });
+        onUpdateShape(dragState.shapeId, { rotation: newRotation });
       }
     };
 
@@ -207,7 +239,7 @@ export function Canvas({
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [dragState, selectedShape, getSVGPoint, onUpdateShape]);
+  }, [dragState, shapes, getSVGPoint, onUpdateShape]);
 
   // Sort shapes by zIndex for rendering
   const sortedShapes = [...shapes].sort((a, b) => a.zIndex - b.zIndex);
@@ -222,30 +254,30 @@ export function Canvas({
         backgroundColor: backgroundColor || '#ffffff',
       }}
       onMouseDown={handleCanvasMouseDown}
+      onClick={(e) => e.stopPropagation()}
     >
-      {/* Render shapes */}
+      {/* Render shapes with transform handles inline (after selected shape) */}
       {sortedShapes.map((shape) => (
-        <g
-          key={shape.id}
-          onMouseDown={(e) => handleShapeMouseDown(e, shape.id)}
-        >
-          <ShapeElement
-            shape={shape}
-            color={challenge.colors[shape.colorIndex]}
-            isSelected={shape.id === selectedShapeId}
-            onSelect={onSelectShape}
-          />
+        <g key={shape.id}>
+          <g onMouseDown={(e) => handleShapeMouseDown(e, shape.id)}>
+            <ShapeElement
+              shape={shape}
+              color={challenge.colors[shape.colorIndex]}
+              isSelected={shape.id === selectedShapeId}
+              onSelect={onSelectShape}
+            />
+          </g>
+          {/* Render transform handles right after the selected shape */}
+          {shape.id === selectedShapeId && (
+            <TransformHandles
+              shape={shape}
+              onMoveStart={handleMoveStart}
+              onResizeStart={handleResizeStart}
+              onRotateStart={handleRotateStart}
+            />
+          )}
         </g>
       ))}
-
-      {/* Render transform handles for selected shape */}
-      {selectedShape && (
-        <TransformHandles
-          shape={selectedShape}
-          onResizeStart={handleResizeStart}
-          onRotateStart={handleRotateStart}
-        />
-      )}
     </svg>
   );
 }
