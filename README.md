@@ -26,6 +26,7 @@ The same date always generates the same colors and shapes (seed-based randomizat
   - Reorder shapes (bring to front, send to back, move up/down)
   - Visual layer panel showing all shapes
   - Click layers to select shapes
+  - Double-click layer name to rename
 - **Background toggle**: Set canvas background to either daily color or white
 - **Auto-save**: Canvas state persists in localStorage (resets when the day changes)
 - **Reset**: Clear canvas with confirmation dialog
