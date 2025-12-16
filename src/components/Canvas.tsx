@@ -13,7 +13,7 @@ interface CanvasProps {
   backgroundColor: string | null;
   challenge: DailyChallenge;
   viewport: ViewportState;
-  onSelectShape: (id: string | null, addToSelection?: boolean) => void;
+  onSelectShape: (id: string | null, options?: { toggle?: boolean; range?: boolean; orderedIds?: string[] }) => void;
   onUpdateShape: (id: string, updates: Partial<Shape>) => void;
   onUpdateShapes: (updates: Map<string, Partial<Shape>>) => void;
   onDuplicateShapes: (ids: string[]) => void;
@@ -163,7 +163,7 @@ export function Canvas({
       // Handle selection logic
       if (isShiftKey) {
         // Shift+click: toggle selection
-        onSelectShape(shapeId, true);
+        onSelectShape(shapeId, { toggle: true });
 
         // If we're removing from selection, don't start a drag
         if (isAlreadySelected) {
@@ -171,7 +171,7 @@ export function Canvas({
         }
       } else if (!isAlreadySelected) {
         // Click on unselected shape without shift: select only this shape
-        onSelectShape(shapeId, false);
+        onSelectShape(shapeId);
       }
       // If already selected without shift, don't change selection (allows dragging multiple)
 

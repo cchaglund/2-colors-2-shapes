@@ -304,7 +304,8 @@ export function useCanvasState(challenge: DailyChallenge) {
   );
 
   const selectShape = useCallback(
-    (id: string | null, addToSelection = false) => {
+    (id: string | null, options?: { toggle?: boolean; range?: boolean; orderedIds?: string[] }) => {
+      const { toggle = false, range = false, orderedIds = [] } = options || {};
       // Selection changes don't go into history
       setCanvasState(
         (prev) => {
@@ -316,8 +317,8 @@ export function useCanvasState(challenge: DailyChallenge) {
             };
           }
 
-          if (addToSelection) {
-            // Toggle the shape in the selection (shift+click behavior)
+          if (toggle) {
+            // Toggle the shape in the selection (cmd/ctrl+click behavior)
             const newSelectedIds = new Set(prev.selectedShapeIds);
             if (newSelectedIds.has(id)) {
               newSelectedIds.delete(id);
@@ -327,6 +328,44 @@ export function useCanvasState(challenge: DailyChallenge) {
             return {
               ...prev,
               selectedShapeIds: newSelectedIds,
+            };
+          }
+
+          if (range && orderedIds.length > 0) {
+            // Range selection (shift+click behavior)
+            // Find the anchor point (last clicked item that's still selected)
+            const currentlySelected = Array.from(prev.selectedShapeIds);
+            let anchorIndex = -1;
+
+            // Find the first selected item in order as anchor
+            for (let i = 0; i < orderedIds.length; i++) {
+              if (currentlySelected.includes(orderedIds[i])) {
+                anchorIndex = i;
+                break;
+              }
+            }
+
+            if (anchorIndex === -1) {
+              // No anchor, just select the clicked item
+              return {
+                ...prev,
+                selectedShapeIds: new Set([id]),
+              };
+            }
+
+            const targetIndex = orderedIds.indexOf(id);
+            if (targetIndex === -1) {
+              return prev;
+            }
+
+            // Select all items between anchor and target (inclusive)
+            const startIndex = Math.min(anchorIndex, targetIndex);
+            const endIndex = Math.max(anchorIndex, targetIndex);
+            const rangeIds = orderedIds.slice(startIndex, endIndex + 1);
+
+            return {
+              ...prev,
+              selectedShapeIds: new Set(rangeIds),
             };
           }
 

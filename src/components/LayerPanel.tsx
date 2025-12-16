@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { Shape, DailyChallenge } from '../types';
+
+// Detect if user is on macOS for modifier key instructions
+const isMac = typeof navigator !== 'undefined' && navigator.userAgent.includes('Mac');
 
 interface LayerPanelProps {
   shapes: Shape[];
   selectedShapeIds: Set<string>;
   challenge: DailyChallenge;
-  onSelectShape: (id: string | null, addToSelection?: boolean) => void;
+  onSelectShape: (id: string | null, options?: { toggle?: boolean; range?: boolean; orderedIds?: string[] }) => void;
   onMoveLayer: (id: string, direction: 'up' | 'down' | 'top' | 'bottom') => void;
   onReorderLayers: (draggedId: string, targetIndex: number) => void;
   onDeleteShape: (id: string) => void;
@@ -35,7 +38,29 @@ export function LayerPanel({
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
   // Sort by zIndex descending (top layer first in list)
-  const sortedShapes = [...shapes].sort((a, b) => b.zIndex - a.zIndex);
+  const sortedShapes = useMemo(() => [...shapes].sort((a, b) => b.zIndex - a.zIndex), [shapes]);
+
+  // Get ordered IDs for range selection
+  const orderedIds = useMemo(() => sortedShapes.map(s => s.id), [sortedShapes]);
+
+  // Handle layer click with modifier key support
+  const handleLayerClick = (e: React.MouseEvent, shapeId: string) => {
+    // On Mac: Cmd for toggle, Shift for range
+    // On Windows/Linux: Ctrl for toggle, Shift for range
+    const isToggleModifier = isMac ? e.metaKey : e.ctrlKey;
+    const isRangeModifier = e.shiftKey;
+
+    if (isRangeModifier) {
+      onSelectShape(shapeId, { range: true, orderedIds });
+    } else if (isToggleModifier) {
+      onSelectShape(shapeId, { toggle: true });
+    } else {
+      onSelectShape(shapeId);
+    }
+  };
+
+  // Modifier key hint text
+  const modifierKeyHint = isMac ? '⌘' : 'Ctrl';
 
   const isTopLayer = (shape: Shape) =>
     shape.zIndex === Math.max(...shapes.map((s) => s.zIndex));
@@ -145,7 +170,8 @@ export function LayerPanel({
                   ? 'border-t-2 border-blue-500'
                   : ''
               }`}
-              onClick={(e) => onSelectShape(shape.id, e.shiftKey)}
+              onClick={(e) => handleLayerClick(e, shape.id)}
+              title={`Click to select, ${modifierKeyHint}+click to toggle, Shift+click to select range`}
             >
               <div
                 className="w-5 h-5 rounded border border-black/20 shrink-0"
