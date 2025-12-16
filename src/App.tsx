@@ -133,8 +133,16 @@ function App() {
       <Toolbar
         challenge={challenge}
         backgroundColorIndex={canvasState.backgroundColorIndex}
+        selectedShapeIds={canvasState.selectedShapeIds}
         onAddShape={addShape}
         onSetBackground={setBackgroundColor}
+        onChangeShapeColor={(colorIndex) => {
+          const updates = new Map<string, { colorIndex: 0 | 1 }>();
+          canvasState.selectedShapeIds.forEach((id) => {
+            updates.set(id, { colorIndex });
+          });
+          updateShapes(updates);
+        }}
         onReset={handleReset}
       />
 

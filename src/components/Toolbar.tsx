@@ -4,18 +4,23 @@ import { SHAPE_NAMES } from '../utils/shapeHelpers';
 interface ToolbarProps {
   challenge: DailyChallenge;
   backgroundColorIndex: 0 | 1 | null;
+  selectedShapeIds: Set<string>;
   onAddShape: (shapeIndex: 0 | 1, colorIndex: 0 | 1) => void;
   onSetBackground: (colorIndex: 0 | 1 | null) => void;
+  onChangeShapeColor: (colorIndex: 0 | 1) => void;
   onReset: () => void;
 }
 
 export function Toolbar({
   challenge,
   backgroundColorIndex,
+  selectedShapeIds,
   onAddShape,
   onSetBackground,
+  onChangeShapeColor,
   onReset,
 }: ToolbarProps) {
+  const hasSelection = selectedShapeIds.size > 0;
   return (
     <div className="w-55 bg-neutral-100 border-r border-gray-300 p-4 overflow-y-auto">
       <div className="mb-6">
@@ -27,14 +32,23 @@ export function Toolbar({
         <h4 className="m-0 mb-3 text-xs uppercase text-gray-500">Colors</h4>
         <div className="flex gap-2">
           {challenge.colors.map((color, index) => (
-            <div
+            <button
               key={index}
-              className="w-10 h-10 rounded-lg border-2 border-black/20"
+              className={`w-10 h-10 rounded-lg border-2 transition-transform ${
+                hasSelection
+                  ? 'cursor-pointer hover:scale-110 hover:shadow-md border-black/20'
+                  : 'cursor-default border-black/20'
+              }`}
               style={{ backgroundColor: color }}
-              title={color}
+              title={hasSelection ? `Change selected shape(s) to ${color}` : color}
+              onClick={() => hasSelection && onChangeShapeColor(index as 0 | 1)}
+              disabled={!hasSelection}
             />
           ))}
         </div>
+        {hasSelection && (
+          <p className="mt-2 mb-0 text-xs text-gray-500">Click a color to change selected shape(s)</p>
+        )}
       </div>
 
       <div className="mb-6">
@@ -112,6 +126,7 @@ export function Toolbar({
           <li>Drag corners to resize</li>
           <li>Drag circle handles to rotate</li>
           <li>Shift+click to multi-select</li>
+          <li>Click color to change selected</li>
           <li>Arrow keys to move</li>
           <li>Period/Comma to rotate</li>
           <li>Hold Shift for larger steps</li>
