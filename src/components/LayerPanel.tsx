@@ -3,9 +3,9 @@ import type { Shape, DailyChallenge } from '../types';
 
 interface LayerPanelProps {
   shapes: Shape[];
-  selectedShapeId: string | null;
+  selectedShapeIds: Set<string>;
   challenge: DailyChallenge;
-  onSelectShape: (id: string | null) => void;
+  onSelectShape: (id: string | null, addToSelection?: boolean) => void;
   onMoveLayer: (id: string, direction: 'up' | 'down' | 'top' | 'bottom') => void;
   onDeleteShape: (id: string) => void;
   onRenameShape: (id: string, name: string) => void;
@@ -13,7 +13,7 @@ interface LayerPanelProps {
 
 export function LayerPanel({
   shapes,
-  selectedShapeId,
+  selectedShapeIds,
   challenge,
   onSelectShape,
   onMoveLayer,
@@ -63,9 +63,9 @@ export function LayerPanel({
             <li
               key={shape.id}
               className={`group flex items-center gap-2 p-2 rounded cursor-pointer transition-colors ${
-                shape.id === selectedShapeId ? 'bg-blue-100' : 'hover:bg-gray-200'
+                selectedShapeIds.has(shape.id) ? 'bg-blue-100' : 'hover:bg-gray-200'
               }`}
-              onClick={() => onSelectShape(shape.id)}
+              onClick={(e) => onSelectShape(shape.id, e.shiftKey)}
             >
               <div
                 className="w-5 h-5 rounded border border-black/20 shrink-0"

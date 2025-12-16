@@ -21,7 +21,7 @@ export interface DailyChallenge {
 export interface CanvasState {
   shapes: Shape[];
   backgroundColorIndex: 0 | 1 | null; // null means transparent/white
-  selectedShapeId: string | null;
+  selectedShapeIds: Set<string>; // Set of selected shape IDs for multi-select
 }
 
 export interface AppState {

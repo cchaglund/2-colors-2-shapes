@@ -14,6 +14,7 @@ function App() {
     addShape,
     duplicateShape,
     updateShape,
+    updateShapes,
     deleteShape,
     selectShape,
     moveLayer,
@@ -57,11 +58,12 @@ function App() {
       >
         <Canvas
           shapes={canvasState.shapes}
-          selectedShapeId={canvasState.selectedShapeId}
+          selectedShapeIds={canvasState.selectedShapeIds}
           backgroundColor={backgroundColor}
           challenge={challenge}
           onSelectShape={selectShape}
           onUpdateShape={updateShape}
+          onUpdateShapes={updateShapes}
           onDuplicateShape={duplicateShape}
           onUndo={undo}
           onRedo={redo}
@@ -70,7 +72,7 @@ function App() {
 
       <LayerPanel
         shapes={canvasState.shapes}
-        selectedShapeId={canvasState.selectedShapeId}
+        selectedShapeIds={canvasState.selectedShapeIds}
         challenge={challenge}
         onSelectShape={selectShape}
         onMoveLayer={moveLayer}

@@ -34,7 +34,7 @@ function saveToStorage(data: StoredData): void {
 const initialCanvasState: CanvasState = {
   shapes: [],
   backgroundColorIndex: null,
-  selectedShapeId: null,
+  selectedShapeIds: new Set<string>(),
 };
 
 export function useCanvasState(challenge: DailyChallenge) {
@@ -42,7 +42,18 @@ export function useCanvasState(challenge: DailyChallenge) {
     const stored = loadFromStorage();
     // Only restore if it's the same day
     if (stored && stored.date === getTodayDate()) {
-      return { ...stored.canvas, selectedShapeId: null };
+      // Handle migration from old selectedShapeId format
+      const canvas = stored.canvas;
+      const selectedShapeIds = new Set<string>();
+      // Support old format with selectedShapeId
+      if ('selectedShapeId' in canvas && (canvas as { selectedShapeId?: string | null }).selectedShapeId) {
+        selectedShapeIds.add((canvas as { selectedShapeId: string }).selectedShapeId);
+      }
+      return {
+        shapes: canvas.shapes,
+        backgroundColorIndex: canvas.backgroundColorIndex,
+        selectedShapeIds: new Set<string>(), // Clear selection on load
+      };
     }
     return initialCanvasState;
   });
@@ -168,7 +179,7 @@ export function useCanvasState(challenge: DailyChallenge) {
         return {
           ...prev,
           shapes: [...prev.shapes, newShape],
-          selectedShapeId: newShape.id,
+          selectedShapeIds: new Set([newShape.id]),
         };
       });
     },
@@ -198,7 +209,7 @@ export function useCanvasState(challenge: DailyChallenge) {
         return {
           ...prev,
           shapes: [...prev.shapes, newShape],
-          selectedShapeId: newShape.id,
+          selectedShapeIds: new Set([newShape.id]),
         };
       });
     },
@@ -215,25 +226,68 @@ export function useCanvasState(challenge: DailyChallenge) {
     [setCanvasState]
   );
 
-  const deleteShape = useCallback(
-    (id: string) => {
+  // Update multiple shapes at once (for group transformations)
+  const updateShapes = useCallback(
+    (updates: Map<string, Partial<Shape>>) => {
       setCanvasState((prev) => ({
         ...prev,
-        shapes: prev.shapes.filter((s) => s.id !== id),
-        selectedShapeId: prev.selectedShapeId === id ? null : prev.selectedShapeId,
+        shapes: prev.shapes.map((s) => {
+          const shapeUpdates = updates.get(s.id);
+          return shapeUpdates ? { ...s, ...shapeUpdates } : s;
+        }),
       }));
     },
     [setCanvasState]
   );
 
+  const deleteShape = useCallback(
+    (id: string) => {
+      setCanvasState((prev) => {
+        const newSelectedIds = new Set(prev.selectedShapeIds);
+        newSelectedIds.delete(id);
+        return {
+          ...prev,
+          shapes: prev.shapes.filter((s) => s.id !== id),
+          selectedShapeIds: newSelectedIds,
+        };
+      });
+    },
+    [setCanvasState]
+  );
+
   const selectShape = useCallback(
-    (id: string | null) => {
+    (id: string | null, addToSelection = false) => {
       // Selection changes don't go into history
       setCanvasState(
-        (prev) => ({
-          ...prev,
-          selectedShapeId: id,
-        }),
+        (prev) => {
+          if (id === null) {
+            // Clear all selections
+            return {
+              ...prev,
+              selectedShapeIds: new Set<string>(),
+            };
+          }
+
+          if (addToSelection) {
+            // Toggle the shape in the selection (shift+click behavior)
+            const newSelectedIds = new Set(prev.selectedShapeIds);
+            if (newSelectedIds.has(id)) {
+              newSelectedIds.delete(id);
+            } else {
+              newSelectedIds.add(id);
+            }
+            return {
+              ...prev,
+              selectedShapeIds: newSelectedIds,
+            };
+          }
+
+          // Replace selection with just this shape
+          return {
+            ...prev,
+            selectedShapeIds: new Set([id]),
+          };
+        },
         false
       );
     },
@@ -312,6 +366,7 @@ export function useCanvasState(challenge: DailyChallenge) {
     addShape,
     duplicateShape,
     updateShape,
+    updateShapes,
     deleteShape,
     selectShape,
     moveLayer,
