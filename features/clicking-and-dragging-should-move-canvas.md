@@ -1,0 +1,3 @@
+We have a feature whereby holding space and clicking and dragging moves the canvas (panning). However, sometimes users may want to move the canvas without holding down the spacebar key continuously. If they click on the area outside the canvas (on the checkerboarded background), then drag, this should also pan the canvas. This would make it easier to reposition the canvas view without needing to hold down the spacebar key. The moment they click on this area the mouse cursor should change to the "grab" cursor to indicate panning mode, and they can then drag to move the canvas. Releasing the mouse button ends the panning action.
+
+![alt text](image-1.png)
