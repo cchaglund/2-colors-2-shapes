@@ -395,6 +395,34 @@ export function useCanvasState(challenge: DailyChallenge) {
     [setCanvasState]
   );
 
+  const reorderLayers = useCallback(
+    (draggedId: string, targetIndex: number) => {
+      setCanvasState((prev) => {
+        // Sort by zIndex descending (same as LayerPanel display)
+        const sortedByZDesc = [...prev.shapes].sort((a, b) => b.zIndex - a.zIndex);
+        const draggedIndex = sortedByZDesc.findIndex((s) => s.id === draggedId);
+
+        if (draggedIndex === -1 || draggedIndex === targetIndex) return prev;
+
+        // Remove dragged item and insert at target position
+        const reordered = [...sortedByZDesc];
+        const [removed] = reordered.splice(draggedIndex, 1);
+        reordered.splice(targetIndex, 0, removed);
+
+        // Reassign zIndex values based on new order (descending order in array = higher zIndex)
+        const newShapes = prev.shapes.map((shape) => {
+          const newPosition = reordered.findIndex((s) => s.id === shape.id);
+          // First item in array (index 0) should have highest zIndex
+          const newZIndex = reordered.length - 1 - newPosition;
+          return { ...shape, zIndex: newZIndex };
+        });
+
+        return { ...prev, shapes: newShapes };
+      });
+    },
+    [setCanvasState]
+  );
+
   const setBackgroundColor = useCallback(
     (colorIndex: 0 | 1 | null) => {
       setCanvasState((prev) => ({
@@ -419,6 +447,7 @@ export function useCanvasState(challenge: DailyChallenge) {
     deleteShape,
     selectShape,
     moveLayer,
+    reorderLayers,
     setBackgroundColor,
     resetCanvas,
     undo,

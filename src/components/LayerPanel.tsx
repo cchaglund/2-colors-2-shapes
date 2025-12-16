@@ -7,6 +7,7 @@ interface LayerPanelProps {
   challenge: DailyChallenge;
   onSelectShape: (id: string | null, addToSelection?: boolean) => void;
   onMoveLayer: (id: string, direction: 'up' | 'down' | 'top' | 'bottom') => void;
+  onReorderLayers: (draggedId: string, targetIndex: number) => void;
   onDeleteShape: (id: string) => void;
   onRenameShape: (id: string, name: string) => void;
   isOpen: boolean;
@@ -21,6 +22,7 @@ export function LayerPanel({
   challenge,
   onSelectShape,
   onMoveLayer,
+  onReorderLayers,
   onDeleteShape,
   onRenameShape,
   isOpen,
@@ -30,6 +32,8 @@ export function LayerPanel({
 }: LayerPanelProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
   // Sort by zIndex descending (top layer first in list)
   const sortedShapes = [...shapes].sort((a, b) => b.zIndex - a.zIndex);
 
@@ -58,6 +62,33 @@ export function LayerPanel({
       setEditingId(null);
       setEditValue('');
     }
+  };
+
+  const handleDragStart = (e: React.DragEvent, shapeId: string) => {
+    setDraggedId(shapeId);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', shapeId);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedId(null);
+    setDropTargetIndex(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDropTargetIndex(index);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    const draggedShapeId = e.dataTransfer.getData('text/plain');
+    if (draggedShapeId) {
+      onReorderLayers(draggedShapeId, targetIndex);
+    }
+    setDraggedId(null);
+    setDropTargetIndex(null);
   };
 
   if (!isOpen) {
@@ -99,11 +130,20 @@ export function LayerPanel({
         <p className="text-gray-400 text-sm text-center py-5">No shapes yet. Add one!</p>
       ) : (
         <ul className="list-none p-0 m-0">
-          {sortedShapes.map((shape) => (
+          {sortedShapes.map((shape, index) => (
             <li
               key={shape.id}
-              className={`group flex items-center gap-2 p-2 rounded cursor-pointer transition-colors ${
+              draggable={editingId !== shape.id}
+              onDragStart={(e) => handleDragStart(e, shape.id)}
+              onDragEnd={handleDragEnd}
+              onDragOver={(e) => handleDragOver(e, index)}
+              onDrop={(e) => handleDrop(e, index)}
+              className={`group flex items-center gap-2 p-2 rounded cursor-grab transition-colors ${
                 selectedShapeIds.has(shape.id) ? 'bg-blue-100' : 'hover:bg-gray-200'
+              } ${draggedId === shape.id ? 'opacity-50' : ''} ${
+                dropTargetIndex === index && draggedId !== shape.id
+                  ? 'border-t-2 border-blue-500'
+                  : ''
               }`}
               onClick={(e) => onSelectShape(shape.id, e.shiftKey)}
             >

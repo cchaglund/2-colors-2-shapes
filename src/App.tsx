@@ -26,6 +26,7 @@ function App() {
     deleteShape,
     selectShape,
     moveLayer,
+    reorderLayers,
     setBackgroundColor,
     resetCanvas,
     undo,
@@ -206,6 +207,7 @@ function App() {
         challenge={challenge}
         onSelectShape={selectShape}
         onMoveLayer={moveLayer}
+        onReorderLayers={reorderLayers}
         onDeleteShape={deleteShape}
         onRenameShape={(id, name) => updateShape(id, { name })}
         isOpen={rightOpen}
