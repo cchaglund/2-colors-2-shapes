@@ -746,10 +746,11 @@ export function Canvas({
       width={CANVAS_SIZE}
       height={CANVAS_SIZE}
       viewBox={`${viewBoxX} ${viewBoxY} ${viewBoxSize} ${viewBoxSize}`}
-      className="border border-gray-300"
+      className="border"
       style={{
         overflow: 'visible',
         cursor: cursorStyle,
+        borderColor: 'var(--color-border)',
       }}
       onMouseDown={handleCanvasMouseDown}
       onClick={(e) => e.stopPropagation()}

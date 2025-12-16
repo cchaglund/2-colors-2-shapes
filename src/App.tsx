@@ -6,6 +6,7 @@ import { ZoomControls } from './components/ZoomControls';
 import { useCanvasState } from './hooks/useCanvasState';
 import { useViewportState } from './hooks/useViewportState';
 import { useSidebarState } from './hooks/useSidebarState';
+import { useThemeState } from './hooks/useThemeState';
 import { getTodayChallenge } from './utils/dailyChallenge';
 
 const CANVAS_SIZE = 800;
@@ -53,6 +54,11 @@ function App() {
     startResizeLeft,
     startResizeRight,
   } = useSidebarState();
+
+  const {
+    mode: themeMode,
+    setMode: setThemeMode,
+  } = useThemeState();
 
   const handleZoomIn = useCallback(() => {
     setZoom(viewport.zoom + 0.1);
@@ -161,6 +167,8 @@ function App() {
         width={leftWidth}
         onToggle={toggleLeft}
         onStartResize={startResizeLeft}
+        themeMode={themeMode}
+        onSetThemeMode={setThemeMode}
       />
 
       <main
@@ -217,14 +225,36 @@ function App() {
       />
 
       {showResetConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-1000">
-          <div className="bg-white p-6 rounded-xl max-w-100 text-center shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
-            <h3 className="m-0 mb-3 text-xl">Reset Canvas?</h3>
-            <p className="m-0 mb-5 text-gray-500">This will delete all shapes and cannot be undone.</p>
+        <div
+          className="fixed inset-0 flex items-center justify-center z-1000"
+          style={{ backgroundColor: 'var(--color-modal-overlay)' }}
+        >
+          <div
+            className="p-6 rounded-xl max-w-100 text-center shadow-[0_4px_20px_rgba(0,0,0,0.2)]"
+            style={{ backgroundColor: 'var(--color-modal-bg)' }}
+          >
+            <h3
+              className="m-0 mb-3 text-xl"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              Reset Canvas?
+            </h3>
+            <p
+              className="m-0 mb-5"
+              style={{ color: 'var(--color-text-secondary)' }}
+            >
+              This will delete all shapes and cannot be undone.
+            </p>
             <div className="flex gap-3 justify-center">
               <button
-                className="px-6 py-2.5 rounded-md border-none cursor-pointer text-sm font-medium transition-colors bg-gray-200 text-gray-700 hover:bg-gray-300"
+                className="px-6 py-2.5 rounded-md border-none cursor-pointer text-sm font-medium transition-colors"
+                style={{
+                  backgroundColor: 'var(--color-bg-tertiary)',
+                  color: 'var(--color-text-primary)',
+                }}
                 onClick={cancelReset}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)'}
               >
                 Cancel
               </button>

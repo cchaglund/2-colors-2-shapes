@@ -7,13 +7,52 @@
     line-height: 1.5;
     font-weight: 400;
 
-    color: #213547;
-    background-color: #ffffff;
+    /* Light theme colors */
+    --color-bg-primary: #ffffff;
+    --color-bg-secondary: #f5f5f5;
+    --color-bg-tertiary: #e5e5e5;
+    --color-text-primary: #213547;
+    --color-text-secondary: #6b7280;
+    --color-text-tertiary: #9ca3af;
+    --color-border: #d1d5db;
+    --color-border-light: rgba(0, 0, 0, 0.2);
+    --color-hover: #e5e5e5;
+    --color-selected: #dbeafe;
+    --color-overlay: rgba(255, 255, 255, 0.9);
+    --color-modal-overlay: rgba(0, 0, 0, 0.5);
+    --color-modal-bg: #ffffff;
+    --color-checkered-bg: #e0e0e0;
+    --color-checkered-pattern: #d0d0d0;
+
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-primary);
 
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Dark theme colors */
+  :root.dark {
+    --color-bg-primary: #1a1a1a;
+    --color-bg-secondary: #262626;
+    --color-bg-tertiary: #333333;
+    --color-text-primary: #e5e5e5;
+    --color-text-secondary: #a3a3a3;
+    --color-text-tertiary: #737373;
+    --color-border: #404040;
+    --color-border-light: rgba(255, 255, 255, 0.2);
+    --color-hover: #333333;
+    --color-selected: #1e3a5f;
+    --color-overlay: rgba(38, 38, 38, 0.95);
+    --color-modal-overlay: rgba(0, 0, 0, 0.7);
+    --color-modal-bg: #262626;
+    --color-checkered-bg: #2a2a2a;
+    --color-checkered-pattern: #333333;
+
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-primary);
   }
 
   body {
@@ -33,12 +72,12 @@
 
 /* Custom checkered background pattern for canvas container */
 .canvas-bg-checkered {
-  background: #e0e0e0;
+  background: var(--color-checkered-bg);
   background-image:
-    linear-gradient(45deg, #d0d0d0 25%, transparent 25%),
-    linear-gradient(-45deg, #d0d0d0 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #d0d0d0 75%),
-    linear-gradient(-45deg, transparent 75%, #d0d0d0 75%);
+    linear-gradient(45deg, var(--color-checkered-pattern) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--color-checkered-pattern) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--color-checkered-pattern) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--color-checkered-pattern) 75%);
   background-size: 20px 20px;
   background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
 }

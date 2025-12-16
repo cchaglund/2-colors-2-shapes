@@ -1,5 +1,7 @@
 import type { DailyChallenge } from '../types';
+import type { ThemeMode } from '../hooks/useThemeState';
 import { SHAPE_NAMES } from '../utils/shapeHelpers';
+import { ThemeToggle } from './ThemeToggle';
 
 interface ToolbarProps {
   challenge: DailyChallenge;
@@ -13,6 +15,8 @@ interface ToolbarProps {
   width: number;
   onToggle: () => void;
   onStartResize: (e: React.MouseEvent) => void;
+  themeMode: ThemeMode;
+  onSetThemeMode: (mode: ThemeMode) => void;
 }
 
 export function Toolbar({
@@ -27,6 +31,8 @@ export function Toolbar({
   width,
   onToggle,
   onStartResize,
+  themeMode,
+  onSetThemeMode,
 }: ToolbarProps) {
   const hasSelection = selectedShapeIds.size > 0;
 
@@ -34,11 +40,20 @@ export function Toolbar({
     return (
       <div className="relative">
         <button
-          className="absolute left-0 top-4 z-10 bg-neutral-100 border border-l-0 border-gray-300 rounded-r-md px-1.5 py-3 cursor-pointer hover:bg-neutral-200 transition-colors"
+          className="absolute left-0 top-4 z-10 rounded-r-md px-1.5 py-3 cursor-pointer transition-colors"
+          style={{
+            backgroundColor: 'var(--color-bg-secondary)',
+            borderWidth: '1px',
+            borderStyle: 'solid',
+            borderLeftWidth: 0,
+            borderColor: 'var(--color-border)',
+          }}
           onClick={onToggle}
           title="Show Toolbar"
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-hover)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--color-bg-secondary)'}
         >
-          <span className="text-gray-600 text-sm">›</span>
+          <span style={{ color: 'var(--color-text-secondary)' }} className="text-sm">›</span>
         </button>
       </div>
     );
@@ -46,13 +61,26 @@ export function Toolbar({
 
   return (
     <div
-      className="bg-neutral-100 border-r border-gray-300 p-4 overflow-y-auto shrink-0 relative"
-      style={{ width }}>
+      className="p-4 overflow-y-auto shrink-0 relative"
+      style={{
+        width,
+        backgroundColor: 'var(--color-bg-secondary)',
+        borderRight: '1px solid var(--color-border)',
+      }}>
       {/* Collapse button */}
       <button
-        className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center bg-transparent border-none cursor-pointer text-gray-400 hover:text-gray-600 rounded hover:bg-gray-200 transition-colors"
+        className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center bg-transparent border-none cursor-pointer rounded transition-colors"
+        style={{ color: 'var(--color-text-tertiary)' }}
         onClick={onToggle}
         title="Hide Toolbar"
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = 'var(--color-text-secondary)';
+          e.currentTarget.style.backgroundColor = 'var(--color-hover)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = 'var(--color-text-tertiary)';
+          e.currentTarget.style.backgroundColor = 'transparent';
+        }}
       >
         ‹
       </button>
@@ -63,22 +91,25 @@ export function Toolbar({
         onMouseDown={onStartResize}
       />
       <div className="mb-6">
-        <h3 className="m-0 text-base text-gray-700">Today's Challenge</h3>
-        <p className="mt-1 mb-0 text-sm text-gray-500">{challenge.date}</p>
+        <h3 className="m-0 text-base" style={{ color: 'var(--color-text-primary)' }}>Today's Challenge</h3>
+        <p className="mt-1 mb-0 text-sm" style={{ color: 'var(--color-text-secondary)' }}>{challenge.date}</p>
       </div>
 
       <div className="mb-6">
-        <h4 className="m-0 mb-3 text-xs uppercase text-gray-500">Colors</h4>
+        <h4 className="m-0 mb-3 text-xs uppercase" style={{ color: 'var(--color-text-tertiary)' }}>Colors</h4>
         <div className="flex gap-2">
           {challenge.colors.map((color, index) => (
             <button
               key={index}
-              className={`w-10 h-10 rounded-lg border-2 transition-transform ${
+              className={`w-10 h-10 rounded-lg transition-transform ${
                 hasSelection
-                  ? 'cursor-pointer hover:scale-110 hover:shadow-md border-black/20'
-                  : 'cursor-default border-black/20'
+                  ? 'cursor-pointer hover:scale-110 hover:shadow-md'
+                  : 'cursor-default'
               }`}
-              style={{ backgroundColor: color }}
+              style={{
+                backgroundColor: color,
+                border: '2px solid var(--color-border-light)',
+              }}
               title={hasSelection ? `Change selected shape(s) to ${color}` : color}
               onClick={() => hasSelection && onChangeShapeColor(index as 0 | 1)}
               disabled={!hasSelection}
@@ -86,22 +117,25 @@ export function Toolbar({
           ))}
         </div>
         {hasSelection && (
-          <p className="mt-2 mb-0 text-xs text-gray-500">Click a color to change selected shape(s)</p>
+          <p className="mt-2 mb-0 text-xs" style={{ color: 'var(--color-text-tertiary)' }}>Click a color to change selected shape(s)</p>
         )}
       </div>
 
       <div className="mb-6">
-        <h4 className="m-0 mb-3 text-xs uppercase text-gray-500">Add Shape</h4>
+        <h4 className="m-0 mb-3 text-xs uppercase" style={{ color: 'var(--color-text-tertiary)' }}>Add Shape</h4>
         <div className="flex flex-col gap-2">
           {challenge.shapes.map((shape, shapeIndex) => (
             <div key={shape} className="flex items-center justify-between">
-              <span className="text-sm">{SHAPE_NAMES[shape]}</span>
+              <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{SHAPE_NAMES[shape]}</span>
               <div className="flex gap-1">
                 {challenge.colors.map((color, colorIndex) => (
                   <button
                     key={colorIndex}
-                    className="w-8 h-8 border-2 border-black/20 rounded-md cursor-pointer text-lg font-bold text-white/90 drop-shadow-sm transition-transform hover:scale-110 hover:shadow-md"
-                    style={{ backgroundColor: color }}
+                    className="w-8 h-8 rounded-md cursor-pointer text-lg font-bold text-white/90 drop-shadow-sm transition-transform hover:scale-110 hover:shadow-md"
+                    style={{
+                      backgroundColor: color,
+                      border: '2px solid var(--color-border-light)',
+                    }}
                     onClick={() =>
                       onAddShape(shapeIndex as 0 | 1, colorIndex as 0 | 1)
                     }
@@ -117,36 +151,48 @@ export function Toolbar({
       </div>
 
       <div className="mb-6">
-        <h4 className="m-0 mb-3 text-xs uppercase text-gray-500">Background</h4>
+        <h4 className="m-0 mb-3 text-xs uppercase" style={{ color: 'var(--color-text-tertiary)' }}>Background</h4>
         <div className="flex gap-2">
           <button
-            className={`w-10 h-10 border-2 rounded-lg cursor-pointer text-base text-black/50 transition-transform hover:scale-105 ${
+            className={`w-10 h-10 rounded-lg cursor-pointer text-base transition-transform hover:scale-105 ${
               backgroundColorIndex === null
                 ? 'border-blue-600 shadow-[0_0_0_2px_rgba(0,102,255,0.3)]'
-                : 'border-black/20'
+                : ''
             }`}
             onClick={() => onSetBackground(null)}
-            style={{ backgroundColor: '#fff' }}
+            style={{
+              backgroundColor: '#fff',
+              border: backgroundColorIndex === null ? '2px solid #2563eb' : '2px solid var(--color-border-light)',
+              color: 'var(--color-text-tertiary)',
+            }}
             title="White background"
           >
-            ✓
+            {backgroundColorIndex === null ? '✓' : ''}
           </button>
           {challenge.colors.map((color, index) => (
             <button
               key={index}
-              className={`w-10 h-10 border-2 rounded-lg cursor-pointer text-base text-black/50 transition-transform hover:scale-105 ${
+              className={`w-10 h-10 rounded-lg cursor-pointer text-base transition-transform hover:scale-105 ${
                 backgroundColorIndex === index
                   ? 'border-blue-600 shadow-[0_0_0_2px_rgba(0,102,255,0.3)]'
-                  : 'border-black/20'
+                  : ''
               }`}
               onClick={() => onSetBackground(index as 0 | 1)}
-              style={{ backgroundColor: color }}
+              style={{
+                backgroundColor: color,
+                border: backgroundColorIndex === index ? '2px solid #2563eb' : '2px solid var(--color-border-light)',
+                color: 'var(--color-text-tertiary)',
+              }}
               title={`${color} background`}
             >
               {backgroundColorIndex === index ? '✓' : ''}
             </button>
           ))}
         </div>
+      </div>
+
+      <div className="mb-6">
+        <ThemeToggle mode={themeMode} onSetMode={onSetThemeMode} />
       </div>
 
       <div className="mb-6">
@@ -159,8 +205,8 @@ export function Toolbar({
       </div>
 
       <div className="mt-auto">
-        <h4 className="m-0 mb-3 text-xs uppercase text-gray-500">Controls</h4>
-        <ul className="m-0 pl-4 text-xs text-gray-500 space-y-1">
+        <h4 className="m-0 mb-3 text-xs uppercase" style={{ color: 'var(--color-text-tertiary)' }}>Controls</h4>
+        <ul className="m-0 pl-4 text-xs space-y-1" style={{ color: 'var(--color-text-tertiary)' }}>
           <li>Drag shape to move</li>
           <li>Drag corners to resize</li>
           <li>Drag circle handles to rotate</li>

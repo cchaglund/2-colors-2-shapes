@@ -120,11 +120,20 @@ export function LayerPanel({
     return (
       <div className="relative">
         <button
-          className="absolute right-0 top-4 z-10 bg-neutral-100 border border-r-0 border-gray-300 rounded-l-md px-1.5 py-3 cursor-pointer hover:bg-neutral-200 transition-colors"
+          className="absolute right-0 top-4 z-10 rounded-l-md px-1.5 py-3 cursor-pointer transition-colors"
+          style={{
+            backgroundColor: 'var(--color-bg-secondary)',
+            borderWidth: '1px',
+            borderStyle: 'solid',
+            borderRightWidth: 0,
+            borderColor: 'var(--color-border)',
+          }}
           onClick={onToggle}
           title="Show Layers"
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-hover)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--color-bg-secondary)'}
         >
-          <span className="text-gray-600 text-sm">‹</span>
+          <span style={{ color: 'var(--color-text-secondary)' }} className="text-sm">‹</span>
         </button>
       </div>
     );
@@ -132,14 +141,27 @@ export function LayerPanel({
 
   return (
     <div
-      className="bg-neutral-100 border-l border-gray-300 p-4 overflow-y-auto shrink-0 relative"
-      style={{ width }}
+      className="p-4 overflow-y-auto shrink-0 relative"
+      style={{
+        width,
+        backgroundColor: 'var(--color-bg-secondary)',
+        borderLeft: '1px solid var(--color-border)',
+      }}
     >
       {/* Collapse button */}
       <button
-        className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center bg-transparent border-none cursor-pointer text-gray-400 hover:text-gray-600 rounded hover:bg-gray-200 transition-colors"
+        className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center bg-transparent border-none cursor-pointer rounded transition-colors"
+        style={{ color: 'var(--color-text-tertiary)' }}
         onClick={onToggle}
         title="Hide Layers"
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = 'var(--color-text-secondary)';
+          e.currentTarget.style.backgroundColor = 'var(--color-hover)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = 'var(--color-text-tertiary)';
+          e.currentTarget.style.backgroundColor = 'transparent';
+        }}
       >
         ›
       </button>
@@ -150,9 +172,9 @@ export function LayerPanel({
         onMouseDown={onStartResize}
       />
 
-      <h3 className="m-0 mb-4 text-sm uppercase text-gray-500">Layers</h3>
+      <h3 className="m-0 mb-4 text-sm uppercase" style={{ color: 'var(--color-text-tertiary)' }}>Layers</h3>
       {sortedShapes.length === 0 ? (
-        <p className="text-gray-400 text-sm text-center py-5">No shapes yet. Add one!</p>
+        <p className="text-sm text-center py-5" style={{ color: 'var(--color-text-tertiary)' }}>No shapes yet. Add one!</p>
       ) : (
         <ul className="list-none p-0 m-0">
           {sortedShapes.map((shape, index) => (
@@ -164,22 +186,42 @@ export function LayerPanel({
               onDragOver={(e) => handleDragOver(e, index)}
               onDrop={(e) => handleDrop(e, index)}
               className={`group relative flex items-center gap-2 p-2 rounded cursor-grab transition-colors ${
-                selectedShapeIds.has(shape.id) ? 'bg-blue-100' : 'hover:bg-gray-200'
-              } ${draggedId === shape.id ? 'opacity-50' : ''} ${
+                draggedId === shape.id ? 'opacity-50' : ''
+              } ${
                 dropTargetIndex === index && draggedId !== shape.id
                   ? 'border-t-2 border-blue-500'
                   : ''
               }`}
+              style={{
+                backgroundColor: selectedShapeIds.has(shape.id) ? 'var(--color-selected)' : undefined,
+              }}
               onClick={(e) => handleLayerClick(e, shape.id)}
               title={`Click to select, ${modifierKeyHint}+click to toggle, Shift+click to select range`}
+              onMouseEnter={(e) => {
+                if (!selectedShapeIds.has(shape.id)) {
+                  e.currentTarget.style.backgroundColor = 'var(--color-hover)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!selectedShapeIds.has(shape.id)) {
+                  e.currentTarget.style.backgroundColor = '';
+                }
+              }}
             >
               <div
-                className="w-5 h-5 rounded border border-black/20 shrink-0"
-                style={{ backgroundColor: challenge.colors[shape.colorIndex] }}
+                className="w-5 h-5 rounded shrink-0"
+                style={{
+                  backgroundColor: challenge.colors[shape.colorIndex],
+                  border: '1px solid var(--color-border-light)',
+                }}
               />
               {editingId === shape.id ? (
                 <input
                   className="flex-1 text-sm py-0.5 px-1 border border-blue-600 rounded outline-none min-w-0"
+                  style={{
+                    backgroundColor: 'var(--color-bg-primary)',
+                    color: 'var(--color-text-primary)',
+                  }}
                   value={editValue}
                   onChange={(e) => setEditValue(e.target.value)}
                   onBlur={finishEditing}
@@ -190,6 +232,7 @@ export function LayerPanel({
               ) : (
                 <span
                   className="flex-1 text-sm overflow-hidden text-ellipsis whitespace-nowrap cursor-text"
+                  style={{ color: 'var(--color-text-primary)' }}
                   onDoubleClick={(e) => {
                     e.stopPropagation();
                     startEditing(shape);
@@ -198,53 +241,104 @@ export function LayerPanel({
                   {shape.name}
                 </span>
               )}
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 rounded p-0.5 shadow-sm">
+              <div
+                className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity rounded p-0.5 shadow-sm"
+                style={{ backgroundColor: 'var(--color-overlay)' }}
+              >
                 <button
-                  className="w-6 h-6 p-0 border border-gray-300 bg-white rounded cursor-pointer text-[10px] flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
+                  style={{
+                    backgroundColor: 'var(--color-bg-primary)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text-primary)',
+                  }}
                   title="Bring to front"
                   disabled={isTopLayer(shape)}
                   onClick={(e) => {
                     e.stopPropagation();
                     onMoveLayer(shape.id, 'top');
                   }}
+                  onMouseEnter={(e) => {
+                    if (!isTopLayer(shape)) e.currentTarget.style.backgroundColor = 'var(--color-hover)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-primary)';
+                  }}
                 >
                   ⬆⬆
                 </button>
                 <button
-                  className="w-6 h-6 p-0 border border-gray-300 bg-white rounded cursor-pointer text-[10px] flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
+                  style={{
+                    backgroundColor: 'var(--color-bg-primary)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text-primary)',
+                  }}
                   title="Move up"
                   disabled={isTopLayer(shape)}
                   onClick={(e) => {
                     e.stopPropagation();
                     onMoveLayer(shape.id, 'up');
                   }}
+                  onMouseEnter={(e) => {
+                    if (!isTopLayer(shape)) e.currentTarget.style.backgroundColor = 'var(--color-hover)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-primary)';
+                  }}
                 >
                   ⬆
                 </button>
                 <button
-                  className="w-6 h-6 p-0 border border-gray-300 bg-white rounded cursor-pointer text-[10px] flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
+                  style={{
+                    backgroundColor: 'var(--color-bg-primary)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text-primary)',
+                  }}
                   title="Move down"
                   disabled={isBottomLayer(shape)}
                   onClick={(e) => {
                     e.stopPropagation();
                     onMoveLayer(shape.id, 'down');
                   }}
+                  onMouseEnter={(e) => {
+                    if (!isBottomLayer(shape)) e.currentTarget.style.backgroundColor = 'var(--color-hover)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-primary)';
+                  }}
                 >
                   ⬇
                 </button>
                 <button
-                  className="w-6 h-6 p-0 border border-gray-300 bg-white rounded cursor-pointer text-[10px] flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
+                  style={{
+                    backgroundColor: 'var(--color-bg-primary)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text-primary)',
+                  }}
                   title="Send to back"
                   disabled={isBottomLayer(shape)}
                   onClick={(e) => {
                     e.stopPropagation();
                     onMoveLayer(shape.id, 'bottom');
                   }}
+                  onMouseEnter={(e) => {
+                    if (!isBottomLayer(shape)) e.currentTarget.style.backgroundColor = 'var(--color-hover)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-primary)';
+                  }}
                 >
                   ⬇⬇
                 </button>
                 <button
-                  className="w-6 h-6 p-0 border border-gray-300 bg-white rounded cursor-pointer text-[10px] flex items-center justify-center text-red-600 ml-1 hover:bg-red-50 disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center text-red-600 ml-1 hover:bg-red-50 disabled:opacity-30 disabled:cursor-not-allowed"
+                  style={{
+                    backgroundColor: 'var(--color-bg-primary)',
+                    border: '1px solid var(--color-border)',
+                  }}
                   title="Delete"
                   onClick={(e) => {
                     e.stopPropagation();
