@@ -138,7 +138,7 @@ export function LayerPanel({
               onDragEnd={handleDragEnd}
               onDragOver={(e) => handleDragOver(e, index)}
               onDrop={(e) => handleDrop(e, index)}
-              className={`group flex items-center gap-2 p-2 rounded cursor-grab transition-colors ${
+              className={`group relative flex items-center gap-2 p-2 rounded cursor-grab transition-colors ${
                 selectedShapeIds.has(shape.id) ? 'bg-blue-100' : 'hover:bg-gray-200'
               } ${draggedId === shape.id ? 'opacity-50' : ''} ${
                 dropTargetIndex === index && draggedId !== shape.id
@@ -172,7 +172,7 @@ export function LayerPanel({
                   {shape.name}
                 </span>
               )}
-              <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 rounded p-0.5 shadow-sm">
                 <button
                   className="w-6 h-6 p-0 border border-gray-300 bg-white rounded cursor-pointer text-[10px] flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
                   title="Bring to front"
