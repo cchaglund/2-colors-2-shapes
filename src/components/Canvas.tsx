@@ -62,17 +62,42 @@ export function Canvas({
   const hasSingleSelection = selectedShapes.length === 1;
   const singleSelectedShape = hasSingleSelection ? selectedShapes[0] : null;
 
-  // Calculate bounding box for all selected shapes
+  // Calculate bounding box for all selected shapes, accounting for rotation
   const getSelectionBounds = useCallback(() => {
     if (selectedShapes.length === 0) return null;
 
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
     for (const shape of selectedShapes) {
-      minX = Math.min(minX, shape.x);
-      minY = Math.min(minY, shape.y);
-      maxX = Math.max(maxX, shape.x + shape.size);
-      maxY = Math.max(maxY, shape.y + shape.size);
+      // Get the four corners of the shape's bounding box
+      const corners = [
+        { x: 0, y: 0 },
+        { x: shape.size, y: 0 },
+        { x: shape.size, y: shape.size },
+        { x: 0, y: shape.size },
+      ];
+
+      // Rotation center is at the center of the shape
+      const cx = shape.size / 2;
+      const cy = shape.size / 2;
+      const angleRad = (shape.rotation * Math.PI) / 180;
+      const cos = Math.cos(angleRad);
+      const sin = Math.sin(angleRad);
+
+      // Rotate each corner around the center and translate to shape position
+      for (const corner of corners) {
+        const relX = corner.x - cx;
+        const relY = corner.y - cy;
+        const rotatedX = relX * cos - relY * sin;
+        const rotatedY = relX * sin + relY * cos;
+        const finalX = shape.x + cx + rotatedX;
+        const finalY = shape.y + cy + rotatedY;
+
+        minX = Math.min(minX, finalX);
+        minY = Math.min(minY, finalY);
+        maxX = Math.max(maxX, finalX);
+        maxY = Math.max(maxY, finalY);
+      }
     }
 
     return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
@@ -599,20 +624,35 @@ export function Canvas({
       width={CANVAS_SIZE}
       height={CANVAS_SIZE}
       className="border border-gray-300"
-      style={{ backgroundColor: backgroundColor || '#ffffff' }}
+      style={{ backgroundColor: backgroundColor || '#ffffff', overflow: 'visible' }}
       onMouseDown={handleCanvasMouseDown}
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Render shapes with invisible interaction layer inline */}
-      {sortedShapes.map((shape) => (
-        <g key={shape.id}>
-          <g onMouseDown={(e) => handleShapeMouseDown(e, shape.id)}>
-            <ShapeElement
-              shape={shape}
-              color={challenge.colors[shape.colorIndex]}
-              isSelected={selectedShapeIds.has(shape.id)}
-            />
+      {/* Clip rect for the canvas content (shapes) */}
+      <defs>
+        <clipPath id="canvas-clip">
+          <rect x={0} y={0} width={CANVAS_SIZE} height={CANVAS_SIZE} />
+        </clipPath>
+      </defs>
+
+      {/* Render shapes clipped to canvas bounds */}
+      <g clipPath="url(#canvas-clip)">
+        {sortedShapes.map((shape) => (
+          <g key={shape.id}>
+            <g onMouseDown={(e) => handleShapeMouseDown(e, shape.id)}>
+              <ShapeElement
+                shape={shape}
+                color={challenge.colors[shape.colorIndex]}
+                isSelected={selectedShapeIds.has(shape.id)}
+              />
+            </g>
           </g>
+        ))}
+      </g>
+
+      {/* Interaction layers - outside clip path for better hit detection */}
+      {sortedShapes.map((shape) => (
+        <g key={`interaction-${shape.id}`}>
           {/* Render invisible interaction layer for single-selected shape */}
           {hasSingleSelection && selectedShapeIds.has(shape.id) && (
             <TransformInteractionLayer
@@ -625,7 +665,7 @@ export function Canvas({
         </g>
       ))}
 
-      {/* Render visible transform UI on top of everything */}
+      {/* Render visible transform UI on top of everything - outside clip path */}
       {hasSingleSelection && singleSelectedShape && (
         <MultiSelectTransformLayer
           shapes={[singleSelectedShape]}
@@ -639,7 +679,6 @@ export function Canvas({
         <>
           <MultiSelectInteractionLayer
             bounds={selectionBounds}
-            onMoveStart={handleMoveStart}
             onResizeStart={handleMultiResizeStart}
             onRotateStart={handleMultiRotateStart}
           />

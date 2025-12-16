@@ -43,7 +43,7 @@ function App() {
       : null;
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen">
       <Toolbar
         challenge={challenge}
         backgroundColorIndex={canvasState.backgroundColorIndex}
@@ -53,21 +53,23 @@ function App() {
       />
 
       <main
-        className="flex-1 flex items-center justify-center canvas-bg-checkered"
+        className="flex-1 flex items-center justify-center canvas-bg-checkered overflow-auto"
         onClick={() => selectShape(null)}
       >
-        <Canvas
-          shapes={canvasState.shapes}
-          selectedShapeIds={canvasState.selectedShapeIds}
-          backgroundColor={backgroundColor}
-          challenge={challenge}
-          onSelectShape={selectShape}
-          onUpdateShape={updateShape}
-          onUpdateShapes={updateShapes}
-          onDuplicateShape={duplicateShape}
-          onUndo={undo}
-          onRedo={redo}
-        />
+        <div className="overflow-visible p-16">
+          <Canvas
+            shapes={canvasState.shapes}
+            selectedShapeIds={canvasState.selectedShapeIds}
+            backgroundColor={backgroundColor}
+            challenge={challenge}
+            onSelectShape={selectShape}
+            onUpdateShape={updateShape}
+            onUpdateShapes={updateShapes}
+            onDuplicateShape={duplicateShape}
+            onUndo={undo}
+            onRedo={redo}
+          />
+        </div>
       </main>
 
       <LayerPanel

@@ -22,6 +22,11 @@ The same date always generates the same colors and shapes (seed-based randomizat
   - Period/Comma keys to rotate (hold Shift for 15° steps)
   - w to undo, Shift+w to redo
   - c to duplicate selected shape
+- **Multi-select**:
+  - Shift+click on shapes or layers to select multiple
+  - Combined bounding box encompasses all selected shapes (rotation-aware)
+  - Move, resize, or rotate multiple shapes as a group
+  - Shift+click selected shape to remove from selection
 - **Layer system**:
   - Reorder shapes (bring to front, send to back, move up/down)
   - Visual layer panel showing all shapes

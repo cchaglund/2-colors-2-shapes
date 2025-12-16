@@ -330,28 +330,17 @@ export function MultiSelectTransformLayer({
 }
 
 // Invisible interaction layer for multi-select bounding box
+// Note: No fill rect here - moving is handled by clicking on actual shapes
 export function MultiSelectInteractionLayer({
   bounds,
-  onMoveStart,
   onResizeStart,
   onRotateStart,
-}: MultiSelectInteractionLayerProps) {
+}: Omit<MultiSelectInteractionLayerProps, 'onMoveStart'>) {
   const corners = getCorners(bounds.width, bounds.height);
   const rotationHandles = getRotationHandles(bounds.width, bounds.height, ROTATE_HANDLE_OFFSET);
 
   return (
     <g style={{ pointerEvents: 'all' }}>
-      {/* Invisible fill rect for dragging the group */}
-      <rect
-        x={bounds.x}
-        y={bounds.y}
-        width={bounds.width}
-        height={bounds.height}
-        fill="transparent"
-        style={{ cursor: 'move' }}
-        onMouseDown={onMoveStart}
-      />
-
       {/* Invisible corner resize handles */}
       {corners.map((corner) => (
         <rect

@@ -110,7 +110,8 @@ export function Toolbar({
         <ul className="m-0 pl-4 text-xs text-gray-500 space-y-1">
           <li>Drag shape to move</li>
           <li>Drag corners to resize</li>
-          <li>Drag circle to rotate</li>
+          <li>Drag circle handles to rotate</li>
+          <li>Shift+click to multi-select</li>
           <li>Arrow keys to move</li>
           <li>Period/Comma to rotate</li>
           <li>Hold Shift for larger steps</li>
