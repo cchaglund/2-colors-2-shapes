@@ -3,6 +3,7 @@ import { getShapeSVGData } from '../utils/shapeHelpers';
 
 interface TransformHandlesProps {
   shape: Shape;
+  zoom?: number;
   onMoveStart: (e: React.MouseEvent) => void;
   onResizeStart: (e: React.MouseEvent, corner: string) => void;
   onRotateStart: (e: React.MouseEvent) => void;
@@ -11,18 +12,25 @@ interface TransformHandlesProps {
 interface MultiSelectTransformLayerProps {
   shapes: Shape[];
   bounds: { x: number; y: number; width: number; height: number };
+  zoom?: number;
   showIndividualOutlines?: boolean;
 }
 
 interface MultiSelectInteractionLayerProps {
   bounds: { x: number; y: number; width: number; height: number };
+  zoom?: number;
   onMoveStart: (e: React.MouseEvent) => void;
   onResizeStart: (e: React.MouseEvent, corner: string) => void;
   onRotateStart: (e: React.MouseEvent) => void;
 }
 
-const HANDLE_SIZE = 10;
-const ROTATE_HANDLE_OFFSET = 30;
+// Base sizes at 100% zoom
+const BASE_HANDLE_SIZE = 10;
+const BASE_ROTATE_HANDLE_OFFSET = 30;
+const BASE_ROTATE_HANDLE_RADIUS = 6;
+const BASE_INTERACTION_RADIUS = 8;
+const BASE_STROKE_WIDTH = 1;
+const BASE_DASH_STROKE_WIDTH = 2;
 
 function getCorners(width: number, height: number) {
   return [
@@ -45,12 +53,19 @@ function getRotationHandles(width: number, height: number, offset: number) {
 // Invisible interaction layer - rendered inline with shapes for proper click ordering
 export function TransformInteractionLayer({
   shape,
+  zoom = 1,
   onMoveStart,
   onResizeStart,
   onRotateStart,
 }: TransformHandlesProps) {
+  // Scale handle sizes inversely with zoom to maintain constant visual size
+  const scale = 1 / zoom;
+  const handleSize = BASE_HANDLE_SIZE * scale;
+  const rotateOffset = BASE_ROTATE_HANDLE_OFFSET * scale;
+  const interactionRadius = BASE_INTERACTION_RADIUS * scale;
+
   const corners = getCorners(shape.size, shape.size);
-  const rotationHandles = getRotationHandles(shape.size, shape.size, ROTATE_HANDLE_OFFSET);
+  const rotationHandles = getRotationHandles(shape.size, shape.size, rotateOffset);
   const transform = `translate(${shape.x}, ${shape.y}) rotate(${shape.rotation}, ${shape.size / 2}, ${shape.size / 2})`;
 
   return (
@@ -70,10 +85,10 @@ export function TransformInteractionLayer({
       {corners.map((corner) => (
         <rect
           key={corner.id}
-          x={corner.x - HANDLE_SIZE / 2}
-          y={corner.y - HANDLE_SIZE / 2}
-          width={HANDLE_SIZE}
-          height={HANDLE_SIZE}
+          x={corner.x - handleSize / 2}
+          y={corner.y - handleSize / 2}
+          width={handleSize}
+          height={handleSize}
           fill="transparent"
           style={{ cursor: `${corner.id}-resize` }}
           onMouseDown={(e) => onResizeStart(e, corner.id)}
@@ -86,7 +101,7 @@ export function TransformInteractionLayer({
           key={handle.id}
           cx={handle.cx}
           cy={handle.cy}
-          r={8}
+          r={interactionRadius}
           fill="transparent"
           style={{ cursor: 'grab' }}
           onMouseDown={onRotateStart}
@@ -97,9 +112,17 @@ export function TransformInteractionLayer({
 }
 
 // Visible UI layer - rendered on top of everything
-export function TransformVisualLayer({ shape }: { shape: Shape }) {
+export function TransformVisualLayer({ shape, zoom = 1 }: { shape: Shape; zoom?: number }) {
+  // Scale sizes inversely with zoom
+  const scale = 1 / zoom;
+  const handleSize = BASE_HANDLE_SIZE * scale;
+  const rotateOffset = BASE_ROTATE_HANDLE_OFFSET * scale;
+  const rotateRadius = BASE_ROTATE_HANDLE_RADIUS * scale;
+  const strokeWidth = BASE_STROKE_WIDTH * scale;
+  const dashStrokeWidth = BASE_DASH_STROKE_WIDTH * scale;
+
   const corners = getCorners(shape.size, shape.size);
-  const rotationHandles = getRotationHandles(shape.size, shape.size, ROTATE_HANDLE_OFFSET);
+  const rotationHandles = getRotationHandles(shape.size, shape.size, rotateOffset);
   const transform = `translate(${shape.x}, ${shape.y}) rotate(${shape.rotation}, ${shape.size / 2}, ${shape.size / 2})`;
   const { element, props } = getShapeSVGData(shape.type, shape.size);
 
@@ -108,8 +131,8 @@ export function TransformVisualLayer({ shape }: { shape: Shape }) {
     ...props,
     fill: 'none',
     stroke: '#000',
-    strokeWidth: 2,
-    strokeDasharray: '5,5',
+    strokeWidth: dashStrokeWidth,
+    strokeDasharray: `${5 * scale},${5 * scale}`,
   };
 
   return (
@@ -127,20 +150,20 @@ export function TransformVisualLayer({ shape }: { shape: Shape }) {
         height={shape.size}
         fill="none"
         stroke="#0066ff"
-        strokeWidth={1}
+        strokeWidth={strokeWidth}
       />
 
       {/* Corner resize handles */}
       {corners.map((corner) => (
         <rect
           key={corner.id}
-          x={corner.x - HANDLE_SIZE / 2}
-          y={corner.y - HANDLE_SIZE / 2}
-          width={HANDLE_SIZE}
-          height={HANDLE_SIZE}
+          x={corner.x - handleSize / 2}
+          y={corner.y - handleSize / 2}
+          width={handleSize}
+          height={handleSize}
           fill="white"
           stroke="#0066ff"
-          strokeWidth={1}
+          strokeWidth={strokeWidth}
         />
       ))}
 
@@ -153,15 +176,15 @@ export function TransformVisualLayer({ shape }: { shape: Shape }) {
             x2={handle.x2}
             y2={handle.y2}
             stroke="#0066ff"
-            strokeWidth={1}
+            strokeWidth={strokeWidth}
           />
           <circle
             cx={handle.cx}
             cy={handle.cy}
-            r={6}
+            r={rotateRadius}
             fill="white"
             stroke="#0066ff"
-            strokeWidth={1}
+            strokeWidth={strokeWidth}
           />
         </g>
       ))}
@@ -173,15 +196,24 @@ export function TransformVisualLayer({ shape }: { shape: Shape }) {
 export function MultiSelectTransformLayer({
   shapes,
   bounds,
+  zoom = 1,
   showIndividualOutlines = true,
 }: MultiSelectTransformLayerProps) {
+  // Scale sizes inversely with zoom
+  const scale = 1 / zoom;
+  const handleSize = BASE_HANDLE_SIZE * scale;
+  const rotateOffset = BASE_ROTATE_HANDLE_OFFSET * scale;
+  const rotateRadius = BASE_ROTATE_HANDLE_RADIUS * scale;
+  const strokeWidth = BASE_STROKE_WIDTH * scale;
+  const dashStrokeWidth = BASE_DASH_STROKE_WIDTH * scale;
+
   const isSingleShape = shapes.length === 1;
 
   // For single shape, use the existing visual layer behavior
   if (isSingleShape) {
     const shape = shapes[0];
     const corners = getCorners(shape.size, shape.size);
-    const rotationHandles = getRotationHandles(shape.size, shape.size, ROTATE_HANDLE_OFFSET);
+    const rotationHandles = getRotationHandles(shape.size, shape.size, rotateOffset);
     const transform = `translate(${shape.x}, ${shape.y}) rotate(${shape.rotation}, ${shape.size / 2}, ${shape.size / 2})`;
     const { element, props } = getShapeSVGData(shape.type, shape.size);
 
@@ -189,8 +221,8 @@ export function MultiSelectTransformLayer({
       ...props,
       fill: 'none',
       stroke: '#000',
-      strokeWidth: 2,
-      strokeDasharray: '5,5',
+      strokeWidth: dashStrokeWidth,
+      strokeDasharray: `${5 * scale},${5 * scale}`,
     };
 
     return (
@@ -208,20 +240,20 @@ export function MultiSelectTransformLayer({
           height={shape.size}
           fill="none"
           stroke="#0066ff"
-          strokeWidth={1}
+          strokeWidth={strokeWidth}
         />
 
         {/* Corner resize handles */}
         {corners.map((corner) => (
           <rect
             key={corner.id}
-            x={corner.x - HANDLE_SIZE / 2}
-            y={corner.y - HANDLE_SIZE / 2}
-            width={HANDLE_SIZE}
-            height={HANDLE_SIZE}
+            x={corner.x - handleSize / 2}
+            y={corner.y - handleSize / 2}
+            width={handleSize}
+            height={handleSize}
             fill="white"
             stroke="#0066ff"
-            strokeWidth={1}
+            strokeWidth={strokeWidth}
           />
         ))}
 
@@ -234,15 +266,15 @@ export function MultiSelectTransformLayer({
               x2={handle.x2}
               y2={handle.y2}
               stroke="#0066ff"
-              strokeWidth={1}
+              strokeWidth={strokeWidth}
             />
             <circle
               cx={handle.cx}
               cy={handle.cy}
-              r={6}
+              r={rotateRadius}
               fill="white"
               stroke="#0066ff"
-              strokeWidth={1}
+              strokeWidth={strokeWidth}
             />
           </g>
         ))}
@@ -252,7 +284,7 @@ export function MultiSelectTransformLayer({
 
   // For multiple shapes, show combined bounding box and individual outlines
   const corners = getCorners(bounds.width, bounds.height);
-  const rotationHandles = getRotationHandles(bounds.width, bounds.height, ROTATE_HANDLE_OFFSET);
+  const rotationHandles = getRotationHandles(bounds.width, bounds.height, rotateOffset);
 
   return (
     <g style={{ pointerEvents: 'none' }}>
@@ -266,8 +298,8 @@ export function MultiSelectTransformLayer({
             ...props,
             fill: 'none',
             stroke: '#000',
-            strokeWidth: 2,
-            strokeDasharray: '5,5',
+            strokeWidth: dashStrokeWidth,
+            strokeDasharray: `${5 * scale},${5 * scale}`,
           };
 
           return (
@@ -287,20 +319,20 @@ export function MultiSelectTransformLayer({
         height={bounds.height}
         fill="none"
         stroke="#0066ff"
-        strokeWidth={1}
+        strokeWidth={strokeWidth}
       />
 
       {/* Corner resize handles */}
       {corners.map((corner) => (
         <rect
           key={corner.id}
-          x={bounds.x + corner.x - HANDLE_SIZE / 2}
-          y={bounds.y + corner.y - HANDLE_SIZE / 2}
-          width={HANDLE_SIZE}
-          height={HANDLE_SIZE}
+          x={bounds.x + corner.x - handleSize / 2}
+          y={bounds.y + corner.y - handleSize / 2}
+          width={handleSize}
+          height={handleSize}
           fill="white"
           stroke="#0066ff"
-          strokeWidth={1}
+          strokeWidth={strokeWidth}
         />
       ))}
 
@@ -313,15 +345,15 @@ export function MultiSelectTransformLayer({
             x2={bounds.x + handle.x2}
             y2={bounds.y + handle.y2}
             stroke="#0066ff"
-            strokeWidth={1}
+            strokeWidth={strokeWidth}
           />
           <circle
             cx={bounds.x + handle.cx}
             cy={bounds.y + handle.cy}
-            r={6}
+            r={rotateRadius}
             fill="white"
             stroke="#0066ff"
-            strokeWidth={1}
+            strokeWidth={strokeWidth}
           />
         </g>
       ))}
@@ -333,11 +365,18 @@ export function MultiSelectTransformLayer({
 // Note: No fill rect here - moving is handled by clicking on actual shapes
 export function MultiSelectInteractionLayer({
   bounds,
+  zoom = 1,
   onResizeStart,
   onRotateStart,
 }: Omit<MultiSelectInteractionLayerProps, 'onMoveStart'>) {
+  // Scale sizes inversely with zoom
+  const scale = 1 / zoom;
+  const handleSize = BASE_HANDLE_SIZE * scale;
+  const rotateOffset = BASE_ROTATE_HANDLE_OFFSET * scale;
+  const interactionRadius = BASE_INTERACTION_RADIUS * scale;
+
   const corners = getCorners(bounds.width, bounds.height);
-  const rotationHandles = getRotationHandles(bounds.width, bounds.height, ROTATE_HANDLE_OFFSET);
+  const rotationHandles = getRotationHandles(bounds.width, bounds.height, rotateOffset);
 
   return (
     <g style={{ pointerEvents: 'all' }}>
@@ -345,10 +384,10 @@ export function MultiSelectInteractionLayer({
       {corners.map((corner) => (
         <rect
           key={corner.id}
-          x={bounds.x + corner.x - HANDLE_SIZE / 2}
-          y={bounds.y + corner.y - HANDLE_SIZE / 2}
-          width={HANDLE_SIZE}
-          height={HANDLE_SIZE}
+          x={bounds.x + corner.x - handleSize / 2}
+          y={bounds.y + corner.y - handleSize / 2}
+          width={handleSize}
+          height={handleSize}
           fill="transparent"
           style={{ cursor: `${corner.id}-resize` }}
           onMouseDown={(e) => onResizeStart(e, corner.id)}
@@ -361,7 +400,7 @@ export function MultiSelectInteractionLayer({
           key={handle.id}
           cx={bounds.x + handle.cx}
           cy={bounds.y + handle.cy}
-          r={8}
+          r={interactionRadius}
           fill="transparent"
           style={{ cursor: 'grab' }}
           onMouseDown={onRotateStart}

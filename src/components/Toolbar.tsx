@@ -117,6 +117,8 @@ export function Toolbar({
           <li>Hold Shift for larger steps</li>
           <li>w to undo, Shift+w to redo</li>
           <li>c to duplicate selected</li>
+          <li>Ctrl/⌘ + scroll to zoom</li>
+          <li>Hold Space + drag to pan</li>
         </ul>
       </div>
     </div>

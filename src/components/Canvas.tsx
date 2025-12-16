@@ -1,5 +1,5 @@
 import { useRef, useCallback, useState, useEffect } from 'react';
-import type { Shape, DailyChallenge } from '../types';
+import type { Shape, DailyChallenge, ViewportState } from '../types';
 import { ShapeElement } from './ShapeElement';
 import {
   TransformInteractionLayer,
@@ -12,12 +12,15 @@ interface CanvasProps {
   selectedShapeIds: Set<string>;
   backgroundColor: string | null;
   challenge: DailyChallenge;
+  viewport: ViewportState;
   onSelectShape: (id: string | null, addToSelection?: boolean) => void;
   onUpdateShape: (id: string, updates: Partial<Shape>) => void;
   onUpdateShapes: (updates: Map<string, Partial<Shape>>) => void;
   onDuplicateShape: (id: string) => void;
   onUndo: () => void;
   onRedo: () => void;
+  onZoomAtPoint: (delta: number, pointX: number, pointY: number) => void;
+  onPan: (panX: number, panY: number) => void;
 }
 
 type DragMode = 'none' | 'move' | 'resize' | 'rotate';
@@ -46,15 +49,21 @@ export function Canvas({
   selectedShapeIds,
   backgroundColor,
   challenge,
+  viewport,
   onSelectShape,
   onUpdateShape,
   onUpdateShapes,
   onDuplicateShape,
   onUndo,
   onRedo,
+  onZoomAtPoint,
+  onPan,
 }: CanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [dragState, setDragState] = useState<DragState | null>(null);
+  const [isPanning, setIsPanning] = useState(false);
+  const [isSpacePressed, setIsSpacePressed] = useState(false);
+  const panStartRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
 
   // Get all selected shapes
   const selectedShapes = shapes.filter((s) => selectedShapeIds.has(s.id));
@@ -105,6 +114,8 @@ export function Canvas({
 
   const selectionBounds = getSelectionBounds();
 
+  // Convert client coordinates to SVG/canvas coordinates
+  // When using viewBox, getScreenCTM already accounts for the viewBox transform
   const getSVGPoint = useCallback(
     (clientX: number, clientY: number) => {
       if (!svgRef.current) return { x: 0, y: 0 };
@@ -113,7 +124,23 @@ export function Canvas({
       pt.x = clientX;
       pt.y = clientY;
       const svgP = pt.matrixTransform(svg.getScreenCTM()?.inverse());
+      // The viewBox transform is already applied by getScreenCTM
       return { x: svgP.x, y: svgP.y };
+    },
+    []
+  );
+
+  // Get client coordinates relative to the SVG element (for zoom center calculation)
+  const getClientPoint = useCallback(
+    (clientX: number, clientY: number) => {
+      if (!svgRef.current) return { x: 0, y: 0 };
+      const svg = svgRef.current;
+      const rect = svg.getBoundingClientRect();
+      // Return position relative to SVG element, normalized to 0-CANVAS_SIZE range
+      return {
+        x: ((clientX - rect.left) / rect.width) * CANVAS_SIZE,
+        y: ((clientY - rect.top) / rect.height) * CANVAS_SIZE,
+      };
     },
     []
   );
@@ -615,18 +642,118 @@ export function Canvas({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedShapes, hasSelection, onUpdateShapes, onUndo, onRedo, onDuplicateShape]);
 
+  // Handle spacebar for panning mode
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+      if (e.code === 'Space' && !e.repeat) {
+        e.preventDefault();
+        setIsSpacePressed(true);
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        setIsSpacePressed(false);
+        setIsPanning(false);
+        panStartRef.current = null;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
+
+  // Handle panning when space is pressed
+  useEffect(() => {
+    if (!isSpacePressed) return;
+
+    const handleMouseDown = (e: MouseEvent) => {
+      if (!isSpacePressed) return;
+      e.preventDefault();
+      setIsPanning(true);
+      const point = getClientPoint(e.clientX, e.clientY);
+      panStartRef.current = {
+        x: point.x,
+        y: point.y,
+        panX: viewport.panX,
+        panY: viewport.panY,
+      };
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isPanning || !panStartRef.current) return;
+      const point = getClientPoint(e.clientX, e.clientY);
+      const dx = point.x - panStartRef.current.x;
+      const dy = point.y - panStartRef.current.y;
+      onPan(panStartRef.current.panX + dx, panStartRef.current.panY + dy);
+    };
+
+    const handleMouseUp = () => {
+      setIsPanning(false);
+      panStartRef.current = null;
+    };
+
+    window.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isSpacePressed, isPanning, viewport.panX, viewport.panY, getClientPoint, onPan]);
+
+  // Handle wheel zoom (Ctrl/Cmd + scroll)
+  const handleWheel = useCallback(
+    (e: React.WheelEvent) => {
+      // Check for Ctrl (Windows/Linux) or Meta/Cmd (Mac)
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        const point = getClientPoint(e.clientX, e.clientY);
+        // Normalize wheel delta (different browsers have different values)
+        const delta = -Math.sign(e.deltaY);
+        onZoomAtPoint(delta, point.x, point.y);
+      }
+    },
+    [getClientPoint, onZoomAtPoint]
+  );
+
   // Sort shapes by zIndex for rendering
   const sortedShapes = [...shapes].sort((a, b) => a.zIndex - b.zIndex);
+
+  // Calculate viewBox based on zoom and pan
+  const viewBoxSize = CANVAS_SIZE / viewport.zoom;
+  const viewBoxX = -viewport.panX / viewport.zoom;
+  const viewBoxY = -viewport.panY / viewport.zoom;
+
+  // Cursor style based on panning state
+  const cursorStyle = isSpacePressed ? (isPanning ? 'grabbing' : 'grab') : 'default';
 
   return (
     <svg
       ref={svgRef}
       width={CANVAS_SIZE}
       height={CANVAS_SIZE}
+      viewBox={`${viewBoxX} ${viewBoxY} ${viewBoxSize} ${viewBoxSize}`}
       className="border border-gray-300"
-      style={{ backgroundColor: backgroundColor || '#ffffff', overflow: 'visible' }}
+      style={{
+        overflow: 'visible',
+        cursor: cursorStyle,
+      }}
       onMouseDown={handleCanvasMouseDown}
       onClick={(e) => e.stopPropagation()}
+      onWheel={handleWheel}
     >
       {/* Clip rect for the canvas content (shapes) */}
       <defs>
@@ -635,11 +762,21 @@ export function Canvas({
         </clipPath>
       </defs>
 
+      {/* Canvas background rect (for when zoomed out) */}
+      <rect
+        x={0}
+        y={0}
+        width={CANVAS_SIZE}
+        height={CANVAS_SIZE}
+        fill={backgroundColor || '#ffffff'}
+        onMouseDown={() => !isSpacePressed && onSelectShape(null)}
+      />
+
       {/* Render shapes clipped to canvas bounds */}
       <g clipPath="url(#canvas-clip)">
         {sortedShapes.map((shape) => (
           <g key={shape.id}>
-            <g onMouseDown={(e) => handleShapeMouseDown(e, shape.id)}>
+            <g onMouseDown={(e) => !isSpacePressed && handleShapeMouseDown(e, shape.id)}>
               <ShapeElement
                 shape={shape}
                 color={challenge.colors[shape.colorIndex]}
@@ -651,12 +788,13 @@ export function Canvas({
       </g>
 
       {/* Interaction layers - outside clip path for better hit detection */}
-      {sortedShapes.map((shape) => (
+      {!isSpacePressed && sortedShapes.map((shape) => (
         <g key={`interaction-${shape.id}`}>
           {/* Render invisible interaction layer for single-selected shape */}
           {hasSingleSelection && selectedShapeIds.has(shape.id) && (
             <TransformInteractionLayer
               shape={shape}
+              zoom={viewport.zoom}
               onMoveStart={handleMoveStart}
               onResizeStart={handleResizeStart}
               onRotateStart={handleRotateStart}
@@ -670,6 +808,7 @@ export function Canvas({
         <MultiSelectTransformLayer
           shapes={[singleSelectedShape]}
           bounds={selectionBounds!}
+          zoom={viewport.zoom}
           showIndividualOutlines={true}
         />
       )}
@@ -677,14 +816,18 @@ export function Canvas({
       {/* Multi-select: interaction layer + visual layer */}
       {selectedShapes.length > 1 && selectionBounds && (
         <>
-          <MultiSelectInteractionLayer
-            bounds={selectionBounds}
-            onResizeStart={handleMultiResizeStart}
-            onRotateStart={handleMultiRotateStart}
-          />
+          {!isSpacePressed && (
+            <MultiSelectInteractionLayer
+              bounds={selectionBounds}
+              zoom={viewport.zoom}
+              onResizeStart={handleMultiResizeStart}
+              onRotateStart={handleMultiRotateStart}
+            />
+          )}
           <MultiSelectTransformLayer
             shapes={selectedShapes}
             bounds={selectionBounds}
+            zoom={viewport.zoom}
             showIndividualOutlines={true}
           />
         </>

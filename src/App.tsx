@@ -1,8 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Canvas } from './components/Canvas';
 import { Toolbar } from './components/Toolbar';
 import { LayerPanel } from './components/LayerPanel';
+import { ZoomControls } from './components/ZoomControls';
 import { useCanvasState } from './hooks/useCanvasState';
+import { useViewportState } from './hooks/useViewportState';
 import { getTodayChallenge } from './utils/dailyChallenge';
 
 function App() {
@@ -23,6 +25,24 @@ function App() {
     undo,
     redo,
   } = useCanvasState(challenge);
+
+  const {
+    viewport,
+    setZoom,
+    setPan,
+    zoomAtPoint,
+    resetViewport,
+    minZoom,
+    maxZoom,
+  } = useViewportState();
+
+  const handleZoomIn = useCallback(() => {
+    setZoom(viewport.zoom + 0.1);
+  }, [viewport.zoom, setZoom]);
+
+  const handleZoomOut = useCallback(() => {
+    setZoom(viewport.zoom - 0.1);
+  }, [viewport.zoom, setZoom]);
 
   const handleReset = () => {
     setShowResetConfirm(true);
@@ -53,7 +73,7 @@ function App() {
       />
 
       <main
-        className="flex-1 flex items-center justify-center canvas-bg-checkered overflow-auto"
+        className="flex-1 flex items-center justify-center canvas-bg-checkered overflow-auto relative"
         onClick={() => selectShape(null)}
       >
         <div className="overflow-visible p-16">
@@ -62,12 +82,27 @@ function App() {
             selectedShapeIds={canvasState.selectedShapeIds}
             backgroundColor={backgroundColor}
             challenge={challenge}
+            viewport={viewport}
             onSelectShape={selectShape}
             onUpdateShape={updateShape}
             onUpdateShapes={updateShapes}
             onDuplicateShape={duplicateShape}
             onUndo={undo}
             onRedo={redo}
+            onZoomAtPoint={zoomAtPoint}
+            onPan={setPan}
+          />
+        </div>
+
+        {/* Zoom controls overlay */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
+          <ZoomControls
+            zoom={viewport.zoom}
+            onZoomIn={handleZoomIn}
+            onZoomOut={handleZoomOut}
+            onResetZoom={resetViewport}
+            minZoom={minZoom}
+            maxZoom={maxZoom}
           />
         </div>
       </main>

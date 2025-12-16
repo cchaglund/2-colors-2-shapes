@@ -24,6 +24,12 @@ export interface CanvasState {
   selectedShapeIds: Set<string>; // Set of selected shape IDs for multi-select
 }
 
+export interface ViewportState {
+  zoom: number; // 1 = 100%, 0.5 = 50%, 2 = 200%
+  panX: number; // Pan offset in SVG coordinates
+  panY: number;
+}
+
 export interface AppState {
   challenge: DailyChallenge;
   canvas: CanvasState;
