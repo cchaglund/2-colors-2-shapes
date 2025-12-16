@@ -216,6 +216,54 @@ export function useCanvasState(challenge: DailyChallenge) {
     [challenge.shapes, setCanvasState]
   );
 
+  const duplicateShapes = useCallback(
+    (ids: string[]) => {
+      if (ids.length === 0) return;
+
+      // For single shape, use the existing duplicateShape function behavior
+      if (ids.length === 1) {
+        duplicateShape(ids[0]);
+        return;
+      }
+
+      setCanvasState((prev) => {
+        const shapesToDuplicate = prev.shapes.filter((s) => ids.includes(s.id));
+        if (shapesToDuplicate.length === 0) return prev;
+
+        let maxZIndex = Math.max(0, ...prev.shapes.map((s) => s.zIndex));
+        let currentCount = prev.shapes.length;
+        const newShapes: Shape[] = [];
+        const newSelectedIds: string[] = [];
+
+        for (const shape of shapesToDuplicate) {
+          currentCount++;
+          maxZIndex++;
+          const shapeIndex = challenge.shapes.indexOf(shape.type) as 0 | 1;
+          const shapeLetter = shapeIndex === 0 ? 'A' : 'B';
+
+          const newShape: Shape = {
+            ...shape,
+            id: generateId(),
+            name: `${shapeLetter}${currentCount}`,
+            x: shape.x + 20, // Offset slightly, same as single shape duplication
+            y: shape.y + 20,
+            zIndex: maxZIndex,
+          };
+
+          newShapes.push(newShape);
+          newSelectedIds.push(newShape.id);
+        }
+
+        return {
+          ...prev,
+          shapes: [...prev.shapes, ...newShapes],
+          selectedShapeIds: new Set(newSelectedIds),
+        };
+      });
+    },
+    [challenge.shapes, duplicateShape, setCanvasState]
+  );
+
   const updateShape = useCallback(
     (id: string, updates: Partial<Shape>) => {
       setCanvasState((prev) => ({
@@ -365,6 +413,7 @@ export function useCanvasState(challenge: DailyChallenge) {
     canvasState,
     addShape,
     duplicateShape,
+    duplicateShapes,
     updateShape,
     updateShapes,
     deleteShape,

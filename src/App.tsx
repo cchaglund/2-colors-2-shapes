@@ -14,7 +14,7 @@ function App() {
   const {
     canvasState,
     addShape,
-    duplicateShape,
+    duplicateShapes,
     updateShape,
     updateShapes,
     deleteShape,
@@ -86,7 +86,7 @@ function App() {
             onSelectShape={selectShape}
             onUpdateShape={updateShape}
             onUpdateShapes={updateShapes}
-            onDuplicateShape={duplicateShape}
+            onDuplicateShapes={duplicateShapes}
             onUndo={undo}
             onRedo={redo}
             onZoomAtPoint={zoomAtPoint}

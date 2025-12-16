@@ -16,7 +16,7 @@ interface CanvasProps {
   onSelectShape: (id: string | null, addToSelection?: boolean) => void;
   onUpdateShape: (id: string, updates: Partial<Shape>) => void;
   onUpdateShapes: (updates: Map<string, Partial<Shape>>) => void;
-  onDuplicateShape: (id: string) => void;
+  onDuplicateShapes: (ids: string[]) => void;
   onUndo: () => void;
   onRedo: () => void;
   onZoomAtPoint: (delta: number, pointX: number, pointY: number) => void;
@@ -53,7 +53,7 @@ export function Canvas({
   onSelectShape,
   onUpdateShape,
   onUpdateShapes,
-  onDuplicateShape,
+  onDuplicateShapes,
   onUndo,
   onRedo,
   onZoomAtPoint,
@@ -568,8 +568,8 @@ export function Canvas({
       if (e.code === 'KeyC' || e.key.toLowerCase() === 'c') {
         if (selectedShapes.length > 0) {
           e.preventDefault();
-          // Duplicate the last selected shape
-          onDuplicateShape(selectedShapes[selectedShapes.length - 1].id);
+          // Duplicate all selected shapes
+          onDuplicateShapes(selectedShapes.map(s => s.id));
           return;
         }
       }
@@ -640,7 +640,7 @@ export function Canvas({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedShapes, hasSelection, onUpdateShapes, onUndo, onRedo, onDuplicateShape]);
+  }, [selectedShapes, hasSelection, onUpdateShapes, onUndo, onRedo, onDuplicateShapes]);
 
   // Handle spacebar for panning mode
   useEffect(() => {
