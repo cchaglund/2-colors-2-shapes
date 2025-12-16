@@ -9,6 +9,10 @@ interface ToolbarProps {
   onSetBackground: (colorIndex: 0 | 1 | null) => void;
   onChangeShapeColor: (colorIndex: 0 | 1) => void;
   onReset: () => void;
+  isOpen: boolean;
+  width: number;
+  onToggle: () => void;
+  onStartResize: (e: React.MouseEvent) => void;
 }
 
 export function Toolbar({
@@ -19,10 +23,45 @@ export function Toolbar({
   onSetBackground,
   onChangeShapeColor,
   onReset,
+  isOpen,
+  width,
+  onToggle,
+  onStartResize,
 }: ToolbarProps) {
   const hasSelection = selectedShapeIds.size > 0;
+
+  if (!isOpen) {
+    return (
+      <div className="relative">
+        <button
+          className="absolute left-0 top-4 z-10 bg-neutral-100 border border-l-0 border-gray-300 rounded-r-md px-1.5 py-3 cursor-pointer hover:bg-neutral-200 transition-colors"
+          onClick={onToggle}
+          title="Show Toolbar"
+        >
+          <span className="text-gray-600 text-sm">›</span>
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-55 bg-neutral-100 border-r border-gray-300 p-4 overflow-y-auto">
+    <div
+      className="bg-neutral-100 border-r border-gray-300 p-4 overflow-y-auto shrink-0 relative"
+      style={{ width }}>
+      {/* Collapse button */}
+      <button
+        className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center bg-transparent border-none cursor-pointer text-gray-400 hover:text-gray-600 rounded hover:bg-gray-200 transition-colors"
+        onClick={onToggle}
+        title="Hide Toolbar"
+      >
+        ‹
+      </button>
+
+      {/* Resize handle */}
+      <div
+        className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-400 transition-colors"
+        onMouseDown={onStartResize}
+      />
       <div className="mb-6">
         <h3 className="m-0 text-base text-gray-700">Today's Challenge</h3>
         <p className="mt-1 mb-0 text-sm text-gray-500">{challenge.date}</p>

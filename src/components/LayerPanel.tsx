@@ -9,6 +9,10 @@ interface LayerPanelProps {
   onMoveLayer: (id: string, direction: 'up' | 'down' | 'top' | 'bottom') => void;
   onDeleteShape: (id: string) => void;
   onRenameShape: (id: string, name: string) => void;
+  isOpen: boolean;
+  width: number;
+  onToggle: () => void;
+  onStartResize: (e: React.MouseEvent) => void;
 }
 
 export function LayerPanel({
@@ -19,6 +23,10 @@ export function LayerPanel({
   onMoveLayer,
   onDeleteShape,
   onRenameShape,
+  isOpen,
+  width,
+  onToggle,
+  onStartResize,
 }: LayerPanelProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -52,8 +60,40 @@ export function LayerPanel({
     }
   };
 
+  if (!isOpen) {
+    return (
+      <div className="relative">
+        <button
+          className="absolute right-0 top-4 z-10 bg-neutral-100 border border-r-0 border-gray-300 rounded-l-md px-1.5 py-3 cursor-pointer hover:bg-neutral-200 transition-colors"
+          onClick={onToggle}
+          title="Show Layers"
+        >
+          <span className="text-gray-600 text-sm">‹</span>
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-75 bg-neutral-100 border-l border-gray-300 p-4 overflow-y-auto">
+    <div
+      className="bg-neutral-100 border-l border-gray-300 p-4 overflow-y-auto shrink-0 relative"
+      style={{ width }}
+    >
+      {/* Collapse button */}
+      <button
+        className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center bg-transparent border-none cursor-pointer text-gray-400 hover:text-gray-600 rounded hover:bg-gray-200 transition-colors"
+        onClick={onToggle}
+        title="Hide Layers"
+      >
+        ›
+      </button>
+
+      {/* Resize handle */}
+      <div
+        className="absolute top-0 left-0 w-1 h-full cursor-col-resize hover:bg-blue-400 transition-colors"
+        onMouseDown={onStartResize}
+      />
+
       <h3 className="m-0 mb-4 text-sm uppercase text-gray-500">Layers</h3>
       {sortedShapes.length === 0 ? (
         <p className="text-gray-400 text-sm text-center py-5">No shapes yet. Add one!</p>

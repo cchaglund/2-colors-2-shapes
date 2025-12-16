@@ -5,6 +5,7 @@ import { LayerPanel } from './components/LayerPanel';
 import { ZoomControls } from './components/ZoomControls';
 import { useCanvasState } from './hooks/useCanvasState';
 import { useViewportState } from './hooks/useViewportState';
+import { useSidebarState } from './hooks/useSidebarState';
 import { getTodayChallenge } from './utils/dailyChallenge';
 
 const CANVAS_SIZE = 800;
@@ -40,6 +41,17 @@ function App() {
     minZoom,
     maxZoom,
   } = useViewportState();
+
+  const {
+    leftOpen,
+    rightOpen,
+    leftWidth,
+    rightWidth,
+    toggleLeft,
+    toggleRight,
+    startResizeLeft,
+    startResizeRight,
+  } = useSidebarState();
 
   const handleZoomIn = useCallback(() => {
     setZoom(viewport.zoom + 0.1);
@@ -144,6 +156,10 @@ function App() {
           updateShapes(updates);
         }}
         onReset={handleReset}
+        isOpen={leftOpen}
+        width={leftWidth}
+        onToggle={toggleLeft}
+        onStartResize={startResizeLeft}
       />
 
       <main
@@ -192,6 +208,10 @@ function App() {
         onMoveLayer={moveLayer}
         onDeleteShape={deleteShape}
         onRenameShape={(id, name) => updateShape(id, { name })}
+        isOpen={rightOpen}
+        width={rightWidth}
+        onToggle={toggleRight}
+        onStartResize={startResizeRight}
       />
 
       {showResetConfirm && (
