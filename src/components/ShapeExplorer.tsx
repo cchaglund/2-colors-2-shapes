@@ -1,24 +1,68 @@
 import type { ShapeType } from '../types';
 import { getShapeSVGData, SHAPE_NAMES } from '../utils/shapeHelpers';
 
-const SHAPE_TYPES: ShapeType[] = ['circle', 'square', 'triangle', 'pentagon', 'hexagon', 'star'];
+const SHAPE_TYPES: ShapeType[] = [
+  'circle',
+  'square',
+  'triangle',
+  'pentagon',
+  'hexagon',
+  'star',
+  // Sophisticated shapes
+  'rightTriangle',
+  'isoscelesTriangle',
+  'diamond',
+  'trapezoid',
+  'parallelogram',
+  'kite',
+  'heptagon',
+  'cross',
+  'arrow',
+  'semicircle',
+  'quarterCircle',
+  'ellipse',
+  'blade',
+  'lens',
+  'arch',
+  'drop',
+  // Irregular abstract shapes
+  'shard',
+  'wedge',
+  'fan',
+  'hook',
+  'wave',
+  'crescent',
+  'pill',
+  'splinter',
+  'chunk',
+  // Mixed straight/curved shapes
+  'fang',
+  'claw',
+  'fin',
+  'thorn',
+  'slant',
+  'notch',
+  'spike',
+  'bulge',
+  'scoop',
+  'ridge',
+];
 const SAMPLE_SIZE = 100;
-const SAMPLE_COLORS = ['#3b82f6', '#ef4444']; // Blue and red for visibility
 
 interface ShapePreviewProps {
   type: ShapeType;
   size: number;
-  color: string;
 }
 
-function ShapePreview({ type, size, color }: ShapePreviewProps) {
+function ShapePreview({ type, size }: ShapePreviewProps) {
   const { element, props } = getShapeSVGData(type, size);
 
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      {element === 'ellipse' && <ellipse {...props} fill={color} />}
-      {element === 'rect' && <rect {...props} fill={color} />}
-      {element === 'polygon' && <polygon {...props} fill={color} />}
+      {element === 'ellipse' && <ellipse {...props} fill="#000" />}
+      {element === 'rect' && <rect {...props} fill="#000" />}
+      {element === 'polygon' && <polygon {...props} fill="#000" />}
+      {element === 'path' && <path {...props} fill="#000" />}
     </svg>
   );
 }
@@ -77,16 +121,11 @@ export function ShapeExplorer() {
                   {SHAPE_NAMES[type]}
                 </h2>
 
-                <div className="flex gap-4">
-                  {SAMPLE_COLORS.map((color, index) => (
-                    <div
-                      key={index}
-                      className="p-3 rounded"
-                      style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
-                    >
-                      <ShapePreview type={type} size={SAMPLE_SIZE} color={color} />
-                    </div>
-                  ))}
+                <div
+                  className="p-3 rounded"
+                  style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
+                >
+                  <ShapePreview type={type} size={SAMPLE_SIZE} />
                 </div>
 
                 <div className="text-center">

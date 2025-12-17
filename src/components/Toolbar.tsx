@@ -1,7 +1,20 @@
-import type { DailyChallenge } from '../types';
+import type { DailyChallenge, ShapeType } from '../types';
 import type { ThemeMode } from '../hooks/useThemeState';
-import { SHAPE_NAMES } from '../utils/shapeHelpers';
+import { SHAPE_NAMES, getShapeSVGData } from '../utils/shapeHelpers';
 import { ThemeToggle } from './ThemeToggle';
+
+// Small shape preview component for the toolbar
+function ShapePreviewIcon({ type, size = 20 }: { type: ShapeType; size?: number }) {
+  const { element, props } = getShapeSVGData(type, size);
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      {element === 'ellipse' && <ellipse {...props} fill="currentColor" />}
+      {element === 'rect' && <rect {...props} fill="currentColor" />}
+      {element === 'polygon' && <polygon {...props} fill="currentColor" />}
+      {element === 'path' && <path {...props} fill="currentColor" />}
+    </svg>
+  );
+}
 
 interface ToolbarProps {
   challenge: DailyChallenge;
@@ -126,7 +139,12 @@ export function Toolbar({
         <div className="flex flex-col gap-2">
           {challenge.shapes.map((shape, shapeIndex) => (
             <div key={shape} className="flex items-center justify-between">
-              <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{SHAPE_NAMES[shape]}</span>
+              <div className="flex items-center gap-2">
+                <span style={{ color: 'var(--color-text-secondary)' }}>
+                  <ShapePreviewIcon type={shape} size={18} />
+                </span>
+                <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{SHAPE_NAMES[shape]}</span>
+              </div>
               <div className="flex gap-1">
                 {challenge.colors.map((color, colorIndex) => (
                   <button

@@ -1,4 +1,48 @@
-export type ShapeType = 'circle' | 'square' | 'triangle' | 'pentagon' | 'hexagon' | 'star';
+export type ShapeType =
+  | 'circle'
+  | 'square'
+  | 'triangle'
+  | 'pentagon'
+  | 'hexagon'
+  | 'star'
+  // Sophisticated shapes
+  | 'rightTriangle'
+  | 'isoscelesTriangle'
+  | 'diamond'
+  | 'trapezoid'
+  | 'parallelogram'
+  | 'kite'
+  | 'heptagon'
+  | 'cross'
+  | 'arrow'
+  | 'semicircle'
+  | 'quarterCircle'
+  | 'ellipse'
+  | 'blade'
+  | 'lens'
+  | 'arch'
+  | 'drop'
+  // Irregular abstract shapes
+  | 'shard'
+  | 'wedge'
+  | 'fan'
+  | 'hook'
+  | 'wave'
+  | 'crescent'
+  | 'pill'
+  | 'splinter'
+  | 'chunk'
+  // New mixed straight/curved shapes
+  | 'fang'
+  | 'claw'
+  | 'fin'
+  | 'thorn'
+  | 'slant'
+  | 'notch'
+  | 'spike'
+  | 'bulge'
+  | 'scoop'
+  | 'ridge';
 
 export interface Shape {
   id: string;

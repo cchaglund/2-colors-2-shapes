@@ -25,6 +25,7 @@ export function ShapeElement({
       {element === 'ellipse' && <ellipse {...props} {...commonProps} />}
       {element === 'rect' && <rect {...props} {...commonProps} />}
       {element === 'polygon' && <polygon {...props} {...commonProps} />}
+      {element === 'path' && <path {...props} {...commonProps} />}
     </g>
   );
 }

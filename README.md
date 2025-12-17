@@ -6,7 +6,7 @@ A daily art challenge app where you create art using only 2 colors and 2 geometr
 
 Every day, the app generates a unique set of constraints:
 - **2 Colors**: Two visually distinct colors (ensured to be different enough to distinguish)
-- **2 Shapes**: Two geometric shapes from: circle, square, triangle, pentagon, hexagon, star
+- **2 Shapes**: Two geometric shapes from 41 available shapes including basic shapes (circle, square, triangle, etc.), sophisticated polygons (diamond, trapezoid, parallelogram, etc.), and irregular abstract shapes with mixed straight/curved edges
 
 The same date always generates the same colors and shapes (seed-based randomization).
 
@@ -66,7 +66,16 @@ npm run build
 
 ### Shape Explorer
 
-A developer tool that displays all available shape types with sample renderings. Useful as a reference when working with the daily challenges.
+A developer tool that displays all 41 available shape types with sample renderings. Useful as a reference when working with the daily challenges.
+
+**Available shapes:**
+- Basic: Circle, Square, Triangle, Pentagon, Hexagon, Star
+- Triangular: Right Triangle, Isosceles Triangle
+- Quadrilaterals: Diamond, Trapezoid, Parallelogram, Kite, Heptagon
+- Curved: Semicircle, Quarter Circle, Ellipse, Blade, Lens, Drop
+- Special: Cross, Arrow, Arch
+- Abstract: Shard, Wedge, Fan, Hook, Wave, Crescent, Pill, Splinter, Chunk
+- Mixed (straight + curved): Fang, Claw, Fin, Thorn, Slant, Notch, Spike, Bulge, Scoop, Ridge
 
 **Access via URL parameter:**
 ```
