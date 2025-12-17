@@ -25,6 +25,7 @@ function App() {
     updateShape,
     updateShapes,
     deleteShape,
+    deleteSelectedShapes,
     selectShape,
     moveLayer,
     reorderLayers,
@@ -189,6 +190,7 @@ function App() {
             onUpdateShape={updateShape}
             onUpdateShapes={updateShapes}
             onDuplicateShapes={duplicateShapes}
+            onDeleteSelectedShapes={deleteSelectedShapes}
             onUndo={undo}
             onRedo={redo}
             onZoomAtPoint={zoomAtPoint}

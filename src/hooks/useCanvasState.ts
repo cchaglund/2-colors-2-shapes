@@ -303,6 +303,17 @@ export function useCanvasState(challenge: DailyChallenge) {
     [setCanvasState]
   );
 
+  const deleteSelectedShapes = useCallback(() => {
+    setCanvasState((prev) => {
+      if (prev.selectedShapeIds.size === 0) return prev;
+      return {
+        ...prev,
+        shapes: prev.shapes.filter((s) => !prev.selectedShapeIds.has(s.id)),
+        selectedShapeIds: new Set<string>(),
+      };
+    });
+  }, [setCanvasState]);
+
   const selectShape = useCallback(
     (id: string | null, options?: { toggle?: boolean; range?: boolean; orderedIds?: string[] }) => {
       const { toggle = false, range = false, orderedIds = [] } = options || {};
@@ -484,6 +495,7 @@ export function useCanvasState(challenge: DailyChallenge) {
     updateShape,
     updateShapes,
     deleteShape,
+    deleteSelectedShapes,
     selectShape,
     moveLayer,
     reorderLayers,

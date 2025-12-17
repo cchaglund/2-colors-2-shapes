@@ -17,6 +17,7 @@ interface CanvasProps {
   onUpdateShape: (id: string, updates: Partial<Shape>) => void;
   onUpdateShapes: (updates: Map<string, Partial<Shape>>) => void;
   onDuplicateShapes: (ids: string[]) => void;
+  onDeleteSelectedShapes: () => void;
   onUndo: () => void;
   onRedo: () => void;
   onZoomAtPoint: (delta: number, pointX: number, pointY: number) => void;
@@ -54,6 +55,7 @@ export function Canvas({
   onUpdateShape,
   onUpdateShapes,
   onDuplicateShapes,
+  onDeleteSelectedShapes,
   onUndo,
   onRedo,
   onZoomAtPoint,
@@ -574,6 +576,15 @@ export function Canvas({
         }
       }
 
+      // Delete selected shapes (Backspace)
+      if (e.code === 'Backspace') {
+        if (selectedShapes.length > 0) {
+          e.preventDefault();
+          onDeleteSelectedShapes();
+          return;
+        }
+      }
+
       // Movement and rotation shortcuts require selected shapes
       if (!hasSelection) return;
 
@@ -640,7 +651,7 @@ export function Canvas({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedShapes, hasSelection, onUpdateShapes, onUndo, onRedo, onDuplicateShapes]);
+  }, [selectedShapes, hasSelection, onUpdateShapes, onUndo, onRedo, onDuplicateShapes, onDeleteSelectedShapes]);
 
   // Handle spacebar for panning mode
   useEffect(() => {
