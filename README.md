@@ -62,6 +62,22 @@ npm run dev
 npm run build
 ```
 
+## Developer Tools
+
+### Shape Explorer
+
+A developer tool that displays all available shape types with sample renderings. Useful as a reference when working with the daily challenges.
+
+**Access via URL parameter:**
+```
+http://localhost:5173/?explorer
+```
+
+**Or via environment variable:**
+```bash
+VITE_SHAPE_EXPLORER=true npm run dev
+```
+
 ## Project Structure
 
 ```

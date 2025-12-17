@@ -3,6 +3,7 @@ import { Canvas } from './components/Canvas';
 import { Toolbar } from './components/Toolbar';
 import { LayerPanel } from './components/LayerPanel';
 import { ZoomControls } from './components/ZoomControls';
+import { ShapeExplorer } from './components/ShapeExplorer';
 import { useCanvasState } from './hooks/useCanvasState';
 import { useViewportState } from './hooks/useViewportState';
 import { useSidebarState } from './hooks/useSidebarState';
@@ -11,7 +12,22 @@ import { getTodayChallenge } from './utils/dailyChallenge';
 
 const CANVAS_SIZE = 800;
 
+// Check if Shape Explorer mode is enabled via URL parameter or environment variable
+function isShapeExplorerEnabled(): boolean {
+  // Check URL parameter: ?explorer or ?explorer=true
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('explorer')) {
+    const value = urlParams.get('explorer');
+    return value === null || value === '' || value === 'true';
+  }
+  // Check environment variable
+  return import.meta.env.VITE_SHAPE_EXPLORER === 'true';
+}
+
 function App() {
+  // Check if Shape Explorer mode should be shown
+  const showExplorer = useMemo(() => isShapeExplorerEnabled(), []);
+
   const challenge = useMemo(() => getTodayChallenge(), []);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isBackgroundPanning, setIsBackgroundPanning] = useState(false);
@@ -147,6 +163,11 @@ function App() {
     canvasState.backgroundColorIndex !== null
       ? challenge.colors[canvasState.backgroundColorIndex]
       : null;
+
+  // Render Shape Explorer if enabled
+  if (showExplorer) {
+    return <ShapeExplorer />;
+  }
 
   return (
     <div className="flex h-screen">
