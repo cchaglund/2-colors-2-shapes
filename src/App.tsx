@@ -4,10 +4,13 @@ import { Toolbar } from './components/Toolbar';
 import { LayerPanel } from './components/LayerPanel';
 import { ZoomControls } from './components/ZoomControls';
 import { ShapeExplorer } from './components/ShapeExplorer';
+import { OnboardingModal } from './components/OnboardingModal';
 import { useCanvasState } from './hooks/useCanvasState';
 import { useViewportState } from './hooks/useViewportState';
 import { useSidebarState } from './hooks/useSidebarState';
 import { useThemeState } from './hooks/useThemeState';
+import { useAuth } from './hooks/useAuth';
+import { useProfile } from './hooks/useProfile';
 import { getTodayChallenge } from './utils/dailyChallenge';
 
 const CANVAS_SIZE = 800;
@@ -27,6 +30,10 @@ function isShapeExplorerEnabled(): boolean {
 function App() {
   // Check if Shape Explorer mode should be shown
   const showExplorer = useMemo(() => isShapeExplorerEnabled(), []);
+
+  // Auth state
+  const { user } = useAuth();
+  const { profile, updateNickname } = useProfile(user?.id);
 
   const challenge = useMemo(() => getTodayChallenge(), []);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -169,8 +176,12 @@ function App() {
     return <ShapeExplorer />;
   }
 
+  // Show onboarding modal if user is logged in but hasn't completed onboarding
+  const showOnboarding = user && profile && !profile.onboarding_complete;
+
   return (
     <div className="flex h-screen">
+      {showOnboarding && <OnboardingModal onComplete={updateNickname} />}
       <Toolbar
         challenge={challenge}
         backgroundColorIndex={canvasState.backgroundColorIndex}

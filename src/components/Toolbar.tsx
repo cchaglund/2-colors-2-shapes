@@ -2,6 +2,7 @@ import type { DailyChallenge, ShapeType } from '../types';
 import type { ThemeMode } from '../hooks/useThemeState';
 import { SHAPE_NAMES, getShapeSVGData } from '../utils/shapeHelpers';
 import { ThemeToggle } from './ThemeToggle';
+import { AuthButton } from './AuthButton';
 
 // Small shape preview component for the toolbar
 function ShapePreviewIcon({ type, size = 20 }: { type: ShapeType; size?: number }) {
@@ -211,6 +212,11 @@ export function Toolbar({
 
       <div className="mb-6">
         <ThemeToggle mode={themeMode} onSetMode={onSetThemeMode} />
+      </div>
+
+      <div className="mb-6">
+        <h4 className="m-0 mb-3 text-xs uppercase" style={{ color: 'var(--color-text-tertiary)' }}>Account</h4>
+        <AuthButton />
       </div>
 
       <div className="mb-6">
