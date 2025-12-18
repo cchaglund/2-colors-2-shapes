@@ -11,6 +11,7 @@ import { useSidebarState } from './hooks/useSidebarState';
 import { useThemeState } from './hooks/useThemeState';
 import { useAuth } from './hooks/useAuth';
 import { useProfile } from './hooks/useProfile';
+import { useSubmissions } from './hooks/useSubmissions';
 import { getTodayChallenge } from './utils/dailyChallenge';
 
 const CANVAS_SIZE = 800;
@@ -34,6 +35,8 @@ function App() {
   // Auth state
   const { user } = useAuth();
   const { profile, updateNickname } = useProfile(user?.id);
+  const { saveSubmission, saving } = useSubmissions(user?.id);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle');
 
   const challenge = useMemo(() => getTodayChallenge(), []);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -166,6 +169,22 @@ function App() {
     setShowResetConfirm(false);
   };
 
+  const handleSave = useCallback(async () => {
+    setSaveStatus('idle');
+    const result = await saveSubmission({
+      challengeDate: challenge.date,
+      shapes: canvasState.shapes,
+      backgroundColorIndex: canvasState.backgroundColorIndex,
+    });
+    if (result.success) {
+      setSaveStatus('saved');
+      // Reset to idle after 2 seconds
+      setTimeout(() => setSaveStatus('idle'), 2000);
+    } else {
+      setSaveStatus('error');
+    }
+  }, [saveSubmission, challenge.date, canvasState.shapes, canvasState.backgroundColorIndex]);
+
   const backgroundColor =
     canvasState.backgroundColorIndex !== null
       ? challenge.colors[canvasState.backgroundColorIndex]
@@ -202,6 +221,10 @@ function App() {
         onStartResize={startResizeLeft}
         themeMode={themeMode}
         onSetThemeMode={setThemeMode}
+        isLoggedIn={!!user}
+        onSave={handleSave}
+        isSaving={saving}
+        saveStatus={saveStatus}
       />
 
       <main

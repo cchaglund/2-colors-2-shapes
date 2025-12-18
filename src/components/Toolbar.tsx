@@ -31,6 +31,11 @@ interface ToolbarProps {
   onStartResize: (e: React.MouseEvent) => void;
   themeMode: ThemeMode;
   onSetThemeMode: (mode: ThemeMode) => void;
+  // Save functionality
+  isLoggedIn: boolean;
+  onSave?: () => void;
+  isSaving?: boolean;
+  saveStatus?: 'idle' | 'saved' | 'error';
 }
 
 export function Toolbar({
@@ -47,6 +52,10 @@ export function Toolbar({
   onStartResize,
   themeMode,
   onSetThemeMode,
+  isLoggedIn,
+  onSave,
+  isSaving,
+  saveStatus,
 }: ToolbarProps) {
   const hasSelection = selectedShapeIds.size > 0;
 
@@ -217,6 +226,18 @@ export function Toolbar({
       <div className="mb-6">
         <h4 className="m-0 mb-3 text-xs uppercase" style={{ color: 'var(--color-text-tertiary)' }}>Account</h4>
         <AuthButton />
+        {isLoggedIn && onSave && (
+          <button
+            className="w-full mt-3 py-2.5 px-4 bg-blue-600 text-white border-none rounded-md cursor-pointer text-sm font-medium transition-colors hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={onSave}
+            disabled={isSaving}
+          >
+            {isSaving ? 'Saving...' : saveStatus === 'saved' ? '✓ Saved' : 'Save Creation'}
+          </button>
+        )}
+        {saveStatus === 'error' && (
+          <p className="mt-1 mb-0 text-xs text-red-500">Failed to save. Try again.</p>
+        )}
       </div>
 
       <div className="mb-6">

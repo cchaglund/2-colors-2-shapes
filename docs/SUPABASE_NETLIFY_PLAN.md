@@ -553,6 +553,50 @@ if (user && profile && !profile.onboarding_complete) {
 
 ---
 
+## Phase 7: Google OAuth Verification (For Public Launch)
+
+To allow anyone to log in (not just test users), you need to verify your app with Google.
+
+### 7.1 Verify Domain in Google Search Console
+
+1. Go to [Google Search Console](https://search.google.com/search-console)
+2. Add property: `https://2-colors-2-shapes.netlify.app`
+3. Choose "URL prefix" verification method
+4. Select "HTML file" verification:
+   - Download the `googleXXXXXXXX.html` file Google provides
+   - Put it in your `public/` folder
+   - Deploy to Netlify
+   - Click "Verify" in Search Console
+
+### 7.2 Update OAuth Consent Screen
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com) → APIs & Services → OAuth consent screen
+2. Fill in required fields:
+   - **App name**: 2 Colors 2 Shapes
+   - **User support email**: your email
+   - **App logo**: (optional, can add later)
+   - **App domain**: `https://2-colors-2-shapes.netlify.app`
+   - **Privacy policy**: `https://2-colors-2-shapes.netlify.app/privacy.html`
+   - **Terms of service**: (optional, can use privacy policy URL)
+   - **Authorized domains**: `2-colors-2-shapes.netlify.app`
+   - **Developer contact**: your email
+3. Scopes: Only need `email` and `profile` (non-sensitive)
+4. Click "Publish App" to move from Testing to Production
+
+### 7.3 What Happens Next
+
+- For non-sensitive scopes (email, profile), Google usually auto-approves
+- Your app moves to "In production" status
+- Anyone with a Google account can now log in
+- No more 100 test user limit
+
+### 7.4 Files Created
+
+- `public/privacy.html` - Privacy policy page (accessible at /privacy.html)
+- `public/googleXXXXXXXX.html` - Search Console verification (you'll add this)
+
+---
+
 ## Future Enhancements (Optional)
 
 - [ ] Gallery page showing all users' submissions for a day
