@@ -739,20 +739,34 @@ export function Canvas({
     };
   }, [isSpacePressed, isPanning, viewport.panX, viewport.panY, getClientPoint, onPan]);
 
-  // Handle wheel zoom (Ctrl/Cmd + scroll)
-  const handleWheel = useCallback(
-    (e: React.WheelEvent) => {
+  // Handle wheel zoom (Ctrl/Cmd + scroll) with non-passive listener to allow preventDefault
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+
+    const handleWheel = (e: WheelEvent) => {
       // Check for Ctrl (Windows/Linux) or Meta/Cmd (Mac)
       if (e.ctrlKey || e.metaKey) {
         e.preventDefault();
-        const point = getClientPoint(e.clientX, e.clientY);
+        const rect = svg.getBoundingClientRect();
+        // Get position relative to SVG element, normalized to 0-CANVAS_SIZE range
+        const point = {
+          x: ((e.clientX - rect.left) / rect.width) * CANVAS_SIZE,
+          y: ((e.clientY - rect.top) / rect.height) * CANVAS_SIZE,
+        };
         // Normalize wheel delta (different browsers have different values)
         const delta = -Math.sign(e.deltaY);
         onZoomAtPoint(delta, point.x, point.y);
       }
-    },
-    [getClientPoint, onZoomAtPoint]
-  );
+    };
+
+    // Add non-passive event listener to allow preventDefault
+    svg.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      svg.removeEventListener('wheel', handleWheel);
+    };
+  }, [onZoomAtPoint]);
 
   // Sort shapes by zIndex for rendering
   const sortedShapes = [...shapes].sort((a, b) => a.zIndex - b.zIndex);
@@ -779,7 +793,6 @@ export function Canvas({
       }}
       onMouseDown={handleCanvasMouseDown}
       onClick={(e) => e.stopPropagation()}
-      onWheel={handleWheel}
     >
       {/* Clip rect for the canvas content (shapes) */}
       <defs>
