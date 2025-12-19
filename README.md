@@ -43,6 +43,7 @@ The same date always generates the same colors and shapes (seed-based randomizat
   - Click any day to view full submission in new tab
   - Download as PNG or SVG
   - Copy shareable link
+- **Welcome modal**: First-time visitors see an intro explaining the app
 
 ### Planned
 - [ ] Procedurally generated shapes (advanced mode)
@@ -67,6 +68,18 @@ npm run dev
 # Build for production
 npm run build
 ```
+
+## Development
+
+### Supabase & Local Development
+
+This project uses Supabase for authentication and storing submissions. Important notes:
+
+- **Local dev uses the production database** - The `.env.local` file points to the same Supabase instance as production. Any submissions you save locally are saved to the real database.
+- **Same account, same data** - If you sign in with the same Google account locally and on the production site, you'll see the same submissions in both places.
+- **Offline limitations** - The canvas works offline (uses localStorage), but authentication and saving submissions require an internet connection.
+
+If you wanted a separate development database, you would need to create a second Supabase project and use different environment variables.
 
 ## Developer Tools
 
@@ -110,7 +123,8 @@ src/
 │   ├── useCanvasState.ts # State management + localStorage persistence
 │   ├── useAuth.ts        # Google OAuth authentication
 │   ├── useProfile.ts     # User profile management
-│   └── useSubmissions.ts # Submission CRUD operations
+│   ├── useSubmissions.ts # Submission CRUD operations
+│   └── useWelcomeModal.ts # First-visit welcome modal state
 ├── utils/
 │   ├── dailyChallenge.ts # Seed-based color/shape generation
 │   └── shapeHelpers.ts   # SVG path generation for shapes

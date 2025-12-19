@@ -5,6 +5,7 @@ import { LayerPanel } from './components/LayerPanel';
 import { ZoomControls } from './components/ZoomControls';
 import { ShapeExplorer } from './components/ShapeExplorer';
 import { OnboardingModal } from './components/OnboardingModal';
+import { WelcomeModal } from './components/WelcomeModal';
 import { Calendar } from './components/Calendar';
 import { SubmissionDetailPage } from './components/SubmissionDetailPage';
 import { useCanvasState } from './hooks/useCanvasState';
@@ -14,6 +15,7 @@ import { useThemeState } from './hooks/useThemeState';
 import { useAuth } from './hooks/useAuth';
 import { useProfile } from './hooks/useProfile';
 import { useSubmissions } from './hooks/useSubmissions';
+import { useWelcomeModal } from './hooks/useWelcomeModal';
 import { getTodayChallenge } from './utils/dailyChallenge';
 
 const CANVAS_SIZE = 800;
@@ -49,6 +51,8 @@ function App() {
   const submissionView = useMemo(() => getSubmissionView(), []);
   // Calendar modal state
   const [showCalendar, setShowCalendar] = useState(false);
+  // Welcome modal for first-time visitors
+  const { isOpen: showWelcome, dismiss: dismissWelcome } = useWelcomeModal();
 
   // Auth state
   const { user } = useAuth();
@@ -223,6 +227,7 @@ function App() {
 
   return (
     <div className="flex h-screen">
+      {showWelcome && <WelcomeModal onDismiss={dismissWelcome} />}
       {showOnboarding && <OnboardingModal onComplete={updateNickname} />}
       <Toolbar
         challenge={challenge}
