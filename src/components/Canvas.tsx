@@ -6,6 +6,7 @@ import {
   MultiSelectTransformLayer,
   MultiSelectInteractionLayer,
 } from './TransformHandles';
+import { type KeyMappings, matchesBinding } from '../constants/keyboardActions';
 
 interface CanvasProps {
   shapes: Shape[];
@@ -13,6 +14,7 @@ interface CanvasProps {
   backgroundColor: string | null;
   challenge: DailyChallenge;
   viewport: ViewportState;
+  keyMappings: KeyMappings;
   onSelectShape: (id: string | null, options?: { toggle?: boolean; range?: boolean; orderedIds?: string[] }) => void;
   onUpdateShape: (id: string, updates: Partial<Shape>) => void;
   onUpdateShapes: (updates: Map<string, Partial<Shape>>) => void;
@@ -51,6 +53,7 @@ export function Canvas({
   backgroundColor,
   challenge,
   viewport,
+  keyMappings,
   onSelectShape,
   onUpdateShape,
   onUpdateShapes,
@@ -555,29 +558,35 @@ export function Canvas({
         return;
       }
 
-      // Undo/Redo (w / Shift+w)
-      if (e.code === 'KeyW' || e.key.toLowerCase() === 'w') {
+      // Check for undo binding
+      const undoBinding = keyMappings.undo;
+      if (undoBinding && matchesBinding(e, undoBinding)) {
         e.preventDefault();
-        if (e.shiftKey) {
-          onRedo();
-        } else {
-          onUndo();
-        }
+        onUndo();
         return;
       }
 
-      // Duplicate (c) - only when shapes are selected
-      if (e.code === 'KeyC' || e.key.toLowerCase() === 'c') {
+      // Check for redo binding
+      const redoBinding = keyMappings.redo;
+      if (redoBinding && matchesBinding(e, redoBinding)) {
+        e.preventDefault();
+        onRedo();
+        return;
+      }
+
+      // Check for duplicate binding - only when shapes are selected
+      const duplicateBinding = keyMappings.duplicate;
+      if (duplicateBinding && matchesBinding(e, duplicateBinding)) {
         if (selectedShapes.length > 0) {
           e.preventDefault();
-          // Duplicate all selected shapes
           onDuplicateShapes(selectedShapes.map(s => s.id));
           return;
         }
       }
 
-      // Delete selected shapes (Backspace)
-      if (e.code === 'Backspace') {
+      // Check for delete binding
+      const deleteBinding = keyMappings.delete;
+      if (deleteBinding && matchesBinding(e, deleteBinding)) {
         if (selectedShapes.length > 0) {
           e.preventDefault();
           onDeleteSelectedShapes();
@@ -600,27 +609,29 @@ export function Canvas({
       let dy = 0;
       let dRotation = 0;
 
-      switch (e.code) {
-        case 'ArrowUp':
-          dy = -moveStep;
-          break;
-        case 'ArrowDown':
-          dy = moveStep;
-          break;
-        case 'ArrowLeft':
-          dx = -moveStep;
-          break;
-        case 'ArrowRight':
-          dx = moveStep;
-          break;
-        case 'Period':
-          dRotation = rotateStep;
-          break;
-        case 'Comma':
-          dRotation = -rotateStep;
-          break;
-        default:
-          return;
+      // Check movement bindings (ignore shift modifier for movement keys)
+      const moveUpBinding = keyMappings.moveUp;
+      const moveDownBinding = keyMappings.moveDown;
+      const moveLeftBinding = keyMappings.moveLeft;
+      const moveRightBinding = keyMappings.moveRight;
+      const rotateClockwiseBinding = keyMappings.rotateClockwise;
+      const rotateCounterClockwiseBinding = keyMappings.rotateCounterClockwise;
+
+      // For movement, we only check the key code (shift is used for step size)
+      if (moveUpBinding && e.code === moveUpBinding.key) {
+        dy = -moveStep;
+      } else if (moveDownBinding && e.code === moveDownBinding.key) {
+        dy = moveStep;
+      } else if (moveLeftBinding && e.code === moveLeftBinding.key) {
+        dx = -moveStep;
+      } else if (moveRightBinding && e.code === moveRightBinding.key) {
+        dx = moveStep;
+      } else if (rotateClockwiseBinding && e.code === rotateClockwiseBinding.key) {
+        dRotation = rotateStep;
+      } else if (rotateCounterClockwiseBinding && e.code === rotateCounterClockwiseBinding.key) {
+        dRotation = -rotateStep;
+      } else {
+        return;
       }
 
       e.preventDefault();
@@ -651,10 +662,13 @@ export function Canvas({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedShapes, hasSelection, onUpdateShapes, onUndo, onRedo, onDuplicateShapes, onDeleteSelectedShapes]);
+  }, [selectedShapes, hasSelection, keyMappings, onUpdateShapes, onUndo, onRedo, onDuplicateShapes, onDeleteSelectedShapes]);
 
   // Handle spacebar for panning mode
   useEffect(() => {
+    const panBinding = keyMappings.pan;
+    const panKey = panBinding?.key || 'Space';
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
         e.target instanceof HTMLInputElement ||
@@ -662,14 +676,14 @@ export function Canvas({
       ) {
         return;
       }
-      if (e.code === 'Space' && !e.repeat) {
+      if (e.code === panKey && !e.repeat) {
         e.preventDefault();
         setIsSpacePressed(true);
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.code === 'Space') {
+      if (e.code === panKey) {
         setIsSpacePressed(false);
         setIsPanning(false);
         panStartRef.current = null;
@@ -682,7 +696,7 @@ export function Canvas({
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, []);
+  }, [keyMappings.pan]);
 
   // Handle panning when space is pressed
   useEffect(() => {

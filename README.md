@@ -20,8 +20,13 @@ The same date always generates the same colors and shapes (seed-based randomizat
   - Drag rotation handles to rotate (handles on all 4 sides, hold Shift for 15° snapping)
   - Arrow keys to move selected shape (hold Shift for 10px steps)
   - Period/Comma keys to rotate (hold Shift for 15° steps)
-  - w to undo, Shift+w to redo
-  - c to duplicate selected shape
+  - Z to undo, Shift+Z to redo
+  - D to duplicate selected shape
+- **Customizable keyboard shortcuts**:
+  - Click "Customize" in the Controls section to open keyboard settings
+  - Remap any shortcut to your preferred key
+  - Automatic conflict detection and resolution
+  - Settings sync to cloud for logged-in users, localStorage for anonymous users
 - **Multi-select**:
   - Shift+click on shapes or layers to select multiple
   - Combined bounding box encompasses all selected shapes (rotation-aware)
@@ -124,7 +129,10 @@ src/
 │   ├── useAuth.ts        # Google OAuth authentication
 │   ├── useProfile.ts     # User profile management
 │   ├── useSubmissions.ts # Submission CRUD operations
-│   └── useWelcomeModal.ts # First-visit welcome modal state
+│   ├── useWelcomeModal.ts # First-visit welcome modal state
+│   └── useKeyboardSettings.ts # Custom keyboard shortcut settings
+├── constants/
+│   └── keyboardActions.ts # Keyboard action definitions and helpers
 ├── utils/
 │   ├── dailyChallenge.ts # Seed-based color/shape generation
 │   └── shapeHelpers.ts   # SVG path generation for shapes

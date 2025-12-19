@@ -3,6 +3,7 @@ import type { ThemeMode } from '../hooks/useThemeState';
 import { SHAPE_NAMES, getShapeSVGData } from '../utils/shapeHelpers';
 import { ThemeToggle } from './ThemeToggle';
 import { AuthButton } from './AuthButton';
+import { type KeyMappings, formatKeyBinding } from '../constants/keyboardActions';
 
 // Small shape preview component for the toolbar
 function ShapePreviewIcon({ type, size = 20 }: { type: ShapeType; size?: number }) {
@@ -38,6 +39,9 @@ interface ToolbarProps {
   saveStatus?: 'idle' | 'saved' | 'error';
   // Calendar
   onOpenCalendar?: () => void;
+  // Keyboard settings
+  keyMappings: KeyMappings;
+  onOpenKeyboardSettings?: () => void;
 }
 
 export function Toolbar({
@@ -59,6 +63,8 @@ export function Toolbar({
   isSaving,
   saveStatus,
   onOpenCalendar,
+  keyMappings,
+  onOpenKeyboardSettings,
 }: ToolbarProps) {
   const hasSelection = selectedShapeIds.size > 0;
 
@@ -280,21 +286,36 @@ export function Toolbar({
       </div>
 
       <div className="mt-auto">
-        <h4 className="m-0 mb-3 text-xs uppercase" style={{ color: 'var(--color-text-tertiary)' }}>Controls</h4>
+        <div className="flex items-center justify-between mb-3">
+          <h4 className="m-0 text-xs uppercase" style={{ color: 'var(--color-text-tertiary)' }}>Controls</h4>
+          {onOpenKeyboardSettings && (
+            <button
+              onClick={onOpenKeyboardSettings}
+              className="text-xs px-2 py-1 rounded-md border-none cursor-pointer transition-colors"
+              style={{
+                backgroundColor: 'var(--color-bg-tertiary)',
+                color: 'var(--color-text-secondary)',
+              }}
+              title="Customize keyboard shortcuts"
+            >
+              Customize
+            </button>
+          )}
+        </div>
         <ul className="m-0 pl-4 text-xs space-y-1" style={{ color: 'var(--color-text-tertiary)' }}>
           <li>Drag shape to move</li>
           <li>Drag corners to resize</li>
           <li>Drag circle handles to rotate</li>
           <li>Shift+click to multi-select</li>
           <li>Click color to change selected</li>
-          <li>Arrow keys to move</li>
-          <li>Period/Comma to rotate</li>
+          <li>{keyMappings.moveUp ? formatKeyBinding(keyMappings.moveUp).replace('↑', 'Arrow keys') : 'Arrow keys'} to move</li>
+          <li>{keyMappings.rotateClockwise ? formatKeyBinding(keyMappings.rotateClockwise) : '.'}/{keyMappings.rotateCounterClockwise ? formatKeyBinding(keyMappings.rotateCounterClockwise) : ','} to rotate</li>
           <li>Hold Shift for larger steps</li>
-          <li>w to undo, Shift+w to redo</li>
-          <li>c to duplicate selected</li>
-          <li>Backspace to delete selected</li>
+          <li>{keyMappings.undo ? formatKeyBinding(keyMappings.undo) : 'Z'} to undo, {keyMappings.redo ? formatKeyBinding(keyMappings.redo) : 'Shift+Z'} to redo</li>
+          <li>{keyMappings.duplicate ? formatKeyBinding(keyMappings.duplicate) : 'D'} to duplicate selected</li>
+          <li>{keyMappings.delete ? formatKeyBinding(keyMappings.delete) : '⌫'} to delete selected</li>
           <li>Ctrl/⌘ + scroll to zoom</li>
-          <li>Hold Space + drag to pan</li>
+          <li>Hold {keyMappings.pan ? formatKeyBinding(keyMappings.pan) : 'Space'} + drag to pan</li>
         </ul>
       </div>
     </div>

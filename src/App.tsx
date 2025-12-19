@@ -8,6 +8,7 @@ import { OnboardingModal } from './components/OnboardingModal';
 import { WelcomeModal } from './components/WelcomeModal';
 import { Calendar } from './components/Calendar';
 import { SubmissionDetailPage } from './components/SubmissionDetailPage';
+import { KeyboardSettingsModal } from './components/KeyboardSettingsModal';
 import { useCanvasState } from './hooks/useCanvasState';
 import { useViewportState } from './hooks/useViewportState';
 import { useSidebarState } from './hooks/useSidebarState';
@@ -16,6 +17,7 @@ import { useAuth } from './hooks/useAuth';
 import { useProfile } from './hooks/useProfile';
 import { useSubmissions } from './hooks/useSubmissions';
 import { useWelcomeModal } from './hooks/useWelcomeModal';
+import { useKeyboardSettings } from './hooks/useKeyboardSettings';
 import { getTodayChallenge } from './utils/dailyChallenge';
 
 const CANVAS_SIZE = 800;
@@ -51,6 +53,8 @@ function App() {
   const submissionView = useMemo(() => getSubmissionView(), []);
   // Calendar modal state
   const [showCalendar, setShowCalendar] = useState(false);
+  // Keyboard settings modal state
+  const [showKeyboardSettings, setShowKeyboardSettings] = useState(false);
   // Welcome modal for first-time visitors
   const { isOpen: showWelcome, dismiss: dismissWelcome } = useWelcomeModal();
 
@@ -59,6 +63,14 @@ function App() {
   const { profile, updateNickname } = useProfile(user?.id);
   const { saveSubmission, saving } = useSubmissions(user?.id);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle');
+
+  // Keyboard settings
+  const {
+    mappings: keyMappings,
+    updateBinding,
+    resetAllBindings,
+    syncing: keyboardSyncing,
+  } = useKeyboardSettings(user?.id);
 
   const challenge = useMemo(() => getTodayChallenge(), []);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -254,6 +266,8 @@ function App() {
         isSaving={saving}
         saveStatus={saveStatus}
         onOpenCalendar={() => setShowCalendar(true)}
+        keyMappings={keyMappings}
+        onOpenKeyboardSettings={() => setShowKeyboardSettings(true)}
       />
 
       <main
@@ -270,6 +284,7 @@ function App() {
             backgroundColor={backgroundColor}
             challenge={challenge}
             viewport={viewport}
+            keyMappings={keyMappings}
             onSelectShape={selectShape}
             onUpdateShape={updateShape}
             onUpdateShapes={updateShapes}
@@ -357,6 +372,16 @@ function App() {
 
       {showCalendar && (
         <Calendar onClose={() => setShowCalendar(false)} />
+      )}
+
+      {showKeyboardSettings && (
+        <KeyboardSettingsModal
+          mappings={keyMappings}
+          onUpdateBinding={updateBinding}
+          onResetAll={resetAllBindings}
+          onClose={() => setShowKeyboardSettings(false)}
+          syncing={keyboardSyncing}
+        />
       )}
     </div>
   );
