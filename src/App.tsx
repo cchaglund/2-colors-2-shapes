@@ -5,6 +5,8 @@ import { LayerPanel } from './components/LayerPanel';
 import { ZoomControls } from './components/ZoomControls';
 import { ShapeExplorer } from './components/ShapeExplorer';
 import { OnboardingModal } from './components/OnboardingModal';
+import { Calendar } from './components/Calendar';
+import { SubmissionDetailPage } from './components/SubmissionDetailPage';
 import { useCanvasState } from './hooks/useCanvasState';
 import { useViewportState } from './hooks/useViewportState';
 import { useSidebarState } from './hooks/useSidebarState';
@@ -28,9 +30,25 @@ function isShapeExplorerEnabled(): boolean {
   return import.meta.env.VITE_SHAPE_EXPLORER === 'true';
 }
 
+// Check if submission detail view is requested
+function getSubmissionView(): { view: 'submission'; date: string } | null {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('view') === 'submission') {
+    const date = urlParams.get('date');
+    if (date) {
+      return { view: 'submission', date };
+    }
+  }
+  return null;
+}
+
 function App() {
   // Check if Shape Explorer mode should be shown
   const showExplorer = useMemo(() => isShapeExplorerEnabled(), []);
+  // Check if submission detail view is requested
+  const submissionView = useMemo(() => getSubmissionView(), []);
+  // Calendar modal state
+  const [showCalendar, setShowCalendar] = useState(false);
 
   // Auth state
   const { user } = useAuth();
@@ -195,6 +213,11 @@ function App() {
     return <ShapeExplorer />;
   }
 
+  // Render Submission Detail Page if viewing a submission
+  if (submissionView) {
+    return <SubmissionDetailPage date={submissionView.date} />;
+  }
+
   // Show onboarding modal if user is logged in but hasn't completed onboarding
   const showOnboarding = user && profile && !profile.onboarding_complete;
 
@@ -225,6 +248,7 @@ function App() {
         onSave={handleSave}
         isSaving={saving}
         saveStatus={saveStatus}
+        onOpenCalendar={() => setShowCalendar(true)}
       />
 
       <main
@@ -324,6 +348,10 @@ function App() {
             </div>
           </div>
         </div>
+      )}
+
+      {showCalendar && (
+        <Calendar onClose={() => setShowCalendar(false)} />
       )}
     </div>
   );

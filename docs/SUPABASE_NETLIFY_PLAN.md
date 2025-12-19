@@ -341,7 +341,7 @@ export function AuthButton() {
           alt="Avatar"
           className="w-8 h-8 rounded-full"
         />
-        <span className="text-sm truncate max-w-[120px]">
+        <span className="text-sm truncate max-w-30">
           {user.user_metadata.full_name || user.email}
         </span>
         <button

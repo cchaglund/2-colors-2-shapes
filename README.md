@@ -1,4 +1,4 @@
-# 2 Colors 2 Shapes
+# Shapeshade
 
 A daily art challenge app where you create art using only 2 colors and 2 geometric shapes.
 
@@ -35,13 +35,19 @@ The same date always generates the same colors and shapes (seed-based randomizat
 - **Background toggle**: Set canvas background to either daily color or white
 - **Auto-save**: Canvas state persists in localStorage (resets when the day changes)
 - **Reset**: Clear canvas with confirmation dialog
+- **User authentication**: Sign in with Google OAuth
+- **Save submissions**: Save your creations to the cloud
+- **Calendar view**: Browse your past submissions
+  - Monthly grid showing thumbnails of your work
+  - Navigate between months/years
+  - Click any day to view full submission in new tab
+  - Download as PNG or SVG
+  - Copy shareable link
 
 ### Planned
-- [ ] User authentication (Google OAuth)
-- [ ] Save submissions to database
-- [ ] Calendar view of past submissions
 - [ ] Procedurally generated shapes (advanced mode)
 - [ ] Mobile support
+- [ ] Public gallery of submissions
 
 ## Tech Stack
 
@@ -96,14 +102,22 @@ src/
 │   ├── ShapeElement.tsx  # Individual shape SVG component
 │   ├── TransformHandles.tsx # Resize/rotate handles for selected shape
 │   ├── LayerPanel.tsx    # Sidebar for layer management
-│   └── Toolbar.tsx       # Left sidebar with controls
+│   ├── Toolbar.tsx       # Left sidebar with controls
+│   ├── Calendar.tsx      # Calendar modal for browsing submissions
+│   ├── SubmissionThumbnail.tsx # Thumbnail renderer for submissions
+│   └── SubmissionDetailPage.tsx # Full submission view with export
 ├── hooks/
-│   └── useCanvasState.ts # State management + localStorage persistence
+│   ├── useCanvasState.ts # State management + localStorage persistence
+│   ├── useAuth.ts        # Google OAuth authentication
+│   ├── useProfile.ts     # User profile management
+│   └── useSubmissions.ts # Submission CRUD operations
 ├── utils/
 │   ├── dailyChallenge.ts # Seed-based color/shape generation
 │   └── shapeHelpers.ts   # SVG path generation for shapes
 ├── types/
 │   └── index.ts          # TypeScript type definitions
+├── lib/
+│   └── supabase.ts       # Supabase client configuration
 ├── App.tsx
 └── main.tsx
 ```
