@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useSubmissions, type Submission } from '../hooks/useSubmissions';
+import { useRanking } from '../hooks/useRanking';
 import { generateDailyChallenge } from '../utils/dailyChallenge';
 import { getShapeSVGData, SHAPE_NAMES } from '../utils/shapeHelpers';
+import { TrophyBadge } from './TrophyBadge';
+import { RankingBadge } from './RankingBadge';
 import type { DailyChallenge, Shape } from '../types';
 
 interface SubmissionDetailPageProps {
@@ -64,7 +67,9 @@ function SubmissionCanvas({
 export function SubmissionDetailPage({ date }: SubmissionDetailPageProps) {
   const { user } = useAuth();
   const { loadSubmission, loading } = useSubmissions(user?.id);
+  const { fetchSubmissionRank } = useRanking();
   const [submission, setSubmission] = useState<Submission | null>(null);
+  const [rankInfo, setRankInfo] = useState<{ rank: number; total: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -77,10 +82,16 @@ export function SubmissionDetailPage({ date }: SubmissionDetailPageProps) {
           setError(error);
         } else {
           setSubmission(data);
+          // Fetch ranking info if submission exists
+          if (data?.id) {
+            fetchSubmissionRank(data.id).then((info) => {
+              setRankInfo(info);
+            });
+          }
         }
       });
     }
-  }, [user, date, loadSubmission]);
+  }, [user, date, loadSubmission, fetchSubmissionRank]);
 
   const downloadSVG = useCallback(() => {
     if (!svgRef.current) return;
@@ -297,6 +308,38 @@ export function SubmissionDetailPage({ date }: SubmissionDetailPageProps) {
                 </div>
               </div>
             </div>
+
+            {/* Ranking */}
+            {rankInfo && (
+              <div
+                className="border rounded-xl p-4"
+                style={{
+                  backgroundColor: 'var(--color-bg-secondary)',
+                  borderColor: 'var(--color-border)',
+                }}
+              >
+                <h2
+                  className="text-sm font-semibold mb-3"
+                  style={{ color: 'var(--color-text-primary)' }}
+                >
+                  Ranking
+                </h2>
+                <div className="flex items-center gap-3">
+                  {rankInfo.rank <= 3 && (
+                    <TrophyBadge rank={rankInfo.rank as 1 | 2 | 3} size="lg" />
+                  )}
+                  <RankingBadge rank={rankInfo.rank} total={rankInfo.total} />
+                </div>
+                {rankInfo.rank === 1 && (
+                  <p
+                    className="mt-2 text-sm"
+                    style={{ color: 'var(--color-text-secondary)' }}
+                  >
+                    Winner of the day!
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Stats */}
             <div

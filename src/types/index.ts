@@ -78,3 +78,46 @@ export interface AppState {
   challenge: DailyChallenge;
   canvas: CanvasState;
 }
+
+// Ranking types
+export interface DailyRanking {
+  id: string;
+  challenge_date: string;
+  submission_id: string;
+  user_id: string;
+  elo_score: number;
+  final_rank: number | null;
+  vote_count: number;
+}
+
+export interface RankingEntry {
+  rank: number;
+  submission_id: string;
+  user_id: string;
+  nickname: string;
+  elo_score: number;
+  vote_count: number;
+  shapes: Shape[];
+  background_color_index: number | null;
+}
+
+export interface VotingStatus {
+  vote_count: number;
+  entered_ranking: boolean;
+  seen_winner_announcement: boolean;
+}
+
+export interface VotingPair {
+  submissionA: {
+    id: string;
+    user_id: string;
+    shapes: Shape[];
+    background_color_index: number | null;
+  };
+  submissionB: {
+    id: string;
+    user_id: string;
+    shapes: Shape[];
+    background_color_index: number | null;
+  };
+}

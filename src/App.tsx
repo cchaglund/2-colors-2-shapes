@@ -10,6 +10,8 @@ import { WelcomeModal } from './components/WelcomeModal';
 import { Calendar } from './components/Calendar';
 import { SubmissionDetailPage } from './components/SubmissionDetailPage';
 import { KeyboardSettingsModal } from './components/KeyboardSettingsModal';
+import { VotingModal } from './components/VotingModal';
+import { WinnerAnnouncementModal } from './components/WinnerAnnouncementModal';
 import { useCanvasState } from './hooks/useCanvasState';
 import { useViewportState } from './hooks/useViewportState';
 import { useSidebarState } from './hooks/useSidebarState';
@@ -19,7 +21,8 @@ import { useProfile } from './hooks/useProfile';
 import { useSubmissions } from './hooks/useSubmissions';
 import { useWelcomeModal } from './hooks/useWelcomeModal';
 import { useKeyboardSettings } from './hooks/useKeyboardSettings';
-import { getTodayChallenge } from './utils/dailyChallenge';
+import { useWinnerAnnouncement } from './hooks/useWinnerAnnouncement';
+import { getTodayChallenge, getYesterdayDate } from './utils/dailyChallenge';
 
 const CANVAS_SIZE = 800;
 
@@ -56,6 +59,8 @@ function App() {
   const [showCalendar, setShowCalendar] = useState(false);
   // Keyboard settings modal state
   const [showKeyboardSettings, setShowKeyboardSettings] = useState(false);
+  // Voting modal state
+  const [showVotingModal, setShowVotingModal] = useState(false);
   // Welcome modal for first-time visitors
   const { isOpen: showWelcome, dismiss: dismissWelcome } = useWelcomeModal();
 
@@ -64,6 +69,20 @@ function App() {
   const { profile, updateNickname } = useProfile(user?.id);
   const { saveSubmission, saving } = useSubmissions(user?.id);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle');
+
+  // Winner announcement for yesterday's results
+  const {
+    shouldShow: showWinnerAnnouncement,
+    topThree: winnerTopThree,
+    challengeDate: winnerChallengeDate,
+    totalSubmissions: winnerTotalSubmissions,
+    notEnoughSubmissions: winnerNotEnough,
+    dismiss: dismissWinnerAnnouncement,
+    loading: winnerLoading,
+  } = useWinnerAnnouncement(user?.id);
+
+  // Yesterday's date for voting
+  const yesterdayDate = useMemo(() => getYesterdayDate(), []);
 
   // Keyboard settings
   const {
@@ -272,10 +291,14 @@ function App() {
       setSaveStatus('saved');
       // Reset to idle after 2 seconds
       setTimeout(() => setSaveStatus('idle'), 2000);
+      // Show voting modal if user is logged in
+      if (user) {
+        setShowVotingModal(true);
+      }
     } else {
       setSaveStatus('error');
     }
-  }, [saveSubmission, challenge.date, canvasState.shapes, canvasState.backgroundColorIndex]);
+  }, [saveSubmission, challenge.date, canvasState.shapes, canvasState.backgroundColorIndex, user]);
 
   const backgroundColor =
     canvasState.backgroundColorIndex !== null
@@ -461,6 +484,27 @@ function App() {
           onResetAll={resetAllBindings}
           onClose={() => setShowKeyboardSettings(false)}
           syncing={keyboardSyncing}
+        />
+      )}
+
+      {/* Winner announcement modal - shows on first visit of the day */}
+      {showWinnerAnnouncement && !winnerLoading && (
+        <WinnerAnnouncementModal
+          challengeDate={winnerChallengeDate}
+          topThree={winnerTopThree}
+          totalSubmissions={winnerTotalSubmissions}
+          notEnoughSubmissions={winnerNotEnough}
+          onDismiss={dismissWinnerAnnouncement}
+        />
+      )}
+
+      {/* Voting modal - shows after saving a submission */}
+      {showVotingModal && user && (
+        <VotingModal
+          userId={user.id}
+          challengeDate={yesterdayDate}
+          onComplete={() => setShowVotingModal(false)}
+          onSkipVoting={() => setShowVotingModal(false)}
         />
       )}
     </div>

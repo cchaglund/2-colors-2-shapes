@@ -144,6 +144,13 @@ export function getTodayDate(): string {
   return now.toISOString().split('T')[0];
 }
 
+// Get yesterday's date in YYYY-MM-DD format
+export function getYesterdayDate(): string {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().split('T')[0];
+}
+
 // Generate the daily challenge for a given date
 export function generateDailyChallenge(dateStr: string): DailyChallenge {
   const seed = dateToSeed(dateStr);

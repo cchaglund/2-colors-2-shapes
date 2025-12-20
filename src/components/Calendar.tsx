@@ -3,6 +3,13 @@ import { useAuth } from '../hooks/useAuth';
 import { useSubmissions, type Submission } from '../hooks/useSubmissions';
 import { generateDailyChallenge, getTodayDate } from '../utils/dailyChallenge';
 import { SubmissionThumbnail } from './SubmissionThumbnail';
+import { TrophyBadge } from './TrophyBadge';
+import { supabase } from '../lib/supabase';
+
+interface RankingInfo {
+  submission_id: string;
+  final_rank: number | null;
+}
 
 interface CalendarProps {
   onClose: () => void;
@@ -30,6 +37,7 @@ export function Calendar({ onClose }: CalendarProps) {
   const { user } = useAuth();
   const { loadMySubmissions, loading } = useSubmissions(user?.id);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [rankings, setRankings] = useState<Map<string, number>>(new Map());
   const [currentYear, setCurrentYear] = useState(() => new Date().getFullYear());
   const [currentMonth, setCurrentMonth] = useState(() => new Date().getMonth());
 
@@ -40,6 +48,26 @@ export function Calendar({ onClose }: CalendarProps) {
     if (user) {
       loadMySubmissions().then(({ data }) => {
         setSubmissions(data);
+        // Load rankings for all submissions
+        if (data.length > 0) {
+          const submissionIds = data.map((s) => s.id);
+          supabase
+            .from('daily_rankings')
+            .select('submission_id, final_rank')
+            .in('submission_id', submissionIds)
+            .not('final_rank', 'is', null)
+            .then(({ data: rankingData }) => {
+              if (rankingData) {
+                const rankMap = new Map<string, number>();
+                (rankingData as RankingInfo[]).forEach((r) => {
+                  if (r.final_rank !== null) {
+                    rankMap.set(r.submission_id, r.final_rank);
+                  }
+                });
+                setRankings(rankMap);
+              }
+            });
+        }
       });
     }
   }, [user, loadMySubmissions]);
@@ -334,14 +362,25 @@ export function Calendar({ onClose }: CalendarProps) {
                     >
                       {day}
                     </span>
-                    <div className="flex-1 flex items-center justify-center">
+                    <div className="flex-1 flex items-center justify-center relative">
                       {submission ? (
-                        <SubmissionThumbnail
-                          shapes={submission.shapes}
-                          challenge={challenge}
-                          backgroundColorIndex={submission.background_color_index}
-                          size={70}
-                        />
+                        <>
+                          <SubmissionThumbnail
+                            shapes={submission.shapes}
+                            challenge={challenge}
+                            backgroundColorIndex={submission.background_color_index}
+                            size={70}
+                          />
+                          {rankings.get(submission.id) !== undefined &&
+                            rankings.get(submission.id)! <= 3 && (
+                              <div className="absolute -top-1 -right-1">
+                                <TrophyBadge
+                                  rank={rankings.get(submission.id) as 1 | 2 | 3}
+                                  size="sm"
+                                />
+                              </div>
+                            )}
+                        </>
                       ) : !isFuture ? (
                         <div
                           className="text-xs text-center"
