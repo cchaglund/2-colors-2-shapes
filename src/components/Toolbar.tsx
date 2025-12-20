@@ -310,6 +310,7 @@ export function Toolbar({
           <li>Click color to change selected</li>
           <li>{keyMappings.moveUp ? formatKeyBinding(keyMappings.moveUp).replace('↑', 'Arrow keys') : 'Arrow keys'} to move</li>
           <li>{keyMappings.rotateClockwise ? formatKeyBinding(keyMappings.rotateClockwise) : '.'}/{keyMappings.rotateCounterClockwise ? formatKeyBinding(keyMappings.rotateCounterClockwise) : ','} to rotate</li>
+          <li>{keyMappings.mirrorHorizontal ? formatKeyBinding(keyMappings.mirrorHorizontal) : 'H'}/{keyMappings.mirrorVertical ? formatKeyBinding(keyMappings.mirrorVertical) : 'V'} to mirror</li>
           <li>Hold Shift for larger steps</li>
           <li>{keyMappings.undo ? formatKeyBinding(keyMappings.undo) : 'Z'} to undo, {keyMappings.redo ? formatKeyBinding(keyMappings.redo) : 'Shift+Z'} to redo</li>
           <li>{keyMappings.duplicate ? formatKeyBinding(keyMappings.duplicate) : 'D'} to duplicate selected</li>

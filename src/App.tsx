@@ -111,6 +111,8 @@ function App() {
     reorderLayers,
     setBackgroundColor,
     resetCanvas,
+    mirrorHorizontal,
+    mirrorVertical,
     undo,
     redo,
     canUndo,
@@ -185,6 +187,16 @@ function App() {
     if (canvasState.selectedShapeIds.size === 0) return;
     duplicateShapes(Array.from(canvasState.selectedShapeIds));
   }, [canvasState.selectedShapeIds, duplicateShapes]);
+
+  const handleMirrorHorizontal = useCallback(() => {
+    if (canvasState.selectedShapeIds.size === 0) return;
+    mirrorHorizontal(Array.from(canvasState.selectedShapeIds));
+  }, [canvasState.selectedShapeIds, mirrorHorizontal]);
+
+  const handleMirrorVertical = useCallback(() => {
+    if (canvasState.selectedShapeIds.size === 0) return;
+    mirrorVertical(Array.from(canvasState.selectedShapeIds));
+  }, [canvasState.selectedShapeIds, mirrorVertical]);
 
   // Resize from center - adjust position to keep center fixed
   const handleResizeShapes = useCallback(
@@ -373,6 +385,8 @@ function App() {
             onDeleteSelectedShapes={deleteSelectedShapes}
             onUndo={undo}
             onRedo={redo}
+            onMirrorHorizontal={mirrorHorizontal}
+            onMirrorVertical={mirrorVertical}
             onZoomAtPoint={zoomAtPoint}
             onPan={setPan}
           />
@@ -397,6 +411,8 @@ function App() {
             onRotateCounterClockwise={() => handleRotateShapes(-1)}
             onSizeIncrease={() => handleResizeShapes(5)}
             onSizeDecrease={() => handleResizeShapes(-5)}
+            onMirrorHorizontal={handleMirrorHorizontal}
+            onMirrorVertical={handleMirrorVertical}
           />
         </div>
 

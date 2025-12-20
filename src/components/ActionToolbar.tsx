@@ -91,6 +91,22 @@ const SizeDecreaseIcon = () => (
   </svg>
 );
 
+const MirrorHorizontalIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="3" x2="12" y2="21" />
+    <polyline points="16 7 20 12 16 17" />
+    <polyline points="8 7 4 12 8 17" />
+  </svg>
+);
+
+const MirrorVerticalIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="3" y1="12" x2="21" y2="12" />
+    <polyline points="7 8 12 4 17 8" />
+    <polyline points="7 16 12 20 17 16" />
+  </svg>
+);
+
 const CollapseIcon = ({ collapsed }: { collapsed: boolean }) => (
   <svg
     width="16"
@@ -124,6 +140,8 @@ interface ActionToolbarProps {
   onRotateCounterClockwise: () => void;
   onSizeIncrease: () => void;
   onSizeDecrease: () => void;
+  onMirrorHorizontal: () => void;
+  onMirrorVertical: () => void;
 }
 
 interface ToolbarButtonProps {
@@ -199,6 +217,8 @@ export function ActionToolbar({
   onRotateCounterClockwise,
   onSizeIncrease,
   onSizeDecrease,
+  onMirrorHorizontal,
+  onMirrorVertical,
 }: ActionToolbarProps) {
   const [collapsed, setCollapsed] = useState(false);
 
@@ -335,6 +355,24 @@ export function ActionToolbar({
             label="Increase Size"
             shortcut="Mouse only"
             onClick={onSizeIncrease}
+            disabled={!hasSelection}
+          />
+
+          <Separator />
+
+          {/* Mirror */}
+          <ToolbarButton
+            icon={<MirrorHorizontalIcon />}
+            label="Mirror Horizontal"
+            shortcut={getShortcut('mirrorHorizontal')}
+            onClick={onMirrorHorizontal}
+            disabled={!hasSelection}
+          />
+          <ToolbarButton
+            icon={<MirrorVerticalIcon />}
+            label="Mirror Vertical"
+            shortcut={getShortcut('mirrorVertical')}
+            onClick={onMirrorVertical}
             disabled={!hasSelection}
           />
         </>

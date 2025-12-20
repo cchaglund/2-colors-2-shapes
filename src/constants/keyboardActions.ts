@@ -11,6 +11,8 @@ export type KeyboardActionId =
   | 'moveRight'
   | 'rotateClockwise'
   | 'rotateCounterClockwise'
+  | 'mirrorHorizontal'
+  | 'mirrorVertical'
   | 'pan';
 
 export interface KeyBinding {
@@ -111,6 +113,22 @@ export const KEYBOARD_ACTIONS: KeyboardAction[] = [
     description: 'Rotate selected shapes counter-clockwise (Shift for 15° steps)',
     category: 'movement',
     defaultBinding: { key: 'Comma' },
+    allowRemap: true,
+  },
+  {
+    id: 'mirrorHorizontal',
+    label: 'Mirror Horizontal',
+    description: 'Flip selected shapes horizontally (left/right)',
+    category: 'movement',
+    defaultBinding: { key: 'KeyH' },
+    allowRemap: true,
+  },
+  {
+    id: 'mirrorVertical',
+    label: 'Mirror Vertical',
+    description: 'Flip selected shapes vertically (up/down)',
+    category: 'movement',
+    defaultBinding: { key: 'KeyV' },
     allowRemap: true,
   },
   {

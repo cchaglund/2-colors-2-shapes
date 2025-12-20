@@ -54,6 +54,8 @@ export interface Shape {
   rotation: number;
   colorIndex: 0 | 1; // Index into the daily colors array
   zIndex: number;
+  flipX?: boolean; // Flip horizontally (mirror left/right)
+  flipY?: boolean; // Flip vertically (mirror up/down)
 }
 
 export interface DailyChallenge {

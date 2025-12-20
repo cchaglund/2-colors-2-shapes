@@ -22,6 +22,8 @@ interface CanvasProps {
   onDeleteSelectedShapes: () => void;
   onUndo: () => void;
   onRedo: () => void;
+  onMirrorHorizontal: (ids: string[]) => void;
+  onMirrorVertical: (ids: string[]) => void;
   onZoomAtPoint: (delta: number, pointX: number, pointY: number) => void;
   onPan: (panX: number, panY: number) => void;
 }
@@ -61,6 +63,8 @@ export function Canvas({
   onDeleteSelectedShapes,
   onUndo,
   onRedo,
+  onMirrorHorizontal,
+  onMirrorVertical,
   onZoomAtPoint,
   onPan,
 }: CanvasProps) {
@@ -594,6 +598,26 @@ export function Canvas({
         }
       }
 
+      // Check for mirror horizontal binding
+      const mirrorHBinding = keyMappings.mirrorHorizontal;
+      if (mirrorHBinding && matchesBinding(e, mirrorHBinding)) {
+        if (selectedShapes.length > 0) {
+          e.preventDefault();
+          onMirrorHorizontal(selectedShapes.map(s => s.id));
+          return;
+        }
+      }
+
+      // Check for mirror vertical binding
+      const mirrorVBinding = keyMappings.mirrorVertical;
+      if (mirrorVBinding && matchesBinding(e, mirrorVBinding)) {
+        if (selectedShapes.length > 0) {
+          e.preventDefault();
+          onMirrorVertical(selectedShapes.map(s => s.id));
+          return;
+        }
+      }
+
       // Movement and rotation shortcuts require selected shapes
       if (!hasSelection) return;
 
@@ -662,7 +686,7 @@ export function Canvas({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedShapes, hasSelection, keyMappings, onUpdateShapes, onUndo, onRedo, onDuplicateShapes, onDeleteSelectedShapes]);
+  }, [selectedShapes, hasSelection, keyMappings, onUpdateShapes, onUndo, onRedo, onDuplicateShapes, onDeleteSelectedShapes, onMirrorHorizontal, onMirrorVertical]);
 
   // Handle spacebar for panning mode
   useEffect(() => {

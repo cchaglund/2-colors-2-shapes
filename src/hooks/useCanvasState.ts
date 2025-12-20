@@ -487,6 +487,60 @@ export function useCanvasState(challenge: DailyChallenge) {
     setCanvasState(initialCanvasState);
   }, [setCanvasState]);
 
+  // Mirror shapes horizontally (flip left/right)
+  const mirrorHorizontal = useCallback(
+    (ids: string[]) => {
+      if (ids.length === 0) return;
+
+      setCanvasState((prev) => {
+        const shapesToMirror = prev.shapes.filter((s) => ids.includes(s.id));
+        if (shapesToMirror.length === 0) return prev;
+
+        // Toggle flipX for each selected shape
+        const updates = new Map<string, Partial<Shape>>();
+        for (const shape of shapesToMirror) {
+          updates.set(shape.id, { flipX: !shape.flipX });
+        }
+
+        return {
+          ...prev,
+          shapes: prev.shapes.map((s) => {
+            const shapeUpdates = updates.get(s.id);
+            return shapeUpdates ? { ...s, ...shapeUpdates } : s;
+          }),
+        };
+      });
+    },
+    [setCanvasState]
+  );
+
+  // Mirror shapes vertically (flip up/down)
+  const mirrorVertical = useCallback(
+    (ids: string[]) => {
+      if (ids.length === 0) return;
+
+      setCanvasState((prev) => {
+        const shapesToMirror = prev.shapes.filter((s) => ids.includes(s.id));
+        if (shapesToMirror.length === 0) return prev;
+
+        // Toggle flipY for each selected shape
+        const updates = new Map<string, Partial<Shape>>();
+        for (const shape of shapesToMirror) {
+          updates.set(shape.id, { flipY: !shape.flipY });
+        }
+
+        return {
+          ...prev,
+          shapes: prev.shapes.map((s) => {
+            const shapeUpdates = updates.get(s.id);
+            return shapeUpdates ? { ...s, ...shapeUpdates } : s;
+          }),
+        };
+      });
+    },
+    [setCanvasState]
+  );
+
   return {
     canvasState,
     addShape,
@@ -501,6 +555,8 @@ export function useCanvasState(challenge: DailyChallenge) {
     reorderLayers,
     setBackgroundColor,
     resetCanvas,
+    mirrorHorizontal,
+    mirrorVertical,
     undo,
     redo,
     canUndo,
