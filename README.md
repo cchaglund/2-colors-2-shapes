@@ -2,6 +2,8 @@
 
 A daily art challenge app where you create art using only 2 colors and 2 geometric shapes.
 
+https://2-colors-2-shapes.netlify.app/
+
 ## Concept
 
 Every day, the app generates a unique set of constraints:
@@ -49,6 +51,11 @@ The same date always generates the same colors and shapes (seed-based randomizat
   - Download as PNG or SVG
   - Copy shareable link
 - **Welcome modal**: First-time visitors see an intro explaining the app
+- **Action toolbar**: Mouse-friendly toolbar at top of canvas
+  - Buttons for undo/redo, duplicate, delete, move, and rotate actions
+  - Tooltips show action name and keyboard shortcut on hover
+  - Collapsible to save screen space
+  - Disabled states when actions aren't available (e.g., no selection)
 
 ### Planned
 - [ ] Procedurally generated shapes (advanced mode)
@@ -121,6 +128,7 @@ src/
 │   ├── TransformHandles.tsx # Resize/rotate handles for selected shape
 │   ├── LayerPanel.tsx    # Sidebar for layer management
 │   ├── Toolbar.tsx       # Left sidebar with controls
+│   ├── ActionToolbar.tsx # Top toolbar with action buttons
 │   ├── Calendar.tsx      # Calendar modal for browsing submissions
 │   ├── SubmissionThumbnail.tsx # Thumbnail renderer for submissions
 │   └── SubmissionDetailPage.tsx # Full submission view with export

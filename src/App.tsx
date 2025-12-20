@@ -3,6 +3,7 @@ import { Canvas } from './components/Canvas';
 import { Toolbar } from './components/Toolbar';
 import { LayerPanel } from './components/LayerPanel';
 import { ZoomControls } from './components/ZoomControls';
+import { ActionToolbar } from './components/ActionToolbar';
 import { ShapeExplorer } from './components/ShapeExplorer';
 import { OnboardingModal } from './components/OnboardingModal';
 import { WelcomeModal } from './components/WelcomeModal';
@@ -93,6 +94,8 @@ function App() {
     resetCanvas,
     undo,
     redo,
+    canUndo,
+    canRedo,
   } = useCanvasState(challenge);
 
   const {
@@ -128,6 +131,61 @@ function App() {
   const handleZoomOut = useCallback(() => {
     setZoom(viewport.zoom - 0.1);
   }, [viewport.zoom, setZoom]);
+
+  // Movement and rotation handlers for ActionToolbar
+  const selectedShapes = useMemo(
+    () => canvasState.shapes.filter((s) => canvasState.selectedShapeIds.has(s.id)),
+    [canvasState.shapes, canvasState.selectedShapeIds]
+  );
+
+  const handleMoveShapes = useCallback(
+    (dx: number, dy: number) => {
+      if (selectedShapes.length === 0) return;
+      const updates = new Map<string, { x: number; y: number }>();
+      selectedShapes.forEach((shape) => {
+        updates.set(shape.id, { x: shape.x + dx, y: shape.y + dy });
+      });
+      updateShapes(updates);
+    },
+    [selectedShapes, updateShapes]
+  );
+
+  const handleRotateShapes = useCallback(
+    (dRotation: number) => {
+      if (selectedShapes.length === 0) return;
+      const updates = new Map<string, { rotation: number }>();
+      selectedShapes.forEach((shape) => {
+        updates.set(shape.id, { rotation: shape.rotation + dRotation });
+      });
+      updateShapes(updates);
+    },
+    [selectedShapes, updateShapes]
+  );
+
+  const handleDuplicate = useCallback(() => {
+    if (canvasState.selectedShapeIds.size === 0) return;
+    duplicateShapes(Array.from(canvasState.selectedShapeIds));
+  }, [canvasState.selectedShapeIds, duplicateShapes]);
+
+  // Resize from center - adjust position to keep center fixed
+  const handleResizeShapes = useCallback(
+    (delta: number) => {
+      if (selectedShapes.length === 0) return;
+      const updates = new Map<string, { size: number; x: number; y: number }>();
+      selectedShapes.forEach((shape) => {
+        const newSize = Math.max(10, shape.size + delta); // Minimum size of 10
+        const sizeDiff = newSize - shape.size;
+        // Adjust position to keep center fixed (shape position is top-left corner)
+        updates.set(shape.id, {
+          size: newSize,
+          x: shape.x - sizeDiff / 2,
+          y: shape.y - sizeDiff / 2,
+        });
+      });
+      updateShapes(updates);
+    },
+    [selectedShapes, updateShapes]
+  );
 
   // Get client coordinates relative to the main element, normalized to canvas size
   const getClientPoint = useCallback(
@@ -294,6 +352,28 @@ function App() {
             onRedo={redo}
             onZoomAtPoint={zoomAtPoint}
             onPan={setPan}
+          />
+        </div>
+
+        {/* Action toolbar at top */}
+        <div className="absolute top-4 left-1/2 -translate-x-1/2">
+          <ActionToolbar
+            keyMappings={keyMappings}
+            hasSelection={canvasState.selectedShapeIds.size > 0}
+            canUndo={canUndo}
+            canRedo={canRedo}
+            onUndo={undo}
+            onRedo={redo}
+            onDuplicate={handleDuplicate}
+            onDelete={deleteSelectedShapes}
+            onMoveUp={() => handleMoveShapes(0, -1)}
+            onMoveDown={() => handleMoveShapes(0, 1)}
+            onMoveLeft={() => handleMoveShapes(-1, 0)}
+            onMoveRight={() => handleMoveShapes(1, 0)}
+            onRotateClockwise={() => handleRotateShapes(1)}
+            onRotateCounterClockwise={() => handleRotateShapes(-1)}
+            onSizeIncrease={() => handleResizeShapes(5)}
+            onSizeDecrease={() => handleResizeShapes(-5)}
           />
         </div>
 
