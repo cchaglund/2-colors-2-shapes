@@ -81,6 +81,35 @@ npm run dev
 npm run build
 ```
 
+## Deployment
+
+This project is hosted on Netlify. **Automatic builds are disabled** to conserve credits.
+
+### Manual Deployment via CLI
+
+1. Login to Netlify (first time only):
+   ```bash
+   netlify login
+   ```
+
+2. Build and deploy:
+   ```bash
+   # Build the project
+   npm run build
+
+   # Deploy to production
+   netlify deploy --prod --dir=dist
+   ```
+
+   Or for a preview deploy (doesn't affect production):
+   ```bash
+   netlify deploy --dir=dist
+   ```
+
+### Why manual deploys?
+
+Netlify charges credits per build. With automatic builds enabled, every push to `main` triggers a build. Manual deploys let you control when builds happen, reducing credit usage.
+
 ## Development
 
 ### Supabase & Local Development
