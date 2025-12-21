@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import { calculateRequiredVotes } from '../utils/votingRules';
 import type { VotingPair, Shape } from '../types';
 
 interface SubmissionRow {
@@ -14,9 +15,10 @@ interface UseVotingReturn {
   loading: boolean;
   submitting: boolean;
   voteCount: number;
+  requiredVotes: number;
   hasEnteredRanking: boolean;
   noMorePairs: boolean;
-  notEnoughSubmissions: boolean;
+  noSubmissions: boolean; // 0 submissions - bootstrap case
   submissionCount: number;
   vote: (winnerId: string) => Promise<void>;
   skip: () => Promise<void>;
@@ -24,16 +26,15 @@ interface UseVotingReturn {
   initializeVoting: () => Promise<void>;
 }
 
-const MIN_SUBMISSIONS = 5;
-
 export function useVoting(userId: string | undefined, challengeDate: string): UseVotingReturn {
   const [currentPair, setCurrentPair] = useState<VotingPair | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [voteCount, setVoteCount] = useState(0);
+  const [requiredVotes, setRequiredVotes] = useState(5);
   const [hasEnteredRanking, setHasEnteredRanking] = useState(false);
   const [noMorePairs, setNoMorePairs] = useState(false);
-  const [notEnoughSubmissions, setNotEnoughSubmissions] = useState(false);
+  const [noSubmissions, setNoSubmissions] = useState(false);
   const [submissionCount, setSubmissionCount] = useState(0);
 
   // Initialize daily rankings for the challenge date if needed
@@ -54,19 +55,26 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
       const totalSubmissions = count ?? 0;
       setSubmissionCount(totalSubmissions);
 
-      if (totalSubmissions < MIN_SUBMISSIONS) {
-        setNotEnoughSubmissions(true);
+      // Calculate required votes based on available submissions
+      const required = calculateRequiredVotes(totalSubmissions);
+      setRequiredVotes(required);
+
+      // Bootstrap case: 0 submissions - show opt-in prompt
+      if (totalSubmissions === 0) {
+        setNoSubmissions(true);
         setLoading(false);
         return;
       }
 
-      // Initialize daily rankings if not already done
-      const { error: initError } = await supabase.rpc('initialize_daily_rankings', {
-        p_challenge_date: challengeDate,
-      });
+      // If we have submissions, initialize daily rankings
+      if (totalSubmissions >= 2) {
+        const { error: initError } = await supabase.rpc('initialize_daily_rankings', {
+          p_challenge_date: challengeDate,
+        });
 
-      if (initError) {
-        console.error('Error initializing rankings:', initError);
+        if (initError) {
+          console.error('Error initializing rankings:', initError);
+        }
       }
 
       // Load user's voting status
@@ -79,7 +87,7 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
 
       if (status) {
         setVoteCount(status.vote_count);
-        setHasEnteredRanking(status.entered_ranking);
+        setHasEnteredRanking(status.entered_ranking || status.vote_count >= required);
       }
     } catch (error) {
       console.error('Error initializing voting:', error);
@@ -90,7 +98,7 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
 
   // Fetch the next pair to vote on
   const fetchNextPair = useCallback(async () => {
-    if (!userId || notEnoughSubmissions) return;
+    if (!userId || noSubmissions || submissionCount < 2) return;
 
     setLoading(true);
 
@@ -157,7 +165,7 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
     }
 
     setLoading(false);
-  }, [userId, challengeDate, notEnoughSubmissions]);
+  }, [userId, challengeDate, noSubmissions, submissionCount]);
 
   // Submit a vote
   const vote = useCallback(
@@ -173,6 +181,7 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
             submissionBId: currentPair.submissionB.id,
             winnerId,
             challengeDate,
+            requiredVotes,
           },
         });
 
@@ -190,10 +199,10 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
 
       setSubmitting(false);
     },
-    [userId, currentPair, challengeDate, fetchNextPair]
+    [userId, currentPair, challengeDate, requiredVotes, fetchNextPair]
   );
 
-  // Skip the current pair (doesn't count toward 5 votes)
+  // Skip the current pair (doesn't count toward vote requirement)
   const skip = useCallback(async () => {
     if (!userId || !currentPair) return;
 
@@ -206,6 +215,7 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
           submissionBId: currentPair.submissionB.id,
           winnerId: null, // null = skip
           challengeDate,
+          requiredVotes,
         },
       });
 
@@ -218,16 +228,17 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
     }
 
     setSubmitting(false);
-  }, [userId, currentPair, challengeDate, fetchNextPair]);
+  }, [userId, currentPair, challengeDate, requiredVotes, fetchNextPair]);
 
   return {
     currentPair,
     loading,
     submitting,
     voteCount,
+    requiredVotes,
     hasEnteredRanking,
     noMorePairs,
-    notEnoughSubmissions,
+    noSubmissions,
     submissionCount,
     vote,
     skip,

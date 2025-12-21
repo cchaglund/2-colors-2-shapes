@@ -9,11 +9,16 @@ interface VotingModalProps {
   challengeDate: string; // The date to vote on (yesterday)
   onComplete: () => void;
   onSkipVoting: () => void;
+  onOptInToRanking?: () => void; // Called when user opts in without voting (bootstrap case)
 }
 
-const REQUIRED_VOTES = 5;
-
-export function VotingModal({ userId, challengeDate, onComplete, onSkipVoting }: VotingModalProps) {
+export function VotingModal({
+  userId,
+  challengeDate,
+  onComplete,
+  onSkipVoting,
+  onOptInToRanking,
+}: VotingModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [challenge, setChallenge] = useState<DailyChallenge | null>(null);
@@ -23,9 +28,10 @@ export function VotingModal({ userId, challengeDate, onComplete, onSkipVoting }:
     loading,
     submitting,
     voteCount,
+    requiredVotes,
     hasEnteredRanking,
     noMorePairs,
-    notEnoughSubmissions,
+    noSubmissions,
     submissionCount,
     vote,
     skip,
@@ -45,7 +51,7 @@ export function VotingModal({ userId, challengeDate, onComplete, onSkipVoting }:
     });
   }, [initializeVoting, fetchNextPair]);
 
-  // Show confirmation when user hits 5 votes
+  // Show confirmation when user reaches required votes
   useEffect(() => {
     if (hasEnteredRanking && !showConfirmation) {
       setShowConfirmation(true);
@@ -96,6 +102,12 @@ export function VotingModal({ userId, challengeDate, onComplete, onSkipVoting }:
     setShowConfirmation(false);
   };
 
+  const handleOptIn = () => {
+    // User opts in to ranking without voting (bootstrap case)
+    onOptInToRanking?.();
+    onComplete();
+  };
+
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr + 'T12:00:00');
     return date.toLocaleDateString('en-US', {
@@ -105,8 +117,8 @@ export function VotingModal({ userId, challengeDate, onComplete, onSkipVoting }:
     });
   };
 
-  // Not enough submissions screen
-  if (notEnoughSubmissions) {
+  // Bootstrap case: No submissions yesterday - ask if they want to enter ranking
+  if (noSubmissions && !loading) {
     return (
       <div
         className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
@@ -116,27 +128,36 @@ export function VotingModal({ userId, challengeDate, onComplete, onSkipVoting }:
       >
         <div
           ref={modalRef}
-          className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-md mx-4 shadow-xl"
+          className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-md mx-4 shadow-xl text-center"
         >
+          <div className="text-4xl mb-4">🎨</div>
           <h2 id="voting-title" className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">
-            Not Enough Submissions
+            Submit for Voting?
           </h2>
           <p className="text-[var(--color-text-secondary)] mb-6">
-            There were only {submissionCount} submission{submissionCount !== 1 ? 's' : ''} on{' '}
-            {formatDate(challengeDate)}. At least 5 are needed for ranking.
+            There were no submissions yesterday to vote on. Would you like your artwork to be included in
+            tomorrow's voting?
           </p>
-          <button
-            onClick={onComplete}
-            className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
-            Got it
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={onSkipVoting}
+              className="flex-1 px-4 py-2.5 border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-lg font-medium hover:bg-[var(--color-bg-secondary)] transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              No thanks
+            </button>
+            <button
+              onClick={handleOptIn}
+              className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              Yes, include me!
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
-  // Confirmation screen after 5 votes
+  // Confirmation screen after reaching required votes
   if (showConfirmation) {
     return (
       <div
@@ -178,6 +199,7 @@ export function VotingModal({ userId, challengeDate, onComplete, onSkipVoting }:
 
   // No more pairs to vote on
   if (noMorePairs && !loading) {
+    const hasVotedEnough = voteCount >= requiredVotes;
     return (
       <div
         className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
@@ -189,23 +211,76 @@ export function VotingModal({ userId, challengeDate, onComplete, onSkipVoting }:
           ref={modalRef}
           className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-md mx-4 shadow-xl text-center"
         >
-          <h2 id="voting-title" className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">
-            No More Pairs
-          </h2>
-          <p className="text-[var(--color-text-secondary)] mb-4">
-            You've seen all available artwork pairs for {formatDate(challengeDate)}.
-          </p>
-          {voteCount < REQUIRED_VOTES && (
-            <p className="text-[var(--color-text-tertiary)] text-sm mb-6">
-              You voted on {voteCount} pair{voteCount !== 1 ? 's' : ''}. Need {REQUIRED_VOTES} to enter ranking.
-            </p>
+          {hasVotedEnough ? (
+            <>
+              <div className="text-4xl mb-4">🎉</div>
+              <h2 id="voting-title" className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">
+                All Done!
+              </h2>
+              <p className="text-[var(--color-text-secondary)] mb-6">
+                You've voted on all available pairs. Your artwork is entered in today's ranking!
+              </p>
+            </>
+          ) : (
+            <>
+              <h2 id="voting-title" className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">
+                No More Pairs
+              </h2>
+              <p className="text-[var(--color-text-secondary)] mb-4">
+                You've seen all available artwork pairs for {formatDate(challengeDate)}.
+              </p>
+              <p className="text-[var(--color-text-tertiary)] text-sm mb-6">
+                You voted on {voteCount} pair{voteCount !== 1 ? 's' : ''}.
+                {requiredVotes > voteCount && ` Needed ${requiredVotes} to enter ranking.`}
+              </p>
+            </>
           )}
           <button
-            onClick={voteCount >= REQUIRED_VOTES ? onComplete : onSkipVoting}
+            onClick={hasVotedEnough ? onComplete : onSkipVoting}
             className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-            {voteCount >= REQUIRED_VOTES ? 'Done' : 'Continue Without Ranking'}
+            {hasVotedEnough ? 'Done' : 'Continue Without Ranking'}
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Only 1 submission - can't make pairs
+  if (submissionCount === 1 && !loading) {
+    return (
+      <div
+        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="voting-title"
+      >
+        <div
+          ref={modalRef}
+          className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-md mx-4 shadow-xl text-center"
+        >
+          <div className="text-4xl mb-4">🎨</div>
+          <h2 id="voting-title" className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">
+            Submit for Voting?
+          </h2>
+          <p className="text-[var(--color-text-secondary)] mb-6">
+            There was only 1 submission yesterday, so there's nothing to vote on yet. Would you like your
+            artwork to be included in tomorrow's voting?
+          </p>
+          <div className="flex gap-3">
+            <button
+              onClick={onSkipVoting}
+              className="flex-1 px-4 py-2.5 border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-lg font-medium hover:bg-[var(--color-bg-secondary)] transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              No thanks
+            </button>
+            <button
+              onClick={handleOptIn}
+              className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              Yes, include me!
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -232,11 +307,11 @@ export function VotingModal({ userId, challengeDate, onComplete, onSkipVoting }:
           </div>
           <div className="text-right">
             <div className="text-sm font-medium text-[var(--color-text-primary)]">
-              {voteCount} of {REQUIRED_VOTES} votes
+              {voteCount} of {requiredVotes} votes
             </div>
             <div className="text-xs text-[var(--color-text-tertiary)]">
-              {REQUIRED_VOTES - voteCount > 0
-                ? `${REQUIRED_VOTES - voteCount} more to enter ranking`
+              {requiredVotes - voteCount > 0
+                ? `${requiredVotes - voteCount} more to enter ranking`
                 : 'Entered in ranking!'}
             </div>
           </div>
@@ -246,7 +321,7 @@ export function VotingModal({ userId, challengeDate, onComplete, onSkipVoting }:
         <div className="w-full h-2 bg-[var(--color-bg-tertiary)] rounded-full mb-6 overflow-hidden">
           <div
             className="h-full bg-blue-600 transition-all duration-300"
-            style={{ width: `${Math.min((voteCount / REQUIRED_VOTES) * 100, 100)}%` }}
+            style={{ width: `${requiredVotes > 0 ? Math.min((voteCount / requiredVotes) * 100, 100) : 100}%` }}
           />
         </div>
 

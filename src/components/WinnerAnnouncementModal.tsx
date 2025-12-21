@@ -62,10 +62,6 @@ export function WinnerAnnouncementModal({
     });
   };
 
-  // Check for ties
-  const hasTie = topThree.length > 1 && topThree[0].rank === topThree[1].rank;
-  const hasThreeWayTie = hasTie && topThree.length > 2 && topThree[1].rank === topThree[2].rank;
-
   // Not enough submissions
   if (notEnoughSubmissions) {
     return (
@@ -104,9 +100,10 @@ export function WinnerAnnouncementModal({
     );
   }
 
-  const winner = topThree[0];
-  const runnerUp = topThree.find((e) => e.rank === 2);
-  const thirdPlace = topThree.find((e) => e.rank === 3);
+  // Group entries by rank
+  const winners = topThree.filter((e) => e.rank === 1);
+  const runnerUps = topThree.filter((e) => e.rank === 2);
+  const thirdPlaces = topThree.filter((e) => e.rank === 3);
 
   return (
     <div
@@ -121,41 +118,46 @@ export function WinnerAnnouncementModal({
       >
         <div className="text-center mb-6">
           <h2 id="winner-title" className="text-xl font-semibold text-[var(--color-text-primary)] mb-1">
-            Yesterday's Winners!
+            Yesterday's {winners.length > 1 ? 'Winners' : 'Winner'}!
           </h2>
           <p className="text-sm text-[var(--color-text-secondary)]">{formatDate(challengeDate)}</p>
-          {(hasTie || hasThreeWayTie) && (
+          {winners.length > 1 && (
             <p className="text-xs text-[var(--color-text-tertiary)] mt-1">
-              {hasThreeWayTie ? 'Three-way tie!' : 'Tie for 1st place!'}
+              {winners.length === 3 ? 'Three-way tie!' : winners.length === 2 ? 'Tie for 1st place!' : ''}
             </p>
           )}
         </div>
 
-        {/* Winner (1st place) */}
-        {winner && (
-          <div className="flex flex-col items-center mb-6">
-            <div className="relative">
-              <div className="absolute -top-3 -right-3 z-10">
-                <TrophyBadge rank={1} size="lg" />
+        {/* Winners (1st place) - show all tied winners */}
+        {winners.length > 0 && (
+          <div className={`flex justify-center ${winners.length > 1 ? 'gap-6' : ''} mb-6`}>
+            {winners.map((winner, index) => (
+              <div key={winner.submission_id} className="flex flex-col items-center">
+                <div className="relative">
+                  <div className="absolute -top-3 -right-3 z-10">
+                    <TrophyBadge rank={1} size={winners.length > 2 ? 'md' : 'lg'} />
+                  </div>
+                  <div className="border-4 border-yellow-400 rounded-xl p-2 shadow-lg">
+                    <SubmissionThumbnail
+                      shapes={winner.shapes}
+                      challenge={challenge}
+                      backgroundColorIndex={winner.background_color_index}
+                      size={winners.length > 2 ? 120 : winners.length > 1 ? 140 : 180}
+                    />
+                  </div>
+                </div>
+                <p className="mt-3 font-medium text-[var(--color-text-primary)]">@{winner.nickname}</p>
               </div>
-              <div className="border-4 border-yellow-400 rounded-xl p-2 shadow-lg">
-                <SubmissionThumbnail
-                  shapes={winner.shapes}
-                  challenge={challenge}
-                  backgroundColorIndex={winner.background_color_index}
-                  size={180}
-                />
-              </div>
-            </div>
-            <p className="mt-3 font-medium text-[var(--color-text-primary)]">@{winner.nickname}</p>
+            ))}
           </div>
         )}
 
-        {/* 2nd and 3rd place */}
-        {(runnerUp || thirdPlace) && (
+        {/* 2nd and 3rd place - show if single winner, or show 3rd place for 2-way tie */}
+        {(winners.length === 1 && (runnerUps.length > 0 || thirdPlaces.length > 0)) || (winners.length === 2 && thirdPlaces.length > 0) ? (
           <div className="flex justify-center gap-8 mb-6">
-            {runnerUp && (
-              <div className="flex flex-col items-center">
+            {/* Only show 2nd place if there's a single winner (no tie for 1st) */}
+            {winners.length === 1 && runnerUps.map((runnerUp) => (
+              <div key={runnerUp.submission_id} className="flex flex-col items-center">
                 <div className="relative">
                   <div className="absolute -top-2 -right-2 z-10">
                     <TrophyBadge rank={2} size="md" />
@@ -171,10 +173,10 @@ export function WinnerAnnouncementModal({
                 </div>
                 <p className="mt-2 text-sm text-[var(--color-text-secondary)]">@{runnerUp.nickname}</p>
               </div>
-            )}
+            ))}
 
-            {thirdPlace && (
-              <div className="flex flex-col items-center">
+            {thirdPlaces.map((thirdPlace) => (
+              <div key={thirdPlace.submission_id} className="flex flex-col items-center">
                 <div className="relative">
                   <div className="absolute -top-2 -right-2 z-10">
                     <TrophyBadge rank={3} size="md" />
@@ -190,9 +192,9 @@ export function WinnerAnnouncementModal({
                 </div>
                 <p className="mt-2 text-sm text-[var(--color-text-secondary)]">@{thirdPlace.nickname}</p>
               </div>
-            )}
+            ))}
           </div>
-        )}
+        ) : null}
 
         <button
           ref={buttonRef}

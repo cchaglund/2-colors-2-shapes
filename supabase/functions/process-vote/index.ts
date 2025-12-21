@@ -11,6 +11,7 @@ interface VoteRequest {
   submissionBId: string;
   winnerId: string | null; // null if skipped
   challengeDate: string; // YYYY-MM-DD
+  requiredVotes?: number; // Dynamic threshold based on available submissions (default: 5)
 }
 
 interface EloResult {
@@ -76,7 +77,7 @@ serve(async (req: Request) => {
     }
 
     // Parse request body
-    const { submissionAId, submissionBId, winnerId, challengeDate }: VoteRequest = await req.json();
+    const { submissionAId, submissionBId, winnerId, challengeDate, requiredVotes = 5 }: VoteRequest = await req.json();
 
     // Validate input
     if (!submissionAId || !submissionBId || !challengeDate) {
@@ -159,7 +160,7 @@ serve(async (req: Request) => {
     if (existingStatus) {
       // Update existing status
       const newVoteCount = isActualVote ? existingStatus.vote_count + 1 : existingStatus.vote_count;
-      const enteredRanking = newVoteCount >= 5;
+      const enteredRanking = newVoteCount >= requiredVotes;
 
       await supabaseAdmin
         .from('user_voting_status')

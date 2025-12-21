@@ -217,6 +217,55 @@ http://localhost:5173/?explorer
 VITE_SHAPE_EXPLORER=true npm run dev
 ```
 
+### Voting Test Page
+
+A visual test page for voting components with hardcoded mock data. Allows testing the voting UI without needing real submissions or database interaction.
+
+**Access via URL parameter:**
+```
+http://localhost:5173/?test=voting
+```
+
+**Test scenarios available:**
+- **Voting UI**: Main voting interface with a pair of submissions
+- **Voting Progress**: Vote progress bar states (0-5 votes)
+- **Voting Confirmation**: Confirmation screen after 5 votes
+- **No More Pairs**: When all pairs have been voted on
+- **Not Enough Submissions**: When there are fewer than 5 submissions
+- **Winner - Normal**: Standard winner announcement with top 3
+- **Winner - Tied**: Winner announcement with 1st place tie
+- **Winner - Three-Way Tie**: Winner announcement with three-way tie
+- **Winner - Not Enough**: Winner modal when not enough submissions
+
+## Testing
+
+### Unit Tests
+
+Run unit tests with Vitest:
+
+```bash
+# Run tests in watch mode
+npm test
+
+# Run tests once
+npm run test:run
+```
+
+**Test coverage:**
+- **ELO calculation** (`src/utils/__tests__/elo.test.ts`): Tests for the ELO rating algorithm including expected scores, rating changes, upset wins, and edge cases
+- **Voting rules** (`src/utils/__tests__/votingRules.test.ts`): Tests for vote eligibility, progress tracking, and state transitions
+
+### Pure Utility Functions
+
+The voting system uses pure functions that can be unit tested independently:
+
+- `calculateElo(ratingA, ratingB, winner)` - ELO rating calculation
+- `calculateExpectedScore(ratingA, ratingB)` - Expected win probability
+- `hasEnoughSubmissions(count)` - Check minimum submission requirement
+- `hasEnteredRanking(voteCount)` - Check if user entered ranking
+- `voteProgressPercentage(voteCount)` - Calculate progress bar percentage
+- `determineVotingState(options)` - Determine current voting state
+
 ## Project Structure
 
 ```
@@ -247,7 +296,13 @@ src/
 │   └── keyboardActions.ts # Keyboard action definitions and helpers
 ├── utils/
 │   ├── dailyChallenge.ts # Seed-based color/shape generation
-│   └── shapeHelpers.ts   # SVG path generation for shapes
+│   ├── shapeHelpers.ts   # SVG path generation for shapes
+│   ├── elo.ts            # ELO rating calculation
+│   ├── votingRules.ts    # Voting eligibility rules
+│   └── __tests__/        # Unit tests for utilities
+├── test/
+│   ├── mockData.ts       # Mock data for visual testing
+│   └── VotingTestPage.tsx # Visual test page for voting
 ├── types/
 │   └── index.ts          # TypeScript type definitions
 ├── lib/

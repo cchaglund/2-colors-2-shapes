@@ -12,6 +12,7 @@ import { SubmissionDetailPage } from './components/SubmissionDetailPage';
 import { KeyboardSettingsModal } from './components/KeyboardSettingsModal';
 import { VotingModal } from './components/VotingModal';
 import { WinnerAnnouncementModal } from './components/WinnerAnnouncementModal';
+import { VotingTestPage } from './test/VotingTestPage';
 import { useCanvasState } from './hooks/useCanvasState';
 import { useViewportState } from './hooks/useViewportState';
 import { useSidebarState } from './hooks/useSidebarState';
@@ -50,11 +51,19 @@ function getSubmissionView(): { view: 'submission'; date: string } | null {
   return null;
 }
 
+// Check if voting test page is requested
+function isVotingTestEnabled(): boolean {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('test') === 'voting';
+}
+
 function App() {
   // Check if Shape Explorer mode should be shown
   const showExplorer = useMemo(() => isShapeExplorerEnabled(), []);
   // Check if submission detail view is requested
   const submissionView = useMemo(() => getSubmissionView(), []);
+  // Check if voting test page should be shown
+  const showVotingTest = useMemo(() => isVotingTestEnabled(), []);
   // Calendar modal state
   const [showCalendar, setShowCalendar] = useState(false);
   // Keyboard settings modal state
@@ -320,6 +329,11 @@ function App() {
   // Render Shape Explorer if enabled
   if (showExplorer) {
     return <ShapeExplorer />;
+  }
+
+  // Render Voting Test Page if enabled
+  if (showVotingTest) {
+    return <VotingTestPage />;
   }
 
   // Render Submission Detail Page if viewing a submission
