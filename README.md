@@ -56,6 +56,16 @@ The same date always generates the same colors and shapes (seed-based randomizat
   - Tooltips show action name and keyboard shortcut on hover
   - Collapsible to save screen space
   - Disabled states when actions aren't available (e.g., no selection)
+- **Mirroring**: Flip shapes horizontally or vertically
+- **Zoom & pan**: Zoom in/out with controls or scroll wheel, pan the canvas
+- **Voting system**: Vote on submissions using ELO-based pairwise comparison
+  - Vote on pairs of submissions to help rank the day's artwork
+  - Cast 5 votes to enter the ranking yourself
+  - Skip pairs if you can't decide
+- **Daily rankings**: ELO-based ranking system for submissions
+  - Rankings computed from community votes
+  - View your rank and total participants
+- **Winner announcement**: See the top 3 submissions from yesterday when you log in
 
 ### Planned
 - [ ] Procedurally generated shapes (advanced mode)
@@ -66,7 +76,8 @@ The same date always generates the same colors and shapes (seed-based randomizat
 
 - **Vite** + **React** + **TypeScript**
 - **SVG** for rendering (React-managed DOM elements)
-- **localStorage** for persistence (future: database)
+- **Supabase** for authentication, database, and edge functions
+- **localStorage** for canvas auto-save
 
 ## Getting Started
 
@@ -122,6 +133,65 @@ This project uses Supabase for authentication and storing submissions. Important
 
 If you wanted a separate development database, you would need to create a second Supabase project and use different environment variables.
 
+### Supabase Edge Functions
+
+Edge functions (located in `supabase/functions/`) handle server-side logic like the voting/rating system. They run on **Deno**, not Node.js.
+
+#### Prerequisites for IDE Support
+
+To avoid TypeScript errors in your IDE when editing edge functions:
+
+1. Install the [Deno extension for VSCode](https://marketplace.visualstudio.com/items?itemName=denoland.vscode-deno)
+2. The project includes a `deno.json` in `supabase/functions/` that configures imports
+
+Without the Deno extension, you'll see errors like "Cannot find module" for Deno-specific imports.
+
+#### Supabase CLI Commands
+
+First, install the Supabase CLI if you haven't:
+```bash
+# macOS
+brew install supabase/tap/supabase
+
+# npm (alternative)
+npm install -g supabase
+```
+
+Login to Supabase (first time only):
+```bash
+supabase login
+```
+
+Link your local project to your Supabase project:
+```bash
+supabase link --project-ref <your-project-ref>
+```
+
+Common commands:
+```bash
+# Deploy all edge functions to production
+supabase functions deploy
+
+# Deploy a specific function
+supabase functions deploy process-vote
+
+# Serve functions locally for testing
+supabase functions serve
+
+# View function logs
+supabase functions logs process-vote
+
+# List all functions
+supabase functions list
+```
+
+#### Environment Variables
+
+Edge functions use these environment variables (automatically available in Supabase):
+- `SUPABASE_URL` - Your project URL
+- `SUPABASE_ANON_KEY` - Public anon key
+- `SUPABASE_SERVICE_ROLE_KEY` - Service role key (server-side only)
+
 ## Developer Tools
 
 ### Shape Explorer
@@ -160,14 +230,19 @@ src/
 │   ├── ActionToolbar.tsx # Top toolbar with action buttons
 │   ├── Calendar.tsx      # Calendar modal for browsing submissions
 │   ├── SubmissionThumbnail.tsx # Thumbnail renderer for submissions
-│   └── SubmissionDetailPage.tsx # Full submission view with export
+│   ├── SubmissionDetailPage.tsx # Full submission view with export
+│   └── ZoomControls.tsx  # Zoom in/out and reset controls
 ├── hooks/
 │   ├── useCanvasState.ts # State management + localStorage persistence
 │   ├── useAuth.ts        # Google OAuth authentication
 │   ├── useProfile.ts     # User profile management
 │   ├── useSubmissions.ts # Submission CRUD operations
 │   ├── useWelcomeModal.ts # First-visit welcome modal state
-│   └── useKeyboardSettings.ts # Custom keyboard shortcut settings
+│   ├── useKeyboardSettings.ts # Custom keyboard shortcut settings
+│   ├── useVoting.ts      # Pairwise voting system
+│   ├── useRanking.ts     # ELO rankings and leaderboard
+│   ├── useWinnerAnnouncement.ts # Yesterday's winner modal
+│   └── useViewportState.ts # Zoom and pan state
 ├── constants/
 │   └── keyboardActions.ts # Keyboard action definitions and helpers
 ├── utils/
