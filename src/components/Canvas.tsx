@@ -40,6 +40,9 @@ interface DragState {
   startSize: number;
   startRotation: number;
   resizeCorner: string;
+  // Store flip state to compensate for inverted coordinates
+  flipX?: boolean;
+  flipY?: boolean;
   // For multi-select: store start positions and sizes of all selected shapes
   startPositions?: Map<string, { x: number; y: number }>;
   startShapeData?: Map<string, { x: number; y: number; size: number; rotation: number }>;
@@ -237,6 +240,8 @@ export function Canvas({
         startSize: singleSelectedShape.size,
         startRotation: singleSelectedShape.rotation,
         resizeCorner: corner,
+        flipX: singleSelectedShape.flipX,
+        flipY: singleSelectedShape.flipY,
       });
     },
     [singleSelectedShape, getSVGPoint]
@@ -258,6 +263,8 @@ export function Canvas({
         startSize: singleSelectedShape.size,
         startRotation: singleSelectedShape.rotation,
         resizeCorner: '',
+        flipX: singleSelectedShape.flipX,
+        flipY: singleSelectedShape.flipY,
       });
     },
     [singleSelectedShape, getSVGPoint]
@@ -391,45 +398,55 @@ export function Canvas({
           });
         }
       } else if (dragState.mode === 'resize') {
+        // Pure screen-space resize logic
+        // We completely ignore rotation/flip - just use where the mouse actually is
+
+        // Shape center in screen space
+        const centerX = dragState.startShapeX + dragState.startSize / 2;
+        const centerY = dragState.startShapeY + dragState.startSize / 2;
+
+        // Where the drag started (the grabbed corner's screen position)
+        const grabX = dragState.startX;
+        const grabY = dragState.startY;
+
+        // Direction from center to grabbed point (this is the "outward" direction)
+        const outDirX = grabX - centerX;
+        const outDirY = grabY - centerY;
+        const outLen = Math.sqrt(outDirX * outDirX + outDirY * outDirY);
+
+        if (outLen < 1) {
+          // Grabbed too close to center, skip
+          return;
+        }
+
+        // Normalize the outward direction
+        const unitOutX = outDirX / outLen;
+        const unitOutY = outDirY / outLen;
+
+        // Mouse movement since drag start
         const dx = point.x - dragState.startX;
         const dy = point.y - dragState.startY;
+
+        // Project mouse movement onto the outward direction
+        // Positive = moving away from center = enlarge
+        // Negative = moving toward center = shrink
+        const projection = dx * unitOutX + dy * unitOutY;
+
+        // The anchor is the point opposite the grabbed corner (through center)
+        const anchorX = centerX - outDirX;
+        const anchorY = centerY - outDirY;
+
+        // Size change: scale by sqrt(2) because corners are on the diagonal
+        const sizeDelta = projection * Math.SQRT2;
 
         // Multi-select resize
         if (dragState.startShapeData && dragState.startBounds) {
           const bounds = dragState.startBounds;
-
-          // Calculate scale factor based on drag
-          let scaleDelta = 0;
-          if (dragState.resizeCorner === 'se') {
-            scaleDelta = Math.max(dx, dy);
-          } else if (dragState.resizeCorner === 'nw') {
-            scaleDelta = Math.max(-dx, -dy);
-          } else if (dragState.resizeCorner === 'ne') {
-            scaleDelta = Math.max(dx, -dy);
-          } else if (dragState.resizeCorner === 'sw') {
-            scaleDelta = Math.max(-dx, dy);
-          }
-
           const maxDimension = Math.max(bounds.width, bounds.height);
-          const scale = Math.max(0.1, (maxDimension + scaleDelta) / maxDimension);
-
-          // Calculate anchor point based on corner
-          let anchorX = bounds.x;
-          let anchorY = bounds.y;
-          if (dragState.resizeCorner === 'nw') {
-            anchorX = bounds.x + bounds.width;
-            anchorY = bounds.y + bounds.height;
-          } else if (dragState.resizeCorner === 'ne') {
-            anchorX = bounds.x;
-            anchorY = bounds.y + bounds.height;
-          } else if (dragState.resizeCorner === 'sw') {
-            anchorX = bounds.x + bounds.width;
-            anchorY = bounds.y;
-          }
+          const scale = Math.max(0.1, (maxDimension + sizeDelta) / maxDimension);
 
           const updates = new Map<string, Partial<Shape>>();
           dragState.startShapeData.forEach((startData, id) => {
-            // Scale position relative to anchor
             const relX = startData.x - anchorX;
             const relY = startData.y - anchorY;
             const newX = anchorX + relX * scale;
@@ -441,30 +458,16 @@ export function Canvas({
           onUpdateShapes(updates);
         } else {
           // Single shape resize
-          let sizeDelta = 0;
-          if (dragState.resizeCorner === 'se') {
-            sizeDelta = Math.max(dx, dy);
-          } else if (dragState.resizeCorner === 'nw') {
-            sizeDelta = Math.max(-dx, -dy);
-          } else if (dragState.resizeCorner === 'ne') {
-            sizeDelta = Math.max(dx, -dy);
-          } else if (dragState.resizeCorner === 'sw') {
-            sizeDelta = Math.max(-dx, dy);
-          }
-
           const newSize = Math.max(20, dragState.startSize + sizeDelta);
 
-          let newX = dragState.startShapeX;
-          let newY = dragState.startShapeY;
+          // Keep anchor fixed, scale the center position relative to anchor
+          const ratio = newSize / dragState.startSize;
+          const newCenterX = anchorX + (centerX - anchorX) * ratio;
+          const newCenterY = anchorY + (centerY - anchorY) * ratio;
 
-          if (dragState.resizeCorner === 'nw') {
-            newX = dragState.startShapeX + (dragState.startSize - newSize);
-            newY = dragState.startShapeY + (dragState.startSize - newSize);
-          } else if (dragState.resizeCorner === 'ne') {
-            newY = dragState.startShapeY + (dragState.startSize - newSize);
-          } else if (dragState.resizeCorner === 'sw') {
-            newX = dragState.startShapeX + (dragState.startSize - newSize);
-          }
+          // Convert center to top-left position
+          const newX = newCenterX - newSize / 2;
+          const newY = newCenterY - newSize / 2;
 
           onUpdateShape(dragState.shapeId, {
             size: newSize,
@@ -473,6 +476,11 @@ export function Canvas({
           });
         }
       } else if (dragState.mode === 'rotate') {
+        // When shape is flipped on one axis (but not both), rotation direction is inverted visually
+        // XOR: if exactly one of flipX or flipY is true, invert the rotation
+        const flipInvertsRotation = (dragState.flipX ? 1 : 0) ^ (dragState.flipY ? 1 : 0);
+        const rotationMult = flipInvertsRotation ? -1 : 1;
+
         // Multi-select rotate
         if (dragState.startShapeData && dragState.startBounds) {
           const bounds = dragState.startBounds;
@@ -485,7 +493,7 @@ export function Canvas({
           );
           const currentAngle = Math.atan2(point.y - centerY, point.x - centerX);
 
-          let angleDelta = ((currentAngle - startAngle) * 180) / Math.PI;
+          let angleDelta = ((currentAngle - startAngle) * 180) / Math.PI * rotationMult;
 
           if (e.shiftKey) {
             angleDelta = Math.round(angleDelta / 15) * 15;
@@ -527,7 +535,7 @@ export function Canvas({
           );
           const currentAngle = Math.atan2(point.y - centerY, point.x - centerX);
 
-          const angleDelta = ((currentAngle - startAngle) * 180) / Math.PI;
+          const angleDelta = ((currentAngle - startAngle) * 180) / Math.PI * rotationMult;
           let newRotation = dragState.startRotation + angleDelta;
 
           if (e.shiftKey) {

@@ -55,7 +55,7 @@ export function useWinnerAnnouncement(userId: string | undefined): UseWinnerAnno
         .select('seen_winner_announcement')
         .eq('user_id', userId)
         .eq('challenge_date', challengeDate)
-        .single();
+        .maybeSingle();
 
       if (status?.seen_winner_announcement) {
         setShouldShow(false);

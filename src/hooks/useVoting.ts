@@ -55,18 +55,42 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
       const totalSubmissions = count ?? 0;
       setSubmissionCount(totalSubmissions);
 
-      // Calculate required votes based on available submissions
-      const required = calculateRequiredVotes(totalSubmissions);
-      setRequiredVotes(required);
-
       // Bootstrap case: 0 submissions - show opt-in prompt
       if (totalSubmissions === 0) {
         setNoSubmissions(true);
+        setRequiredVotes(0);
         setLoading(false);
         return;
       }
 
-      // If we have submissions, initialize daily rankings
+      // Check how many submissions are from OTHER users (not the current user)
+      // This determines if there's anything to vote on
+      const { count: otherCount, error: otherCountError } = await supabase
+        .from('submissions')
+        .select('*', { count: 'exact', head: true })
+        .eq('challenge_date', challengeDate)
+        .neq('user_id', userId);
+
+      if (otherCountError) throw otherCountError;
+
+      const otherSubmissions = otherCount ?? 0;
+
+      // Bootstrap case: 0 or 1 submissions from others - can't form pairs to vote on
+      // Need at least 2 submissions from other users to create a voting pair
+      // Treat this the same as having no submissions (show opt-in prompt)
+      if (otherSubmissions < 2) {
+        setNoSubmissions(true);
+        setRequiredVotes(0);
+        setLoading(false);
+        return;
+      }
+
+      // Calculate required votes based on submissions from OTHER users
+      // (since user can't vote on their own)
+      const required = calculateRequiredVotes(otherSubmissions);
+      setRequiredVotes(required);
+
+      // If we have enough submissions, initialize daily rankings
       if (totalSubmissions >= 2) {
         const { error: initError } = await supabase.rpc('initialize_daily_rankings', {
           p_challenge_date: challengeDate,
@@ -83,7 +107,7 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
         .select('*')
         .eq('user_id', userId)
         .eq('challenge_date', challengeDate)
-        .single();
+        .maybeSingle();
 
       if (status) {
         setVoteCount(status.vote_count);

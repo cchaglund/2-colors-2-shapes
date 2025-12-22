@@ -17,9 +17,10 @@ export function ShapeElement({
   const scaleX = shape.flipX ? -1 : 1;
   const scaleY = shape.flipY ? -1 : 1;
 
-  // Build transform: translate to position, rotate around center, then flip around center
-  // For flip to work correctly, we need to: translate to position, move to center, scale, move back, then rotate
-  const transform = `translate(${shape.x}, ${shape.y}) rotate(${shape.rotation}, ${center}, ${center}) translate(${center}, ${center}) scale(${scaleX}, ${scaleY}) translate(${-center}, ${-center})`;
+  // Build transform: translate to position, flip around center, then rotate around center
+  // SVG transforms are applied right-to-left, so order is: rotate first, then flip, then translate
+  // This makes flip affect the rotated appearance (flipping a rotated shape mirrors its rotation)
+  const transform = `translate(${shape.x}, ${shape.y}) translate(${center}, ${center}) scale(${scaleX}, ${scaleY}) translate(${-center}, ${-center}) rotate(${shape.rotation}, ${center}, ${center})`;
 
   const commonProps = {
     fill: color,

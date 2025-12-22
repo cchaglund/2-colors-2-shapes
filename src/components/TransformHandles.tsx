@@ -50,6 +50,50 @@ function getRotationHandles(width: number, height: number, offset: number) {
   ];
 }
 
+// Get the effective cursor for a corner, accounting for rotation and flip transforms
+// The cursor should always point away from the center of the shape in screen space
+function getEffectiveCursor(cornerId: string, flipX: boolean, flipY: boolean, rotation: number): string {
+  // Local corner offsets from center (before any transforms)
+  const cornerVectors: Record<string, { x: number; y: number }> = {
+    nw: { x: -1, y: -1 },
+    ne: { x: 1, y: -1 },
+    sw: { x: -1, y: 1 },
+    se: { x: 1, y: 1 },
+  };
+
+  const local = cornerVectors[cornerId] || { x: 1, y: 1 };
+
+  // SVG transform order is right-to-left: rotate first, then flip
+  // So we apply: rotation, then flip
+
+  // Step 1: Apply rotation
+  const rad = (rotation * Math.PI) / 180;
+  const cos = Math.cos(rad);
+  const sin = Math.sin(rad);
+  const rotatedX = local.x * cos - local.y * sin;
+  const rotatedY = local.x * sin + local.y * cos;
+
+  // Step 2: Apply flip
+  const screenX = rotatedX * (flipX ? -1 : 1);
+  const screenY = rotatedY * (flipY ? -1 : 1);
+
+  // Convert to angle (0 = right/east, goes clockwise)
+  let angle = Math.atan2(screenY, screenX) * (180 / Math.PI);
+  if (angle < 0) angle += 360;
+
+  // Map the angle to the nearest cursor direction
+  // Cursors are at 45° intervals: 0=e, 45=se, 90=s, 135=sw, 180=w, 225=nw, 270=n, 315=ne
+  const cursorMap = ['e', 'se', 's', 'sw', 'w', 'nw', 'n', 'ne'];
+  const index = Math.round(angle / 45) % 8;
+  const cursor = cursorMap[index];
+
+  // Convert cardinal directions to resize cursors
+  // n/s use ns-resize, e/w use ew-resize, diagonals use their standard names
+  if (cursor === 'n' || cursor === 's') return 'ns-resize';
+  if (cursor === 'e' || cursor === 'w') return 'ew-resize';
+  return `${cursor}-resize`;
+}
+
 // Invisible interaction layer - rendered inline with shapes for proper click ordering
 export function TransformInteractionLayer({
   shape,
@@ -66,7 +110,11 @@ export function TransformInteractionLayer({
 
   const corners = getCorners(shape.size, shape.size);
   const rotationHandles = getRotationHandles(shape.size, shape.size, rotateOffset);
-  const transform = `translate(${shape.x}, ${shape.y}) rotate(${shape.rotation}, ${shape.size / 2}, ${shape.size / 2})`;
+  const center = shape.size / 2;
+  const scaleX = shape.flipX ? -1 : 1;
+  const scaleY = shape.flipY ? -1 : 1;
+  // Match the transform order from ShapeElement: flip applied after rotation visually
+  const transform = `translate(${shape.x}, ${shape.y}) translate(${center}, ${center}) scale(${scaleX}, ${scaleY}) translate(${-center}, ${-center}) rotate(${shape.rotation}, ${center}, ${center})`;
 
   return (
     <g transform={transform} style={{ pointerEvents: 'all' }}>
@@ -90,7 +138,7 @@ export function TransformInteractionLayer({
           width={handleSize}
           height={handleSize}
           fill="transparent"
-          style={{ cursor: `${corner.id}-resize` }}
+          style={{ cursor: getEffectiveCursor(corner.id, shape.flipX ?? false, shape.flipY ?? false, shape.rotation) }}
           onMouseDown={(e) => onResizeStart(e, corner.id)}
         />
       ))}
@@ -123,7 +171,11 @@ export function TransformVisualLayer({ shape, zoom = 1 }: { shape: Shape; zoom?:
 
   const corners = getCorners(shape.size, shape.size);
   const rotationHandles = getRotationHandles(shape.size, shape.size, rotateOffset);
-  const transform = `translate(${shape.x}, ${shape.y}) rotate(${shape.rotation}, ${shape.size / 2}, ${shape.size / 2})`;
+  const center = shape.size / 2;
+  const scaleX = shape.flipX ? -1 : 1;
+  const scaleY = shape.flipY ? -1 : 1;
+  // Match the transform order from ShapeElement: flip applied after rotation visually
+  const transform = `translate(${shape.x}, ${shape.y}) translate(${center}, ${center}) scale(${scaleX}, ${scaleY}) translate(${-center}, ${-center}) rotate(${shape.rotation}, ${center}, ${center})`;
   const { element, props } = getShapeSVGData(shape.type, shape.size);
 
   // Common props for the shape outline
@@ -214,7 +266,11 @@ export function MultiSelectTransformLayer({
     const shape = shapes[0];
     const corners = getCorners(shape.size, shape.size);
     const rotationHandles = getRotationHandles(shape.size, shape.size, rotateOffset);
-    const transform = `translate(${shape.x}, ${shape.y}) rotate(${shape.rotation}, ${shape.size / 2}, ${shape.size / 2})`;
+    const center = shape.size / 2;
+    const scaleX = shape.flipX ? -1 : 1;
+    const scaleY = shape.flipY ? -1 : 1;
+    // Match the transform order from ShapeElement: flip applied after rotation visually
+    const transform = `translate(${shape.x}, ${shape.y}) translate(${center}, ${center}) scale(${scaleX}, ${scaleY}) translate(${-center}, ${-center}) rotate(${shape.rotation}, ${center}, ${center})`;
     const { element, props } = getShapeSVGData(shape.type, shape.size);
 
     const outlineProps = {
@@ -291,7 +347,11 @@ export function MultiSelectTransformLayer({
       {/* Individual shape outlines (black dashed) */}
       {showIndividualOutlines &&
         shapes.map((shape) => {
-          const transform = `translate(${shape.x}, ${shape.y}) rotate(${shape.rotation}, ${shape.size / 2}, ${shape.size / 2})`;
+          const center = shape.size / 2;
+          const scaleX = shape.flipX ? -1 : 1;
+          const scaleY = shape.flipY ? -1 : 1;
+          // Match the transform order from ShapeElement: flip applied after rotation visually
+          const transform = `translate(${shape.x}, ${shape.y}) translate(${center}, ${center}) scale(${scaleX}, ${scaleY}) translate(${-center}, ${-center}) rotate(${shape.rotation}, ${center}, ${center})`;
           const { element, props } = getShapeSVGData(shape.type, shape.size);
 
           const outlineProps = {

@@ -8,7 +8,7 @@
 CREATE TABLE IF NOT EXISTS comparisons (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   voter_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  challenge_date DATE NOT NULL,  -- The date of the submissions being compared
+  challenge_date TEXT NOT NULL,  -- The date of the submissions being compared (YYYY-MM-DD format)
   submission_a_id UUID NOT NULL REFERENCES submissions(id) ON DELETE CASCADE,
   submission_b_id UUID NOT NULL REFERENCES submissions(id) ON DELETE CASCADE,
   winner_id UUID REFERENCES submissions(id) ON DELETE CASCADE,  -- NULL if skipped
@@ -40,7 +40,7 @@ CREATE POLICY "Users can insert own comparisons"
 
 CREATE TABLE IF NOT EXISTS daily_rankings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  challenge_date DATE NOT NULL,
+  challenge_date TEXT NOT NULL,  -- YYYY-MM-DD format
   submission_id UUID NOT NULL REFERENCES submissions(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   elo_score INTEGER NOT NULL DEFAULT 1000,
@@ -76,7 +76,7 @@ CREATE POLICY "Service role can manage daily rankings"
 CREATE TABLE IF NOT EXISTS user_voting_status (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  challenge_date DATE NOT NULL,  -- The date being voted on
+  challenge_date TEXT NOT NULL,  -- The date being voted on (YYYY-MM-DD format)
   vote_count INTEGER NOT NULL DEFAULT 0,  -- Actual votes (not skips)
   entered_ranking BOOLEAN NOT NULL DEFAULT FALSE,  -- True after 5 votes
   seen_winner_announcement BOOLEAN NOT NULL DEFAULT FALSE,
@@ -145,7 +145,7 @@ CREATE TRIGGER user_voting_status_updated_at_trigger
 
 CREATE OR REPLACE FUNCTION get_next_pair(
   p_voter_id UUID,
-  p_challenge_date DATE
+  p_challenge_date TEXT
 ) RETURNS TABLE (
   submission_a_id UUID,
   submission_b_id UUID,
@@ -158,7 +158,7 @@ BEGIN
   -- Get voter's own submission for this date (to exclude)
   SELECT s.id INTO v_user_submission_id
   FROM submissions s
-  WHERE s.user_id = p_voter_id AND s.challenge_date = p_challenge_date::text;
+  WHERE s.user_id = p_voter_id AND s.challenge_date = p_challenge_date;
 
   RETURN QUERY
   WITH eligible_submissions AS (
@@ -204,13 +204,13 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- 7. HELPER FUNCTION: Count submissions for a date
 -- =============================================================================
 
-CREATE OR REPLACE FUNCTION get_submission_count_for_date(p_challenge_date DATE)
+CREATE OR REPLACE FUNCTION get_submission_count_for_date(p_challenge_date TEXT)
 RETURNS INTEGER AS $$
 BEGIN
   RETURN (
     SELECT COUNT(*)::INTEGER
     FROM submissions
-    WHERE challenge_date = p_challenge_date::text
+    WHERE challenge_date = p_challenge_date
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -219,7 +219,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- 8. HELPER FUNCTION: Initialize daily rankings for a date
 -- =============================================================================
 
-CREATE OR REPLACE FUNCTION initialize_daily_rankings(p_challenge_date DATE)
+CREATE OR REPLACE FUNCTION initialize_daily_rankings(p_challenge_date TEXT)
 RETURNS INTEGER AS $$
 DECLARE
   v_count INTEGER;
@@ -233,7 +233,7 @@ BEGIN
     1000,
     0
   FROM submissions s
-  WHERE s.challenge_date = p_challenge_date::text
+  WHERE s.challenge_date = p_challenge_date
     AND NOT EXISTS (
       SELECT 1 FROM daily_rankings dr
       WHERE dr.submission_id = s.id AND dr.challenge_date = p_challenge_date
@@ -248,7 +248,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- 9. HELPER FUNCTION: Compute final ranks for a date
 -- =============================================================================
 
-CREATE OR REPLACE FUNCTION compute_final_ranks(p_challenge_date DATE)
+CREATE OR REPLACE FUNCTION compute_final_ranks(p_challenge_date TEXT)
 RETURNS VOID AS $$
 BEGIN
   UPDATE daily_rankings dr

@@ -1,9 +1,13 @@
 import { useAuth } from '../hooks/useAuth';
-import { useProfile } from '../hooks/useProfile';
+import type { Profile } from '../hooks/useProfile';
 
-export function AuthButton() {
+interface AuthButtonProps {
+  profile?: Profile | null;
+  profileLoading?: boolean;
+}
+
+export function AuthButton({ profile, profileLoading = false }: AuthButtonProps) {
   const { user, loading: authLoading, signInWithGoogle, signOut } = useAuth();
-  const { profile, loading: profileLoading } = useProfile(user?.id);
 
   if (authLoading || profileLoading) {
     return (

@@ -75,7 +75,7 @@ function App() {
 
   // Auth state
   const { user } = useAuth();
-  const { profile, updateNickname } = useProfile(user?.id);
+  const { profile, loading: profileLoading, updateNickname } = useProfile(user?.id);
   const { saveSubmission, saving } = useSubmissions(user?.id);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle');
 
@@ -375,6 +375,8 @@ function App() {
         onOpenCalendar={() => setShowCalendar(true)}
         keyMappings={keyMappings}
         onOpenKeyboardSettings={() => setShowKeyboardSettings(true)}
+        profile={profile}
+        profileLoading={profileLoading}
       />
 
       <main

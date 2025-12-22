@@ -1,5 +1,6 @@
 import type { DailyChallenge, ShapeType } from '../types';
 import type { ThemeMode } from '../hooks/useThemeState';
+import type { Profile } from '../hooks/useProfile';
 import { SHAPE_NAMES, getShapeSVGData } from '../utils/shapeHelpers';
 import { ThemeToggle } from './ThemeToggle';
 import { AuthButton } from './AuthButton';
@@ -42,6 +43,9 @@ interface ToolbarProps {
   // Keyboard settings
   keyMappings: KeyMappings;
   onOpenKeyboardSettings?: () => void;
+  // Profile for AuthButton
+  profile?: Profile | null;
+  profileLoading?: boolean;
 }
 
 export function Toolbar({
@@ -65,6 +69,8 @@ export function Toolbar({
   onOpenCalendar,
   keyMappings,
   onOpenKeyboardSettings,
+  profile,
+  profileLoading,
 }: ToolbarProps) {
   const hasSelection = selectedShapeIds.size > 0;
 
@@ -234,7 +240,7 @@ export function Toolbar({
 
       <div className="mb-6">
         <h4 className="m-0 mb-3 text-xs uppercase" style={{ color: 'var(--color-text-tertiary)' }}>Account</h4>
-        <AuthButton />
+        <AuthButton profile={profile} profileLoading={profileLoading} />
         {isLoggedIn && onSave && (
           <button
             className="w-full mt-3 py-2.5 px-4 bg-blue-600 text-white border-none rounded-md cursor-pointer text-sm font-medium transition-colors hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
