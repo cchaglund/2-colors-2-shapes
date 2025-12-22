@@ -476,11 +476,6 @@ export function Canvas({
           });
         }
       } else if (dragState.mode === 'rotate') {
-        // When shape is flipped on one axis (but not both), rotation direction is inverted visually
-        // XOR: if exactly one of flipX or flipY is true, invert the rotation
-        const flipInvertsRotation = (dragState.flipX ? 1 : 0) ^ (dragState.flipY ? 1 : 0);
-        const rotationMult = flipInvertsRotation ? -1 : 1;
-
         // Multi-select rotate
         if (dragState.startShapeData && dragState.startBounds) {
           const bounds = dragState.startBounds;
@@ -493,7 +488,8 @@ export function Canvas({
           );
           const currentAngle = Math.atan2(point.y - centerY, point.x - centerX);
 
-          let angleDelta = ((currentAngle - startAngle) * 180) / Math.PI * rotationMult;
+          // For group rotation, use raw angle delta for position changes
+          let angleDelta = ((currentAngle - startAngle) * 180) / Math.PI;
 
           if (e.shiftKey) {
             angleDelta = Math.round(angleDelta / 15) * 15;
@@ -501,7 +497,12 @@ export function Canvas({
 
           const updates = new Map<string, Partial<Shape>>();
           dragState.startShapeData.forEach((startData, id) => {
-            // Rotate position around the center of the bounding box
+            // Find the actual shape to check its flip state
+            const shape = shapes.find(s => s.id === id);
+            const shapeFlipX = shape?.flipX ?? false;
+            const shapeFlipY = shape?.flipY ?? false;
+
+            // Rotate position around the center of the bounding box (same for all shapes)
             const shapeCenter = {
               x: startData.x + startData.size / 2,
               y: startData.y + startData.size / 2,
@@ -514,10 +515,15 @@ export function Canvas({
             const newCenterX = centerX + rotatedX;
             const newCenterY = centerY + rotatedY;
 
+            // For the shape's own rotation value, mirrored shapes need inverted delta
+            // to visually rotate the same direction as non-mirrored shapes
+            const shapeFlipInverts = (shapeFlipX ? 1 : 0) ^ (shapeFlipY ? 1 : 0);
+            const shapeRotationDelta = shapeFlipInverts ? -angleDelta : angleDelta;
+
             updates.set(id, {
               x: newCenterX - startData.size / 2,
               y: newCenterY - startData.size / 2,
-              rotation: startData.rotation + angleDelta,
+              rotation: startData.rotation + shapeRotationDelta,
             });
           });
           onUpdateShapes(updates);
@@ -534,6 +540,10 @@ export function Canvas({
             dragState.startX - centerX
           );
           const currentAngle = Math.atan2(point.y - centerY, point.x - centerX);
+
+          // For single shape, mirrored shapes need inverted rotation to match visual drag direction
+          const flipInvertsRotation = (dragState.flipX ? 1 : 0) ^ (dragState.flipY ? 1 : 0);
+          const rotationMult = flipInvertsRotation ? -1 : 1;
 
           const angleDelta = ((currentAngle - startAngle) * 180) / Math.PI * rotationMult;
           let newRotation = dragState.startRotation + angleDelta;

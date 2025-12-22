@@ -496,10 +496,33 @@ export function useCanvasState(challenge: DailyChallenge) {
         const shapesToMirror = prev.shapes.filter((s) => ids.includes(s.id));
         if (shapesToMirror.length === 0) return prev;
 
-        // Toggle flipX for each selected shape
         const updates = new Map<string, Partial<Shape>>();
-        for (const shape of shapesToMirror) {
+
+        if (shapesToMirror.length === 1) {
+          // Single shape: just toggle flipX
+          const shape = shapesToMirror[0];
           updates.set(shape.id, { flipX: !shape.flipX });
+        } else {
+          // Multiple shapes: mirror positions around group center and toggle flipX
+          // Calculate bounding box of all selected shapes
+          let minX = Infinity, maxX = -Infinity;
+          for (const shape of shapesToMirror) {
+            minX = Math.min(minX, shape.x);
+            maxX = Math.max(maxX, shape.x + shape.size);
+          }
+          const centerX = (minX + maxX) / 2;
+
+          // Mirror each shape's position around the center X axis
+          for (const shape of shapesToMirror) {
+            const shapeCenterX = shape.x + shape.size / 2;
+            const newShapeCenterX = centerX + (centerX - shapeCenterX);
+            const newX = newShapeCenterX - shape.size / 2;
+
+            updates.set(shape.id, {
+              x: newX,
+              flipX: !shape.flipX,
+            });
+          }
         }
 
         return {
@@ -523,10 +546,33 @@ export function useCanvasState(challenge: DailyChallenge) {
         const shapesToMirror = prev.shapes.filter((s) => ids.includes(s.id));
         if (shapesToMirror.length === 0) return prev;
 
-        // Toggle flipY for each selected shape
         const updates = new Map<string, Partial<Shape>>();
-        for (const shape of shapesToMirror) {
+
+        if (shapesToMirror.length === 1) {
+          // Single shape: just toggle flipY
+          const shape = shapesToMirror[0];
           updates.set(shape.id, { flipY: !shape.flipY });
+        } else {
+          // Multiple shapes: mirror positions around group center and toggle flipY
+          // Calculate bounding box of all selected shapes
+          let minY = Infinity, maxY = -Infinity;
+          for (const shape of shapesToMirror) {
+            minY = Math.min(minY, shape.y);
+            maxY = Math.max(maxY, shape.y + shape.size);
+          }
+          const centerY = (minY + maxY) / 2;
+
+          // Mirror each shape's position around the center Y axis
+          for (const shape of shapesToMirror) {
+            const shapeCenterY = shape.y + shape.size / 2;
+            const newShapeCenterY = centerY + (centerY - shapeCenterY);
+            const newY = newShapeCenterY - shape.size / 2;
+
+            updates.set(shape.id, {
+              y: newY,
+              flipY: !shape.flipY,
+            });
+          }
         }
 
         return {
