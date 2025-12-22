@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import type { Shape } from '../types';
 
@@ -18,9 +18,31 @@ interface SaveSubmissionParams {
   backgroundColorIndex: 0 | 1 | null;
 }
 
-export function useSubmissions(userId: string | undefined) {
+export function useSubmissions(userId: string | undefined, todayDate?: string) {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [hasSubmittedToday, setHasSubmittedToday] = useState(false);
+
+  // Check if user has already submitted today
+  useEffect(() => {
+    if (!userId || !todayDate) {
+      setHasSubmittedToday(false);
+      return;
+    }
+
+    const checkExistingSubmission = async () => {
+      const { data } = await supabase
+        .from('submissions')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('challenge_date', todayDate)
+        .maybeSingle();
+
+      setHasSubmittedToday(!!data);
+    };
+
+    checkExistingSubmission();
+  }, [userId, todayDate]);
 
   const saveSubmission = useCallback(
     async (params: SaveSubmissionParams): Promise<{ success: boolean; error?: string }> => {
@@ -44,6 +66,7 @@ export function useSubmissions(userId: string | undefined) {
       if (error) {
         return { success: false, error: error.message };
       }
+      setHasSubmittedToday(true);
       return { success: true };
     },
     [userId]
@@ -91,5 +114,5 @@ export function useSubmissions(userId: string | undefined) {
     return { data: (data as Submission[]) ?? [] };
   }, [userId]);
 
-  return { saveSubmission, loadSubmission, loadMySubmissions, saving, loading };
+  return { saveSubmission, loadSubmission, loadMySubmissions, saving, loading, hasSubmittedToday };
 }

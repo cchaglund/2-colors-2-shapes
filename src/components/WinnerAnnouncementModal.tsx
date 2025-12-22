@@ -131,7 +131,7 @@ export function WinnerAnnouncementModal({
         {/* Winners (1st place) - show all tied winners */}
         {winners.length > 0 && (
           <div className={`flex justify-center ${winners.length > 1 ? 'gap-6' : ''} mb-6`}>
-            {winners.map((winner, index) => (
+            {winners.map((winner) => (
               <div key={winner.submission_id} className="flex flex-col items-center">
                 <div className="relative">
                   <div className="absolute -top-3 -right-3 z-10">

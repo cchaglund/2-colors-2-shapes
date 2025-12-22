@@ -19,7 +19,7 @@ import {
 } from './mockData';
 import { calculateRequiredVotes, calculateTotalPairs } from '../utils/votingRules';
 import { generateDailyChallenge } from '../utils/dailyChallenge';
-import type { RankingEntry, VotingPair, Shape } from '../types';
+import type { RankingEntry, VotingPair } from '../types';
 
 type TestScenario =
   | 'voting-ui'

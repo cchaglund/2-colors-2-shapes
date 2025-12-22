@@ -38,6 +38,7 @@ interface ToolbarProps {
   onSave?: () => void;
   isSaving?: boolean;
   saveStatus?: 'idle' | 'saved' | 'error';
+  hasSubmittedToday?: boolean;
   // Calendar
   onOpenCalendar?: () => void;
   // Keyboard settings
@@ -66,6 +67,7 @@ export function Toolbar({
   onSave,
   isSaving,
   saveStatus,
+  hasSubmittedToday,
   onOpenCalendar,
   keyMappings,
   onOpenKeyboardSettings,
@@ -247,7 +249,7 @@ export function Toolbar({
             onClick={onSave}
             disabled={isSaving}
           >
-            {isSaving ? 'Saving...' : saveStatus === 'saved' ? '✓ Saved' : 'Save Creation'}
+            {isSaving ? 'Saving...' : saveStatus === 'saved' ? '✓ Saved' : hasSubmittedToday ? 'Update Creation' : 'Save Creation'}
           </button>
         )}
         {saveStatus === 'error' && (

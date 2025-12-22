@@ -73,10 +73,12 @@ function App() {
   // Welcome modal for first-time visitors
   const { isOpen: showWelcome, dismiss: dismissWelcome } = useWelcomeModal();
 
+  const challenge = useMemo(() => getTodayChallenge(), []);
+
   // Auth state
   const { user } = useAuth();
   const { profile, loading: profileLoading, updateNickname } = useProfile(user?.id);
-  const { saveSubmission, saving } = useSubmissions(user?.id);
+  const { saveSubmission, saving, hasSubmittedToday } = useSubmissions(user?.id, challenge.date);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle');
 
   // Winner announcement for yesterday's results
@@ -101,7 +103,6 @@ function App() {
     syncing: keyboardSyncing,
   } = useKeyboardSettings(user?.id);
 
-  const challenge = useMemo(() => getTodayChallenge(), []);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isBackgroundPanning, setIsBackgroundPanning] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
@@ -372,6 +373,7 @@ function App() {
         onSave={handleSave}
         isSaving={saving}
         saveStatus={saveStatus}
+        hasSubmittedToday={hasSubmittedToday}
         onOpenCalendar={() => setShowCalendar(true)}
         keyMappings={keyMappings}
         onOpenKeyboardSettings={() => setShowKeyboardSettings(true)}
