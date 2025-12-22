@@ -11,7 +11,7 @@ export function AuthButton({ profile, profileLoading = false }: AuthButtonProps)
 
   if (authLoading || profileLoading) {
     return (
-      <div className="text-sm text-[var(--color-text-secondary)]">
+      <div className="text-sm text-(--color-text-secondary)">
         Loading...
       </div>
     );
@@ -27,12 +27,12 @@ export function AuthButton({ profile, profileLoading = false }: AuthButtonProps)
             className="w-7 h-7 rounded-full"
           />
         )}
-        <span className="text-sm truncate max-w-[100px] text-[var(--color-text-primary)]">
+        <span className="text-sm truncate max-w-25 text-(--color-text-primary)">
           {profile.onboarding_complete ? profile.nickname : 'New user'}
         </span>
         <button
           onClick={signOut}
-          className="text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+          className="text-xs text-(--color-text-secondary) hover:text-(--color-text-primary) transition-colors"
         >
           Sign out
         </button>
@@ -43,7 +43,7 @@ export function AuthButton({ profile, profileLoading = false }: AuthButtonProps)
   return (
     <button
       onClick={signInWithGoogle}
-      className="flex items-center gap-2 px-3 py-1.5 bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-lg hover:bg-[var(--color-bg-tertiary)] transition-colors text-sm text-[var(--color-text-primary)]"
+      className="flex items-center gap-2 px-3 py-1.5 bg-(--color-bg-secondary) border border-(--color-border) rounded-lg hover:bg-(--color-bg-tertiary) transition-colors text-sm text-(--color-text-primary)"
     >
       <svg className="w-4 h-4" viewBox="0 0 24 24">
         <path

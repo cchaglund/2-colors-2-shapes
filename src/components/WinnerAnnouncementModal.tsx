@@ -73,14 +73,14 @@ export function WinnerAnnouncementModal({
       >
         <div
           ref={modalRef}
-          className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-md mx-4 shadow-xl text-center"
+          className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md mx-4 shadow-xl text-center"
         >
-          <h2 id="winner-title" className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">
+          <h2 id="winner-title" className="text-xl font-semibold text-(--color-text-primary) mb-2">
             Yesterday's Results
           </h2>
-          <p className="text-sm text-[var(--color-text-secondary)] mb-4">{formatDate(challengeDate)}</p>
+          <p className="text-sm text-(--color-text-secondary) mb-4">{formatDate(challengeDate)}</p>
 
-          <div className="py-8 text-[var(--color-text-tertiary)]">
+          <div className="py-8 text-(--color-text-tertiary)">
             <div className="text-4xl mb-4">📊</div>
             <p>Not enough entries for ranking</p>
             <p className="text-sm mt-2">
@@ -114,15 +114,15 @@ export function WinnerAnnouncementModal({
     >
       <div
         ref={modalRef}
-        className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-lg mx-4 shadow-xl"
+        className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-lg mx-4 shadow-xl"
       >
         <div className="text-center mb-6">
-          <h2 id="winner-title" className="text-xl font-semibold text-[var(--color-text-primary)] mb-1">
+          <h2 id="winner-title" className="text-xl font-semibold text-(--color-text-primary) mb-1">
             Yesterday's {winners.length > 1 ? 'Winners' : 'Winner'}!
           </h2>
-          <p className="text-sm text-[var(--color-text-secondary)]">{formatDate(challengeDate)}</p>
+          <p className="text-sm text-(--color-text-secondary)">{formatDate(challengeDate)}</p>
           {winners.length > 1 && (
-            <p className="text-xs text-[var(--color-text-tertiary)] mt-1">
+            <p className="text-xs text-(--color-text-tertiary) mt-1">
               {winners.length === 3 ? 'Three-way tie!' : winners.length === 2 ? 'Tie for 1st place!' : ''}
             </p>
           )}
@@ -146,7 +146,7 @@ export function WinnerAnnouncementModal({
                     />
                   </div>
                 </div>
-                <p className="mt-3 font-medium text-[var(--color-text-primary)]">@{winner.nickname}</p>
+                <p className="mt-3 font-medium text-(--color-text-primary)">@{winner.nickname}</p>
               </div>
             ))}
           </div>
@@ -171,7 +171,7 @@ export function WinnerAnnouncementModal({
                     />
                   </div>
                 </div>
-                <p className="mt-2 text-sm text-[var(--color-text-secondary)]">@{runnerUp.nickname}</p>
+                <p className="mt-2 text-sm text-(--color-text-secondary)">@{runnerUp.nickname}</p>
               </div>
             ))}
 
@@ -190,7 +190,7 @@ export function WinnerAnnouncementModal({
                     />
                   </div>
                 </div>
-                <p className="mt-2 text-sm text-[var(--color-text-secondary)]">@{thirdPlace.nickname}</p>
+                <p className="mt-2 text-sm text-(--color-text-secondary)">@{thirdPlace.nickname}</p>
               </div>
             ))}
           </div>

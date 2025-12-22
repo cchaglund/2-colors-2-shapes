@@ -128,20 +128,20 @@ export function VotingModal({
       >
         <div
           ref={modalRef}
-          className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-md mx-4 shadow-xl text-center"
+          className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md mx-4 shadow-xl text-center"
         >
           <div className="text-4xl mb-4">🎨</div>
-          <h2 id="voting-title" className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">
+          <h2 id="voting-title" className="text-xl font-semibold text-(--color-text-primary) mb-2">
             Submit for Voting?
           </h2>
-          <p className="text-[var(--color-text-secondary)] mb-6">
+          <p className="text-(--color-text-secondary) mb-6">
             There were no submissions yesterday to vote on. Would you like your artwork to be included in
             tomorrow's voting?
           </p>
           <div className="flex gap-3">
             <button
               onClick={onSkipVoting}
-              className="flex-1 px-4 py-2.5 border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-lg font-medium hover:bg-[var(--color-bg-secondary)] transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="flex-1 px-4 py-2.5 border border-(--color-border) text-(--color-text-primary) rounded-lg font-medium hover:bg-(--color-bg-secondary) transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               No thanks
             </button>
@@ -168,20 +168,20 @@ export function VotingModal({
       >
         <div
           ref={modalRef}
-          className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-md mx-4 shadow-xl text-center"
+          className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md mx-4 shadow-xl text-center"
         >
           <div className="text-4xl mb-4">🎉</div>
-          <h2 id="voting-title" className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">
+          <h2 id="voting-title" className="text-xl font-semibold text-(--color-text-primary) mb-2">
             Your submission is now entered!
           </h2>
-          <p className="text-[var(--color-text-secondary)] mb-6">
+          <p className="text-(--color-text-secondary) mb-6">
             Thanks for voting! Your artwork will be included in today's ranking.
           </p>
           <div className="flex gap-3">
             <button
               onClick={handleContinueVoting}
               disabled={noMorePairs}
-              className="flex-1 px-4 py-2.5 border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-lg font-medium hover:bg-[var(--color-bg-secondary)] transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2.5 border border-(--color-border) text-(--color-text-primary) rounded-lg font-medium hover:bg-(--color-bg-secondary) transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Continue Voting
             </button>
@@ -209,27 +209,27 @@ export function VotingModal({
       >
         <div
           ref={modalRef}
-          className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-md mx-4 shadow-xl text-center"
+          className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md mx-4 shadow-xl text-center"
         >
           {hasVotedEnough ? (
             <>
               <div className="text-4xl mb-4">🎉</div>
-              <h2 id="voting-title" className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">
+              <h2 id="voting-title" className="text-xl font-semibold text-(--color-text-primary) mb-2">
                 All Done!
               </h2>
-              <p className="text-[var(--color-text-secondary)] mb-6">
+              <p className="text-(--color-text-secondary) mb-6">
                 You've voted on all available pairs. Your artwork is entered in today's ranking!
               </p>
             </>
           ) : (
             <>
-              <h2 id="voting-title" className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">
+              <h2 id="voting-title" className="text-xl font-semibold text-(--color-text-primary) mb-2">
                 No More Pairs
               </h2>
-              <p className="text-[var(--color-text-secondary)] mb-4">
+              <p className="text-(--color-text-secondary) mb-4">
                 You've seen all available artwork pairs for {formatDate(challengeDate)}.
               </p>
-              <p className="text-[var(--color-text-tertiary)] text-sm mb-6">
+              <p className="text-(--color-text-tertiary) text-sm mb-6">
                 You voted on {voteCount} pair{voteCount !== 1 ? 's' : ''}.
                 {requiredVotes > voteCount && ` Needed ${requiredVotes} to enter ranking.`}
               </p>
@@ -257,20 +257,20 @@ export function VotingModal({
       >
         <div
           ref={modalRef}
-          className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-md mx-4 shadow-xl text-center"
+          className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md mx-4 shadow-xl text-center"
         >
           <div className="text-4xl mb-4">🎨</div>
-          <h2 id="voting-title" className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">
+          <h2 id="voting-title" className="text-xl font-semibold text-(--color-text-primary) mb-2">
             Submit for Voting?
           </h2>
-          <p className="text-[var(--color-text-secondary)] mb-6">
+          <p className="text-(--color-text-secondary) mb-6">
             There was only 1 submission yesterday, so there's nothing to vote on yet. Would you like your
             artwork to be included in tomorrow's voting?
           </p>
           <div className="flex gap-3">
             <button
               onClick={onSkipVoting}
-              className="flex-1 px-4 py-2.5 border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-lg font-medium hover:bg-[var(--color-bg-secondary)] transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="flex-1 px-4 py-2.5 border border-(--color-border) text-(--color-text-primary) rounded-lg font-medium hover:bg-(--color-bg-secondary) transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               No thanks
             </button>
@@ -296,20 +296,20 @@ export function VotingModal({
     >
       <div
         ref={modalRef}
-        className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-3xl mx-4 shadow-xl"
+        className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-3xl mx-4 shadow-xl"
       >
         <div className="flex justify-between items-center mb-4">
           <div>
-            <h2 id="voting-title" className="text-xl font-semibold text-[var(--color-text-primary)]">
+            <h2 id="voting-title" className="text-xl font-semibold text-(--color-text-primary)">
               Vote on Yesterday's Submissions
             </h2>
-            <p className="text-sm text-[var(--color-text-secondary)]">{formatDate(challengeDate)}</p>
+            <p className="text-sm text-(--color-text-secondary)">{formatDate(challengeDate)}</p>
           </div>
           <div className="text-right">
-            <div className="text-sm font-medium text-[var(--color-text-primary)]">
+            <div className="text-sm font-medium text-(--color-text-primary)">
               {voteCount} of {requiredVotes} votes
             </div>
-            <div className="text-xs text-[var(--color-text-tertiary)]">
+            <div className="text-xs text-(--color-text-tertiary)">
               {requiredVotes - voteCount > 0
                 ? `${requiredVotes - voteCount} more to enter ranking`
                 : 'Entered in ranking!'}
@@ -318,7 +318,7 @@ export function VotingModal({
         </div>
 
         {/* Progress bar */}
-        <div className="w-full h-2 bg-[var(--color-bg-tertiary)] rounded-full mb-6 overflow-hidden">
+        <div className="w-full h-2 bg-(--color-bg-tertiary) rounded-full mb-6 overflow-hidden">
           <div
             className="h-full bg-blue-600 transition-all duration-300"
             style={{ width: `${requiredVotes > 0 ? Math.min((voteCount / requiredVotes) * 100, 100) : 100}%` }}
@@ -327,7 +327,7 @@ export function VotingModal({
 
         {loading || !currentPair || !challenge ? (
           <div className="flex items-center justify-center h-64">
-            <div className="text-[var(--color-text-secondary)]">Loading...</div>
+            <div className="text-(--color-text-secondary)">Loading...</div>
           </div>
         ) : (
           <>
@@ -336,7 +336,7 @@ export function VotingModal({
               <button
                 onClick={() => handleVote(currentPair.submissionA.id)}
                 disabled={submitting}
-                className="group relative p-4 border-2 border-[var(--color-border)] rounded-xl hover:border-blue-500 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group relative p-4 border-2 border-(--color-border) rounded-xl hover:border-blue-500 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <div className="aspect-square">
                   <SubmissionThumbnail
@@ -354,7 +354,7 @@ export function VotingModal({
               <button
                 onClick={() => handleVote(currentPair.submissionB.id)}
                 disabled={submitting}
-                className="group relative p-4 border-2 border-[var(--color-border)] rounded-xl hover:border-blue-500 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group relative p-4 border-2 border-(--color-border) rounded-xl hover:border-blue-500 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <div className="aspect-square">
                   <SubmissionThumbnail
@@ -374,14 +374,14 @@ export function VotingModal({
             <div className="flex justify-between items-center">
               <button
                 onClick={onSkipVoting}
-                className="text-sm text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors"
+                className="text-sm text-(--color-text-tertiary) hover:text-(--color-text-secondary) transition-colors"
               >
                 Skip voting (won't enter ranking)
               </button>
               <button
                 onClick={handleSkip}
                 disabled={submitting}
-                className="px-4 py-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-sm text-(--color-text-secondary) hover:text-(--color-text-primary) transition-colors disabled:opacity-50"
               >
                 Can't decide, skip this pair
               </button>

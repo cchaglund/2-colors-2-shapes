@@ -45,11 +45,11 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-sm mx-4 shadow-xl">
-        <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">
+      <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-sm mx-4 shadow-xl">
+        <h2 className="text-xl font-semibold text-(--color-text-primary) mb-2">
           Welcome!
         </h2>
-        <p className="text-sm text-[var(--color-text-secondary)] mb-6">
+        <p className="text-sm text-(--color-text-secondary) mb-6">
           Choose a nickname to display in the gallery. This will be visible to other users.
         </p>
 
@@ -57,7 +57,7 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
           <div className="mb-4">
             <label
               htmlFor="nickname"
-              className="block text-sm font-medium text-[var(--color-text-primary)] mb-1"
+              className="block text-sm font-medium text-(--color-text-primary) mb-1"
             >
               Nickname
             </label>
@@ -69,11 +69,11 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
               placeholder="Enter your nickname"
               maxLength={15}
               autoFocus
-              className="w-full px-3 py-2 bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-primary)] placeholder-[var(--color-text-tertiary)] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 bg-(--color-bg-secondary) border border-(--color-border) rounded-lg text-(--color-text-primary) placeholder-(--color-text-tertiary) focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <div className="flex justify-between mt-1">
               <span className="text-xs text-red-500">{error || ''}</span>
-              <span className="text-xs text-[var(--color-text-tertiary)]">
+              <span className="text-xs text-(--color-text-tertiary)">
                 {nickname.length}/15
               </span>
             </div>

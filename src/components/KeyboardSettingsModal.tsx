@@ -217,7 +217,7 @@ export function KeyboardSettingsModal({
                       <button
                         onClick={() => handleStartListening(action.id)}
                         disabled={!isRemappable}
-                        className={`px-3 py-1.5 rounded-md text-sm font-mono border transition-colors min-w-[80px] ${
+                        className={`px-3 py-1.5 rounded-md text-sm font-mono border transition-colors min-w-20 ${
                           isListening
                             ? 'ring-2 ring-blue-500'
                             : ''

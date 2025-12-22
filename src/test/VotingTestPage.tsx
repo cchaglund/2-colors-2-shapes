@@ -220,14 +220,14 @@ export function VotingTestPage() {
     }
 
     return (
-      <div className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-4xl shadow-xl">
+      <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-4xl shadow-xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-[var(--color-text-primary)]">
+          <h2 className="text-xl font-semibold text-(--color-text-primary)">
             My Submissions
           </h2>
           <button
-            className="p-2 rounded-md transition-colors bg-[var(--color-bg-tertiary)] text-[var(--color-text-primary)]"
+            className="p-2 rounded-md transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary)"
             aria-label="Close calendar"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -239,20 +239,20 @@ export function VotingTestPage() {
 
         {/* Month Navigation */}
         <div className="flex items-center justify-between mb-4">
-          <button className="p-2 rounded-md bg-[var(--color-bg-tertiary)] text-[var(--color-text-primary)]">
+          <button className="p-2 rounded-md bg-(--color-bg-tertiary) text-(--color-text-primary)">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </button>
           <div className="flex items-center gap-4">
-            <span className="text-lg font-medium text-[var(--color-text-primary)]">
+            <span className="text-lg font-medium text-(--color-text-primary)">
               December {year}
             </span>
-            <button className="px-3 py-1 rounded-md text-sm bg-[var(--color-bg-tertiary)] text-[var(--color-text-secondary)]">
+            <button className="px-3 py-1 rounded-md text-sm bg-(--color-bg-tertiary) text-(--color-text-secondary)">
               Today
             </button>
           </div>
-          <button className="p-2 rounded-md bg-[var(--color-bg-tertiary)] text-[var(--color-text-primary)] opacity-30">
+          <button className="p-2 rounded-md bg-(--color-bg-tertiary) text-(--color-text-primary) opacity-30">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polyline points="9 18 15 12 9 6" />
             </svg>
@@ -263,7 +263,7 @@ export function VotingTestPage() {
         <div className="grid grid-cols-7 gap-1">
           {/* Day headers */}
           {DAYS_OF_WEEK.map((day) => (
-            <div key={day} className="text-center py-2 text-sm font-medium text-[var(--color-text-tertiary)]">
+            <div key={day} className="text-center py-2 text-sm font-medium text-(--color-text-tertiary)">
               {day}
             </div>
           ))}
@@ -324,7 +324,7 @@ export function VotingTestPage() {
                         )}
                       </>
                     ) : !isFuture ? (
-                      <div className="text-xs text-center text-[var(--color-text-tertiary)]">
+                      <div className="text-xs text-center text-(--color-text-tertiary)">
                         No submission
                       </div>
                     ) : null}
@@ -336,7 +336,7 @@ export function VotingTestPage() {
         </div>
 
         {/* Stats */}
-        <div className="mt-6 pt-4 border-t border-[var(--color-border)] flex items-center justify-between text-sm text-[var(--color-text-secondary)]">
+        <div className="mt-6 pt-4 border-t border-(--color-border) flex items-center justify-between text-sm text-(--color-text-secondary)">
           <span>Total submissions: {submissionDays.length}</span>
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1">
@@ -355,24 +355,24 @@ export function VotingTestPage() {
   };
 
   const renderVotingUI = (pair: VotingPair, votes: number) => (
-    <div className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-3xl shadow-xl">
+    <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-3xl shadow-xl">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h2 className="text-xl font-semibold text-[var(--color-text-primary)]">
+          <h2 className="text-xl font-semibold text-(--color-text-primary)">
             Vote on Yesterday's Submissions
           </h2>
-          <p className="text-sm text-[var(--color-text-secondary)]">{formatDate(MOCK_CHALLENGE.date)}</p>
+          <p className="text-sm text-(--color-text-secondary)">{formatDate(MOCK_CHALLENGE.date)}</p>
         </div>
         <div className="text-right">
-          <div className="text-sm font-medium text-[var(--color-text-primary)]">{votes} of 5 votes</div>
-          <div className="text-xs text-[var(--color-text-tertiary)]">
+          <div className="text-sm font-medium text-(--color-text-primary)">{votes} of 5 votes</div>
+          <div className="text-xs text-(--color-text-tertiary)">
             {5 - votes > 0 ? `${5 - votes} more to enter ranking` : 'Entered in ranking!'}
           </div>
         </div>
       </div>
 
       {/* Progress bar */}
-      <div className="w-full h-2 bg-[var(--color-bg-tertiary)] rounded-full mb-6 overflow-hidden">
+      <div className="w-full h-2 bg-(--color-bg-tertiary) rounded-full mb-6 overflow-hidden">
         <div
           className="h-full bg-blue-600 transition-all duration-300"
           style={{ width: `${Math.min((votes / 5) * 100, 100)}%` }}
@@ -383,7 +383,7 @@ export function VotingTestPage() {
       <div className="grid grid-cols-2 gap-6 mb-6">
         <button
           onClick={() => handleVote(pair.submissionA.id)}
-          className="group relative p-4 border-2 border-[var(--color-border)] rounded-xl hover:border-blue-500 transition-colors"
+          className="group relative p-4 border-2 border-(--color-border) rounded-xl hover:border-blue-500 transition-colors"
         >
           <div className="aspect-square">
             <SubmissionThumbnail
@@ -400,7 +400,7 @@ export function VotingTestPage() {
 
         <button
           onClick={() => handleVote(pair.submissionB.id)}
-          className="group relative p-4 border-2 border-[var(--color-border)] rounded-xl hover:border-blue-500 transition-colors"
+          className="group relative p-4 border-2 border-(--color-border) rounded-xl hover:border-blue-500 transition-colors"
         >
           <div className="aspect-square">
             <SubmissionThumbnail
@@ -418,12 +418,12 @@ export function VotingTestPage() {
 
       {/* Actions */}
       <div className="flex justify-between items-center">
-        <button className="text-sm text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors">
+        <button className="text-sm text-(--color-text-tertiary) hover:text-(--color-text-secondary) transition-colors">
           Skip voting (won't enter ranking)
         </button>
         <button
           onClick={handleSkip}
-          className="px-4 py-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+          className="px-4 py-2 text-sm text-(--color-text-secondary) hover:text-(--color-text-primary) transition-colors"
         >
           Can't decide, skip this pair
         </button>
@@ -432,16 +432,16 @@ export function VotingTestPage() {
   );
 
   const renderConfirmationScreen = () => (
-    <div className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-md shadow-xl text-center">
+    <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md shadow-xl text-center">
       <div className="text-4xl mb-4">🎉</div>
-      <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">
+      <h2 className="text-xl font-semibold text-(--color-text-primary) mb-2">
         Your submission is now entered!
       </h2>
-      <p className="text-[var(--color-text-secondary)] mb-6">
+      <p className="text-(--color-text-secondary) mb-6">
         Thanks for voting! Your artwork will be included in today's ranking.
       </p>
       <div className="flex gap-3">
-        <button className="flex-1 px-4 py-2.5 border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-lg font-medium hover:bg-[var(--color-bg-secondary)] transition-colors">
+        <button className="flex-1 px-4 py-2.5 border border-(--color-border) text-(--color-text-primary) rounded-lg font-medium hover:bg-(--color-bg-secondary) transition-colors">
           Continue Voting
         </button>
         <button className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
@@ -454,22 +454,22 @@ export function VotingTestPage() {
   const renderNoMorePairs = (votes: number, required: number) => {
     const hasVotedEnough = votes >= required;
     return (
-      <div className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-md shadow-xl text-center">
+      <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md shadow-xl text-center">
         {hasVotedEnough ? (
           <>
             <div className="text-4xl mb-4">🎉</div>
-            <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">All Done!</h2>
-            <p className="text-[var(--color-text-secondary)] mb-6">
+            <h2 className="text-xl font-semibold text-(--color-text-primary) mb-2">All Done!</h2>
+            <p className="text-(--color-text-secondary) mb-6">
               You've voted on all available pairs. Your artwork is entered in today's ranking!
             </p>
           </>
         ) : (
           <>
-            <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">No More Pairs</h2>
-            <p className="text-[var(--color-text-secondary)] mb-4">
+            <h2 className="text-xl font-semibold text-(--color-text-primary) mb-2">No More Pairs</h2>
+            <p className="text-(--color-text-secondary) mb-4">
               You've seen all available artwork pairs for {formatDate(MOCK_CHALLENGE.date)}.
             </p>
-            <p className="text-[var(--color-text-tertiary)] text-sm mb-6">
+            <p className="text-(--color-text-tertiary) text-sm mb-6">
               You voted on {votes} pair{votes !== 1 ? 's' : ''}.
               {required > votes && ` Needed ${required} to enter ranking.`}
             </p>
@@ -483,15 +483,15 @@ export function VotingTestPage() {
   };
 
   const renderBootstrapZero = () => (
-    <div className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-md shadow-xl text-center">
+    <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md shadow-xl text-center">
       <div className="text-4xl mb-4">🎨</div>
-      <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">Submit for Voting?</h2>
-      <p className="text-[var(--color-text-secondary)] mb-6">
+      <h2 className="text-xl font-semibold text-(--color-text-primary) mb-2">Submit for Voting?</h2>
+      <p className="text-(--color-text-secondary) mb-6">
         There were no submissions yesterday to vote on. Would you like your artwork to be included in
         tomorrow's voting?
       </p>
       <div className="flex gap-3">
-        <button className="flex-1 px-4 py-2.5 border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-lg font-medium hover:bg-[var(--color-bg-secondary)] transition-colors">
+        <button className="flex-1 px-4 py-2.5 border border-(--color-border) text-(--color-text-primary) rounded-lg font-medium hover:bg-(--color-bg-secondary) transition-colors">
           No thanks
         </button>
         <button className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
@@ -502,15 +502,15 @@ export function VotingTestPage() {
   );
 
   const renderBootstrapOne = () => (
-    <div className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-md shadow-xl text-center">
+    <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md shadow-xl text-center">
       <div className="text-4xl mb-4">🎨</div>
-      <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">Submit for Voting?</h2>
-      <p className="text-[var(--color-text-secondary)] mb-6">
+      <h2 className="text-xl font-semibold text-(--color-text-primary) mb-2">Submit for Voting?</h2>
+      <p className="text-(--color-text-secondary) mb-6">
         There was only 1 submission yesterday, so there's nothing to vote on yet. Would you like your artwork
         to be included in tomorrow's voting?
       </p>
       <div className="flex gap-3">
-        <button className="flex-1 px-4 py-2.5 border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-lg font-medium hover:bg-[var(--color-bg-secondary)] transition-colors">
+        <button className="flex-1 px-4 py-2.5 border border-(--color-border) text-(--color-text-primary) rounded-lg font-medium hover:bg-(--color-bg-secondary) transition-colors">
           No thanks
         </button>
         <button className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
@@ -524,27 +524,27 @@ export function VotingTestPage() {
     const required = calculateRequiredVotes(submissionCount);
     const totalPairs = calculateTotalPairs(submissionCount);
     return (
-      <div className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-md shadow-xl">
+      <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md shadow-xl">
         <div className="text-center mb-4">
-          <div className="text-3xl font-bold text-[var(--color-text-primary)]">{submissionCount}</div>
-          <div className="text-sm text-[var(--color-text-secondary)]">submissions</div>
+          <div className="text-3xl font-bold text-(--color-text-primary)">{submissionCount}</div>
+          <div className="text-sm text-(--color-text-secondary)">submissions</div>
         </div>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-[var(--color-text-secondary)]">Total possible pairs:</span>
-            <span className="text-[var(--color-text-primary)] font-medium">{totalPairs}</span>
+            <span className="text-(--color-text-secondary)">Total possible pairs:</span>
+            <span className="text-(--color-text-primary) font-medium">{totalPairs}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-[var(--color-text-secondary)]">Votes required:</span>
-            <span className="text-[var(--color-text-primary)] font-medium">{required}</span>
+            <span className="text-(--color-text-secondary)">Votes required:</span>
+            <span className="text-(--color-text-primary) font-medium">{required}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-[var(--color-text-secondary)]">Formula:</span>
-            <span className="text-[var(--color-text-tertiary)]">min(5, pairs)</span>
+            <span className="text-(--color-text-secondary)">Formula:</span>
+            <span className="text-(--color-text-tertiary)">min(5, pairs)</span>
           </div>
         </div>
-        <div className="mt-4 pt-4 border-t border-[var(--color-border)]">
-          <div className="text-xs text-[var(--color-text-tertiary)]">
+        <div className="mt-4 pt-4 border-t border-(--color-border)">
+          <div className="text-xs text-(--color-text-tertiary)">
             {required === 5
               ? 'Standard: 5 votes required'
               : `Reduced: Only ${required} vote${required !== 1 ? 's' : ''} needed`}
@@ -572,10 +572,10 @@ export function VotingTestPage() {
     // No more pairs state
     if (noMorePairs) {
       return (
-        <div className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-md shadow-xl text-center">
+        <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md shadow-xl text-center">
           <div className="text-4xl mb-4">🎉</div>
-          <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">All Done!</h2>
-          <p className="text-[var(--color-text-secondary)] mb-6">
+          <h2 className="text-xl font-semibold text-(--color-text-primary) mb-2">All Done!</h2>
+          <p className="text-(--color-text-secondary) mb-6">
             You've voted on all available pairs. Your artwork is entered in today's ranking!
           </p>
           <button
@@ -589,19 +589,19 @@ export function VotingTestPage() {
     }
 
     return (
-      <div className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-3xl shadow-xl">
+      <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-3xl shadow-xl">
         <div className="flex justify-between items-center mb-4">
           <div>
-            <h2 className="text-xl font-semibold text-[var(--color-text-primary)]">
+            <h2 className="text-xl font-semibold text-(--color-text-primary)">
               Vote on Yesterday's Submissions
             </h2>
-            <p className="text-sm text-[var(--color-text-secondary)]">{formatDate(MOCK_CHALLENGE.date)}</p>
+            <p className="text-sm text-(--color-text-secondary)">{formatDate(MOCK_CHALLENGE.date)}</p>
           </div>
           <div className="text-right">
-            <div className="text-sm font-medium text-[var(--color-text-primary)]">
+            <div className="text-sm font-medium text-(--color-text-primary)">
               {flowVoteCount} of {flowRequiredVotes} votes
             </div>
-            <div className="text-xs text-[var(--color-text-tertiary)]">
+            <div className="text-xs text-(--color-text-tertiary)">
               {flowRequiredVotes - flowVoteCount > 0
                 ? `${flowRequiredVotes - flowVoteCount} more to enter ranking`
                 : 'Entered in ranking!'}
@@ -610,7 +610,7 @@ export function VotingTestPage() {
         </div>
 
         {/* Progress bar */}
-        <div className="w-full h-2 bg-[var(--color-bg-tertiary)] rounded-full mb-6 overflow-hidden">
+        <div className="w-full h-2 bg-(--color-bg-tertiary) rounded-full mb-6 overflow-hidden">
           <div
             className="h-full bg-blue-600 transition-all duration-300"
             style={{ width: `${flowRequiredVotes > 0 ? Math.min((flowVoteCount / flowRequiredVotes) * 100, 100) : 100}%` }}
@@ -621,7 +621,7 @@ export function VotingTestPage() {
         <div className="grid grid-cols-2 gap-6 mb-6">
           <button
             onClick={handleFlowVote}
-            className="group relative p-4 border-2 border-[var(--color-border)] rounded-xl hover:border-blue-500 transition-colors"
+            className="group relative p-4 border-2 border-(--color-border) rounded-xl hover:border-blue-500 transition-colors"
           >
             <div className="aspect-square">
               <SubmissionThumbnail
@@ -638,7 +638,7 @@ export function VotingTestPage() {
 
           <button
             onClick={handleFlowVote}
-            className="group relative p-4 border-2 border-[var(--color-border)] rounded-xl hover:border-blue-500 transition-colors"
+            className="group relative p-4 border-2 border-(--color-border) rounded-xl hover:border-blue-500 transition-colors"
           >
             <div className="aspect-square">
               <SubmissionThumbnail
@@ -659,18 +659,18 @@ export function VotingTestPage() {
           {flowHasEnteredRanking ? (
             <button
               onClick={handleFlowDone}
-              className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+              className="text-sm text-(--color-text-secondary) hover:text-(--color-text-primary) transition-colors"
             >
               Done voting
             </button>
           ) : (
-            <button className="text-sm text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors">
+            <button className="text-sm text-(--color-text-tertiary) hover:text-(--color-text-secondary) transition-colors">
               Skip voting (won't enter ranking)
             </button>
           )}
           <button
             onClick={handleFlowSkip}
-            className="px-4 py-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+            className="px-4 py-2 text-sm text-(--color-text-secondary) hover:text-(--color-text-primary) transition-colors"
           >
             Can't decide, skip this pair
           </button>
@@ -682,19 +682,19 @@ export function VotingTestPage() {
   // Confirmation modal for interactive flow
   const renderFlowConfirmation = () => (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-md mx-4 shadow-xl text-center">
+      <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md mx-4 shadow-xl text-center">
         <div className="text-4xl mb-4">🎉</div>
-        <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">
+        <h2 className="text-xl font-semibold text-(--color-text-primary) mb-2">
           Your submission is now entered!
         </h2>
-        <p className="text-[var(--color-text-secondary)] mb-6">
+        <p className="text-(--color-text-secondary) mb-6">
           Thanks for voting! Your artwork will be included in today's ranking.
         </p>
         <div className="flex gap-3">
           <button
             onClick={handleFlowContinueVoting}
             disabled={flowPairIndex >= flowTotalPairs}
-            className="flex-1 px-4 py-2.5 border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-lg font-medium hover:bg-[var(--color-bg-secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-4 py-2.5 border border-(--color-border) text-(--color-text-primary) rounded-lg font-medium hover:bg-(--color-bg-secondary) transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Continue Voting
           </button>
@@ -713,7 +713,7 @@ export function VotingTestPage() {
     switch (activeScenario) {
       case 'voting-ui':
         return (
-          <div className="flex items-center justify-center min-h-[600px]">
+          <div className="flex items-center justify-center min-h-150">
             {renderVotingUI(currentPair, voteCount)}
           </div>
         );
@@ -722,18 +722,18 @@ export function VotingTestPage() {
         return (
           <div className="space-y-6">
             {/* Controls */}
-            <div className="bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-3">Flow Controls</h3>
+            <div className="bg-(--color-bg-secondary) border border-(--color-border) rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-(--color-text-primary) mb-3">Flow Controls</h3>
               <div className="flex flex-wrap items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <label className="text-sm text-[var(--color-text-secondary)]">Submissions:</label>
+                  <label className="text-sm text-(--color-text-secondary)">Submissions:</label>
                   <select
                     value={flowSubmissionCount}
                     onChange={(e) => {
                       setFlowSubmissionCount(Number(e.target.value));
                       resetFlow();
                     }}
-                    className="px-2 py-1 rounded border border-[var(--color-border)] bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] text-sm"
+                    className="px-2 py-1 rounded border border-(--color-border) bg-(--color-bg-primary) text-(--color-text-primary) text-sm"
                   >
                     <option value={2}>2 (1 pair, 1 vote req)</option>
                     <option value={3}>3 (3 pairs, 3 votes req)</option>
@@ -744,12 +744,12 @@ export function VotingTestPage() {
                 </div>
                 <button
                   onClick={resetFlow}
-                  className="px-3 py-1 text-sm border border-[var(--color-border)] rounded hover:bg-[var(--color-bg-tertiary)] transition-colors"
+                  className="px-3 py-1 text-sm border border-(--color-border) rounded hover:bg-(--color-bg-tertiary) transition-colors"
                 >
                   Reset Flow
                 </button>
                 <div className="flex-1" />
-                <div className="text-xs text-[var(--color-text-tertiary)]">
+                <div className="text-xs text-(--color-text-tertiary)">
                   Status: {flowHasEnteredRanking ? '✓ Entered ranking' : 'Not in ranking yet'} |
                   Pairs seen: {flowPairIndex}/{flowTotalPairs}
                 </div>
@@ -757,7 +757,7 @@ export function VotingTestPage() {
             </div>
 
             {/* Interactive voting UI or confirmation */}
-            <div className="flex items-center justify-center min-h-[500px]">
+            <div className="flex items-center justify-center min-h-125">
               {flowShowConfirmation ? renderFlowConfirmation() : renderFlowVotingUI()}
             </div>
           </div>
@@ -766,21 +766,21 @@ export function VotingTestPage() {
       case 'voting-progress':
         return (
           <div className="space-y-8">
-            <h3 className="text-lg font-medium text-[var(--color-text-primary)]">Vote Progress States</h3>
+            <h3 className="text-lg font-medium text-(--color-text-primary)">Vote Progress States</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[0, 1, 2, 3, 4, 5, 7].map((count) => (
-                <div key={count} className="p-4 border border-[var(--color-border)] rounded-lg">
-                  <p className="text-sm text-[var(--color-text-secondary)] mb-2">
+                <div key={count} className="p-4 border border-(--color-border) rounded-lg">
+                  <p className="text-sm text-(--color-text-secondary) mb-2">
                     {count} vote{count !== 1 ? 's' : ''}
                   </p>
                   <div className="flex items-center gap-3">
-                    <div className="flex-1 h-2 bg-[var(--color-bg-tertiary)] rounded-full overflow-hidden">
+                    <div className="flex-1 h-2 bg-(--color-bg-tertiary) rounded-full overflow-hidden">
                       <div
                         className="h-full bg-blue-600"
                         style={{ width: `${Math.min((count / 5) * 100, 100)}%` }}
                       />
                     </div>
-                    <span className="text-xs text-[var(--color-text-tertiary)]">
+                    <span className="text-xs text-(--color-text-tertiary)">
                       {count >= 5 ? 'Entered!' : `${5 - count} more`}
                     </span>
                   </div>
@@ -792,7 +792,7 @@ export function VotingTestPage() {
 
       case 'voting-confirmation':
         return (
-          <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex items-center justify-center min-h-100">
             {renderConfirmationScreen()}
           </div>
         );
@@ -800,31 +800,31 @@ export function VotingTestPage() {
       case 'voting-no-pairs':
         return (
           <div className="space-y-6">
-            <h3 className="text-lg font-medium text-[var(--color-text-primary)]">
+            <h3 className="text-lg font-medium text-(--color-text-primary)">
               No More Pairs Scenarios
             </h3>
-            <p className="text-sm text-[var(--color-text-secondary)] mb-4">
+            <p className="text-sm text-(--color-text-secondary) mb-4">
               "No More Pairs" only occurs when you've voted on ALL available pairs. With few submissions,
               this naturally leads to entering the ranking since you voted on everything available.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Scenario: 2 submissions (1 pair), user voted on it - entered! */}
               <div>
-                <p className="text-sm text-[var(--color-text-secondary)] mb-2">
+                <p className="text-sm text-(--color-text-secondary) mb-2">
                   2 subs = 1 pair → voted on it = entered!
                 </p>
                 {renderNoMorePairs(1, 1)}
               </div>
               {/* Scenario: 3 submissions (3 pairs possible), user voted on all 3 - entered ranking! */}
               <div>
-                <p className="text-sm text-[var(--color-text-secondary)] mb-2">
+                <p className="text-sm text-(--color-text-secondary) mb-2">
                   3 subs = 3 pairs → voted on all = entered!
                 </p>
                 {renderNoMorePairs(3, 3)}
               </div>
               {/* Scenario: 5+ submissions, voted on all 5 required - entered! */}
               <div>
-                <p className="text-sm text-[var(--color-text-secondary)] mb-2">
+                <p className="text-sm text-(--color-text-secondary) mb-2">
                   5+ subs → voted 5 = entered!
                 </p>
                 {renderNoMorePairs(5, 5)}
@@ -836,10 +836,10 @@ export function VotingTestPage() {
       case 'voting-dynamic-threshold':
         return (
           <div className="space-y-6">
-            <h3 className="text-lg font-medium text-[var(--color-text-primary)]">
+            <h3 className="text-lg font-medium text-(--color-text-primary)">
               Dynamic Vote Requirements
             </h3>
-            <p className="text-sm text-[var(--color-text-secondary)]">
+            <p className="text-sm text-(--color-text-secondary)">
               When fewer than 5 submissions exist, the vote requirement adjusts to the number of available pairs.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -852,14 +852,14 @@ export function VotingTestPage() {
 
       case 'voting-bootstrap-zero':
         return (
-          <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex items-center justify-center min-h-100">
             {renderBootstrapZero()}
           </div>
         );
 
       case 'voting-bootstrap-one':
         return (
-          <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex items-center justify-center min-h-100">
             {renderBootstrapOne()}
           </div>
         );
@@ -929,7 +929,7 @@ export function VotingTestPage() {
 
       default:
         return (
-          <div className="text-center text-[var(--color-text-secondary)]">
+          <div className="text-center text-(--color-text-secondary)">
             Select a scenario from the sidebar
           </div>
         );
@@ -937,16 +937,16 @@ export function VotingTestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg-primary)] flex">
+    <div className="min-h-screen bg-(--color-bg-primary) flex">
       {/* Sidebar */}
-      <div className="w-64 border-r border-[var(--color-border)] p-4 overflow-y-auto">
-        <h1 className="text-xl font-bold text-[var(--color-text-primary)] mb-4">Voting Tests</h1>
-        <p className="text-xs text-[var(--color-text-tertiary)] mb-6">
+      <div className="w-64 border-r border-(--color-border) p-4 overflow-y-auto">
+        <h1 className="text-xl font-bold text-(--color-text-primary) mb-4">Voting Tests</h1>
+        <p className="text-xs text-(--color-text-tertiary) mb-6">
           Visual test page for voting components
         </p>
 
         <div className="space-y-2">
-          <h3 className="text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">
+          <h3 className="text-xs font-semibold text-(--color-text-secondary) uppercase tracking-wide mb-2">
             Voting Modal
           </h3>
           {(
@@ -966,14 +966,14 @@ export function VotingTestPage() {
               className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                 activeScenario === scenario
                   ? 'bg-blue-600 text-white'
-                  : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)]'
+                  : 'text-(--color-text-primary) hover:bg-(--color-bg-secondary)'
               }`}
             >
               {SCENARIOS[scenario].name}
             </button>
           ))}
 
-          <h3 className="text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide mt-6 mb-2">
+          <h3 className="text-xs font-semibold text-(--color-text-secondary) uppercase tracking-wide mt-6 mb-2">
             Winner Announcement
           </h3>
           {(
@@ -988,14 +988,14 @@ export function VotingTestPage() {
               className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                 activeScenario === scenario
                   ? 'bg-blue-600 text-white'
-                  : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)]'
+                  : 'text-(--color-text-primary) hover:bg-(--color-bg-secondary)'
               }`}
             >
               {SCENARIOS[scenario].name}
             </button>
           ))}
 
-          <h3 className="text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide mt-6 mb-2">
+          <h3 className="text-xs font-semibold text-(--color-text-secondary) uppercase tracking-wide mt-6 mb-2">
             Calendar
           </h3>
           {(['calendar-trophies'] as TestScenario[]).map((scenario) => (
@@ -1008,7 +1008,7 @@ export function VotingTestPage() {
               className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                 activeScenario === scenario
                   ? 'bg-blue-600 text-white'
-                  : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)]'
+                  : 'text-(--color-text-primary) hover:bg-(--color-bg-secondary)'
               }`}
             >
               {SCENARIOS[scenario].name}
@@ -1016,7 +1016,7 @@ export function VotingTestPage() {
           ))}
         </div>
 
-        <div className="mt-8 pt-4 border-t border-[var(--color-border)]">
+        <div className="mt-8 pt-4 border-t border-(--color-border)">
           <a
             href="/"
             className="text-sm text-blue-500 hover:text-blue-600 transition-colors"
@@ -1030,10 +1030,10 @@ export function VotingTestPage() {
       <div className="flex-1 p-8">
         {activeScenario && (
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-[var(--color-text-primary)]">
+            <h2 className="text-2xl font-bold text-(--color-text-primary)">
               {SCENARIOS[activeScenario].name}
             </h2>
-            <p className="text-[var(--color-text-secondary)]">{SCENARIOS[activeScenario].description}</p>
+            <p className="text-(--color-text-secondary)">{SCENARIOS[activeScenario].description}</p>
           </div>
         )}
 

@@ -47,18 +47,18 @@ export function WelcomeModal({ onDismiss }: WelcomeModalProps) {
     >
       <div
         ref={modalRef}
-        className="bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-xl p-6 w-full max-w-md mx-4 shadow-xl"
+        className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md mx-4 shadow-xl"
       >
         <h2
           id="welcome-title"
-          className="text-xl font-semibold text-[var(--color-text-primary)] mb-4"
+          className="text-xl font-semibold text-(--color-text-primary) mb-4"
         >
           Welcome to 2 Colors 2 Shapes!
         </h2>
 
-        <div className="space-y-4 text-sm text-[var(--color-text-secondary)]">
+        <div className="space-y-4 text-sm text-(--color-text-secondary)">
           <section>
-            <h3 className="font-medium text-[var(--color-text-primary)] mb-1">
+            <h3 className="font-medium text-(--color-text-primary) mb-1">
               Daily Challenges
             </h3>
             <p>
@@ -68,7 +68,7 @@ export function WelcomeModal({ onDismiss }: WelcomeModalProps) {
           </section>
 
           <section>
-            <h3 className="font-medium text-[var(--color-text-primary)] mb-1">
+            <h3 className="font-medium text-(--color-text-primary) mb-1">
               Create & Customize
             </h3>
             <p>
@@ -79,7 +79,7 @@ export function WelcomeModal({ onDismiss }: WelcomeModalProps) {
           </section>
 
           <section>
-            <h3 className="font-medium text-[var(--color-text-primary)] mb-1">
+            <h3 className="font-medium text-(--color-text-primary) mb-1">
               Save & Share
             </h3>
             <p>
@@ -89,7 +89,7 @@ export function WelcomeModal({ onDismiss }: WelcomeModalProps) {
           </section>
 
           <section>
-            <h3 className="font-medium text-[var(--color-text-primary)] mb-1">
+            <h3 className="font-medium text-(--color-text-primary) mb-1">
               Browse Past Challenges
             </h3>
             <p>
