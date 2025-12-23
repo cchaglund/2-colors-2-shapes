@@ -91,7 +91,7 @@ function App() {
   // Auth state
   const { user } = useAuth();
   const { profile, loading: profileLoading, updateNickname } = useProfile(user?.id);
-  const { saveSubmission, saving, hasSubmittedToday } = useSubmissions(user?.id, challenge.date);
+  const { saveSubmission, loadSubmission, saving, hasSubmittedToday } = useSubmissions(user?.id, challenge.date);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle');
 
   // Winner announcement for yesterday's results
@@ -119,6 +119,9 @@ function App() {
   const mainRef = useRef<HTMLElement>(null);
   const panStartRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
 
+  // Track if we've synced the submission for this session to avoid repeated syncs
+  const hasSyncedSubmissionRef = useRef(false);
+
   const {
     canvasState,
     addShape,
@@ -145,7 +148,27 @@ function App() {
     renameGroup,
     toggleGroupCollapsed,
     selectGroup,
+    // External loading
+    loadCanvasState,
   } = useCanvasState(challenge);
+
+  // Sync artwork from server when user logs in
+  // This ensures seamless experience across devices - if user has submitted today,
+  // their submission is loaded into local storage (overwriting any local changes)
+  useEffect(() => {
+    if (!user?.id || hasSyncedSubmissionRef.current) return;
+
+    const syncSubmission = async () => {
+      const { data: submission } = await loadSubmission(challenge.date);
+      if (submission) {
+        // User has a submission for today - load it into the canvas
+        loadCanvasState(submission.shapes, submission.background_color_index as 0 | 1 | null);
+      }
+      hasSyncedSubmissionRef.current = true;
+    };
+
+    syncSubmission();
+  }, [user?.id, challenge.date, loadSubmission, loadCanvasState]);
 
   const {
     viewport,

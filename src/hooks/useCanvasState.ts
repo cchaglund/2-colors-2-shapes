@@ -800,6 +800,33 @@ export function useCanvasState(challenge: DailyChallenge) {
     [canvasState.shapes]
   );
 
+  // Load canvas state from an external source (e.g., a submission from the server)
+  // This is used to sync artwork across devices when logging in
+  const loadCanvasState = useCallback(
+    (shapes: Shape[], backgroundColorIndex: 0 | 1 | null) => {
+      const newState: CanvasState = {
+        shapes,
+        groups: [], // Groups are not stored in submissions, start fresh
+        backgroundColorIndex,
+        selectedShapeIds: new Set<string>(),
+      };
+
+      // Reset history when loading external state
+      historyRef.current = [newState];
+      setHistoryIndex(0);
+      setHistoryLength(1);
+
+      setCanvasStateInternal(newState);
+
+      // Also save to localStorage immediately
+      saveToStorage({
+        date: getTodayDate(),
+        canvas: newState,
+      });
+    },
+    []
+  );
+
   return {
     canvasState,
     addShape,
@@ -829,5 +856,7 @@ export function useCanvasState(challenge: DailyChallenge) {
     moveToGroup,
     selectGroup,
     getShapesInGroup,
+    // External loading
+    loadCanvasState,
   };
 }
