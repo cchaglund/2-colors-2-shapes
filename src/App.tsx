@@ -13,6 +13,7 @@ import { KeyboardSettingsModal } from './components/KeyboardSettingsModal';
 import { VotingModal } from './components/voting';
 import { WinnerAnnouncementModal } from './components/WinnerAnnouncementModal';
 import { VotingTestPage } from './test/VotingTestPage';
+import { Dashboard } from './components/Dashboard';
 import { useCanvasState } from './hooks/useCanvasState';
 import { useViewportState } from './hooks/useViewportState';
 import { useSidebarState } from './hooks/useSidebarState';
@@ -61,6 +62,12 @@ function isVotingTestEnabled(): boolean {
   return urlParams.get('test') === 'voting';
 }
 
+// Check if dashboard view is requested
+function isDashboardEnabled(): boolean {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('view') === 'dashboard';
+}
+
 function App() {
   // Check if Shape Explorer mode should be shown
   const showExplorer = useMemo(() => isShapeExplorerEnabled(), []);
@@ -68,6 +75,8 @@ function App() {
   const submissionView = useMemo(() => getSubmissionView(), []);
   // Check if voting test page should be shown
   const showVotingTest = useMemo(() => isVotingTestEnabled(), []);
+  // Check if dashboard should be shown
+  const showDashboard = useMemo(() => isDashboardEnabled(), []);
   // Calendar modal state
   const [showCalendar, setShowCalendar] = useState(false);
   // Keyboard settings modal state
@@ -344,6 +353,11 @@ function App() {
   // Render Voting Test Page if enabled
   if (showVotingTest) {
     return <VotingTestPage />;
+  }
+
+  // Render Dashboard if enabled
+  if (showDashboard) {
+    return <Dashboard />;
   }
 
   // Render Submission Detail Page if viewing a submission

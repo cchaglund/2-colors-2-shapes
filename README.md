@@ -73,6 +73,11 @@ The same date always generates the same colors and shapes (seed-based randomizat
 - **Winner announcement**: See the top 3 submissions from the most recent completed ranking
   - Shown on first login of the day
   - Displays winners from 2 days ago (since yesterday's voting just completed their ranking)
+- **Admin dashboard**: Real-time statistics for site administrators
+  - Total users and recent signups (last 7 days)
+  - Total submissions and submissions per day chart
+  - Votes per day chart
+  - Access restricted to users with admin role
 
 ### Planned
 - [ ] Procedurally generated shapes (advanced mode)
@@ -246,6 +251,28 @@ http://localhost:5173/?test=voting
 - **Winner - Tied**: Winner announcement with 1st place tie
 - **Winner - Three-Way Tie**: Winner announcement with three-way tie
 - **Calendar with Trophies**: User calendar showing submissions with various trophy placements
+
+### Admin Dashboard
+
+View real-time statistics about users, submissions, and voting activity. Requires admin privileges.
+
+**Access via URL parameter:**
+```
+http://localhost:5173/?view=dashboard
+```
+
+**Granting admin access:**
+Run this SQL in Supabase SQL Editor to grant admin access to a user:
+```sql
+SELECT set_admin_status('user@example.com', true);
+```
+
+Or directly update the profile:
+```sql
+UPDATE profiles SET is_admin = true WHERE id = (
+  SELECT id FROM auth.users WHERE email = 'user@example.com'
+);
+```
 
 ## Testing
 
