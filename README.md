@@ -62,6 +62,12 @@ The same date always generates the same colors and shapes (seed-based randomizat
   - Disabled states when actions aren't available (e.g., no selection)
 - **Mirroring**: Flip shapes horizontally or vertically
 - **Zoom & pan**: Zoom in/out with controls or scroll wheel, pan the canvas
+- **Touchscreen support**: Full touch gesture support for tablets and mobile devices
+  - Tap to select shapes, tap empty space to deselect
+  - Tap and drag to move shapes
+  - Two-finger pinch to scale selected shapes
+  - Two-finger rotate to rotate selected shapes
+  - Long press (hold 500ms) on a shape for context menu with quick actions
 - **Voting system**: Vote on submissions using ELO-based pairwise comparison
   - Vote on pairs of yesterday's submissions to help rank the artwork
   - Cast 5 votes to enter the ranking yourself
@@ -81,7 +87,6 @@ The same date always generates the same colors and shapes (seed-based randomizat
 
 ### Planned
 - [ ] Procedurally generated shapes (advanced mode)
-- [ ] Mobile support
 - [ ] Public gallery of submissions
 
 ## Tech Stack

@@ -4,9 +4,9 @@ import { getShapeSVGData } from '../utils/shapeHelpers';
 interface TransformHandlesProps {
   shape: Shape;
   zoom?: number;
-  onMoveStart: (e: React.MouseEvent) => void;
-  onResizeStart: (e: React.MouseEvent, corner: string) => void;
-  onRotateStart: (e: React.MouseEvent) => void;
+  onMoveStart: (e: React.MouseEvent | React.TouchEvent) => void;
+  onResizeStart: (e: React.MouseEvent | React.TouchEvent, corner: string) => void;
+  onRotateStart: (e: React.MouseEvent | React.TouchEvent) => void;
 }
 
 interface MultiSelectTransformLayerProps {
@@ -19,9 +19,9 @@ interface MultiSelectTransformLayerProps {
 interface MultiSelectInteractionLayerProps {
   bounds: { x: number; y: number; width: number; height: number };
   zoom?: number;
-  onMoveStart: (e: React.MouseEvent) => void;
-  onResizeStart: (e: React.MouseEvent, corner: string) => void;
-  onRotateStart: (e: React.MouseEvent) => void;
+  onMoveStart: (e: React.MouseEvent | React.TouchEvent) => void;
+  onResizeStart: (e: React.MouseEvent | React.TouchEvent, corner: string) => void;
+  onRotateStart: (e: React.MouseEvent | React.TouchEvent) => void;
 }
 
 // Base sizes at 100% zoom
@@ -125,8 +125,9 @@ export function TransformInteractionLayer({
         width={shape.size}
         height={shape.size}
         fill="transparent"
-        style={{ cursor: 'move' }}
+        style={{ cursor: 'move', touchAction: 'none' }}
         onMouseDown={onMoveStart}
+        onTouchStart={onMoveStart}
       />
 
       {/* Invisible corner resize handles */}
@@ -138,8 +139,9 @@ export function TransformInteractionLayer({
           width={handleSize}
           height={handleSize}
           fill="transparent"
-          style={{ cursor: getEffectiveCursor(corner.id, shape.flipX ?? false, shape.flipY ?? false, shape.rotation) }}
+          style={{ cursor: getEffectiveCursor(corner.id, shape.flipX ?? false, shape.flipY ?? false, shape.rotation), touchAction: 'none' }}
           onMouseDown={(e) => onResizeStart(e, corner.id)}
+          onTouchStart={(e) => onResizeStart(e, corner.id)}
         />
       ))}
 
@@ -151,8 +153,9 @@ export function TransformInteractionLayer({
           cy={handle.cy}
           r={interactionRadius}
           fill="transparent"
-          style={{ cursor: 'grab' }}
+          style={{ cursor: 'grab', touchAction: 'none' }}
           onMouseDown={onRotateStart}
+          onTouchStart={onRotateStart}
         />
       ))}
     </g>
@@ -449,8 +452,9 @@ export function MultiSelectInteractionLayer({
           width={handleSize}
           height={handleSize}
           fill="transparent"
-          style={{ cursor: `${corner.id}-resize` }}
+          style={{ cursor: `${corner.id}-resize`, touchAction: 'none' }}
           onMouseDown={(e) => onResizeStart(e, corner.id)}
+          onTouchStart={(e) => onResizeStart(e, corner.id)}
         />
       ))}
 
@@ -462,8 +466,9 @@ export function MultiSelectInteractionLayer({
           cy={bounds.y + handle.cy}
           r={interactionRadius}
           fill="transparent"
-          style={{ cursor: 'grab' }}
+          style={{ cursor: 'grab', touchAction: 'none' }}
           onMouseDown={onRotateStart}
+          onTouchStart={onRotateStart}
         />
       ))}
     </g>
