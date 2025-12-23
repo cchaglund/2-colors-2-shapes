@@ -10,7 +10,7 @@ import { WelcomeModal } from './components/WelcomeModal';
 import { Calendar } from './components/Calendar';
 import { SubmissionDetailPage } from './components/SubmissionDetailPage';
 import { KeyboardSettingsModal } from './components/KeyboardSettingsModal';
-import { VotingModal } from './components/VotingModal';
+import { VotingModal } from './components/voting';
 import { WinnerAnnouncementModal } from './components/WinnerAnnouncementModal';
 import { VotingTestPage } from './test/VotingTestPage';
 import { useCanvasState } from './hooks/useCanvasState';

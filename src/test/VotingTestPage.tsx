@@ -3,12 +3,22 @@
  *
  * Visual test page for voting components with mock data.
  * Access via ?test=voting in the URL.
+ *
+ * Uses the actual production components with mock data to ensure
+ * tests verify real component behavior.
  */
 
 import { useState, useMemo } from 'react';
 import { SubmissionThumbnail } from '../components/SubmissionThumbnail';
 import { WinnerAnnouncementModal } from '../components/WinnerAnnouncementModal';
 import { TrophyBadge } from '../components/TrophyBadge';
+import {
+  VotingPairView,
+  VotingConfirmation,
+  VotingNoPairs,
+  VotingOptInPrompt,
+  VotingProgress,
+} from '../components/voting';
 import {
   MOCK_CHALLENGE,
   MOCK_VOTING_PAIRS,
@@ -19,7 +29,7 @@ import {
 } from './mockData';
 import { calculateRequiredVotes, calculateTotalPairs } from '../utils/votingRules';
 import { generateDailyChallenge } from '../utils/dailyChallenge';
-import type { RankingEntry, VotingPair } from '../types';
+import type { RankingEntry } from '../types';
 
 type TestScenario =
   | 'voting-ui'
@@ -107,15 +117,6 @@ export function VotingTestPage() {
   const flowRequiredVotes = calculateRequiredVotes(flowSubmissionCount);
   const flowTotalPairs = calculateTotalPairs(flowSubmissionCount);
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr + 'T12:00:00');
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
   const handleVote = (winnerId: string) => {
     console.log('Vote cast for:', winnerId);
     setVoteCount((prev) => Math.min(prev + 1, 10));
@@ -130,7 +131,8 @@ export function VotingTestPage() {
   const currentPair = MOCK_VOTING_PAIRS[currentPairIndex];
 
   // Interactive flow handlers
-  const handleFlowVote = () => {
+  const handleFlowVote = (winnerId: string) => {
+    console.log('Flow vote cast for:', winnerId);
     const newVoteCount = flowVoteCount + 1;
     const newPairIndex = flowPairIndex + 1;
     setFlowVoteCount(newVoteCount);
@@ -349,168 +351,6 @@ export function VotingTestPage() {
     );
   };
 
-  const renderVotingUI = (pair: VotingPair, votes: number) => (
-    <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-3xl shadow-xl">
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <h2 className="text-xl font-semibold text-(--color-text-primary)">
-            Vote on Yesterday's Submissions
-          </h2>
-          <p className="text-sm text-(--color-text-secondary)">{formatDate(MOCK_CHALLENGE.date)}</p>
-        </div>
-        <div className="text-right">
-          <div className="text-sm font-medium text-(--color-text-primary)">{votes} of 5 votes</div>
-          <div className="text-xs text-(--color-text-tertiary)">
-            {5 - votes > 0 ? `${5 - votes} more to enter ranking` : 'Entered in ranking!'}
-          </div>
-        </div>
-      </div>
-
-      {/* Progress bar */}
-      <div className="w-full h-2 bg-(--color-bg-tertiary) rounded-full mb-6 overflow-hidden">
-        <div
-          className="h-full bg-blue-600 transition-all duration-300"
-          style={{ width: `${Math.min((votes / 5) * 100, 100)}%` }}
-        />
-      </div>
-
-      {/* Side by side comparison */}
-      <div className="flex justify-center gap-6 mb-6">
-        <button
-          onClick={() => handleVote(pair.submissionA.id)}
-          className="group relative border-2 border-(--color-border) rounded-xl overflow-hidden hover:border-blue-500 transition-colors"
-        >
-          <SubmissionThumbnail
-            shapes={pair.submissionA.shapes}
-            challenge={MOCK_CHALLENGE}
-            backgroundColorIndex={pair.submissionA.background_color_index}
-            size={280}
-          />
-          <div className="absolute inset-0 flex items-center justify-center bg-blue-600/80 text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-            Choose this one
-          </div>
-        </button>
-
-        <button
-          onClick={() => handleVote(pair.submissionB.id)}
-          className="group relative border-2 border-(--color-border) rounded-xl overflow-hidden hover:border-blue-500 transition-colors"
-        >
-          <SubmissionThumbnail
-            shapes={pair.submissionB.shapes}
-            challenge={MOCK_CHALLENGE}
-            backgroundColorIndex={pair.submissionB.background_color_index}
-            size={280}
-          />
-          <div className="absolute inset-0 flex items-center justify-center bg-blue-600/80 text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-            Choose this one
-          </div>
-        </button>
-      </div>
-
-      {/* Actions */}
-      <div className="flex justify-between items-center">
-        <button className="text-sm text-(--color-text-tertiary) hover:text-(--color-text-secondary) transition-colors">
-          Skip voting (won't enter ranking)
-        </button>
-        <button
-          onClick={handleSkip}
-          className="px-4 py-2 text-sm text-(--color-text-secondary) hover:text-(--color-text-primary) transition-colors"
-        >
-          Can't decide, skip this pair
-        </button>
-      </div>
-    </div>
-  );
-
-  const renderConfirmationScreen = () => (
-    <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md shadow-xl text-center">
-      <div className="text-4xl mb-4">🎉</div>
-      <h2 className="text-xl font-semibold text-(--color-text-primary) mb-2">
-        Your submission is now entered!
-      </h2>
-      <p className="text-(--color-text-secondary) mb-6">
-        Thanks for voting! Your artwork will be included in today's ranking.
-      </p>
-      <div className="flex gap-3">
-        <button className="flex-1 px-4 py-2.5 border border-(--color-border) text-(--color-text-primary) rounded-lg font-medium hover:bg-(--color-bg-secondary) transition-colors">
-          Continue Voting
-        </button>
-        <button className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
-          Done
-        </button>
-      </div>
-    </div>
-  );
-
-  const renderNoMorePairs = (votes: number, required: number) => {
-    const hasVotedEnough = votes >= required;
-    return (
-      <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md shadow-xl text-center">
-        {hasVotedEnough ? (
-          <>
-            <div className="text-4xl mb-4">🎉</div>
-            <h2 className="text-xl font-semibold text-(--color-text-primary) mb-2">All Done!</h2>
-            <p className="text-(--color-text-secondary) mb-6">
-              You've voted on all available pairs. Your artwork is entered in today's ranking!
-            </p>
-          </>
-        ) : (
-          <>
-            <h2 className="text-xl font-semibold text-(--color-text-primary) mb-2">No More Pairs</h2>
-            <p className="text-(--color-text-secondary) mb-4">
-              You've seen all available artwork pairs for {formatDate(MOCK_CHALLENGE.date)}.
-            </p>
-            <p className="text-(--color-text-tertiary) text-sm mb-6">
-              You voted on {votes} pair{votes !== 1 ? 's' : ''}.
-              {required > votes && ` Needed ${required} to enter ranking.`}
-            </p>
-          </>
-        )}
-        <button className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
-          {hasVotedEnough ? 'Done' : 'Continue Without Ranking'}
-        </button>
-      </div>
-    );
-  };
-
-  const renderBootstrapZero = () => (
-    <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md shadow-xl text-center">
-      <div className="text-4xl mb-4">🎨</div>
-      <h2 className="text-xl font-semibold text-(--color-text-primary) mb-2">Submit for Voting?</h2>
-      <p className="text-(--color-text-secondary) mb-6">
-        There were no submissions yesterday to vote on. Would you like your artwork to be included in
-        tomorrow's voting?
-      </p>
-      <div className="flex gap-3">
-        <button className="flex-1 px-4 py-2.5 border border-(--color-border) text-(--color-text-primary) rounded-lg font-medium hover:bg-(--color-bg-secondary) transition-colors">
-          No thanks
-        </button>
-        <button className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
-          Yes, include me!
-        </button>
-      </div>
-    </div>
-  );
-
-  const renderBootstrapOne = () => (
-    <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md shadow-xl text-center">
-      <div className="text-4xl mb-4">🎨</div>
-      <h2 className="text-xl font-semibold text-(--color-text-primary) mb-2">Submit for Voting?</h2>
-      <p className="text-(--color-text-secondary) mb-6">
-        There was only 1 submission yesterday, so there's nothing to vote on yet. Would you like your artwork
-        to be included in tomorrow's voting?
-      </p>
-      <div className="flex gap-3">
-        <button className="flex-1 px-4 py-2.5 border border-(--color-border) text-(--color-text-primary) rounded-lg font-medium hover:bg-(--color-bg-secondary) transition-colors">
-          No thanks
-        </button>
-        <button className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
-          Yes, include me!
-        </button>
-      </div>
-    </div>
-  );
-
   const renderDynamicThreshold = (submissionCount: number) => {
     const required = calculateRequiredVotes(submissionCount);
     const totalPairs = calculateTotalPairs(submissionCount);
@@ -556,157 +396,29 @@ export function VotingTestPage() {
     />
   );
 
-  // Interactive flow voting UI with dynamic threshold
-  const renderFlowVotingUI = () => {
-    const pair = MOCK_VOTING_PAIRS[flowPairIndex % MOCK_VOTING_PAIRS.length];
-    const noMorePairs = flowPairIndex >= flowTotalPairs;
-
-    // No more pairs state
-    if (noMorePairs) {
-      return (
-        <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md shadow-xl text-center">
-          <div className="text-4xl mb-4">🎉</div>
-          <h2 className="text-xl font-semibold text-(--color-text-primary) mb-2">All Done!</h2>
-          <p className="text-(--color-text-secondary) mb-6">
-            You've voted on all available pairs. Your artwork is entered in today's ranking!
-          </p>
-          <button
-            onClick={handleFlowDone}
-            className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
-          >
-            Done
-          </button>
-        </div>
-      );
-    }
-
-    return (
-      <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-3xl shadow-xl">
-        <div className="flex justify-between items-center mb-4">
-          <div>
-            <h2 className="text-xl font-semibold text-(--color-text-primary)">
-              Vote on Yesterday's Submissions
-            </h2>
-            <p className="text-sm text-(--color-text-secondary)">{formatDate(MOCK_CHALLENGE.date)}</p>
-          </div>
-          <div className="text-right">
-            <div className="text-sm font-medium text-(--color-text-primary)">
-              {flowVoteCount} of {flowRequiredVotes} votes
-            </div>
-            <div className="text-xs text-(--color-text-tertiary)">
-              {flowRequiredVotes - flowVoteCount > 0
-                ? `${flowRequiredVotes - flowVoteCount} more to enter ranking`
-                : 'Entered in ranking!'}
-            </div>
-          </div>
-        </div>
-
-        {/* Progress bar */}
-        <div className="w-full h-2 bg-(--color-bg-tertiary) rounded-full mb-6 overflow-hidden">
-          <div
-            className="h-full bg-blue-600 transition-all duration-300"
-            style={{ width: `${flowRequiredVotes > 0 ? Math.min((flowVoteCount / flowRequiredVotes) * 100, 100) : 100}%` }}
-          />
-        </div>
-
-        {/* Side by side comparison */}
-        <div className="flex justify-center gap-6 mb-6">
-          <button
-            onClick={handleFlowVote}
-            className="group relative border-2 border-(--color-border) rounded-xl overflow-hidden hover:border-blue-500 transition-colors"
-          >
-            <SubmissionThumbnail
-              shapes={pair.submissionA.shapes}
-              challenge={MOCK_CHALLENGE}
-              backgroundColorIndex={pair.submissionA.background_color_index}
-              size={280}
-            />
-            <div className="absolute inset-0 flex items-center justify-center bg-blue-600/80 text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-              Choose this one
-            </div>
-          </button>
-
-          <button
-            onClick={handleFlowVote}
-            className="group relative border-2 border-(--color-border) rounded-xl overflow-hidden hover:border-blue-500 transition-colors"
-          >
-            <SubmissionThumbnail
-              shapes={pair.submissionB.shapes}
-              challenge={MOCK_CHALLENGE}
-              backgroundColorIndex={pair.submissionB.background_color_index}
-              size={280}
-            />
-            <div className="absolute inset-0 flex items-center justify-center bg-blue-600/80 text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-              Choose this one
-            </div>
-          </button>
-        </div>
-
-        {/* Actions - changes based on whether user entered ranking */}
-        <div className="flex justify-between items-center">
-          {flowHasEnteredRanking ? (
-            <button
-              onClick={handleFlowDone}
-              className="text-sm text-(--color-text-secondary) hover:text-(--color-text-primary) transition-colors"
-            >
-              Done voting
-            </button>
-          ) : (
-            <button className="text-sm text-(--color-text-tertiary) hover:text-(--color-text-secondary) transition-colors">
-              Skip voting (won't enter ranking)
-            </button>
-          )}
-          <button
-            onClick={handleFlowSkip}
-            className="px-4 py-2 text-sm text-(--color-text-secondary) hover:text-(--color-text-primary) transition-colors"
-          >
-            Can't decide, skip this pair
-          </button>
-        </div>
-      </div>
-    );
-  };
-
-  // Confirmation modal for interactive flow
-  const renderFlowConfirmation = () => (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md mx-4 shadow-xl text-center">
-        <div className="text-4xl mb-4">🎉</div>
-        <h2 className="text-xl font-semibold text-(--color-text-primary) mb-2">
-          Your submission is now entered!
-        </h2>
-        <p className="text-(--color-text-secondary) mb-6">
-          Thanks for voting! Your artwork will be included in today's ranking.
-        </p>
-        <div className="flex gap-3">
-          <button
-            onClick={handleFlowContinueVoting}
-            disabled={flowPairIndex >= flowTotalPairs}
-            className="flex-1 px-4 py-2.5 border border-(--color-border) text-(--color-text-primary) rounded-lg font-medium hover:bg-(--color-bg-secondary) transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Continue Voting
-          </button>
-          <button
-            onClick={handleFlowDone}
-            className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
-          >
-            Done
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
   const renderScenario = () => {
     switch (activeScenario) {
       case 'voting-ui':
         return (
           <div className="flex items-center justify-center min-h-150">
-            {renderVotingUI(currentPair, voteCount)}
+            <VotingPairView
+              currentPair={currentPair}
+              challenge={MOCK_CHALLENGE}
+              challengeDate={MOCK_CHALLENGE.date}
+              voteCount={voteCount}
+              requiredVotes={5}
+              submitting={false}
+              onVote={handleVote}
+              onSkip={handleSkip}
+              onSkipVoting={() => console.log('Skip voting clicked')}
+            />
           </div>
         );
 
-      case 'voting-flow':
+      case 'voting-flow': {
+        const flowPair = MOCK_VOTING_PAIRS[flowPairIndex % MOCK_VOTING_PAIRS.length];
+        const noMorePairs = flowPairIndex >= flowTotalPairs;
+
         return (
           <div className="space-y-6">
             {/* Controls */}
@@ -746,10 +458,39 @@ export function VotingTestPage() {
 
             {/* Interactive voting UI or confirmation */}
             <div className="flex items-center justify-center min-h-125">
-              {flowShowConfirmation ? renderFlowConfirmation() : renderFlowVotingUI()}
+              {flowShowConfirmation ? (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                  <VotingConfirmation
+                    canContinueVoting={flowPairIndex < flowTotalPairs}
+                    onContinue={handleFlowContinueVoting}
+                    onDone={handleFlowDone}
+                  />
+                </div>
+              ) : noMorePairs ? (
+                <VotingNoPairs
+                  voteCount={flowVoteCount}
+                  requiredVotes={flowRequiredVotes}
+                  challengeDate={MOCK_CHALLENGE.date}
+                  onDone={handleFlowDone}
+                  onSkipVoting={handleFlowDone}
+                />
+              ) : (
+                <VotingPairView
+                  currentPair={flowPair}
+                  challenge={MOCK_CHALLENGE}
+                  challengeDate={MOCK_CHALLENGE.date}
+                  voteCount={flowVoteCount}
+                  requiredVotes={flowRequiredVotes}
+                  submitting={false}
+                  onVote={handleFlowVote}
+                  onSkip={handleFlowSkip}
+                  onSkipVoting={() => console.log('Skip voting clicked')}
+                />
+              )}
             </div>
           </div>
         );
+      }
 
       case 'voting-progress':
         return (
@@ -761,17 +502,7 @@ export function VotingTestPage() {
                   <p className="text-sm text-(--color-text-secondary) mb-2">
                     {count} vote{count !== 1 ? 's' : ''}
                   </p>
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1 h-2 bg-(--color-bg-tertiary) rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-blue-600"
-                        style={{ width: `${Math.min((count / 5) * 100, 100)}%` }}
-                      />
-                    </div>
-                    <span className="text-xs text-(--color-text-tertiary)">
-                      {count >= 5 ? 'Entered!' : `${5 - count} more`}
-                    </span>
-                  </div>
+                  <VotingProgress voteCount={count} requiredVotes={5} />
                 </div>
               ))}
             </div>
@@ -781,7 +512,11 @@ export function VotingTestPage() {
       case 'voting-confirmation':
         return (
           <div className="flex items-center justify-center min-h-100">
-            {renderConfirmationScreen()}
+            <VotingConfirmation
+              canContinueVoting={true}
+              onContinue={() => console.log('Continue clicked')}
+              onDone={() => console.log('Done clicked')}
+            />
           </div>
         );
 
@@ -801,21 +536,39 @@ export function VotingTestPage() {
                 <p className="text-sm text-(--color-text-secondary) mb-2">
                   2 subs = 1 pair → voted on it = entered!
                 </p>
-                {renderNoMorePairs(1, 1)}
+                <VotingNoPairs
+                  voteCount={1}
+                  requiredVotes={1}
+                  challengeDate={MOCK_CHALLENGE.date}
+                  onDone={() => console.log('Done')}
+                  onSkipVoting={() => console.log('Skip')}
+                />
               </div>
               {/* Scenario: 3 submissions (3 pairs possible), user voted on all 3 - entered ranking! */}
               <div>
                 <p className="text-sm text-(--color-text-secondary) mb-2">
                   3 subs = 3 pairs → voted on all = entered!
                 </p>
-                {renderNoMorePairs(3, 3)}
+                <VotingNoPairs
+                  voteCount={3}
+                  requiredVotes={3}
+                  challengeDate={MOCK_CHALLENGE.date}
+                  onDone={() => console.log('Done')}
+                  onSkipVoting={() => console.log('Skip')}
+                />
               </div>
               {/* Scenario: 5+ submissions, voted on all 5 required - entered! */}
               <div>
                 <p className="text-sm text-(--color-text-secondary) mb-2">
                   5+ subs → voted 5 = entered!
                 </p>
-                {renderNoMorePairs(5, 5)}
+                <VotingNoPairs
+                  voteCount={5}
+                  requiredVotes={5}
+                  challengeDate={MOCK_CHALLENGE.date}
+                  onDone={() => console.log('Done')}
+                  onSkipVoting={() => console.log('Skip')}
+                />
               </div>
             </div>
           </div>
@@ -841,14 +594,22 @@ export function VotingTestPage() {
       case 'voting-bootstrap-zero':
         return (
           <div className="flex items-center justify-center min-h-100">
-            {renderBootstrapZero()}
+            <VotingOptInPrompt
+              variant="zero"
+              onOptIn={() => console.log('Opted in')}
+              onSkip={() => console.log('Skipped')}
+            />
           </div>
         );
 
       case 'voting-bootstrap-one':
         return (
           <div className="flex items-center justify-center min-h-100">
-            {renderBootstrapOne()}
+            <VotingOptInPrompt
+              variant="one"
+              onOptIn={() => console.log('Opted in')}
+              onSkip={() => console.log('Skipped')}
+            />
           </div>
         );
 
