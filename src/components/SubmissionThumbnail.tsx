@@ -38,7 +38,10 @@ export function SubmissionThumbnail({
       />
       {sortedShapes.map((shape) => {
         const { element, props } = getShapeSVGData(shape.type, shape.size);
-        const transform = `translate(${shape.x}, ${shape.y}) rotate(${shape.rotation}, ${shape.size / 2}, ${shape.size / 2})`;
+        const center = shape.size / 2;
+        const scaleX = shape.flipX ? -1 : 1;
+        const scaleY = shape.flipY ? -1 : 1;
+        const transform = `translate(${shape.x}, ${shape.y}) translate(${center}, ${center}) scale(${scaleX}, ${scaleY}) translate(${-center}, ${-center}) rotate(${shape.rotation}, ${center}, ${center})`;
         const color = challenge.colors[shape.colorIndex];
 
         return (

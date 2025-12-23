@@ -33,7 +33,6 @@ type TestScenario =
   | 'winner-normal'
   | 'winner-tied'
   | 'winner-three-way'
-  | 'winner-not-enough'
   | 'calendar-trophies';
 
 interface ScenarioConfig {
@@ -85,10 +84,6 @@ const SCENARIOS: Record<TestScenario, ScenarioConfig> = {
   'winner-three-way': {
     name: 'Winner - Three-Way Tie',
     description: 'Winner announcement with three-way tie',
-  },
-  'winner-not-enough': {
-    name: 'Winner - Not Enough',
-    description: 'Winner modal when not enough submissions',
   },
   'calendar-trophies': {
     name: 'Calendar with Trophies',
@@ -380,37 +375,33 @@ export function VotingTestPage() {
       </div>
 
       {/* Side by side comparison */}
-      <div className="grid grid-cols-2 gap-6 mb-6">
+      <div className="flex justify-center gap-6 mb-6">
         <button
           onClick={() => handleVote(pair.submissionA.id)}
-          className="group relative p-4 border-2 border-(--color-border) rounded-xl hover:border-blue-500 transition-colors"
+          className="group relative border-2 border-(--color-border) rounded-xl overflow-hidden hover:border-blue-500 transition-colors"
         >
-          <div className="aspect-square">
-            <SubmissionThumbnail
-              shapes={pair.submissionA.shapes}
-              challenge={MOCK_CHALLENGE}
-              backgroundColorIndex={pair.submissionA.background_color_index}
-              size={280}
-            />
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center bg-blue-600/80 text-white font-semibold rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
+          <SubmissionThumbnail
+            shapes={pair.submissionA.shapes}
+            challenge={MOCK_CHALLENGE}
+            backgroundColorIndex={pair.submissionA.background_color_index}
+            size={280}
+          />
+          <div className="absolute inset-0 flex items-center justify-center bg-blue-600/80 text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
             Choose this one
           </div>
         </button>
 
         <button
           onClick={() => handleVote(pair.submissionB.id)}
-          className="group relative p-4 border-2 border-(--color-border) rounded-xl hover:border-blue-500 transition-colors"
+          className="group relative border-2 border-(--color-border) rounded-xl overflow-hidden hover:border-blue-500 transition-colors"
         >
-          <div className="aspect-square">
-            <SubmissionThumbnail
-              shapes={pair.submissionB.shapes}
-              challenge={MOCK_CHALLENGE}
-              backgroundColorIndex={pair.submissionB.background_color_index}
-              size={280}
-            />
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center bg-blue-600/80 text-white font-semibold rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
+          <SubmissionThumbnail
+            shapes={pair.submissionB.shapes}
+            challenge={MOCK_CHALLENGE}
+            backgroundColorIndex={pair.submissionB.background_color_index}
+            size={280}
+          />
+          <div className="absolute inset-0 flex items-center justify-center bg-blue-600/80 text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
             Choose this one
           </div>
         </button>
@@ -554,13 +545,14 @@ export function VotingTestPage() {
     );
   };
 
-  const renderWinnerModal = (topThree: RankingEntry[], notEnough = false, total = 10) => (
+  const renderWinnerModal = (topThree: RankingEntry[]) => (
     <WinnerAnnouncementModal
       challengeDate={MOCK_CHALLENGE.date}
       topThree={topThree}
-      totalSubmissions={total}
-      notEnoughSubmissions={notEnough}
       onDismiss={() => setShowModal(false)}
+      onViewSubmission={(submissionId) => {
+        alert(`View submission: ${submissionId}`);
+      }}
     />
   );
 
@@ -618,37 +610,33 @@ export function VotingTestPage() {
         </div>
 
         {/* Side by side comparison */}
-        <div className="grid grid-cols-2 gap-6 mb-6">
+        <div className="flex justify-center gap-6 mb-6">
           <button
             onClick={handleFlowVote}
-            className="group relative p-4 border-2 border-(--color-border) rounded-xl hover:border-blue-500 transition-colors"
+            className="group relative border-2 border-(--color-border) rounded-xl overflow-hidden hover:border-blue-500 transition-colors"
           >
-            <div className="aspect-square">
-              <SubmissionThumbnail
-                shapes={pair.submissionA.shapes}
-                challenge={MOCK_CHALLENGE}
-                backgroundColorIndex={pair.submissionA.background_color_index}
-                size={280}
-              />
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center bg-blue-600/80 text-white font-semibold rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
+            <SubmissionThumbnail
+              shapes={pair.submissionA.shapes}
+              challenge={MOCK_CHALLENGE}
+              backgroundColorIndex={pair.submissionA.background_color_index}
+              size={280}
+            />
+            <div className="absolute inset-0 flex items-center justify-center bg-blue-600/80 text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
               Choose this one
             </div>
           </button>
 
           <button
             onClick={handleFlowVote}
-            className="group relative p-4 border-2 border-(--color-border) rounded-xl hover:border-blue-500 transition-colors"
+            className="group relative border-2 border-(--color-border) rounded-xl overflow-hidden hover:border-blue-500 transition-colors"
           >
-            <div className="aspect-square">
-              <SubmissionThumbnail
-                shapes={pair.submissionB.shapes}
-                challenge={MOCK_CHALLENGE}
-                backgroundColorIndex={pair.submissionB.background_color_index}
-                size={280}
-              />
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center bg-blue-600/80 text-white font-semibold rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
+            <SubmissionThumbnail
+              shapes={pair.submissionB.shapes}
+              challenge={MOCK_CHALLENGE}
+              backgroundColorIndex={pair.submissionB.background_color_index}
+              size={280}
+            />
+            <div className="absolute inset-0 flex items-center justify-center bg-blue-600/80 text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
               Choose this one
             </div>
           </button>
@@ -906,20 +894,6 @@ export function VotingTestPage() {
           </div>
         );
 
-      case 'winner-not-enough':
-        return showModal ? (
-          renderWinnerModal([], true, 3)
-        ) : (
-          <div className="text-center">
-            <button
-              onClick={() => setShowModal(true)}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"
-            >
-              Show Not Enough Modal
-            </button>
-          </div>
-        );
-
       case 'calendar-trophies':
         return (
           <div className="flex items-center justify-center">
@@ -977,7 +951,7 @@ export function VotingTestPage() {
             Winner Announcement
           </h3>
           {(
-            ['winner-normal', 'winner-tied', 'winner-three-way', 'winner-not-enough'] as TestScenario[]
+            ['winner-normal', 'winner-tied', 'winner-three-way'] as TestScenario[]
           ).map((scenario) => (
             <button
               key={scenario}

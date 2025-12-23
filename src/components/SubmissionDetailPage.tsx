@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useSubmissions, type Submission } from '../hooks/useSubmissions';
 import { useRanking } from '../hooks/useRanking';
+import { supabase } from '../lib/supabase';
 import { generateDailyChallenge } from '../utils/dailyChallenge';
 import { getShapeSVGData, SHAPE_NAMES } from '../utils/shapeHelpers';
 import { TrophyBadge } from './TrophyBadge';
@@ -9,7 +10,8 @@ import { RankingBadge } from './RankingBadge';
 import type { DailyChallenge, Shape } from '../types';
 
 interface SubmissionDetailPageProps {
-  date: string;
+  date?: string;
+  submissionId?: string;
 }
 
 const CANVAS_SIZE = 800;
@@ -48,7 +50,10 @@ function SubmissionCanvas({
       />
       {sortedShapes.map((shape) => {
         const { element, props } = getShapeSVGData(shape.type, shape.size);
-        const transform = `translate(${shape.x}, ${shape.y}) rotate(${shape.rotation}, ${shape.size / 2}, ${shape.size / 2})`;
+        const center = shape.size / 2;
+        const scaleX = shape.flipX ? -1 : 1;
+        const scaleY = shape.flipY ? -1 : 1;
+        const transform = `translate(${shape.x}, ${shape.y}) translate(${center}, ${center}) scale(${scaleX}, ${scaleY}) translate(${-center}, ${-center}) rotate(${shape.rotation}, ${center}, ${center})`;
         const color = challenge.colors[shape.colorIndex];
 
         return (
@@ -64,37 +69,71 @@ function SubmissionCanvas({
   );
 }
 
-export function SubmissionDetailPage({ date }: SubmissionDetailPageProps) {
+export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPageProps) {
   const { user } = useAuth();
-  const { loadSubmission, loading } = useSubmissions(user?.id);
+  const { loadSubmission } = useSubmissions(user?.id);
   const { fetchSubmissionRank } = useRanking();
   const [submission, setSubmission] = useState<Submission | null>(null);
+  const [loading, setLoading] = useState(true);
   const [rankInfo, setRankInfo] = useState<{ rank: number; total: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const challenge = generateDailyChallenge(date);
+  // Determine the challenge date from either prop or loaded submission
+  const challengeDate = date || submission?.challenge_date;
+  const challenge = challengeDate ? generateDailyChallenge(challengeDate) : null;
 
   useEffect(() => {
-    if (user) {
-      loadSubmission(date).then(({ data, error }) => {
-        if (error) {
-          setError(error);
-        } else {
-          setSubmission(data);
-          // Fetch ranking info if submission exists
-          if (data?.id) {
-            fetchSubmissionRank(data.id).then((info) => {
+    const loadData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        if (submissionId) {
+          // Load any submission by ID (public view)
+          const { data, error: fetchError } = await supabase
+            .from('submissions')
+            .select('*')
+            .eq('id', submissionId)
+            .single();
+
+          if (fetchError) {
+            setError(fetchError.message);
+          } else {
+            setSubmission(data as Submission);
+            // Fetch ranking info
+            if (data?.id) {
+              const info = await fetchSubmissionRank(data.id);
               setRankInfo(info);
-            });
+            }
           }
+        } else if (date && user) {
+          // Load user's own submission by date
+          const { data, error: fetchError } = await loadSubmission(date);
+          if (fetchError) {
+            setError(fetchError);
+          } else {
+            setSubmission(data);
+            if (data?.id) {
+              const info = await fetchSubmissionRank(data.id);
+              setRankInfo(info);
+            }
+          }
+        } else if (date && !user) {
+          setError('Please sign in to view this submission.');
         }
-      });
-    }
-  }, [user, date, loadSubmission, fetchSubmissionRank]);
+      } catch (err) {
+        setError('Failed to load submission');
+      }
+
+      setLoading(false);
+    };
+
+    loadData();
+  }, [user, date, submissionId, loadSubmission, fetchSubmissionRank]);
 
   const downloadSVG = useCallback(() => {
-    if (!svgRef.current) return;
+    if (!svgRef.current || !challengeDate) return;
 
     const svgData = new XMLSerializer().serializeToString(svgRef.current);
     const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
@@ -102,15 +141,15 @@ export function SubmissionDetailPage({ date }: SubmissionDetailPageProps) {
 
     const link = document.createElement('a');
     link.href = url;
-    link.download = `submission-${date}.svg`;
+    link.download = `submission-${challengeDate}.svg`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  }, [date]);
+  }, [challengeDate]);
 
   const downloadPNG = useCallback(() => {
-    if (!svgRef.current) return;
+    if (!svgRef.current || !challengeDate) return;
 
     const svgData = new XMLSerializer().serializeToString(svgRef.current);
     const canvas = document.createElement('canvas');
@@ -133,7 +172,7 @@ export function SubmissionDetailPage({ date }: SubmissionDetailPageProps) {
         const pngUrl = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = pngUrl;
-        link.download = `submission-${date}.png`;
+        link.download = `submission-${challengeDate}.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -142,20 +181,23 @@ export function SubmissionDetailPage({ date }: SubmissionDetailPageProps) {
     };
 
     img.src = url;
-  }, [date]);
+  }, [challengeDate]);
 
   const copyShareLink = useCallback(() => {
     navigator.clipboard.writeText(window.location.href);
   }, []);
 
-  const formattedDate = new Date(date).toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  const formattedDate = challengeDate
+    ? new Date(challengeDate).toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
+    : 'Loading...';
 
-  if (!user) {
+  // Only require auth when loading by date (own submission)
+  if (!submissionId && !user) {
     return (
       <div
         className="min-h-screen flex items-center justify-center p-4"
@@ -197,14 +239,14 @@ export function SubmissionDetailPage({ date }: SubmissionDetailPageProps) {
     );
   }
 
-  if (!submission) {
+  if (!submission || !challenge) {
     return (
       <div
         className="min-h-screen flex items-center justify-center p-4"
         style={{ backgroundColor: 'var(--color-bg-primary)' }}
       >
         <div style={{ color: 'var(--color-text-secondary)' }}>
-          No submission found for {formattedDate}.
+          {submissionId ? 'Submission not found.' : `No submission found for ${formattedDate}.`}
         </div>
       </div>
     );
@@ -218,6 +260,25 @@ export function SubmissionDetailPage({ date }: SubmissionDetailPageProps) {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6">
+          <a
+            href="/"
+            className="inline-flex items-center gap-1 text-sm mb-4 hover:underline"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            Back to app
+          </a>
           <h1
             className="text-2xl font-bold mb-2"
             style={{ color: 'var(--color-text-primary)' }}
@@ -230,10 +291,10 @@ export function SubmissionDetailPage({ date }: SubmissionDetailPageProps) {
         </div>
 
         {/* Main content */}
-        <div className="grid md:grid-cols-[1fr,300px] gap-6">
+        <div className="flex flex-col md:flex-row gap-6 items-start justify-center">
           {/* Canvas */}
           <div
-            className="border rounded-xl overflow-hidden"
+            className="border rounded-xl overflow-hidden w-fit"
             style={{ borderColor: 'var(--color-border)' }}
           >
             <SubmissionCanvas
@@ -245,7 +306,7 @@ export function SubmissionDetailPage({ date }: SubmissionDetailPageProps) {
           </div>
 
           {/* Info sidebar */}
-          <div className="space-y-4">
+          <div className="space-y-4 w-full md:w-[300px]">
             {/* Challenge info */}
             <div
               className="border rounded-xl p-4"

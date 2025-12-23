@@ -63,13 +63,16 @@ The same date always generates the same colors and shapes (seed-based randomizat
 - **Mirroring**: Flip shapes horizontally or vertically
 - **Zoom & pan**: Zoom in/out with controls or scroll wheel, pan the canvas
 - **Voting system**: Vote on submissions using ELO-based pairwise comparison
-  - Vote on pairs of submissions to help rank the day's artwork
+  - Vote on pairs of yesterday's submissions to help rank the artwork
   - Cast 5 votes to enter the ranking yourself
   - Skip pairs if you can't decide
+  - Timeline: Day X artwork is voted on during Day X+1, results shown Day X+2
 - **Daily rankings**: ELO-based ranking system for submissions
   - Rankings computed from community votes
   - View your rank and total participants
-- **Winner announcement**: See the top 3 submissions from yesterday when you log in
+- **Winner announcement**: See the top 3 submissions from the most recent completed ranking
+  - Shown on first login of the day
+  - Displays winners from 2 days ago (since yesterday's voting just completed their ranking)
 
 ### Planned
 - [ ] Procedurally generated shapes (advanced mode)
@@ -232,14 +235,17 @@ http://localhost:5173/?test=voting
 
 **Test scenarios available:**
 - **Voting UI**: Main voting interface with a pair of submissions
+- **Interactive Flow**: Simulate full voting flow with confirmation modal
 - **Voting Progress**: Vote progress bar states (0-5 votes)
-- **Voting Confirmation**: Confirmation screen after 5 votes
+- **Dynamic Threshold**: Vote requirements based on available submissions (2-4 subs)
+- **Voting Confirmation**: Confirmation screen after reaching vote requirement
 - **No More Pairs**: When all pairs have been voted on
-- **Not Enough Submissions**: When there are fewer than 5 submissions
+- **Bootstrap (0 subs)**: Day 1 scenario with no submissions - opt-in prompt
+- **Bootstrap (1 sub)**: Only 1 submission exists - no pairs possible
 - **Winner - Normal**: Standard winner announcement with top 3
 - **Winner - Tied**: Winner announcement with 1st place tie
 - **Winner - Three-Way Tie**: Winner announcement with three-way tie
-- **Winner - Not Enough**: Winner modal when not enough submissions
+- **Calendar with Trophies**: User calendar showing submissions with various trophy placements
 
 ## Testing
 

@@ -40,9 +40,13 @@ function isShapeExplorerEnabled(): boolean {
 }
 
 // Check if submission detail view is requested
-function getSubmissionView(): { view: 'submission'; date: string } | null {
+function getSubmissionView(): { view: 'submission'; date: string } | { view: 'submission'; id: string } | null {
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('view') === 'submission') {
+    const id = urlParams.get('id');
+    if (id) {
+      return { view: 'submission', id };
+    }
     const date = urlParams.get('date');
     if (date) {
       return { view: 'submission', date };
@@ -86,8 +90,6 @@ function App() {
     shouldShow: showWinnerAnnouncement,
     topThree: winnerTopThree,
     challengeDate: winnerChallengeDate,
-    totalSubmissions: winnerTotalSubmissions,
-    notEnoughSubmissions: winnerNotEnough,
     dismiss: dismissWinnerAnnouncement,
     loading: winnerLoading,
   } = useWinnerAnnouncement(user?.id);
@@ -346,6 +348,9 @@ function App() {
 
   // Render Submission Detail Page if viewing a submission
   if (submissionView) {
+    if ('id' in submissionView) {
+      return <SubmissionDetailPage submissionId={submissionView.id} />;
+    }
     return <SubmissionDetailPage date={submissionView.date} />;
   }
 
@@ -540,9 +545,11 @@ function App() {
         <WinnerAnnouncementModal
           challengeDate={winnerChallengeDate}
           topThree={winnerTopThree}
-          totalSubmissions={winnerTotalSubmissions}
-          notEnoughSubmissions={winnerNotEnough}
           onDismiss={dismissWinnerAnnouncement}
+          onViewSubmission={(submissionId) => {
+            // Navigate to submission detail page
+            window.location.href = `?view=submission&id=${submissionId}`;
+          }}
         />
       )}
 

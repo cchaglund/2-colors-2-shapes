@@ -332,21 +332,19 @@ export function VotingModal({
         ) : (
           <>
             {/* Side by side comparison */}
-            <div className="grid grid-cols-2 gap-6 mb-6">
+            <div className="flex justify-center gap-6 mb-6">
               <button
                 onClick={() => handleVote(currentPair.submissionA.id)}
                 disabled={submitting}
-                className="group relative p-4 border-2 border-(--color-border) rounded-xl hover:border-blue-500 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group relative border-2 border-(--color-border) rounded-xl overflow-hidden hover:border-blue-500 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <div className="aspect-square">
-                  <SubmissionThumbnail
-                    shapes={currentPair.submissionA.shapes}
-                    challenge={challenge}
-                    backgroundColorIndex={currentPair.submissionA.background_color_index}
-                    size={280}
-                  />
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center bg-blue-600/80 text-white font-semibold rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
+                <SubmissionThumbnail
+                  shapes={currentPair.submissionA.shapes}
+                  challenge={challenge}
+                  backgroundColorIndex={currentPair.submissionA.background_color_index}
+                  size={280}
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-blue-600/80 text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
                   Choose this one
                 </div>
               </button>
@@ -354,17 +352,15 @@ export function VotingModal({
               <button
                 onClick={() => handleVote(currentPair.submissionB.id)}
                 disabled={submitting}
-                className="group relative p-4 border-2 border-(--color-border) rounded-xl hover:border-blue-500 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group relative border-2 border-(--color-border) rounded-xl overflow-hidden hover:border-blue-500 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <div className="aspect-square">
-                  <SubmissionThumbnail
-                    shapes={currentPair.submissionB.shapes}
-                    challenge={challenge}
-                    backgroundColorIndex={currentPair.submissionB.background_color_index}
-                    size={280}
-                  />
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center bg-blue-600/80 text-white font-semibold rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
+                <SubmissionThumbnail
+                  shapes={currentPair.submissionB.shapes}
+                  challenge={challenge}
+                  backgroundColorIndex={currentPair.submissionB.background_color_index}
+                  size={280}
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-blue-600/80 text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
                   Choose this one
                 </div>
               </button>

@@ -1,14 +1,27 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useSubmissions, type Submission } from '../hooks/useSubmissions';
-import { generateDailyChallenge, getTodayDate } from '../utils/dailyChallenge';
+import { generateDailyChallenge, getTodayDate, getTwoDaysAgoDate } from '../utils/dailyChallenge';
 import { SubmissionThumbnail } from './SubmissionThumbnail';
 import { TrophyBadge } from './TrophyBadge';
 import { supabase } from '../lib/supabase';
+import type { Shape } from '../types';
+
+type ViewMode = 'my-submissions' | 'winners';
 
 interface RankingInfo {
   submission_id: string;
   final_rank: number | null;
+}
+
+interface WinnerEntry {
+  challenge_date: string;
+  submission_id: string;
+  user_id: string;
+  nickname: string;
+  final_rank: number;
+  shapes: Shape[];
+  background_color_index: number | null;
 }
 
 interface CalendarProps {
@@ -40,12 +53,20 @@ export function Calendar({ onClose }: CalendarProps) {
   const [rankings, setRankings] = useState<Map<string, number>>(new Map());
   const [currentYear, setCurrentYear] = useState(() => new Date().getFullYear());
   const [currentMonth, setCurrentMonth] = useState(() => new Date().getMonth());
+  const [viewMode, setViewMode] = useState<ViewMode | null>(null);
+  const [winners, setWinners] = useState<WinnerEntry[]>([]);
+  const [winnersLoading, setWinnersLoading] = useState(false);
+
+  // Determine effective view mode - null until auth loads, then based on user
+  const effectiveViewMode: ViewMode = viewMode ?? (user ? 'my-submissions' : 'winners');
 
   const todayStr = useMemo(() => getTodayDate(), []);
+  // Winners are only available up to 2 days ago (voting completes the day after submission)
+  const latestWinnersDate = useMemo(() => getTwoDaysAgoDate(), []);
 
-  // Load submissions on mount
+  // Load submissions on mount (only when in my-submissions mode)
   useEffect(() => {
-    if (user) {
+    if (user && effectiveViewMode === 'my-submissions') {
       loadMySubmissions().then(({ data }) => {
         setSubmissions(data);
         // Load rankings for all submissions
@@ -70,7 +91,88 @@ export function Calendar({ onClose }: CalendarProps) {
         }
       });
     }
-  }, [user, loadMySubmissions]);
+  }, [user, effectiveViewMode, loadMySubmissions]);
+
+  // Load winners for the current month when in winners mode
+  useEffect(() => {
+    if (effectiveViewMode !== 'winners') return;
+
+    const loadWinners = async () => {
+      setWinnersLoading(true);
+
+      // Calculate date range for the current month
+      const startDate = formatDate(currentYear, currentMonth, 1);
+      const daysInMonth = getDaysInMonth(currentYear, currentMonth);
+      const endDate = formatDate(currentYear, currentMonth, daysInMonth);
+
+      // Fetch all 1st place winners for the month (up to latestWinnersDate)
+      const { data: rankingsData, error } = await supabase
+        .from('daily_rankings')
+        .select(`
+          challenge_date,
+          submission_id,
+          user_id,
+          final_rank,
+          submissions!inner (
+            shapes,
+            background_color_index
+          )
+        `)
+        .eq('final_rank', 1)
+        .gte('challenge_date', startDate)
+        .lte('challenge_date', endDate <= latestWinnersDate ? endDate : latestWinnersDate)
+        .order('challenge_date', { ascending: true });
+
+      if (error) {
+        console.error('Error loading winners:', error);
+        setWinnersLoading(false);
+        return;
+      }
+
+      if (!rankingsData || rankingsData.length === 0) {
+        setWinners([]);
+        setWinnersLoading(false);
+        return;
+      }
+
+      // Fetch nicknames for all winners
+      const userIds = [...new Set(rankingsData.map((r: { user_id: string }) => r.user_id))];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, nickname')
+        .in('id', userIds);
+
+      const profileMap = new Map<string, string>();
+      if (profilesData) {
+        profilesData.forEach((p: { id: string; nickname: string }) => {
+          profileMap.set(p.id, p.nickname);
+        });
+      }
+
+      // Transform data into WinnerEntry format
+      interface RankingRow {
+        challenge_date: string;
+        submission_id: string;
+        user_id: string;
+        final_rank: number;
+        submissions: { shapes: Shape[]; background_color_index: number | null };
+      }
+      const winnerEntries: WinnerEntry[] = (rankingsData as unknown as RankingRow[]).map((row) => ({
+        challenge_date: row.challenge_date,
+        submission_id: row.submission_id,
+        user_id: row.user_id,
+        nickname: profileMap.get(row.user_id) || 'Anonymous',
+        final_rank: row.final_rank,
+        shapes: row.submissions?.shapes || [],
+        background_color_index: row.submissions?.background_color_index ?? null,
+      }));
+
+      setWinners(winnerEntries);
+      setWinnersLoading(false);
+    };
+
+    loadWinners();
+  }, [effectiveViewMode, currentYear, currentMonth, latestWinnersDate]);
 
   // Create a map of date -> submission for quick lookup
   const submissionsByDate = useMemo(() => {
@@ -80,6 +182,17 @@ export function Calendar({ onClose }: CalendarProps) {
     });
     return map;
   }, [submissions]);
+
+  // Create a map of date -> winners for quick lookup (can have multiple winners per day for ties)
+  const winnersByDate = useMemo(() => {
+    const map = new Map<string, WinnerEntry[]>();
+    winners.forEach((winner) => {
+      const existing = map.get(winner.challenge_date) || [];
+      existing.push(winner);
+      map.set(winner.challenge_date, existing);
+    });
+    return map;
+  }, [winners]);
 
   // Generate calendar grid data
   const calendarDays = useMemo(() => {
@@ -126,63 +239,34 @@ export function Calendar({ onClose }: CalendarProps) {
 
   const handleDayClick = useCallback((day: number) => {
     const dateStr = formatDate(currentYear, currentMonth, day);
-    const submission = submissionsByDate.get(dateStr);
 
-    if (submission) {
-      // Open in new tab
-      const url = new URL(window.location.href);
-      url.searchParams.set('view', 'submission');
-      url.searchParams.set('date', dateStr);
-      window.open(url.toString(), '_blank');
+    if (effectiveViewMode === 'my-submissions') {
+      const submission = submissionsByDate.get(dateStr);
+      if (submission) {
+        // Open in new tab
+        const url = new URL(window.location.href);
+        url.searchParams.set('view', 'submission');
+        url.searchParams.set('date', dateStr);
+        window.open(url.toString(), '_blank');
+      }
+    } else {
+      // Winners mode - open the first winner's submission
+      const dayWinners = winnersByDate.get(dateStr);
+      if (dayWinners && dayWinners.length > 0) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('view', 'submission');
+        url.searchParams.set('id', dayWinners[0].submission_id);
+        window.open(url.toString(), '_blank');
+      }
     }
-  }, [currentYear, currentMonth, submissionsByDate]);
+  }, [currentYear, currentMonth, effectiveViewMode, submissionsByDate, winnersByDate]);
 
   // Check if we can go to next month (can't go past current month)
   const canGoNext = useMemo(() => {
     const now = new Date();
     return currentYear < now.getFullYear() ||
-           (currentYear === now.getFullYear() && currentMonth < now.getMonth());
+      (currentYear === now.getFullYear() && currentMonth < now.getMonth());
   }, [currentYear, currentMonth]);
-
-  if (!user) {
-    return (
-      <div
-        className="fixed inset-0 flex items-center justify-center z-50"
-        style={{ backgroundColor: 'var(--color-modal-overlay)' }}
-      >
-        <div
-          className="border rounded-xl p-6 w-full max-w-md mx-4 shadow-xl"
-          style={{
-            backgroundColor: 'var(--color-bg-primary)',
-            borderColor: 'var(--color-border)',
-          }}
-        >
-          <h2
-            className="text-xl font-semibold mb-4"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
-            Sign In Required
-          </h2>
-          <p
-            className="mb-6"
-            style={{ color: 'var(--color-text-secondary)' }}
-          >
-            Please sign in to view your submission history.
-          </p>
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-md cursor-pointer text-sm font-medium transition-colors"
-            style={{
-              backgroundColor: 'var(--color-bg-tertiary)',
-              color: 'var(--color-text-primary)',
-            }}
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div
@@ -199,12 +283,12 @@ export function Calendar({ onClose }: CalendarProps) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <h2
             className="text-xl font-semibold"
             style={{ color: 'var(--color-text-primary)' }}
           >
-            My Submissions
+            Calendar
           </h2>
           <button
             onClick={onClose}
@@ -228,6 +312,39 @@ export function Calendar({ onClose }: CalendarProps) {
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
+          </button>
+        </div>
+
+        {/* View Mode Toggle */}
+        <div
+          className="flex rounded-lg p-1 mb-4"
+          style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
+        >
+          <button
+            onClick={() => setViewMode('my-submissions')}
+            disabled={!user}
+            className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              !user ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+            }`}
+            style={{
+              backgroundColor: effectiveViewMode === 'my-submissions' ? 'var(--color-bg-primary)' : 'transparent',
+              color: effectiveViewMode === 'my-submissions' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+              boxShadow: effectiveViewMode === 'my-submissions' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+            }}
+            title={!user ? 'Sign in to view your submissions' : undefined}
+          >
+            My Submissions
+          </button>
+          <button
+            onClick={() => setViewMode('winners')}
+            className="flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer"
+            style={{
+              backgroundColor: effectiveViewMode === 'winners' ? 'var(--color-bg-primary)' : 'transparent',
+              color: effectiveViewMode === 'winners' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+              boxShadow: effectiveViewMode === 'winners' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+            }}
+          >
+            🏆 Winners
           </button>
         </div>
 
@@ -301,12 +418,12 @@ export function Calendar({ onClose }: CalendarProps) {
         </div>
 
         {/* Calendar Grid */}
-        {loading ? (
+        {(effectiveViewMode === 'my-submissions' && loading) || (effectiveViewMode === 'winners' && winnersLoading) ? (
           <div
             className="flex items-center justify-center py-12"
             style={{ color: 'var(--color-text-secondary)' }}
           >
-            Loading submissions...
+            {effectiveViewMode === 'my-submissions' ? 'Loading submissions...' : 'Loading winners...'}
           </div>
         ) : (
           <div className="grid grid-cols-7 gap-1">
@@ -328,71 +445,154 @@ export function Calendar({ onClose }: CalendarProps) {
               }
 
               const dateStr = formatDate(currentYear, currentMonth, day);
-              const submission = submissionsByDate.get(dateStr);
               const isToday = dateStr === todayStr;
               const isFuture = dateStr > todayStr;
               const challenge = generateDailyChallenge(dateStr);
 
-              return (
-                <div
-                  key={dateStr}
-                  onClick={() => !isFuture && handleDayClick(day)}
-                  className={`
-                    aspect-square rounded-lg p-1 transition-all
-                    ${submission ? 'cursor-pointer hover:ring-2 hover:ring-blue-500' : ''}
-                    ${isFuture ? 'opacity-30' : ''}
-                    ${isToday ? 'ring-2 ring-blue-500' : ''}
-                  `}
-                  style={{
-                    backgroundColor: submission
-                      ? 'var(--color-bg-secondary)'
-                      : 'var(--color-bg-tertiary)',
-                  }}
-                >
-                  <div className="flex flex-col h-full">
-                    <span
-                      className={`text-xs font-medium ${isToday ? 'text-blue-500' : ''}`}
-                      style={{
-                        color: isToday
-                          ? undefined
-                          : submission
-                          ? 'var(--color-text-primary)'
-                          : 'var(--color-text-tertiary)',
-                      }}
-                    >
-                      {day}
-                    </span>
-                    <div className="flex-1 flex items-center justify-center relative">
-                      {submission ? (
-                        <>
-                          <SubmissionThumbnail
-                            shapes={submission.shapes}
-                            challenge={challenge}
-                            backgroundColorIndex={submission.background_color_index}
-                            size={70}
-                          />
-                          {rankings.get(submission.id) !== undefined &&
-                            rankings.get(submission.id)! <= 3 && (
-                              <div className="absolute -top-1 -right-1">
-                                <TrophyBadge
-                                  rank={rankings.get(submission.id) as 1 | 2 | 3}
-                                  size="sm"
-                                />
-                              </div>
-                            )}
-                        </>
-                      ) : !isFuture ? (
-                        <div
-                          className="text-xs text-center"
-                          style={{ color: 'var(--color-text-tertiary)' }}
-                        >
-                          No submission
-                        </div>
-                      ) : null}
+              if (effectiveViewMode === 'my-submissions') {
+                // My Submissions view
+                const submission = submissionsByDate.get(dateStr);
+
+                return (
+                  <div
+                    key={dateStr}
+                    onClick={() => !isFuture && submission && handleDayClick(day)}
+                    className={`
+                      aspect-square rounded-lg p-1 transition-all
+                      ${submission ? 'cursor-pointer hover:ring-2 hover:ring-blue-500' : ''}
+                      ${isFuture ? 'opacity-30' : ''}
+                      ${isToday ? 'ring-2 ring-blue-500' : ''}
+                    `}
+                    style={{
+                      backgroundColor: submission
+                        ? 'var(--color-bg-secondary)'
+                        : 'var(--color-bg-tertiary)',
+                    }}
+                  >
+                    <div className="flex flex-col h-full">
+                      <span
+                        className={`text-xs font-medium ${isToday ? 'text-blue-500' : ''}`}
+                        style={{
+                          color: isToday
+                            ? undefined
+                            : submission
+                            ? 'var(--color-text-primary)'
+                            : 'var(--color-text-tertiary)',
+                        }}
+                      >
+                        {day}
+                      </span>
+                      <div className="flex-1 flex items-center justify-center relative">
+                        {submission ? (
+                          <>
+                            <SubmissionThumbnail
+                              shapes={submission.shapes}
+                              challenge={challenge}
+                              backgroundColorIndex={submission.background_color_index}
+                              size={70}
+                            />
+                            {rankings.get(submission.id) !== undefined &&
+                              rankings.get(submission.id)! <= 3 && (
+                                <div className="absolute -top-1 -right-1">
+                                  <TrophyBadge
+                                    rank={rankings.get(submission.id) as 1 | 2 | 3}
+                                    size="sm"
+                                  />
+                                </div>
+                              )}
+                          </>
+                        ) : !isFuture ? (
+                          <div
+                            className="text-xs text-center"
+                            style={{ color: 'var(--color-text-tertiary)' }}
+                          >
+                            No submission
+                          </div>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
+                );
+              } else {
+                // Winners view
+                const dayWinners = winnersByDate.get(dateStr);
+                const hasWinner = dayWinners && dayWinners.length > 0;
+                // Winners are only available up to 2 days ago
+                const hasResults = dateStr <= latestWinnersDate;
+
+                return (
+                  <div
+                    key={dateStr}
+                    onClick={() => hasWinner && handleDayClick(day)}
+                    className={`
+                      aspect-square rounded-lg p-1 transition-all
+                      ${hasWinner ? 'cursor-pointer hover:ring-2 hover:ring-yellow-500' : ''}
+                      ${isFuture ? 'opacity-30' : ''}
+                      ${isToday ? 'ring-2 ring-blue-500' : ''}
+                    `}
+                    style={{
+                      backgroundColor: hasWinner
+                        ? 'var(--color-bg-secondary)'
+                        : 'var(--color-bg-tertiary)',
+                    }}
+                  >
+                    <div className="flex flex-col h-full">
+                      <span
+                        className={`text-xs font-medium ${isToday ? 'text-blue-500' : ''}`}
+                        style={{
+                          color: isToday
+                            ? undefined
+                            : hasWinner
+                            ? 'var(--color-text-primary)'
+                            : 'var(--color-text-tertiary)',
+                        }}
+                      >
+                        {day}
+                      </span>
+                      <div className="flex-1 flex items-center justify-center relative">
+                        {hasWinner ? (
+                          <>
+                            <SubmissionThumbnail
+                              shapes={dayWinners[0].shapes}
+                              challenge={challenge}
+                              backgroundColorIndex={dayWinners[0].background_color_index}
+                              size={70}
+                            />
+                            <div className="absolute -top-1 -right-1">
+                              <TrophyBadge rank={1} size="sm" />
+                            </div>
+                            {dayWinners.length > 1 && (
+                              <div
+                                className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-xs px-1 rounded"
+                                style={{
+                                  backgroundColor: 'var(--color-bg-primary)',
+                                  color: 'var(--color-text-secondary)',
+                                }}
+                              >
+                                +{dayWinners.length - 1}
+                              </div>
+                            )}
+                          </>
+                        ) : !isFuture && hasResults ? (
+                          <div
+                            className="text-xs text-center"
+                            style={{ color: 'var(--color-text-tertiary)' }}
+                          >
+                            No winner
+                          </div>
+                        ) : !isFuture && !hasResults ? (
+                          <div
+                            className="text-xs text-center"
+                            style={{ color: 'var(--color-text-tertiary)' }}
+                          >
+                            Voting...
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
             })}
           </div>
         )}
@@ -405,12 +605,25 @@ export function Calendar({ onClose }: CalendarProps) {
             color: 'var(--color-text-secondary)',
           }}
         >
-          <span>Total submissions: {submissions.length}</span>
-          {submissions.length > 0 && (
-            <span>
-              First submission:{' '}
-              {new Date(submissions[submissions.length - 1].challenge_date).toLocaleDateString()}
-            </span>
+          {effectiveViewMode === 'my-submissions' ? (
+            <>
+              <span>Total submissions: {submissions.length}</span>
+              {submissions.length > 0 && (
+                <span>
+                  First submission:{' '}
+                  {new Date(submissions[submissions.length - 1].challenge_date).toLocaleDateString()}
+                </span>
+              )}
+            </>
+          ) : (
+            <>
+              <span>Winners this month: {winners.length}</span>
+              {winners.length > 0 && (
+                <span>
+                  {[...new Set(winners.map(w => w.user_id))].length} unique winner{[...new Set(winners.map(w => w.user_id))].length !== 1 ? 's' : ''}
+                </span>
+              )}
+            </>
           )}
         </div>
       </div>

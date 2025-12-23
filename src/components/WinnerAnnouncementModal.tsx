@@ -7,17 +7,15 @@ import type { RankingEntry } from '../types';
 interface WinnerAnnouncementModalProps {
   challengeDate: string;
   topThree: RankingEntry[];
-  totalSubmissions: number;
-  notEnoughSubmissions: boolean;
   onDismiss: () => void;
+  onViewSubmission?: (submissionId: string) => void;
 }
 
 export function WinnerAnnouncementModal({
   challengeDate,
   topThree,
-  totalSubmissions,
-  notEnoughSubmissions,
   onDismiss,
+  onViewSubmission,
 }: WinnerAnnouncementModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -62,44 +60,6 @@ export function WinnerAnnouncementModal({
     });
   };
 
-  // Not enough submissions
-  if (notEnoughSubmissions) {
-    return (
-      <div
-        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="winner-title"
-      >
-        <div
-          ref={modalRef}
-          className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md mx-4 shadow-xl text-center"
-        >
-          <h2 id="winner-title" className="text-xl font-semibold text-(--color-text-primary) mb-2">
-            Yesterday's Results
-          </h2>
-          <p className="text-sm text-(--color-text-secondary) mb-4">{formatDate(challengeDate)}</p>
-
-          <div className="py-8 text-(--color-text-tertiary)">
-            <div className="text-4xl mb-4">📊</div>
-            <p>Not enough entries for ranking</p>
-            <p className="text-sm mt-2">
-              Only {totalSubmissions} submission{totalSubmissions !== 1 ? 's' : ''} (need at least 5)
-            </p>
-          </div>
-
-          <button
-            ref={buttonRef}
-            onClick={onDismiss}
-            className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
-            Got it
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   // Group entries by rank
   const winners = topThree.filter((e) => e.rank === 1);
   const runnerUps = topThree.filter((e) => e.rank === 2);
@@ -118,9 +78,9 @@ export function WinnerAnnouncementModal({
       >
         <div className="text-center mb-6">
           <h2 id="winner-title" className="text-xl font-semibold text-(--color-text-primary) mb-1">
-            Yesterday's {winners.length > 1 ? 'Winners' : 'Winner'}!
+            {formatDate(challengeDate)}
           </h2>
-          <p className="text-sm text-(--color-text-secondary)">{formatDate(challengeDate)}</p>
+          <p className="text-sm text-(--color-text-secondary)">{winners.length > 1 ? 'Winners' : 'Winner'}</p>
           {winners.length > 1 && (
             <p className="text-xs text-(--color-text-tertiary) mt-1">
               {winners.length === 3 ? 'Three-way tie!' : winners.length === 2 ? 'Tie for 1st place!' : ''}
@@ -132,7 +92,12 @@ export function WinnerAnnouncementModal({
         {winners.length > 0 && (
           <div className={`flex justify-center ${winners.length > 1 ? 'gap-6' : ''} mb-6`}>
             {winners.map((winner) => (
-              <div key={winner.submission_id} className="flex flex-col items-center">
+              <button
+                key={winner.submission_id}
+                className="flex flex-col items-center bg-transparent border-0 p-0 cursor-pointer transition-transform hover:scale-105"
+                onClick={() => onViewSubmission?.(winner.submission_id)}
+                title="View submission"
+              >
                 <div className="relative">
                   <div className="absolute -top-3 -right-3 z-10">
                     <TrophyBadge rank={1} size={winners.length > 2 ? 'md' : 'lg'} />
@@ -147,7 +112,7 @@ export function WinnerAnnouncementModal({
                   </div>
                 </div>
                 <p className="mt-3 font-medium text-(--color-text-primary)">@{winner.nickname}</p>
-              </div>
+              </button>
             ))}
           </div>
         )}
@@ -157,7 +122,12 @@ export function WinnerAnnouncementModal({
           <div className="flex justify-center gap-8 mb-6">
             {/* Only show 2nd place if there's a single winner (no tie for 1st) */}
             {winners.length === 1 && runnerUps.map((runnerUp) => (
-              <div key={runnerUp.submission_id} className="flex flex-col items-center">
+              <button
+                key={runnerUp.submission_id}
+                className="flex flex-col items-center bg-transparent border-0 p-0 cursor-pointer transition-transform hover:scale-105"
+                onClick={() => onViewSubmission?.(runnerUp.submission_id)}
+                title="View submission"
+              >
                 <div className="relative">
                   <div className="absolute -top-2 -right-2 z-10">
                     <TrophyBadge rank={2} size="md" />
@@ -172,11 +142,16 @@ export function WinnerAnnouncementModal({
                   </div>
                 </div>
                 <p className="mt-2 text-sm text-(--color-text-secondary)">@{runnerUp.nickname}</p>
-              </div>
+              </button>
             ))}
 
             {thirdPlaces.map((thirdPlace) => (
-              <div key={thirdPlace.submission_id} className="flex flex-col items-center">
+              <button
+                key={thirdPlace.submission_id}
+                className="flex flex-col items-center bg-transparent border-0 p-0 cursor-pointer transition-transform hover:scale-105"
+                onClick={() => onViewSubmission?.(thirdPlace.submission_id)}
+                title="View submission"
+              >
                 <div className="relative">
                   <div className="absolute -top-2 -right-2 z-10">
                     <TrophyBadge rank={3} size="md" />
@@ -191,7 +166,7 @@ export function WinnerAnnouncementModal({
                   </div>
                 </div>
                 <p className="mt-2 text-sm text-(--color-text-secondary)">@{thirdPlace.nickname}</p>
-              </div>
+              </button>
             ))}
           </div>
         ) : null}

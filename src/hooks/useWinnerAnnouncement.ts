@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { getYesterdayDate } from '../utils/dailyChallenge';
+import { getTwoDaysAgoDate } from '../utils/dailyChallenge';
 import type { RankingEntry, Shape } from '../types';
 
 interface RankingRow {
@@ -13,32 +13,28 @@ interface RankingRow {
     shapes: Shape[];
     background_color_index: number | null;
   };
-  profiles: {
-    nickname: string;
-  };
+}
+
+interface ProfileRow {
+  id: string;
+  nickname: string;
 }
 
 interface UseWinnerAnnouncementReturn {
   shouldShow: boolean;
   topThree: RankingEntry[];
   challengeDate: string;
-  totalSubmissions: number;
-  notEnoughSubmissions: boolean;
   loading: boolean;
   dismiss: () => Promise<void>;
   checkAnnouncement: () => Promise<void>;
 }
 
-const MIN_SUBMISSIONS = 5;
-
 export function useWinnerAnnouncement(userId: string | undefined): UseWinnerAnnouncementReturn {
   const [shouldShow, setShouldShow] = useState(false);
   const [topThree, setTopThree] = useState<RankingEntry[]>([]);
-  const [totalSubmissions, setTotalSubmissions] = useState(0);
-  const [notEnoughSubmissions, setNotEnoughSubmissions] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const challengeDate = getYesterdayDate();
+  const challengeDate = getTwoDaysAgoDate();
 
   const checkAnnouncement = useCallback(async () => {
     if (!userId) {
@@ -70,18 +66,10 @@ export function useWinnerAnnouncement(userId: string | undefined): UseWinnerAnno
         .eq('challenge_date', challengeDate);
 
       const total = count ?? 0;
-      setTotalSubmissions(total);
 
-      if (total === 0) {
-        // No submissions yesterday at all, don't show modal
+      if (total < 2) {
+        // Need at least 2 submissions to have a ranking
         setShouldShow(false);
-        setLoading(false);
-        return;
-      }
-
-      if (total < MIN_SUBMISSIONS) {
-        setNotEnoughSubmissions(true);
-        setShouldShow(true);
         setLoading(false);
         return;
       }
@@ -89,7 +77,7 @@ export function useWinnerAnnouncement(userId: string | undefined): UseWinnerAnno
       // Compute final ranks if not done
       await supabase.rpc('compute_final_ranks', { p_challenge_date: challengeDate });
 
-      // Fetch top 3
+      // Fetch top 3 rankings with submission data
       const { data: rankingsData, error: rankingsError } = await supabase
         .from('daily_rankings')
         .select(
@@ -102,9 +90,6 @@ export function useWinnerAnnouncement(userId: string | undefined): UseWinnerAnno
           submissions!inner (
             shapes,
             background_color_index
-          ),
-          profiles!inner (
-            nickname
           )
         `
         )
@@ -122,11 +107,25 @@ export function useWinnerAnnouncement(userId: string | undefined): UseWinnerAnno
         return;
       }
 
+      // Fetch profiles for the users in the rankings
+      const userIds = (rankingsData as unknown as RankingRow[]).map((r) => r.user_id);
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, nickname')
+        .in('id', userIds);
+
+      const profileMap = new Map<string, string>();
+      if (profilesData) {
+        (profilesData as ProfileRow[]).forEach((p) => {
+          profileMap.set(p.id, p.nickname);
+        });
+      }
+
       const entries: RankingEntry[] = (rankingsData as unknown as RankingRow[]).map((row) => ({
         rank: row.final_rank,
         submission_id: row.submission_id,
         user_id: row.user_id,
-        nickname: row.profiles?.nickname || 'Anonymous',
+        nickname: profileMap.get(row.user_id) || 'Anonymous',
         elo_score: row.elo_score,
         vote_count: row.vote_count,
         shapes: row.submissions?.shapes || [],
@@ -134,7 +133,6 @@ export function useWinnerAnnouncement(userId: string | undefined): UseWinnerAnno
       }));
 
       setTopThree(entries);
-      setNotEnoughSubmissions(false);
       setShouldShow(true);
     } catch (error) {
       console.error('Error checking winner announcement:', error);
@@ -175,8 +173,6 @@ export function useWinnerAnnouncement(userId: string | undefined): UseWinnerAnno
     shouldShow,
     topThree,
     challengeDate,
-    totalSubmissions,
-    notEnoughSubmissions,
     loading,
     dismiss,
     checkAnnouncement,

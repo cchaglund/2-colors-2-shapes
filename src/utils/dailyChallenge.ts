@@ -151,6 +151,15 @@ export function getYesterdayDate(): string {
   return d.toISOString().split('T')[0];
 }
 
+// Get the date from 2 days ago in YYYY-MM-DD format
+// Used for winner announcements (Day X shows winner from Day X-2,
+// since Day X-1 voting completes the ranking for Day X-2)
+export function getTwoDaysAgoDate(): string {
+  const d = new Date();
+  d.setDate(d.getDate() - 2);
+  return d.toISOString().split('T')[0];
+}
+
 // Generate the daily challenge for a given date
 export function generateDailyChallenge(dateStr: string): DailyChallenge {
   const seed = dateToSeed(dateStr);
