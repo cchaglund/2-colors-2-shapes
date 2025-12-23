@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { Shape, CanvasState, DailyChallenge } from '../types';
+import type { Shape, ShapeGroup, CanvasState, DailyChallenge } from '../types';
 import { generateId } from '../utils/shapeHelpers';
 import { getTodayDate } from '../utils/dailyChallenge';
 
@@ -33,6 +33,7 @@ function saveToStorage(data: StoredData): void {
 
 const initialCanvasState: CanvasState = {
   shapes: [],
+  groups: [],
   backgroundColorIndex: null,
   selectedShapeIds: new Set<string>(),
 };
@@ -44,13 +45,13 @@ export function useCanvasState(challenge: DailyChallenge) {
     if (stored && stored.date === getTodayDate()) {
       // Handle migration from old selectedShapeId format
       const canvas = stored.canvas;
-      const selectedShapeIds = new Set<string>();
       // Support old format with selectedShapeId
       if ('selectedShapeId' in canvas && (canvas as { selectedShapeId?: string | null }).selectedShapeId) {
-        selectedShapeIds.add((canvas as { selectedShapeId: string }).selectedShapeId);
+        // Old format migration - not used anymore but kept for compatibility
       }
       return {
         shapes: canvas.shapes,
+        groups: canvas.groups || [], // Support migration from old format without groups
         backgroundColorIndex: canvas.backgroundColorIndex,
         selectedShapeIds: new Set<string>(), // Clear selection on load
       };
@@ -587,6 +588,218 @@ export function useCanvasState(challenge: DailyChallenge) {
     [setCanvasState]
   );
 
+  // Group management functions
+
+  // Create a new group from selected shapes
+  const createGroup = useCallback(
+    (shapeIds: string[], groupName?: string) => {
+      if (shapeIds.length === 0) return;
+
+      setCanvasState((prev) => {
+        // Generate group name if not provided
+        const existingGroupNumbers = prev.groups
+          .map((g) => {
+            const match = g.name.match(/^Group (\d+)$/);
+            return match ? parseInt(match[1], 10) : 0;
+          })
+          .filter((n) => n > 0);
+        const nextNumber = existingGroupNumbers.length > 0 ? Math.max(...existingGroupNumbers) + 1 : 1;
+        const name = groupName || `Group ${nextNumber}`;
+
+        // Get max group zIndex for ordering
+        const maxGroupZIndex = prev.groups.length > 0
+          ? Math.max(...prev.groups.map((g) => g.zIndex))
+          : 0;
+
+        const newGroup: ShapeGroup = {
+          id: generateId(),
+          name,
+          isCollapsed: false,
+          zIndex: maxGroupZIndex + 1,
+        };
+
+        // Update shapes to belong to this group
+        const newShapes = prev.shapes.map((s) =>
+          shapeIds.includes(s.id) ? { ...s, groupId: newGroup.id } : s
+        );
+
+        return {
+          ...prev,
+          shapes: newShapes,
+          groups: [...prev.groups, newGroup],
+        };
+      });
+    },
+    [setCanvasState]
+  );
+
+  // Delete a group (shapes remain but become ungrouped)
+  const deleteGroup = useCallback(
+    (groupId: string) => {
+      setCanvasState((prev) => {
+        // Remove group membership from shapes
+        const newShapes = prev.shapes.map((s) =>
+          s.groupId === groupId ? { ...s, groupId: undefined } : s
+        );
+
+        // Remove the group
+        const newGroups = prev.groups.filter((g) => g.id !== groupId);
+
+        return {
+          ...prev,
+          shapes: newShapes,
+          groups: newGroups,
+        };
+      });
+    },
+    [setCanvasState]
+  );
+
+  // Ungroup shapes (remove from group without deleting the group if other shapes remain)
+  const ungroupShapes = useCallback(
+    (shapeIds: string[]) => {
+      setCanvasState((prev) => {
+        // Find groups that will become empty
+        const affectedGroupIds = new Set<string>();
+        for (const shape of prev.shapes) {
+          if (shapeIds.includes(shape.id) && shape.groupId) {
+            affectedGroupIds.add(shape.groupId);
+          }
+        }
+
+        // Remove group membership from specified shapes
+        const newShapes = prev.shapes.map((s) =>
+          shapeIds.includes(s.id) ? { ...s, groupId: undefined } : s
+        );
+
+        // Check which groups would be empty after ungrouping
+        const groupsToRemove = new Set<string>();
+        for (const groupId of affectedGroupIds) {
+          const remainingShapesInGroup = newShapes.filter((s) => s.groupId === groupId);
+          if (remainingShapesInGroup.length === 0) {
+            groupsToRemove.add(groupId);
+          }
+        }
+
+        // Remove empty groups
+        const newGroups = prev.groups.filter((g) => !groupsToRemove.has(g.id));
+
+        return {
+          ...prev,
+          shapes: newShapes,
+          groups: newGroups,
+        };
+      });
+    },
+    [setCanvasState]
+  );
+
+  // Rename a group
+  const renameGroup = useCallback(
+    (groupId: string, newName: string) => {
+      setCanvasState((prev) => ({
+        ...prev,
+        groups: prev.groups.map((g) =>
+          g.id === groupId ? { ...g, name: newName } : g
+        ),
+      }));
+    },
+    [setCanvasState]
+  );
+
+  // Toggle group collapsed state
+  const toggleGroupCollapsed = useCallback(
+    (groupId: string) => {
+      setCanvasState((prev) => ({
+        ...prev,
+        groups: prev.groups.map((g) =>
+          g.id === groupId ? { ...g, isCollapsed: !g.isCollapsed } : g
+        ),
+      }), false); // Don't add to history - UI state only
+    },
+    [setCanvasState]
+  );
+
+  // Move shapes to a group
+  const moveToGroup = useCallback(
+    (shapeIds: string[], groupId: string | null) => {
+      setCanvasState((prev) => {
+        // Update shapes with new group
+        const newShapes = prev.shapes.map((s) =>
+          shapeIds.includes(s.id) ? { ...s, groupId: groupId || undefined } : s
+        );
+
+        // Check for empty groups to remove
+        const groupsWithShapes = new Set<string>();
+        for (const shape of newShapes) {
+          if (shape.groupId) {
+            groupsWithShapes.add(shape.groupId);
+          }
+        }
+
+        // Remove empty groups
+        const newGroups = prev.groups.filter((g) => groupsWithShapes.has(g.id));
+
+        return {
+          ...prev,
+          shapes: newShapes,
+          groups: newGroups,
+        };
+      });
+    },
+    [setCanvasState]
+  );
+
+  // Select all shapes in a group
+  const selectGroup = useCallback(
+    (groupId: string, options?: { toggle?: boolean }) => {
+      const { toggle = false } = options || {};
+      setCanvasState((prev) => {
+        const shapeIdsInGroup = prev.shapes
+          .filter((s) => s.groupId === groupId)
+          .map((s) => s.id);
+
+        if (toggle) {
+          // Add group's shapes to current selection (or remove if all already selected)
+          const newSelectedIds = new Set(prev.selectedShapeIds);
+          const allAlreadySelected = shapeIdsInGroup.every((id) => newSelectedIds.has(id));
+
+          if (allAlreadySelected) {
+            // Remove all shapes in group from selection
+            for (const id of shapeIdsInGroup) {
+              newSelectedIds.delete(id);
+            }
+          } else {
+            // Add all shapes in group to selection
+            for (const id of shapeIdsInGroup) {
+              newSelectedIds.add(id);
+            }
+          }
+
+          return {
+            ...prev,
+            selectedShapeIds: newSelectedIds,
+          };
+        }
+
+        // Default: replace selection with group's shapes
+        return {
+          ...prev,
+          selectedShapeIds: new Set(shapeIdsInGroup),
+        };
+      }, false); // Selection changes don't go into history
+    },
+    [setCanvasState]
+  );
+
+  // Get shapes in a group (helper for LayerPanel)
+  const getShapesInGroup = useCallback(
+    (groupId: string): Shape[] => {
+      return canvasState.shapes.filter((s) => s.groupId === groupId);
+    },
+    [canvasState.shapes]
+  );
+
   return {
     canvasState,
     addShape,
@@ -607,5 +820,14 @@ export function useCanvasState(challenge: DailyChallenge) {
     redo,
     canUndo,
     canRedo,
+    // Group management
+    createGroup,
+    deleteGroup,
+    ungroupShapes,
+    renameGroup,
+    toggleGroupCollapsed,
+    moveToGroup,
+    selectGroup,
+    getShapesInGroup,
   };
 }

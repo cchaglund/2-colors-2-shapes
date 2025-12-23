@@ -127,6 +127,13 @@ function App() {
     redo,
     canUndo,
     canRedo,
+    // Group management
+    createGroup,
+    deleteGroup,
+    ungroupShapes,
+    renameGroup,
+    toggleGroupCollapsed,
+    selectGroup,
   } = useCanvasState(challenge);
 
   const {
@@ -449,6 +456,7 @@ function App() {
 
       <LayerPanel
         shapes={canvasState.shapes}
+        groups={canvasState.groups}
         selectedShapeIds={canvasState.selectedShapeIds}
         challenge={challenge}
         onSelectShape={selectShape}
@@ -456,6 +464,12 @@ function App() {
         onReorderLayers={reorderLayers}
         onDeleteShape={deleteShape}
         onRenameShape={(id, name) => updateShape(id, { name })}
+        onCreateGroup={createGroup}
+        onDeleteGroup={deleteGroup}
+        onUngroupShapes={ungroupShapes}
+        onRenameGroup={renameGroup}
+        onToggleGroupCollapsed={toggleGroupCollapsed}
+        onSelectGroup={selectGroup}
         isOpen={rightOpen}
         width={rightWidth}
         onToggle={toggleRight}

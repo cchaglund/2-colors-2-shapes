@@ -39,6 +39,10 @@ The same date always generates the same colors and shapes (seed-based randomizat
   - Visual layer panel showing all shapes
   - Click layers to select shapes
   - Double-click layer name to rename
+  - Group multiple layers together for organization
+  - Collapsible groups with expand/collapse toggle
+  - Click group header to select all shapes in group
+  - Rename groups by double-clicking the group name
 - **Background toggle**: Set canvas background to either daily color or white
 - **Auto-save**: Canvas state persists in localStorage (resets when the day changes)
 - **Reset**: Clear canvas with confirmation dialog
