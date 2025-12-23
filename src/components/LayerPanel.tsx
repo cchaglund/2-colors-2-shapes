@@ -1,8 +1,26 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { Shape, ShapeGroup, DailyChallenge } from '../types';
 
 // Detect if user is on macOS for modifier key instructions
 const isMac = typeof navigator !== 'undefined' && navigator.userAgent.includes('Mac');
+
+// Hook to detect touch device
+function useIsTouchDevice() {
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  useEffect(() => {
+    // Check for touch capability
+    const hasTouchScreen =
+      'ontouchstart' in window ||
+      navigator.maxTouchPoints > 0 ||
+      // @ts-expect-error - msMaxTouchPoints is IE-specific
+      navigator.msMaxTouchPoints > 0;
+
+    setIsTouchDevice(hasTouchScreen);
+  }, []);
+
+  return isTouchDevice;
+}
 
 interface LayerPanelProps {
   shapes: Shape[];
@@ -61,6 +79,8 @@ export function LayerPanel({
   const [editValue, setEditValue] = useState('');
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
+  const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
+  const isTouchDevice = useIsTouchDevice();
 
   // Sort shapes by zIndex descending (top layer first in list)
   const sortedShapes = useMemo(() => [...shapes].sort((a, b) => b.zIndex - a.zIndex), [shapes]);
@@ -126,7 +146,10 @@ export function LayerPanel({
     const isToggleModifier = isMac ? e.metaKey : e.ctrlKey;
     const isRangeModifier = e.shiftKey;
 
-    if (isRangeModifier) {
+    // On touch devices in multi-select mode, always toggle
+    if (isTouchDevice && isMultiSelectMode) {
+      onSelectShape(shapeId, { toggle: true });
+    } else if (isRangeModifier) {
       onSelectShape(shapeId, { range: true, orderedIds });
     } else if (isToggleModifier) {
       onSelectShape(shapeId, { toggle: true });
@@ -139,11 +162,21 @@ export function LayerPanel({
   const handleGroupClick = (e: React.MouseEvent, groupId: string) => {
     e.stopPropagation();
     const isToggleModifier = isMac ? e.metaKey : e.ctrlKey;
-    onSelectGroup(groupId, { toggle: isToggleModifier });
+    // On touch devices in multi-select mode, always toggle
+    const shouldToggle = (isTouchDevice && isMultiSelectMode) || isToggleModifier;
+    onSelectGroup(groupId, { toggle: shouldToggle });
   };
 
-  // Modifier key hint text
+  // Modifier key hint text (not shown on touch devices)
   const modifierKeyHint = isMac ? '⌘' : 'Ctrl';
+
+  // Hint text varies by device type and multi-select mode
+  const getLayerHint = () => {
+    if (isTouchDevice) {
+      return isMultiSelectMode ? 'Tap to toggle selection' : 'Tap to select';
+    }
+    return `Click to select, ${modifierKeyHint}+click to toggle, Shift+click to select range`;
+  };
 
   const isTopLayer = (shape: Shape) =>
     shape.zIndex === Math.max(...shapes.map((s) => s.zIndex));
@@ -278,7 +311,7 @@ export function LayerPanel({
         paddingLeft: isInGroup ? '24px' : '8px', // Indent shapes in groups
       }}
       onClick={(e) => handleLayerClick(e, shape.id)}
-      title={`Click to select, ${modifierKeyHint}+click to toggle, Shift+click to select range`}
+      title={getLayerHint()}
       onMouseEnter={(e) => {
         if (!selectedShapeIds.has(shape.id)) {
           e.currentTarget.style.backgroundColor = 'var(--color-hover)';
@@ -323,113 +356,169 @@ export function LayerPanel({
           {shape.name}
         </span>
       )}
-      <div
-        className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity rounded p-0.5 shadow-sm"
-        style={{ backgroundColor: 'var(--color-overlay)' }}
-      >
-        <button
-          className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
-          style={{
-            backgroundColor: 'var(--color-bg-primary)',
-            border: '1px solid var(--color-border)',
-            color: 'var(--color-text-primary)',
-          }}
-          title="Bring to front"
-          disabled={isTopLayer(shape)}
-          onClick={(e) => {
-            e.stopPropagation();
-            onMoveLayer(shape.id, 'top');
-          }}
-          onMouseEnter={(e) => {
-            if (!isTopLayer(shape)) e.currentTarget.style.backgroundColor = 'var(--color-hover)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--color-bg-primary)';
-          }}
+      {/* Action buttons - always visible on touch, hover-only on desktop */}
+      {isTouchDevice ? (
+        // Touch devices: always show a simplified set of buttons
+        <div
+          className="flex gap-0.5 shrink-0 ml-auto"
         >
-          ⬆⬆
-        </button>
-        <button
-          className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
-          style={{
-            backgroundColor: 'var(--color-bg-primary)',
-            border: '1px solid var(--color-border)',
-            color: 'var(--color-text-primary)',
-          }}
-          title="Move up"
-          disabled={isTopLayer(shape)}
-          onClick={(e) => {
-            e.stopPropagation();
-            onMoveLayer(shape.id, 'up');
-          }}
-          onMouseEnter={(e) => {
-            if (!isTopLayer(shape)) e.currentTarget.style.backgroundColor = 'var(--color-hover)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--color-bg-primary)';
-          }}
+          <button
+            className="w-7 h-7 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: 'var(--color-bg-primary)',
+              border: '1px solid var(--color-border)',
+              color: 'var(--color-text-primary)',
+            }}
+            title="Move up"
+            disabled={isTopLayer(shape)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMoveLayer(shape.id, 'up');
+            }}
+          >
+            ⬆
+          </button>
+          <button
+            className="w-7 h-7 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: 'var(--color-bg-primary)',
+              border: '1px solid var(--color-border)',
+              color: 'var(--color-text-primary)',
+            }}
+            title="Move down"
+            disabled={isBottomLayer(shape)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMoveLayer(shape.id, 'down');
+            }}
+          >
+            ⬇
+          </button>
+          <button
+            className="w-7 h-7 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center text-red-600 disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: 'var(--color-bg-primary)',
+              border: '1px solid var(--color-border)',
+            }}
+            title="Delete"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDeleteShape(shape.id);
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      ) : (
+        // Desktop: show on hover with full set of buttons
+        <div
+          className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity rounded p-0.5 shadow-sm"
+          style={{ backgroundColor: 'var(--color-overlay)' }}
         >
-          ⬆
-        </button>
-        <button
-          className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
-          style={{
-            backgroundColor: 'var(--color-bg-primary)',
-            border: '1px solid var(--color-border)',
-            color: 'var(--color-text-primary)',
-          }}
-          title="Move down"
-          disabled={isBottomLayer(shape)}
-          onClick={(e) => {
-            e.stopPropagation();
-            onMoveLayer(shape.id, 'down');
-          }}
-          onMouseEnter={(e) => {
-            if (!isBottomLayer(shape)) e.currentTarget.style.backgroundColor = 'var(--color-hover)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--color-bg-primary)';
-          }}
-        >
-          ⬇
-        </button>
-        <button
-          className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
-          style={{
-            backgroundColor: 'var(--color-bg-primary)',
-            border: '1px solid var(--color-border)',
-            color: 'var(--color-text-primary)',
-          }}
-          title="Send to back"
-          disabled={isBottomLayer(shape)}
-          onClick={(e) => {
-            e.stopPropagation();
-            onMoveLayer(shape.id, 'bottom');
-          }}
-          onMouseEnter={(e) => {
-            if (!isBottomLayer(shape)) e.currentTarget.style.backgroundColor = 'var(--color-hover)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--color-bg-primary)';
-          }}
-        >
-          ⬇⬇
-        </button>
-        <button
-          className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center text-red-600 ml-1 hover:bg-red-50 disabled:opacity-30 disabled:cursor-not-allowed"
-          style={{
-            backgroundColor: 'var(--color-bg-primary)',
-            border: '1px solid var(--color-border)',
-          }}
-          title="Delete"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDeleteShape(shape.id);
-          }}
-        >
-          ✕
-        </button>
-      </div>
+          <button
+            className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: 'var(--color-bg-primary)',
+              border: '1px solid var(--color-border)',
+              color: 'var(--color-text-primary)',
+            }}
+            title="Bring to front"
+            disabled={isTopLayer(shape)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMoveLayer(shape.id, 'top');
+            }}
+            onMouseEnter={(e) => {
+              if (!isTopLayer(shape)) e.currentTarget.style.backgroundColor = 'var(--color-hover)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--color-bg-primary)';
+            }}
+          >
+            ⬆⬆
+          </button>
+          <button
+            className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: 'var(--color-bg-primary)',
+              border: '1px solid var(--color-border)',
+              color: 'var(--color-text-primary)',
+            }}
+            title="Move up"
+            disabled={isTopLayer(shape)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMoveLayer(shape.id, 'up');
+            }}
+            onMouseEnter={(e) => {
+              if (!isTopLayer(shape)) e.currentTarget.style.backgroundColor = 'var(--color-hover)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--color-bg-primary)';
+            }}
+          >
+            ⬆
+          </button>
+          <button
+            className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: 'var(--color-bg-primary)',
+              border: '1px solid var(--color-border)',
+              color: 'var(--color-text-primary)',
+            }}
+            title="Move down"
+            disabled={isBottomLayer(shape)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMoveLayer(shape.id, 'down');
+            }}
+            onMouseEnter={(e) => {
+              if (!isBottomLayer(shape)) e.currentTarget.style.backgroundColor = 'var(--color-hover)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--color-bg-primary)';
+            }}
+          >
+            ⬇
+          </button>
+          <button
+            className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: 'var(--color-bg-primary)',
+              border: '1px solid var(--color-border)',
+              color: 'var(--color-text-primary)',
+            }}
+            title="Send to back"
+            disabled={isBottomLayer(shape)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMoveLayer(shape.id, 'bottom');
+            }}
+            onMouseEnter={(e) => {
+              if (!isBottomLayer(shape)) e.currentTarget.style.backgroundColor = 'var(--color-hover)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--color-bg-primary)';
+            }}
+          >
+            ⬇⬇
+          </button>
+          <button
+            className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center text-red-600 ml-1 hover:bg-red-50 disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: 'var(--color-bg-primary)',
+              border: '1px solid var(--color-border)',
+            }}
+            title="Delete"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDeleteShape(shape.id);
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
     </li>
   );
 
@@ -447,7 +536,9 @@ export function LayerPanel({
           backgroundColor: allSelected ? 'var(--color-selected)' : someSelected ? 'var(--color-selected-partial)' : undefined,
         }}
         onClick={(e) => handleGroupClick(e, group.id)}
-        title={`Click to select all shapes in group, ${modifierKeyHint}+click to add to selection`}
+        title={isTouchDevice
+          ? (isMultiSelectMode ? 'Tap to toggle group selection' : 'Tap to select group')
+          : `Click to select all shapes in group, ${modifierKeyHint}+click to add to selection`}
         onMouseEnter={(e) => {
           if (!allSelected) {
             e.currentTarget.style.backgroundColor = 'var(--color-hover)';
@@ -517,26 +608,45 @@ export function LayerPanel({
           </span>
         )}
 
-        {/* Group actions */}
-        <div
-          className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity rounded p-0.5 shadow-sm"
-          style={{ backgroundColor: 'var(--color-overlay)' }}
-        >
-          <button
-            className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center text-red-600 hover:bg-red-50"
-            style={{
-              backgroundColor: 'var(--color-bg-primary)',
-              border: '1px solid var(--color-border)',
-            }}
-            title="Delete group (keeps shapes)"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDeleteGroup(group.id);
-            }}
+        {/* Group actions - always visible on touch, hover-only on desktop */}
+        {isTouchDevice ? (
+          <div className="flex gap-0.5 shrink-0 ml-auto">
+            <button
+              className="w-7 h-7 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center text-red-600"
+              style={{
+                backgroundColor: 'var(--color-bg-primary)',
+                border: '1px solid var(--color-border)',
+              }}
+              title="Delete group (keeps shapes)"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteGroup(group.id);
+              }}
+            >
+              ✕
+            </button>
+          </div>
+        ) : (
+          <div
+            className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity rounded p-0.5 shadow-sm"
+            style={{ backgroundColor: 'var(--color-overlay)' }}
           >
-            ✕
-          </button>
-        </div>
+            <button
+              className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center text-red-600 hover:bg-red-50"
+              style={{
+                backgroundColor: 'var(--color-bg-primary)',
+                border: '1px solid var(--color-border)',
+              }}
+              title="Delete group (keeps shapes)"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteGroup(group.id);
+              }}
+            >
+              ✕
+            </button>
+          </div>
+        )}
       </li>
     );
   };
@@ -620,6 +730,21 @@ export function LayerPanel({
           Ungroup
         </button>
       </div>
+
+      {/* Multi-select toggle for touch devices */}
+      {isTouchDevice && (
+        <button
+          className="w-full px-2 py-2 text-xs rounded cursor-pointer transition-colors mb-3"
+          style={{
+            backgroundColor: isMultiSelectMode ? 'var(--color-accent)' : 'var(--color-bg-primary)',
+            border: '1px solid var(--color-border)',
+            color: isMultiSelectMode ? 'white' : 'var(--color-text-primary)',
+          }}
+          onClick={() => setIsMultiSelectMode(!isMultiSelectMode)}
+        >
+          {isMultiSelectMode ? '✓ Done Selecting' : 'Select Multiple'}
+        </button>
+      )}
 
       {sortedShapes.length === 0 ? (
         <p className="text-sm text-center py-5" style={{ color: 'var(--color-text-tertiary)' }}>No shapes yet. Add one!</p>

@@ -68,6 +68,8 @@ The same date always generates the same colors and shapes (seed-based randomizat
   - Two-finger pinch to scale selected shapes (or zoom canvas when nothing selected)
   - Two-finger rotate to rotate selected shapes
   - Long press (hold 500ms) on a shape for context menu with quick actions
+  - Layer panel shows action buttons inline (always visible, not hover-only)
+  - "Select Multiple" toggle for multi-selecting layers without modifier keys
 - **Voting system**: Vote on submissions using ELO-based pairwise comparison
   - Vote on pairs of yesterday's submissions to help rank the artwork
   - Cast 5 votes to enter the ranking yourself

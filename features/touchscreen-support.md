@@ -51,6 +51,12 @@ The following touch interactions have been implemented to provide intuitive touc
   - **Send to Back**: Move shape to the bottom layer
   - **Delete**: Remove the selected shape(s)
 
+#### 6. Touch-Friendly Layer Panel
+- Layer action buttons (move up/down, delete) are always visible on touch devices
+- **Select Multiple** toggle button allows multi-selection without modifier keys
+- When "Select Multiple" is active, tapping layers toggles their selection
+- Group headers show a delete button inline on touch devices
+
 ### Files Modified
 
 1. **`src/components/Canvas.tsx`**
@@ -83,6 +89,13 @@ The following touch interactions have been implemented to provide intuitive touc
 5. **`src/App.tsx`**
    - Added `setZoomAtPoint` to viewport state destructuring
    - Passed `onSetZoomAtPoint` prop to Canvas component
+
+6. **`src/components/LayerPanel.tsx`**
+   - Added `useIsTouchDevice` hook to detect touch-capable devices
+   - Added `isMultiSelectMode` state for toggling multi-selection on touch
+   - Layer action buttons always visible on touch (not hidden until hover)
+   - Added "Select Multiple" toggle button shown only on touch devices
+   - Updated click handlers to auto-toggle selection in multi-select mode
 
 ### Technical Notes
 
