@@ -65,7 +65,7 @@ The same date always generates the same colors and shapes (seed-based randomizat
 - **Touchscreen support**: Full touch gesture support for tablets and mobile devices
   - Tap to select shapes, tap empty space to deselect
   - Tap and drag to move shapes
-  - Two-finger pinch to scale selected shapes
+  - Two-finger pinch to scale selected shapes (or zoom canvas when nothing selected)
   - Two-finger rotate to rotate selected shapes
   - Long press (hold 500ms) on a shape for context menu with quick actions
 - **Voting system**: Vote on submissions using ELO-based pairwise comparison
@@ -122,10 +122,7 @@ This project is hosted on Netlify. **Automatic builds are disabled** to conserve
 
 2. Build and deploy:
    ```bash
-   # Build the project
-   npm run build
-
-   # Deploy to production
+   # Deploy to production (will also build)
    netlify deploy --prod --dir=dist
    ```
 

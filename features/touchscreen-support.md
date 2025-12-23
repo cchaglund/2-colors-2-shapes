@@ -29,10 +29,9 @@ The following touch interactions have been implemented to provide intuitive touc
 - If the shape is part of a multi-selection, all selected shapes move together
 - Touch on empty canvas and drag to pan the viewport
 
-#### 3. Two-Finger Pinch to Scale
-- Place two fingers on the canvas while shapes are selected
-- Pinch in/out to scale all selected shapes proportionally
-- Scaling happens around the center point between your two fingers
+#### 3. Two-Finger Pinch to Scale/Zoom
+- **With shapes selected**: Pinch in/out to scale all selected shapes proportionally around the pinch center
+- **Without shapes selected**: Pinch in/out to zoom the canvas viewport around the pinch center
 - Works with single or multiple selected shapes
 
 #### 4. Two-Finger Rotate
@@ -63,6 +62,7 @@ The following touch interactions have been implemented to provide intuitive touc
    - Added context menu action handlers
    - Updated the drag useEffect to support touch events alongside mouse events
    - Updated handler signatures to accept both `React.MouseEvent` and `React.TouchEvent`
+   - Added canvas pinch-to-zoom when no shapes are selected (uses `onSetZoomAtPoint` prop)
 
 2. **`src/components/TransformHandles.tsx`**
    - Updated interface types to accept touch events
@@ -75,6 +75,14 @@ The following touch interactions have been implemented to provide intuitive touc
    - Includes icons for each action
    - Positioned relative to touch point
    - Closes when tapping outside
+
+4. **`src/hooks/useViewportState.ts`**
+   - Added `setZoomAtPoint` function for pinch-to-zoom with absolute scale factor
+   - Zooms around pinch center point for natural feel
+
+5. **`src/App.tsx`**
+   - Added `setZoomAtPoint` to viewport state destructuring
+   - Passed `onSetZoomAtPoint` prop to Canvas component
 
 ### Technical Notes
 

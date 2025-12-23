@@ -175,6 +175,7 @@ function App() {
     setZoom,
     setPan,
     zoomAtPoint,
+    setZoomAtPoint,
     resetViewport,
     minZoom,
     maxZoom,
@@ -455,6 +456,7 @@ function App() {
             onMirrorHorizontal={mirrorHorizontal}
             onMirrorVertical={mirrorVertical}
             onZoomAtPoint={zoomAtPoint}
+            onSetZoomAtPoint={setZoomAtPoint}
             onPan={setPan}
           />
         </div>

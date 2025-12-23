@@ -54,6 +54,36 @@ export function useViewportState() {
     []
   );
 
+  // For pinch zoom: set zoom to a specific value, zooming around a center point
+  // startZoom is the zoom level when the pinch started
+  // scale is the pinch scale factor (1.0 = no change)
+  // centerX/Y is the pinch center point in canvas coordinates
+  // startPanX/Y are the pan values when the pinch started
+  const setZoomAtPoint = useCallback(
+    (
+      startZoom: number,
+      scale: number,
+      centerX: number,
+      centerY: number,
+      startPanX: number,
+      startPanY: number
+    ) => {
+      const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, startZoom * scale));
+
+      // Zoom toward pinch center: adjust pan so the center point stays fixed
+      const zoomRatio = newZoom / startZoom;
+      const newPanX = centerX - (centerX - startPanX) * zoomRatio;
+      const newPanY = centerY - (centerY - startPanY) * zoomRatio;
+
+      setViewport({
+        zoom: newZoom,
+        panX: newPanX,
+        panY: newPanY,
+      });
+    },
+    []
+  );
+
   const resetViewport = useCallback(() => {
     setViewport(initialViewportState);
   }, []);
@@ -63,6 +93,7 @@ export function useViewportState() {
     setZoom,
     setPan,
     zoomAtPoint,
+    setZoomAtPoint,
     resetViewport,
     minZoom: MIN_ZOOM,
     maxZoom: MAX_ZOOM,

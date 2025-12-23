@@ -26,6 +26,7 @@ interface CanvasProps {
   onMirrorHorizontal: (ids: string[]) => void;
   onMirrorVertical: (ids: string[]) => void;
   onZoomAtPoint: (delta: number, pointX: number, pointY: number) => void;
+  onSetZoomAtPoint: (startZoom: number, scale: number, centerX: number, centerY: number, startPanX: number, startPanY: number) => void;
   onPan: (panX: number, panY: number) => void;
   onMoveLayer?: (id: string, direction: 'front' | 'back' | 'up' | 'down') => void;
 }
@@ -52,6 +53,10 @@ interface TouchState {
   startAngle: number;
   startCenter: { x: number; y: number };
   startShapeData: Map<string, { x: number; y: number; size: number; rotation: number }> | null;
+  // For canvas zoom when no shapes selected
+  startZoom: number;
+  startPanX: number;
+  startPanY: number;
 }
 
 interface ContextMenuState {
@@ -100,6 +105,7 @@ export function Canvas({
   onMirrorHorizontal,
   onMirrorVertical,
   onZoomAtPoint,
+  onSetZoomAtPoint,
   onPan,
   onMoveLayer,
 }: CanvasProps) {
@@ -123,6 +129,9 @@ export function Canvas({
     startAngle: 0,
     startCenter: { x: 0, y: 0 },
     startShapeData: null,
+    startZoom: 1,
+    startPanX: 0,
+    startPanY: 0,
   });
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({
     isOpen: false,
@@ -1158,7 +1167,7 @@ export function Canvas({
         state.startAngle = getTouchAngle(t1, t2);
         state.startCenter = getTouchCenter(t1, t2);
 
-        // Store start data for all selected shapes
+        // Store start data for all selected shapes, or store viewport state for canvas zoom
         if (selectedShapes.length > 0) {
           state.startShapeData = new Map();
           selectedShapes.forEach((s) => {
@@ -1169,6 +1178,12 @@ export function Canvas({
               rotation: s.rotation,
             });
           });
+        } else {
+          // No shapes selected - prepare for canvas zoom/pan
+          state.startShapeData = null;
+          state.startZoom = viewport.zoom;
+          state.startPanX = viewport.panX;
+          state.startPanY = viewport.panY;
         }
       }
     },
@@ -1183,6 +1198,9 @@ export function Canvas({
       getTouchAngle,
       getTouchCenter,
       selectedShapes,
+      viewport.zoom,
+      viewport.panX,
+      viewport.panY,
     ]
   );
 
@@ -1317,6 +1335,16 @@ export function Canvas({
           });
 
           onUpdateShapes(updates);
+        } else {
+          // No shapes selected - pinch to zoom canvas
+          onSetZoomAtPoint(
+            state.startZoom,
+            scale,
+            currentCenter.x,
+            currentCenter.y,
+            state.startPanX,
+            state.startPanY
+          );
         }
       }
     },
@@ -1332,6 +1360,7 @@ export function Canvas({
       viewport.panX,
       viewport.panY,
       onPan,
+      onSetZoomAtPoint,
       getTouchDistance,
       getTouchAngle,
       getTouchCenter,
