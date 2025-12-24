@@ -24,7 +24,8 @@ import { useSubmissions } from './hooks/useSubmissions';
 import { useWelcomeModal } from './hooks/useWelcomeModal';
 import { useKeyboardSettings } from './hooks/useKeyboardSettings';
 import { useWinnerAnnouncement } from './hooks/useWinnerAnnouncement';
-import { getTodayChallenge, getYesterdayDate } from './utils/dailyChallenge';
+import { getTodayDate, getYesterdayDate } from './utils/dailyChallenge';
+import { useDailyChallenge } from './hooks/useDailyChallenge';
 
 const CANVAS_SIZE = 800;
 
@@ -86,12 +87,14 @@ function App() {
   // Welcome modal for first-time visitors
   const { isOpen: showWelcome, dismiss: dismissWelcome } = useWelcomeModal();
 
-  const challenge = useMemo(() => getTodayChallenge(), []);
+  // Fetch today's challenge from server
+  const todayDate = useMemo(() => getTodayDate(), []);
+  const { challenge, loading: challengeLoading } = useDailyChallenge(todayDate);
 
   // Auth state
   const { user } = useAuth();
   const { profile, loading: profileLoading, updateNickname } = useProfile(user?.id);
-  const { saveSubmission, loadSubmission, saving, hasSubmittedToday } = useSubmissions(user?.id, challenge.date);
+  const { saveSubmission, loadSubmission, saving, hasSubmittedToday } = useSubmissions(user?.id, todayDate);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle');
 
   // Winner announcement for yesterday's results
@@ -156,7 +159,7 @@ function App() {
   // This ensures seamless experience across devices - if user has submitted today,
   // their submission is loaded into local storage (overwriting any local changes)
   useEffect(() => {
-    if (!user?.id || hasSyncedSubmissionRef.current) return;
+    if (!user?.id || !challenge || hasSyncedSubmissionRef.current) return;
 
     const syncSubmission = async () => {
       const { data: submission } = await loadSubmission(challenge.date);
@@ -168,7 +171,7 @@ function App() {
     };
 
     syncSubmission();
-  }, [user?.id, challenge.date, loadSubmission, loadCanvasState]);
+  }, [user?.id, challenge, loadSubmission, loadCanvasState]);
 
   const {
     viewport,
@@ -345,6 +348,7 @@ function App() {
   };
 
   const handleSave = useCallback(async () => {
+    if (!challenge) return;
     setSaveStatus('idle');
     const result = await saveSubmission({
       challengeDate: challenge.date,
@@ -362,12 +366,24 @@ function App() {
     } else {
       setSaveStatus('error');
     }
-  }, [saveSubmission, challenge.date, canvasState.shapes, canvasState.backgroundColorIndex, user]);
+  }, [saveSubmission, challenge, canvasState.shapes, canvasState.backgroundColorIndex, user]);
 
   const backgroundColor =
-    canvasState.backgroundColorIndex !== null
+    canvasState.backgroundColorIndex !== null && challenge
       ? challenge.colors[canvasState.backgroundColorIndex]
       : null;
+
+  // Show loading spinner while challenge is loading
+  if (challengeLoading || !challenge) {
+    return (
+      <div className="flex h-screen items-center justify-center" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
+        <div className="text-center">
+          <div className="inline-block w-8 h-8 border-4 border-t-transparent rounded-full animate-spin mb-4" style={{ borderColor: 'var(--color-text-secondary)', borderTopColor: 'transparent' }} />
+          <p style={{ color: 'var(--color-text-secondary)' }}>Loading today's challenge...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Render Shape Explorer if enabled
   if (showExplorer) {

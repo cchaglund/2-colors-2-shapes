@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useVoting } from '../../hooks/useVoting';
-import { generateDailyChallenge } from '../../utils/dailyChallenge';
+import { useDailyChallenge } from '../../hooks/useDailyChallenge';
 import { VotingPairView } from './VotingPairView';
 import { VotingConfirmation } from './VotingConfirmation';
 import { VotingNoPairs } from './VotingNoPairs';
 import { VotingOptInPrompt } from './VotingOptInPrompt';
-import type { DailyChallenge } from '../../types';
 
 interface VotingModalProps {
   userId: string;
@@ -24,7 +24,9 @@ export function VotingModal({
 }: VotingModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [challenge, setChallenge] = useState<DailyChallenge | null>(null);
+
+  // Fetch challenge for the date being voted on
+  const { challenge } = useDailyChallenge(challengeDate);
 
   const {
     currentPair,
@@ -41,11 +43,6 @@ export function VotingModal({
     fetchNextPair,
     initializeVoting,
   } = useVoting(userId, challengeDate);
-
-  // Generate challenge for the date being voted on
-  useEffect(() => {
-    setChallenge(generateDailyChallenge(challengeDate));
-  }, [challengeDate]);
 
   // Initialize voting on mount
   useEffect(() => {

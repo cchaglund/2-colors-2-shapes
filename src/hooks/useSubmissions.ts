@@ -82,11 +82,10 @@ export function useSubmissions(userId: string | undefined, todayDate?: string) {
         .select('*')
         .eq('user_id', userId)
         .eq('challenge_date', challengeDate)
-        .single();
+        .maybeSingle();
       setLoading(false);
 
-      if (error && error.code !== 'PGRST116') {
-        // PGRST116 = no rows returned, which is fine
+      if (error) {
         return { data: null, error: error.message };
       }
       return { data: data as Submission | null };

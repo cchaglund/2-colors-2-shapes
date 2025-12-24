@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { SubmissionThumbnail } from './SubmissionThumbnail';
 import { TrophyBadge } from './TrophyBadge';
-import { generateDailyChallenge } from '../utils/dailyChallenge';
+import { useDailyChallenge } from '../hooks/useDailyChallenge';
 import type { RankingEntry } from '../types';
 
 interface WinnerAnnouncementModalProps {
@@ -19,11 +19,13 @@ export function WinnerAnnouncementModal({
 }: WinnerAnnouncementModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const challenge = generateDailyChallenge(challengeDate);
+  const { challenge, loading: challengeLoading } = useDailyChallenge(challengeDate);
 
   // Focus the button when modal opens and trap focus
   useEffect(() => {
-    buttonRef.current?.focus();
+    if (!challengeLoading) {
+      buttonRef.current?.focus();
+    }
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -64,6 +66,24 @@ export function WinnerAnnouncementModal({
   const winners = topThree.filter((e) => e.rank === 1);
   const runnerUps = topThree.filter((e) => e.rank === 2);
   const thirdPlaces = topThree.filter((e) => e.rank === 3);
+
+  // Show loading state while challenge is being fetched
+  if (challengeLoading || !challenge) {
+    return (
+      <div
+        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 shadow-xl">
+          <div className="text-center">
+            <div className="inline-block w-8 h-8 border-4 border-t-transparent rounded-full animate-spin mb-4" style={{ borderColor: 'var(--color-text-secondary)', borderTopColor: 'transparent' }} />
+            <p style={{ color: 'var(--color-text-secondary)' }}>Loading...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

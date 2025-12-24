@@ -1,7 +1,7 @@
 import type { DailyChallenge, ShapeType } from '../types';
 import type { ThemeMode } from '../hooks/useThemeState';
 import type { Profile } from '../hooks/useProfile';
-import { SHAPE_NAMES, getShapeSVGData } from '../utils/shapeHelpers';
+import { getShapeSVGData } from '../utils/shapeHelpers';
 import { ThemeToggle } from './ThemeToggle';
 import { AuthButton } from './AuthButton';
 import { type KeyMappings, formatKeyBinding } from '../constants/keyboardActions';
@@ -164,13 +164,13 @@ export function Toolbar({
       <div className="mb-6">
         <h4 className="m-0 mb-3 text-xs uppercase" style={{ color: 'var(--color-text-tertiary)' }}>Add Shape</h4>
         <div className="flex flex-col gap-2">
-          {challenge.shapes.map((shape, shapeIndex) => (
-            <div key={shape} className="flex items-center justify-between">
+          {challenge.shapes.map((shapeData, shapeIndex) => (
+            <div key={shapeData.type} className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span style={{ color: 'var(--color-text-secondary)' }}>
-                  <ShapePreviewIcon type={shape} size={18} />
+                  <ShapePreviewIcon type={shapeData.type} size={18} />
                 </span>
-                <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{SHAPE_NAMES[shape]}</span>
+                <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{shapeData.name}</span>
               </div>
               <div className="flex gap-1">
                 {challenge.colors.map((color, colorIndex) => (
@@ -184,7 +184,7 @@ export function Toolbar({
                     onClick={() =>
                       onAddShape(shapeIndex as 0 | 1, colorIndex as 0 | 1)
                     }
-                    title={`Add ${SHAPE_NAMES[shape]} with ${color}`}
+                    title={`Add ${shapeData.name} with ${color}`}
                   >
                     +
                   </button>

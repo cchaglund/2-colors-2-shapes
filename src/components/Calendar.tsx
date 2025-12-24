@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useSubmissions, type Submission } from '../hooks/useSubmissions';
-import { generateDailyChallenge, getTodayDate, getTwoDaysAgoDate } from '../utils/dailyChallenge';
+import { getTodayDate, getTwoDaysAgoDate } from '../utils/dailyChallenge';
+import { fetchChallengesBatch, getChallengeSync } from '../hooks/useDailyChallenge';
 import { SubmissionThumbnail } from './SubmissionThumbnail';
 import { TrophyBadge } from './TrophyBadge';
 import { supabase } from '../lib/supabase';
-import type { Shape } from '../types';
+import type { Shape, DailyChallenge } from '../types';
 
 type ViewMode = 'my-submissions' | 'winners';
 
@@ -56,6 +57,7 @@ export function Calendar({ onClose }: CalendarProps) {
   const [viewMode, setViewMode] = useState<ViewMode | null>(null);
   const [winners, setWinners] = useState<WinnerEntry[]>([]);
   const [winnersLoading, setWinnersLoading] = useState(false);
+  const [challenges, setChallenges] = useState<Map<string, DailyChallenge>>(new Map());
 
   // Determine effective view mode - null until auth loads, then based on user
   const effectiveViewMode: ViewMode = viewMode ?? (user ? 'my-submissions' : 'winners');
@@ -173,6 +175,19 @@ export function Calendar({ onClose }: CalendarProps) {
 
     loadWinners();
   }, [effectiveViewMode, currentYear, currentMonth, latestWinnersDate]);
+
+  // Fetch challenges for all days in the current month
+  useEffect(() => {
+    const daysInMonth = getDaysInMonth(currentYear, currentMonth);
+    const dates: string[] = [];
+    for (let day = 1; day <= daysInMonth; day++) {
+      dates.push(formatDate(currentYear, currentMonth, day));
+    }
+
+    fetchChallengesBatch(dates).then((challengeMap) => {
+      setChallenges(challengeMap);
+    });
+  }, [currentYear, currentMonth]);
 
   // Create a map of date -> submission for quick lookup
   const submissionsByDate = useMemo(() => {
@@ -447,7 +462,7 @@ export function Calendar({ onClose }: CalendarProps) {
               const dateStr = formatDate(currentYear, currentMonth, day);
               const isToday = dateStr === todayStr;
               const isFuture = dateStr > todayStr;
-              const challenge = generateDailyChallenge(dateStr);
+              const challenge = challenges.get(dateStr) || getChallengeSync(dateStr);
 
               if (effectiveViewMode === 'my-submissions') {
                 // My Submissions view

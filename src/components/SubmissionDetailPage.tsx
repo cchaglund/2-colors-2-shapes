@@ -2,9 +2,9 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useSubmissions, type Submission } from '../hooks/useSubmissions';
 import { useRanking } from '../hooks/useRanking';
+import { useDailyChallenge } from '../hooks/useDailyChallenge';
 import { supabase } from '../lib/supabase';
-import { generateDailyChallenge } from '../utils/dailyChallenge';
-import { getShapeSVGData, SHAPE_NAMES } from '../utils/shapeHelpers';
+import { getShapeSVGData } from '../utils/shapeHelpers';
 import { TrophyBadge } from './TrophyBadge';
 import { RankingBadge } from './RankingBadge';
 import type { DailyChallenge, Shape } from '../types';
@@ -80,8 +80,8 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
   const svgRef = useRef<SVGSVGElement>(null);
 
   // Determine the challenge date from either prop or loaded submission
-  const challengeDate = date || submission?.challenge_date;
-  const challenge = challengeDate ? generateDailyChallenge(challengeDate) : null;
+  const challengeDate = date || submission?.challenge_date || '';
+  const { challenge } = useDailyChallenge(challengeDate);
 
   useEffect(() => {
     const loadData = async () => {
@@ -354,7 +354,7 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
                   Shapes
                 </span>
                 <div className="flex flex-wrap gap-2 mt-1">
-                  {challenge.shapes.map((shape, i) => (
+                  {challenge.shapes.map((shapeData, i) => (
                     <span
                       key={i}
                       className="px-2 py-1 rounded-md text-sm"
@@ -363,7 +363,7 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
                         color: 'var(--color-text-primary)',
                       }}
                     >
-                      {SHAPE_NAMES[shape]}
+                      {shapeData.name}
                     </span>
                   ))}
                 </div>

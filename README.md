@@ -358,7 +358,9 @@ src/
 2. A seeded random number generator (mulberry32) ensures deterministic output
 3. Colors are generated in HSL space with a minimum perceptual distance check
 4. Two shapes are randomly selected from the available set
-5. The same date will always produce the same challenge
+5. **Smart randomness** checks the previous 3 days to avoid repeating similar combinations
+   - If both shapes AND colors are too similar to recent days, a new challenge is generated
+   - Uses a modified seed for re-rolling while maintaining determinism
 
 ## License
 

@@ -66,10 +66,16 @@ export interface ShapeGroup {
   zIndex: number; // For ordering groups in the layer panel
 }
 
+export interface ChallengeShapeData {
+  type: ShapeType;
+  name: string;
+  svg: string; // Normalized SVG path (viewBox 0 0 100 100)
+}
+
 export interface DailyChallenge {
   date: string; // YYYY-MM-DD format
   colors: [string, string];
-  shapes: [ShapeType, ShapeType];
+  shapes: [ChallengeShapeData, ChallengeShapeData];
 }
 
 export interface CanvasState {
