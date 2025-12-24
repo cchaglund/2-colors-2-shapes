@@ -64,7 +64,7 @@ export function TouchContextMenu({
     <div
       ref={menuRef}
       style={menuStyle}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 py-2 min-w-[160px] touch-manipulation"
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 py-2 min-w-40 touch-manipulation"
     >
       <button
         className="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 flex items-center gap-3"

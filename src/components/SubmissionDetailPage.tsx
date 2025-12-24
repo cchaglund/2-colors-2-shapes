@@ -306,7 +306,7 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
           </div>
 
           {/* Info sidebar */}
-          <div className="space-y-4 w-full md:w-[300px]">
+          <div className="space-y-4 w-full md:w-75">
             {/* Challenge info */}
             <div
               className="border rounded-xl p-4"
