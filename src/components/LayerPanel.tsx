@@ -29,7 +29,7 @@ interface LayerPanelProps {
   challenge: DailyChallenge;
   onSelectShape: (id: string | null, options?: { toggle?: boolean; range?: boolean; orderedIds?: string[] }) => void;
   onMoveLayer: (id: string, direction: 'up' | 'down' | 'top' | 'bottom') => void;
-  onReorderLayers: (draggedId: string, targetIndex: number) => void;
+  onReorderLayers: (draggedId: string, targetIndex: number, targetGroupId: string | null) => void;
   onDeleteShape: (id: string) => void;
   onRenameShape: (id: string, name: string) => void;
   // Group handlers
@@ -51,6 +51,7 @@ interface LayerItem {
   shape?: Shape;
   group?: ShapeGroup;
   shapesInGroup?: Shape[];
+  belongsToGroupId?: string; // Track which group this item belongs to for drag-drop
 }
 
 export function LayerPanel({
@@ -79,6 +80,8 @@ export function LayerPanel({
   const [editValue, setEditValue] = useState('');
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_dropTargetGroupId, setDropTargetGroupId] = useState<string | null>(null);
   const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
   const isTouchDevice = useIsTouchDevice();
 
@@ -117,6 +120,7 @@ export function LayerPanel({
         type: 'group-header',
         group,
         shapesInGroup,
+        belongsToGroupId: group.id,
       });
 
       // Add shape IDs for range selection (group header acts as anchor for all its shapes)
@@ -127,12 +131,12 @@ export function LayerPanel({
       // If group is not collapsed, add individual shape items
       if (!group.isCollapsed) {
         for (const shape of shapesInGroup) {
-          items.push({ type: 'shape', shape });
+          items.push({ type: 'shape', shape, belongsToGroupId: group.id });
         }
       }
     }
 
-    // Add ungrouped shapes
+    // Add ungrouped shapes (belongsToGroupId remains undefined)
     for (const shape of ungroupedShapes) {
       items.push({ type: 'shape', shape });
       ids.push(shape.id);
@@ -226,22 +230,25 @@ export function LayerPanel({
   const handleDragEnd = () => {
     setDraggedId(null);
     setDropTargetIndex(null);
+    setDropTargetGroupId(null);
   };
 
-  const handleDragOver = (e: React.DragEvent, index: number) => {
+  const handleDragOver = (e: React.DragEvent, index: number, groupId: string | null) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     setDropTargetIndex(index);
+    setDropTargetGroupId(groupId);
   };
 
-  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+  const handleDrop = (e: React.DragEvent, targetIndex: number, targetGroupId: string | null) => {
     e.preventDefault();
     const draggedShapeId = e.dataTransfer.getData('text/plain');
     if (draggedShapeId) {
-      onReorderLayers(draggedShapeId, targetIndex);
+      onReorderLayers(draggedShapeId, targetIndex, targetGroupId);
     }
     setDraggedId(null);
     setDropTargetIndex(null);
+    setDropTargetGroupId(null);
   };
 
   // Check if we can create a group from current selection
@@ -291,14 +298,14 @@ export function LayerPanel({
   }
 
   // Render a shape layer item
-  const renderShapeItem = (shape: Shape, index: number, isInGroup: boolean) => (
+  const renderShapeItem = (shape: Shape, index: number, isInGroup: boolean, groupId: string | null) => (
     <li
       key={shape.id}
       draggable={editingId !== shape.id}
       onDragStart={(e) => handleDragStart(e, shape.id)}
       onDragEnd={handleDragEnd}
-      onDragOver={(e) => handleDragOver(e, index)}
-      onDrop={(e) => handleDrop(e, index)}
+      onDragOver={(e) => handleDragOver(e, index, groupId)}
+      onDrop={(e) => handleDrop(e, index, groupId)}
       className={`group relative flex items-center gap-2 p-2 rounded cursor-grab transition-colors ${
         draggedId === shape.id ? 'opacity-50' : ''
       } ${
@@ -756,7 +763,8 @@ export function LayerPanel({
             } else if (item.type === 'shape' && item.shape) {
               const currentIndex = shapeIndex++;
               const isInGroup = !!item.shape.groupId;
-              return renderShapeItem(item.shape, currentIndex, isInGroup);
+              const groupId = item.belongsToGroupId || null;
+              return renderShapeItem(item.shape, currentIndex, isInGroup, groupId);
             }
             return null;
           })}

@@ -447,7 +447,7 @@ export function useCanvasState(challenge: DailyChallenge | null) {
   );
 
   const reorderLayers = useCallback(
-    (draggedId: string, targetIndex: number) => {
+    (draggedId: string, targetIndex: number, targetGroupId: string | null) => {
       setCanvasState((prev) => {
         // Sort by zIndex descending (same as LayerPanel display)
         const sortedByZDesc = [...prev.shapes].sort((a, b) => b.zIndex - a.zIndex);
@@ -455,20 +455,40 @@ export function useCanvasState(challenge: DailyChallenge | null) {
 
         if (draggedIndex === -1 || draggedIndex === targetIndex) return prev;
 
+        // Get the old groupId of the dragged shape to check if we need to clean up
+        const draggedShape = sortedByZDesc[draggedIndex];
+        const oldGroupId = draggedShape.groupId;
+
         // Remove dragged item and insert at target position
         const reordered = [...sortedByZDesc];
         const [removed] = reordered.splice(draggedIndex, 1);
         reordered.splice(targetIndex, 0, removed);
 
         // Reassign zIndex values based on new order (descending order in array = higher zIndex)
+        // Also update groupId for the dragged shape
         const newShapes = prev.shapes.map((shape) => {
           const newPosition = reordered.findIndex((s) => s.id === shape.id);
           // First item in array (index 0) should have highest zIndex
           const newZIndex = reordered.length - 1 - newPosition;
+
+          if (shape.id === draggedId) {
+            // Update both zIndex and groupId for the dragged shape
+            return { ...shape, zIndex: newZIndex, groupId: targetGroupId || undefined };
+          }
           return { ...shape, zIndex: newZIndex };
         });
 
-        return { ...prev, shapes: newShapes };
+        // Clean up empty groups if the dragged shape left its old group
+        let newGroups = prev.groups;
+        if (oldGroupId && oldGroupId !== targetGroupId) {
+          // Check if old group is now empty
+          const shapesStillInOldGroup = newShapes.filter((s) => s.groupId === oldGroupId);
+          if (shapesStillInOldGroup.length === 0) {
+            newGroups = prev.groups.filter((g) => g.id !== oldGroupId);
+          }
+        }
+
+        return { ...prev, shapes: newShapes, groups: newGroups };
       });
     },
     [setCanvasState]
