@@ -47,6 +47,9 @@ interface ToolbarProps {
   // Profile for AuthButton
   profile?: Profile | null;
   profileLoading?: boolean;
+  // Grid toggle
+  showGrid?: boolean;
+  onToggleGrid?: () => void;
 }
 
 export function Toolbar({
@@ -73,6 +76,8 @@ export function Toolbar({
   onOpenKeyboardSettings,
   profile,
   profileLoading,
+  showGrid,
+  onToggleGrid,
 }: ToolbarProps) {
   const hasSelection = selectedShapeIds.size > 0;
 
@@ -237,6 +242,38 @@ export function Toolbar({
       </div>
 
       <div className="mb-6">
+        <h4 className="m-0 mb-3 text-xs uppercase" style={{ color: 'var(--color-text-tertiary)' }}>View</h4>
+        <button
+          className="flex items-center gap-2 w-full py-2 px-3 rounded-md cursor-pointer text-sm transition-colors"
+          style={{
+            backgroundColor: showGrid ? 'var(--color-bg-tertiary)' : 'transparent',
+            color: 'var(--color-text-primary)',
+            border: showGrid ? '1px solid var(--color-border)' : '1px solid transparent',
+          }}
+          onClick={onToggleGrid}
+          title={`${showGrid ? 'Hide' : 'Show'} grid lines (${keyMappings.toggleGrid ? formatKeyBinding(keyMappings.toggleGrid) : 'G'})`}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          >
+            {/* Grid icon - 3x3 grid */}
+            <line x1="5.5" y1="1" x2="5.5" y2="15" />
+            <line x1="10.5" y1="1" x2="10.5" y2="15" />
+            <line x1="1" y1="5.5" x2="15" y2="5.5" />
+            <line x1="1" y1="10.5" x2="15" y2="10.5" />
+          </svg>
+          <span>Grid Lines</span>
+          {showGrid && <span className="ml-auto text-xs" style={{ color: 'var(--color-text-tertiary)' }}>On</span>}
+        </button>
+      </div>
+
+      <div className="mb-6">
         <ThemeToggle mode={themeMode} onSetMode={onSetThemeMode} />
       </div>
 
@@ -325,6 +362,7 @@ export function Toolbar({
           <li>{keyMappings.delete ? formatKeyBinding(keyMappings.delete) : '⌫'} to delete selected</li>
           <li>Ctrl/⌘ + scroll to zoom</li>
           <li>Hold {keyMappings.pan ? formatKeyBinding(keyMappings.pan) : 'Space'} + drag to pan</li>
+          <li>{keyMappings.toggleGrid ? formatKeyBinding(keyMappings.toggleGrid) : 'G'} to toggle grid</li>
         </ul>
       </div>
     </div>

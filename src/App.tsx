@@ -18,6 +18,7 @@ import { useCanvasState } from './hooks/useCanvasState';
 import { useViewportState } from './hooks/useViewportState';
 import { useSidebarState } from './hooks/useSidebarState';
 import { useThemeState } from './hooks/useThemeState';
+import { useGridState } from './hooks/useGridState';
 import { useAuth } from './hooks/useAuth';
 import { useProfile } from './hooks/useProfile';
 import { useSubmissions } from './hooks/useSubmissions';
@@ -199,6 +200,11 @@ function App() {
     mode: themeMode,
     setMode: setThemeMode,
   } = useThemeState();
+
+  const {
+    showGrid,
+    toggleGrid,
+  } = useGridState();
 
   const handleZoomIn = useCallback(() => {
     setZoom(viewport.zoom + 0.1);
@@ -445,6 +451,8 @@ function App() {
         onOpenKeyboardSettings={() => setShowKeyboardSettings(true)}
         profile={profile}
         profileLoading={profileLoading}
+        showGrid={showGrid}
+        onToggleGrid={toggleGrid}
       />
 
       <main
@@ -462,6 +470,7 @@ function App() {
             challenge={challenge}
             viewport={viewport}
             keyMappings={keyMappings}
+            showGrid={showGrid}
             onSelectShape={selectShape}
             onUpdateShape={updateShape}
             onUpdateShapes={updateShapes}
@@ -474,6 +483,7 @@ function App() {
             onZoomAtPoint={zoomAtPoint}
             onSetZoomAtPoint={setZoomAtPoint}
             onPan={setPan}
+            onToggleGrid={toggleGrid}
           />
         </div>
 

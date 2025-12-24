@@ -16,6 +16,7 @@ interface CanvasProps {
   challenge: DailyChallenge;
   viewport: ViewportState;
   keyMappings: KeyMappings;
+  showGrid?: boolean;
   onSelectShape: (id: string | null, options?: { toggle?: boolean; range?: boolean; orderedIds?: string[] }) => void;
   onUpdateShape: (id: string, updates: Partial<Shape>) => void;
   onUpdateShapes: (updates: Map<string, Partial<Shape>>) => void;
@@ -29,6 +30,7 @@ interface CanvasProps {
   onSetZoomAtPoint: (startZoom: number, scale: number, centerX: number, centerY: number, startPanX: number, startPanY: number) => void;
   onPan: (panX: number, panY: number) => void;
   onMoveLayer?: (id: string, direction: 'front' | 'back' | 'up' | 'down') => void;
+  onToggleGrid?: () => void;
 }
 
 type DragMode = 'none' | 'move' | 'resize' | 'rotate';
@@ -95,6 +97,7 @@ export function Canvas({
   challenge,
   viewport,
   keyMappings,
+  showGrid,
   onSelectShape,
   onUpdateShape,
   onUpdateShapes,
@@ -108,6 +111,7 @@ export function Canvas({
   onSetZoomAtPoint,
   onPan,
   onMoveLayer,
+  onToggleGrid,
 }: CanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [dragState, setDragState] = useState<DragState | null>(null);
@@ -850,6 +854,14 @@ export function Canvas({
         }
       }
 
+      // Check for toggle grid binding
+      const toggleGridBinding = keyMappings.toggleGrid;
+      if (toggleGridBinding && matchesBinding(e, toggleGridBinding)) {
+        e.preventDefault();
+        onToggleGrid?.();
+        return;
+      }
+
       // Movement and rotation shortcuts require selected shapes
       if (!hasSelection) return;
 
@@ -918,7 +930,7 @@ export function Canvas({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedShapes, hasSelection, keyMappings, onUpdateShapes, onUndo, onRedo, onDuplicateShapes, onDeleteSelectedShapes, onMirrorHorizontal, onMirrorVertical]);
+  }, [selectedShapes, hasSelection, keyMappings, onUpdateShapes, onUndo, onRedo, onDuplicateShapes, onDeleteSelectedShapes, onMirrorHorizontal, onMirrorVertical, onToggleGrid]);
 
   // Handle spacebar for panning mode
   useEffect(() => {
@@ -1513,6 +1525,62 @@ export function Canvas({
           </g>
         ))}
       </g>
+
+      {/* Grid lines - rendered on top of shapes but don't export/print */}
+      {showGrid && (
+        <g className="grid-lines" pointerEvents="none">
+          {/* Rule of thirds lines - light gray (divides into 9 equal sections) */}
+          <line
+            x1={CANVAS_SIZE / 3}
+            y1={0}
+            x2={CANVAS_SIZE / 3}
+            y2={CANVAS_SIZE}
+            stroke="rgba(180, 180, 180, 0.5)"
+            strokeWidth={1 / viewport.zoom}
+          />
+          <line
+            x1={(CANVAS_SIZE * 2) / 3}
+            y1={0}
+            x2={(CANVAS_SIZE * 2) / 3}
+            y2={CANVAS_SIZE}
+            stroke="rgba(180, 180, 180, 0.5)"
+            strokeWidth={1 / viewport.zoom}
+          />
+          <line
+            x1={0}
+            y1={CANVAS_SIZE / 3}
+            x2={CANVAS_SIZE}
+            y2={CANVAS_SIZE / 3}
+            stroke="rgba(180, 180, 180, 0.5)"
+            strokeWidth={1 / viewport.zoom}
+          />
+          <line
+            x1={0}
+            y1={(CANVAS_SIZE * 2) / 3}
+            x2={CANVAS_SIZE}
+            y2={(CANVAS_SIZE * 2) / 3}
+            stroke="rgba(180, 180, 180, 0.5)"
+            strokeWidth={1 / viewport.zoom}
+          />
+          {/* Center lines - darker gray (divides into 4 quadrants) */}
+          <line
+            x1={CANVAS_SIZE / 2}
+            y1={0}
+            x2={CANVAS_SIZE / 2}
+            y2={CANVAS_SIZE}
+            stroke="rgba(120, 120, 120, 0.6)"
+            strokeWidth={1 / viewport.zoom}
+          />
+          <line
+            x1={0}
+            y1={CANVAS_SIZE / 2}
+            x2={CANVAS_SIZE}
+            y2={CANVAS_SIZE / 2}
+            stroke="rgba(120, 120, 120, 0.6)"
+            strokeWidth={1 / viewport.zoom}
+          />
+        </g>
+      )}
 
       {/* Interaction layers - outside clip path for better hit detection */}
       {!isSpacePressed && sortedShapes.map((shape) => (

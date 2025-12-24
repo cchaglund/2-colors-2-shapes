@@ -62,6 +62,12 @@ The same date always generates the same colors and shapes (seed-based randomizat
   - Disabled states when actions aren't available (e.g., no selection)
 - **Mirroring**: Flip shapes horizontally or vertically
 - **Zoom & pan**: Zoom in/out with controls or scroll wheel, pan the canvas
+- **Grid lines**: Toggle alignment grid for precise positioning
+  - Rule of thirds lines (divides canvas into 9 equal sections)
+  - Center lines (divides canvas into 4 quadrants)
+  - Toggle with G key or toolbar button
+  - Grid state saved in localStorage
+  - Grid lines are editor-only (not included in exports)
 - **Touchscreen support**: Full touch gesture support for tablets and mobile devices
   - Tap to select shapes, tap empty space to deselect
   - Tap and drag to move shapes
@@ -332,7 +338,8 @@ src/
 │   ├── useVoting.ts      # Pairwise voting system
 │   ├── useRanking.ts     # ELO rankings and leaderboard
 │   ├── useWinnerAnnouncement.ts # Yesterday's winner modal
-│   └── useViewportState.ts # Zoom and pan state
+│   ├── useViewportState.ts # Zoom and pan state
+│   └── useGridState.ts   # Grid lines visibility state
 ├── constants/
 │   └── keyboardActions.ts # Keyboard action definitions and helpers
 ├── utils/

@@ -13,7 +13,8 @@ export type KeyboardActionId =
   | 'rotateCounterClockwise'
   | 'mirrorHorizontal'
   | 'mirrorVertical'
-  | 'pan';
+  | 'pan'
+  | 'toggleGrid';
 
 export interface KeyBinding {
   key: string; // The key code (e.g., 'KeyZ', 'ArrowUp', 'Space')
@@ -27,7 +28,7 @@ export interface KeyboardAction {
   id: KeyboardActionId;
   label: string;
   description: string;
-  category: 'editing' | 'movement' | 'navigation';
+  category: 'editing' | 'movement' | 'navigation' | 'view';
   defaultBinding: KeyBinding;
   // Some actions shouldn't be remapped (like pan which uses space)
   allowRemap?: boolean;
@@ -138,6 +139,14 @@ export const KEYBOARD_ACTIONS: KeyboardAction[] = [
     category: 'navigation',
     defaultBinding: { key: 'Space' },
     allowRemap: false, // Space is special, don't allow remapping
+  },
+  {
+    id: 'toggleGrid',
+    label: 'Toggle Grid',
+    description: 'Show/hide grid lines for alignment',
+    category: 'view',
+    defaultBinding: { key: 'KeyG' },
+    allowRemap: true,
   },
 ];
 
