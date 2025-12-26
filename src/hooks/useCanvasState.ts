@@ -8,6 +8,7 @@ const MAX_HISTORY = 50;
 
 interface StoredData {
   date: string;
+  userId?: string; // Track which user owns this localStorage data
   canvas: CanvasState;
 }
 
@@ -38,10 +39,16 @@ const initialCanvasState: CanvasState = {
   selectedShapeIds: new Set<string>(),
 };
 
-export function useCanvasState(challenge: DailyChallenge | null) {
+export function useCanvasState(challenge: DailyChallenge | null, userId: string | undefined) {
+  // Track the current userId in a ref so we can use it in the save effect
+  const userIdRef = useRef(userId);
+  useEffect(() => {
+    userIdRef.current = userId;
+  }, [userId]);
+
   const [canvasState, setCanvasStateInternal] = useState<CanvasState>(() => {
     const stored = loadFromStorage();
-    // Only restore if it's the same day
+    // Only restore if it's the same day (user check happens in App.tsx sync effect)
     if (stored && stored.date === getTodayDate()) {
       // Handle migration from old selectedShapeId format
       const canvas = stored.canvas;
@@ -55,6 +62,10 @@ export function useCanvasState(challenge: DailyChallenge | null) {
         backgroundColorIndex: canvas.backgroundColorIndex,
         selectedShapeIds: new Set<string>(), // Clear selection on load
       };
+    }
+    // Clear stale localStorage data from previous days
+    if (stored) {
+      localStorage.removeItem(STORAGE_KEY);
     }
     return initialCanvasState;
   });
@@ -116,6 +127,7 @@ export function useCanvasState(challenge: DailyChallenge | null) {
   useEffect(() => {
     saveToStorage({
       date: getTodayDate(),
+      userId: userIdRef.current,
       canvas: canvasState,
     });
   }, [canvasState]);
@@ -823,10 +835,10 @@ export function useCanvasState(challenge: DailyChallenge | null) {
   // Load canvas state from an external source (e.g., a submission from the server)
   // This is used to sync artwork across devices when logging in
   const loadCanvasState = useCallback(
-    (shapes: Shape[], backgroundColorIndex: 0 | 1 | null) => {
+    (shapes: Shape[], groups: ShapeGroup[], backgroundColorIndex: 0 | 1 | null) => {
       const newState: CanvasState = {
         shapes,
-        groups: [], // Groups are not stored in submissions, start fresh
+        groups,
         backgroundColorIndex,
         selectedShapeIds: new Set<string>(),
       };
@@ -841,6 +853,7 @@ export function useCanvasState(challenge: DailyChallenge | null) {
       // Also save to localStorage immediately
       saveToStorage({
         date: getTodayDate(),
+        userId: userIdRef.current,
         canvas: newState,
       });
     },

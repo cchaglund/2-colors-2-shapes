@@ -1,12 +1,13 @@
 import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import type { Shape } from '../types';
+import type { Shape, ShapeGroup } from '../types';
 
 export interface Submission {
   id: string;
   user_id: string;
   challenge_date: string;
   shapes: Shape[];
+  groups: ShapeGroup[];
   background_color_index: number | null;
   created_at: string;
   updated_at: string;
@@ -15,6 +16,7 @@ export interface Submission {
 interface SaveSubmissionParams {
   challengeDate: string;
   shapes: Shape[];
+  groups: ShapeGroup[];
   backgroundColorIndex: 0 | 1 | null;
 }
 
@@ -54,6 +56,7 @@ export function useSubmissions(userId: string | undefined, todayDate?: string) {
           user_id: userId,
           challenge_date: params.challengeDate,
           shapes: params.shapes,
+          groups: params.groups,
           background_color_index: params.backgroundColorIndex,
           updated_at: new Date().toISOString(),
         },

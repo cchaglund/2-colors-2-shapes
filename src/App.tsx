@@ -154,19 +154,41 @@ function App() {
     selectGroup,
     // External loading
     loadCanvasState,
-  } = useCanvasState(challenge);
+  } = useCanvasState(challenge, user?.id);
 
   // Sync artwork from server when user logs in
-  // This ensures seamless experience across devices - if user has submitted today,
-  // their submission is loaded into local storage (overwriting any local changes)
+  // Local storage is the source of truth only if it belongs to the same user
   useEffect(() => {
     if (!user?.id || !challenge || hasSyncedSubmissionRef.current) return;
 
     const syncSubmission = async () => {
+      // Check if we have local changes for today from the same user
+      const stored = localStorage.getItem('2colors2shapes_canvas');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          const isSameUser = parsed.userId === user.id;
+          const isSameDay = parsed.date === challenge.date;
+          const hasShapes = parsed.canvas?.shapes?.length > 0;
+
+          if (isSameDay && isSameUser && hasShapes) {
+            // Local storage has work for today from same user - keep it as source of truth
+            hasSyncedSubmissionRef.current = true;
+            return;
+          }
+        } catch {
+          // Invalid JSON, continue to load from DB
+        }
+      }
+
+      // No valid local work for today - load from DB if available
       const { data: submission } = await loadSubmission(challenge.date);
       if (submission) {
-        // User has a submission for today - load it into the canvas
-        loadCanvasState(submission.shapes, submission.background_color_index as 0 | 1 | null);
+        loadCanvasState(
+          submission.shapes,
+          submission.groups || [], // Handle old submissions without groups
+          submission.background_color_index as 0 | 1 | null
+        );
       }
       hasSyncedSubmissionRef.current = true;
     };
@@ -359,6 +381,7 @@ function App() {
     const result = await saveSubmission({
       challengeDate: challenge.date,
       shapes: canvasState.shapes,
+      groups: canvasState.groups,
       backgroundColorIndex: canvasState.backgroundColorIndex,
     });
     if (result.success) {
@@ -372,7 +395,7 @@ function App() {
     } else {
       setSaveStatus('error');
     }
-  }, [saveSubmission, challenge, canvasState.shapes, canvasState.backgroundColorIndex, user]);
+  }, [saveSubmission, challenge, canvasState.shapes, canvasState.groups, canvasState.backgroundColorIndex, user]);
 
   const backgroundColor =
     canvasState.backgroundColorIndex !== null && challenge
