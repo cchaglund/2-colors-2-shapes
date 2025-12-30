@@ -8,10 +8,8 @@
  * tests verify real component behavior.
  */
 
-import { useState, useMemo } from 'react';
-import { SubmissionThumbnail } from '../components/SubmissionThumbnail';
+import { useState } from 'react';
 import { WinnerAnnouncementModal } from '../components/WinnerAnnouncementModal';
-import { TrophyBadge } from '../components/TrophyBadge';
 import {
   VotingPairView,
   VotingConfirmation,
@@ -25,10 +23,8 @@ import {
   MOCK_TOP_THREE,
   MOCK_TIED_TOP_THREE,
   MOCK_THREE_WAY_TIE,
-  createMockSubmission,
 } from './mockData';
 import { calculateRequiredVotes, calculateTotalPairs } from '../utils/votingRules';
-import { generateDailyChallenge } from '../utils/dailyChallenge';
 import type { RankingEntry } from '../types';
 
 type TestScenario =
@@ -42,8 +38,7 @@ type TestScenario =
   | 'voting-bootstrap-one'
   | 'winner-normal'
   | 'winner-tied'
-  | 'winner-three-way'
-  | 'calendar-trophies';
+  | 'winner-three-way';
 
 interface ScenarioConfig {
   name: string;
@@ -94,10 +89,6 @@ const SCENARIOS: Record<TestScenario, ScenarioConfig> = {
   'winner-three-way': {
     name: 'Winner - Three-Way Tie',
     description: 'Winner announcement with three-way tie',
-  },
-  'calendar-trophies': {
-    name: 'Calendar with Trophies',
-    description: 'User calendar showing submissions with various trophy placements',
   },
 };
 
@@ -169,187 +160,6 @@ export function VotingTestPage() {
     setFlowHasEnteredRanking(false);
   };
 
-  // Mock calendar data - generate submissions for December 2024 with various trophy placements
-  const mockCalendarData = useMemo(() => {
-    const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const year = 2024;
-    const month = 11; // December (0-indexed)
-    const daysInMonth = 31;
-    const firstDayOfWeek = new Date(year, month, 1).getDay();
-
-    // Define which days have submissions and their ranks
-    const submissionDays: { day: number; rank: number | null; seed: number }[] = [
-      { day: 2, rank: 1, seed: 100 },   // Gold
-      { day: 5, rank: 2, seed: 101 },   // Silver
-      { day: 7, rank: null, seed: 102 }, // No rank (participated but not top 3)
-      { day: 9, rank: 3, seed: 103 },   // Bronze
-      { day: 11, rank: null, seed: 104 },
-      { day: 13, rank: 1, seed: 105 },  // Gold
-      { day: 15, rank: null, seed: 106 },
-      { day: 17, rank: 2, seed: 107 },  // Silver
-      { day: 18, rank: 1, seed: 108 },  // Gold (back to back!)
-      { day: 19, rank: 3, seed: 109 },  // Bronze
-      { day: 21, rank: null, seed: 110 },
-    ];
-
-    return {
-      year,
-      month,
-      daysInMonth,
-      firstDayOfWeek,
-      submissionDays,
-      DAYS_OF_WEEK,
-    };
-  }, []);
-
-  const renderCalendarWithTrophies = () => {
-    const { year, month, daysInMonth, firstDayOfWeek, submissionDays, DAYS_OF_WEEK } = mockCalendarData;
-    const submissionMap = new Map(submissionDays.map(s => [s.day, s]));
-    const today = 21; // Pretend today is Dec 21
-
-    // Build calendar grid
-    const calendarDays: (number | null)[] = [];
-    for (let i = 0; i < firstDayOfWeek; i++) {
-      calendarDays.push(null);
-    }
-    for (let day = 1; day <= daysInMonth; day++) {
-      calendarDays.push(day);
-    }
-
-    return (
-      <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-4xl shadow-xl">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-(--color-text-primary)">
-            My Submissions
-          </h2>
-          <button
-            className="p-2 rounded-md transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary)"
-            aria-label="Close calendar"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Month Navigation */}
-        <div className="flex items-center justify-between mb-4">
-          <button className="p-2 rounded-md bg-(--color-bg-tertiary) text-(--color-text-primary)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </button>
-          <div className="flex items-center gap-4">
-            <span className="text-lg font-medium text-(--color-text-primary)">
-              December {year}
-            </span>
-            <button className="px-3 py-1 rounded-md text-sm bg-(--color-bg-tertiary) text-(--color-text-secondary)">
-              Today
-            </button>
-          </div>
-          <button className="p-2 rounded-md bg-(--color-bg-tertiary) text-(--color-text-primary) opacity-30">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-1">
-          {/* Day headers */}
-          {DAYS_OF_WEEK.map((day) => (
-            <div key={day} className="text-center py-2 text-sm font-medium text-(--color-text-tertiary)">
-              {day}
-            </div>
-          ))}
-
-          {/* Calendar days */}
-          {calendarDays.map((day, index) => {
-            if (day === null) {
-              return <div key={`empty-${index}`} className="aspect-square" />;
-            }
-
-            const submission = submissionMap.get(day);
-            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const challenge = generateDailyChallenge(dateStr);
-            const isToday = day === today;
-            const isFuture = day > today;
-
-            return (
-              <div
-                key={day}
-                className={`
-                  aspect-square rounded-lg p-1 transition-all
-                  ${submission ? 'cursor-pointer hover:ring-2 hover:ring-blue-500' : ''}
-                  ${isFuture ? 'opacity-30' : ''}
-                  ${isToday ? 'ring-2 ring-blue-500' : ''}
-                `}
-                style={{
-                  backgroundColor: submission
-                    ? 'var(--color-bg-secondary)'
-                    : 'var(--color-bg-tertiary)',
-                }}
-              >
-                <div className="flex flex-col h-full">
-                  <span
-                    className={`text-xs font-medium ${isToday ? 'text-blue-500' : ''}`}
-                    style={{
-                      color: isToday
-                        ? undefined
-                        : submission
-                        ? 'var(--color-text-primary)'
-                        : 'var(--color-text-tertiary)',
-                    }}
-                  >
-                    {day}
-                  </span>
-                  <div className="flex-1 flex items-center justify-center relative">
-                    {submission ? (
-                      <>
-                        <SubmissionThumbnail
-                          shapes={createMockSubmission(`sub-${day}`, 'user-1', submission.seed).shapes}
-                          challenge={challenge}
-                          backgroundColorIndex={submission.seed % 3 === 0 ? 0 : submission.seed % 3 === 1 ? 1 : null}
-                          size={70}
-                        />
-                        {submission.rank !== null && submission.rank <= 3 && (
-                          <div className="absolute -top-1 -right-1">
-                            <TrophyBadge rank={submission.rank as 1 | 2 | 3} size="sm" />
-                          </div>
-                        )}
-                      </>
-                    ) : !isFuture ? (
-                      <div className="text-xs text-center text-(--color-text-tertiary)">
-                        No submission
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Stats */}
-        <div className="mt-6 pt-4 border-t border-(--color-border) flex items-center justify-between text-sm text-(--color-text-secondary)">
-          <span>Total submissions: {submissionDays.length}</span>
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1">
-              <TrophyBadge rank={1} size="sm" /> ×3
-            </span>
-            <span className="flex items-center gap-1">
-              <TrophyBadge rank={2} size="sm" /> ×2
-            </span>
-            <span className="flex items-center gap-1">
-              <TrophyBadge rank={3} size="sm" /> ×2
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   const renderDynamicThreshold = (submissionCount: number) => {
     const required = calculateRequiredVotes(submissionCount);
@@ -655,13 +465,6 @@ export function VotingTestPage() {
           </div>
         );
 
-      case 'calendar-trophies':
-        return (
-          <div className="flex items-center justify-center">
-            {renderCalendarWithTrophies()}
-          </div>
-        );
-
       default:
         return (
           <div className="text-center text-(--color-text-secondary)">
@@ -730,25 +533,6 @@ export function VotingTestPage() {
             </button>
           ))}
 
-          <h3 className="text-xs font-semibold text-(--color-text-secondary) uppercase tracking-wide mt-6 mb-2">
-            Calendar
-          </h3>
-          {(['calendar-trophies'] as TestScenario[]).map((scenario) => (
-            <button
-              key={scenario}
-              onClick={() => {
-                setActiveScenario(scenario);
-                setShowModal(false);
-              }}
-              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                activeScenario === scenario
-                  ? 'bg-blue-600 text-white'
-                  : 'text-(--color-text-primary) hover:bg-(--color-bg-secondary)'
-              }`}
-            >
-              {SCENARIOS[scenario].name}
-            </button>
-          ))}
         </div>
 
         <div className="mt-8 pt-4 border-t border-(--color-border)">

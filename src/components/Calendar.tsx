@@ -623,12 +623,36 @@ export function Calendar({ onClose }: CalendarProps) {
           {effectiveViewMode === 'my-submissions' ? (
             <>
               <span>Total submissions: {submissions.length}</span>
-              {submissions.length > 0 && (
-                <span>
-                  First submission:{' '}
-                  {new Date(submissions[submissions.length - 1].challenge_date).toLocaleDateString()}
-                </span>
-              )}
+              {submissions.length > 0 && (() => {
+                // Count trophies by rank
+                const trophyCounts = { 1: 0, 2: 0, 3: 0 };
+                rankings.forEach((rank) => {
+                  if (rank >= 1 && rank <= 3) {
+                    trophyCounts[rank as 1 | 2 | 3]++;
+                  }
+                });
+                const hasTrophies = trophyCounts[1] > 0 || trophyCounts[2] > 0 || trophyCounts[3] > 0;
+
+                return hasTrophies ? (
+                  <div className="flex items-center gap-4">
+                    {trophyCounts[1] > 0 && (
+                      <span className="flex items-center gap-1">
+                        <TrophyBadge rank={1} size="sm" /> ×{trophyCounts[1]}
+                      </span>
+                    )}
+                    {trophyCounts[2] > 0 && (
+                      <span className="flex items-center gap-1">
+                        <TrophyBadge rank={2} size="sm" /> ×{trophyCounts[2]}
+                      </span>
+                    )}
+                    {trophyCounts[3] > 0 && (
+                      <span className="flex items-center gap-1">
+                        <TrophyBadge rank={3} size="sm" /> ×{trophyCounts[3]}
+                      </span>
+                    )}
+                  </div>
+                ) : null;
+              })()}
             </>
           ) : (
             <>
