@@ -3,7 +3,7 @@ import type { VotingOptInPromptProps } from './types';
 export function VotingOptInPrompt({ variant, onOptIn, onSkip }: VotingOptInPromptProps) {
   const message =
     variant === 'zero'
-      ? 'There were no submissions yesterday to vote on. Would you like your artwork to be included in tomorrow\'s voting?'
+      ? 'There were too few submissions yesterday to vote on. Would you like your artwork to be included in tomorrow\'s voting?'
       : 'There was only 1 submission yesterday, so there\'s nothing to vote on yet. Would you like your artwork to be included in tomorrow\'s voting?';
 
   return (

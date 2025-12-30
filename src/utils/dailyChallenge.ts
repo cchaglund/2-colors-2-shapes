@@ -58,17 +58,59 @@ function generateColor(random: () => number): string {
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
-function colorDistance(color1: string, color2: string): number {
-  const parseHSL = (hsl: string) => {
-    const match = hsl.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
-    if (!match) return { h: 0, s: 0, l: 0 };
-    return {
-      h: parseInt(match[1]),
-      s: parseInt(match[2]),
-      l: parseInt(match[3]),
-    };
+function parseHSL(hsl: string): { h: number; s: number; l: number } {
+  const match = hsl.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+  if (!match) return { h: 0, s: 0, l: 0 };
+  return {
+    h: parseInt(match[1]),
+    s: parseInt(match[2]),
+    l: parseInt(match[3]),
   };
+}
 
+function hslToRgb(h: number, s: number, l: number): { r: number; g: number; b: number } {
+  s /= 100;
+  l /= 100;
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = l - c / 2;
+
+  let r = 0, g = 0, b = 0;
+  if (h < 60) { r = c; g = x; b = 0; }
+  else if (h < 120) { r = x; g = c; b = 0; }
+  else if (h < 180) { r = 0; g = c; b = x; }
+  else if (h < 240) { r = 0; g = x; b = c; }
+  else if (h < 300) { r = x; g = 0; b = c; }
+  else { r = c; g = 0; b = x; }
+
+  return {
+    r: Math.round((r + m) * 255),
+    g: Math.round((g + m) * 255),
+    b: Math.round((b + m) * 255),
+  };
+}
+
+function getRelativeLuminance(r: number, g: number, b: number): number {
+  const [rs, gs, bs] = [r, g, b].map((c) => {
+    const sRGB = c / 255;
+    return sRGB <= 0.03928 ? sRGB / 12.92 : Math.pow((sRGB + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+}
+
+function getContrastRatio(color1: string, color2: string): number {
+  const c1 = parseHSL(color1);
+  const c2 = parseHSL(color2);
+  const rgb1 = hslToRgb(c1.h, c1.s, c1.l);
+  const rgb2 = hslToRgb(c2.h, c2.s, c2.l);
+  const l1 = getRelativeLuminance(rgb1.r, rgb1.g, rgb1.b);
+  const l2 = getRelativeLuminance(rgb2.r, rgb2.g, rgb2.b);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function colorDistance(color1: string, color2: string): number {
   const c1 = parseHSL(color1);
   const c2 = parseHSL(color2);
 
@@ -84,18 +126,34 @@ function colorDistance(color1: string, color2: string): number {
 
 function generateDistinctColors(random: () => number): [string, string] {
   const minDistance = 80;
+  const minContrastRatio = 3.0; // WCAG AA for large graphical objects
+  const minHueDiff = 30; // Ensure colors look distinctly different
 
   for (let i = 0; i < 100; i++) {
     const color1 = generateColor(random);
     const color2 = generateColor(random);
-    if (colorDistance(color1, color2) >= minDistance) {
-      return [color1, color2];
-    }
+
+    // Check perceptual distance
+    if (colorDistance(color1, color2) < minDistance) continue;
+
+    // Check WCAG contrast ratio
+    if (getContrastRatio(color1, color2) < minContrastRatio) continue;
+
+    // Check hue difference to avoid colors that look too similar
+    const c1 = parseHSL(color1);
+    const c2 = parseHSL(color2);
+    let hueDiff = Math.abs(c1.h - c2.h);
+    if (hueDiff > 180) hueDiff = 360 - hueDiff;
+    if (hueDiff < minHueDiff) continue;
+
+    return [color1, color2];
   }
 
+  // Fallback: generate complementary colors with good contrast
   const hue = Math.floor(random() * 360);
   const sat = 60 + Math.floor(random() * 30);
-  return [`hsl(${hue}, ${sat}%, 45%)`, `hsl(${(hue + 180) % 360}, ${sat}%, 55%)`];
+  // Use significantly different lightness values to ensure contrast
+  return [`hsl(${hue}, ${sat}%, 35%)`, `hsl(${(hue + 180) % 360}, ${sat}%, 65%)`];
 }
 
 const ALL_SHAPES: ShapeType[] = [
