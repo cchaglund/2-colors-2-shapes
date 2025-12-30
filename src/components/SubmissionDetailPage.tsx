@@ -71,19 +71,32 @@ function SubmissionCanvas({
 
 export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPageProps) {
   const { user } = useAuth();
-  const { loadSubmission } = useSubmissions(user?.id);
+  const { loadSubmission, getAdjacentSubmissionDates } = useSubmissions(user?.id);
   const { fetchSubmissionRank } = useRanking();
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [loading, setLoading] = useState(true);
   const [rankInfo, setRankInfo] = useState<{ rank: number; total: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [adjacentDates, setAdjacentDates] = useState<{ prev: string | null; next: string | null }>({ prev: null, next: null });
   const svgRef = useRef<SVGSVGElement>(null);
+  // Track what we've loaded to prevent duplicate fetches
+  const loadedForRef = useRef<string | null>(null);
 
   // Determine the challenge date from either prop or loaded submission
+  // Hook now handles empty string gracefully (returns null without fetching)
   const challengeDate = date || submission?.challenge_date || '';
   const { challenge } = useDailyChallenge(challengeDate);
 
   useEffect(() => {
+    // Create a unique key for what we're loading
+    const loadKey = submissionId || (date && user?.id ? `${date}-${user.id}` : null);
+
+    // Skip if we've already loaded this exact thing, or if we can't load yet
+    if (!loadKey || loadedForRef.current === loadKey) return;
+
+    // Mark as loading immediately to prevent duplicate fetches (important for StrictMode)
+    loadedForRef.current = loadKey;
+
     const loadData = async () => {
       setLoading(true);
       setError(null);
@@ -99,38 +112,61 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
 
           if (fetchError) {
             setError(fetchError.message);
+            loadedForRef.current = null; // Reset on error to allow retry
           } else {
             setSubmission(data as Submission);
             // Fetch ranking info
             if (data?.id) {
-              const info = await fetchSubmissionRank(data.id);
-              setRankInfo(info);
+              const { data: rankingData } = await supabase
+                .from('daily_rankings')
+                .select('final_rank, challenge_date')
+                .eq('submission_id', data.id)
+                .maybeSingle();
+
+              if (rankingData?.final_rank) {
+                const { count } = await supabase
+                  .from('daily_rankings')
+                  .select('*', { count: 'exact', head: true })
+                  .eq('challenge_date', rankingData.challenge_date);
+
+                setRankInfo({
+                  rank: rankingData.final_rank,
+                  total: count ?? 0,
+                });
+              }
             }
           }
         } else if (date && user) {
           // Load user's own submission by date
-          const { data, error: fetchError } = await loadSubmission(date);
+          const { data: submissionData, error: fetchError } = await loadSubmission(date);
           if (fetchError) {
             setError(fetchError);
+            loadedForRef.current = null; // Reset on error to allow retry
           } else {
-            setSubmission(data);
-            if (data?.id) {
-              const info = await fetchSubmissionRank(data.id);
+            setSubmission(submissionData);
+            if (submissionData?.id) {
+              const info = await fetchSubmissionRank(submissionData.id);
               setRankInfo(info);
             }
           }
+          // Fetch adjacent submission dates for navigation
+          const adjacent = await getAdjacentSubmissionDates(date);
+          setAdjacentDates(adjacent);
         } else if (date && !user) {
           setError('Please sign in to view this submission.');
         }
-      } catch (err) {
+      } catch (err: any) {
+        console.error('Error loading submission:', err);
         setError('Failed to load submission');
+        loadedForRef.current = null; // Reset on error to allow retry
       }
 
       setLoading(false);
     };
 
     loadData();
-  }, [user, date, submissionId, loadSubmission, fetchSubmissionRank]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [submissionId, date, user?.id]);
 
   const downloadSVG = useCallback(() => {
     if (!svgRef.current || !challengeDate) return;
@@ -260,25 +296,90 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <a
-            href="/"
-            className="inline-flex items-center gap-1 text-sm mb-4 hover:underline"
-            style={{ color: 'var(--color-text-secondary)' }}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          <div className="flex items-center justify-between mb-4">
+            <a
+              href="/"
+              className="inline-flex items-center gap-1 text-sm hover:underline"
+              style={{ color: 'var(--color-text-secondary)' }}
             >
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-            Back to app
-          </a>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+              Back to app
+            </a>
+            {/* Navigation buttons - only show when viewing by date (own submissions) */}
+            {date && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    if (adjacentDates.prev) {
+                      const url = new URL(window.location.href);
+                      url.searchParams.set('date', adjacentDates.prev);
+                      window.location.href = url.toString();
+                    }
+                  }}
+                  disabled={!adjacentDates.prev}
+                  className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1"
+                  style={{
+                    backgroundColor: 'var(--color-bg-tertiary)',
+                    color: 'var(--color-text-primary)',
+                  }}
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="15 18 9 12 15 6" />
+                  </svg>
+                  Previous
+                </button>
+                <button
+                  onClick={() => {
+                    if (adjacentDates.next) {
+                      const url = new URL(window.location.href);
+                      url.searchParams.set('date', adjacentDates.next);
+                      window.location.href = url.toString();
+                    }
+                  }}
+                  disabled={!adjacentDates.next}
+                  className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1"
+                  style={{
+                    backgroundColor: 'var(--color-bg-tertiary)',
+                    color: 'var(--color-text-primary)',
+                  }}
+                >
+                  Next
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
           <h1
             className="text-2xl font-bold mb-2"
             style={{ color: 'var(--color-text-primary)' }}
@@ -354,18 +455,34 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
                   Shapes
                 </span>
                 <div className="flex flex-wrap gap-2 mt-1">
-                  {challenge.shapes.map((shapeData, i) => (
-                    <span
-                      key={i}
-                      className="px-2 py-1 rounded-md text-sm"
-                      style={{
-                        backgroundColor: 'var(--color-bg-tertiary)',
-                        color: 'var(--color-text-primary)',
-                      }}
-                    >
-                      {shapeData.name}
-                    </span>
-                  ))}
+                  {challenge.shapes.map((shapeData, i) => {
+                    const { element, props } = getShapeSVGData(shapeData.type, 32);
+                    return (
+                      <div
+                        key={i}
+                        className="rounded-md p-1 flex items-center justify-center"
+                        style={{
+                          backgroundColor: 'var(--color-bg-tertiary)',
+                        }}
+                        title={shapeData.name}
+                      >
+                        <svg width={40} height={40} viewBox="0 0 32 32">
+                          {element === 'ellipse' && (
+                            <ellipse {...props} fill="var(--color-text-primary)" />
+                          )}
+                          {element === 'rect' && (
+                            <rect {...props} fill="var(--color-text-primary)" />
+                          )}
+                          {element === 'polygon' && (
+                            <polygon {...props} fill="var(--color-text-primary)" />
+                          )}
+                          {element === 'path' && (
+                            <path {...props} fill="var(--color-text-primary)" />
+                          )}
+                        </svg>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

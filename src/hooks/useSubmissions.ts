@@ -116,5 +116,47 @@ export function useSubmissions(userId: string | undefined, todayDate?: string) {
     return { data: (data as Submission[]) ?? [] };
   }, [userId]);
 
-  return { saveSubmission, loadSubmission, loadMySubmissions, saving, loading, hasSubmittedToday };
+  const getAdjacentSubmissionDates = useCallback(
+    async (
+      currentDate: string
+    ): Promise<{ prev: string | null; next: string | null }> => {
+      if (!userId) return { prev: null, next: null };
+
+      // Get the previous submission (closest date before currentDate)
+      const { data: prevData } = await supabase
+        .from('submissions')
+        .select('challenge_date')
+        .eq('user_id', userId)
+        .lt('challenge_date', currentDate)
+        .order('challenge_date', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      // Get the next submission (closest date after currentDate)
+      const { data: nextData } = await supabase
+        .from('submissions')
+        .select('challenge_date')
+        .eq('user_id', userId)
+        .gt('challenge_date', currentDate)
+        .order('challenge_date', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      return {
+        prev: prevData?.challenge_date ?? null,
+        next: nextData?.challenge_date ?? null,
+      };
+    },
+    [userId]
+  );
+
+  return {
+    saveSubmission,
+    loadSubmission,
+    loadMySubmissions,
+    getAdjacentSubmissionDates,
+    saving,
+    loading,
+    hasSubmittedToday,
+  };
 }

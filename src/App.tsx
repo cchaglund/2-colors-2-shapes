@@ -9,6 +9,7 @@ import { OnboardingModal } from './components/OnboardingModal';
 import { WelcomeModal } from './components/WelcomeModal';
 import { Calendar } from './components/Calendar';
 import { SubmissionDetailPage } from './components/SubmissionDetailPage';
+import { WinnersDayPage } from './components/WinnersDayPage';
 import { KeyboardSettingsModal } from './components/KeyboardSettingsModal';
 import { VotingModal } from './components/voting';
 import { WinnerAnnouncementModal } from './components/WinnerAnnouncementModal';
@@ -70,11 +71,25 @@ function isDashboardEnabled(): boolean {
   return urlParams.get('view') === 'dashboard';
 }
 
+// Check if winners-day view is requested
+function getWinnersDayView(): { view: 'winners-day'; date: string } | null {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('view') === 'winners-day') {
+    const date = urlParams.get('date');
+    if (date) {
+      return { view: 'winners-day', date };
+    }
+  }
+  return null;
+}
+
 function App() {
   // Check if Shape Explorer mode should be shown
   const showExplorer = useMemo(() => isShapeExplorerEnabled(), []);
   // Check if submission detail view is requested
   const submissionView = useMemo(() => getSubmissionView(), []);
+  // Check if winners-day view is requested
+  const winnersDayView = useMemo(() => getWinnersDayView(), []);
   // Check if voting test page should be shown
   const showVotingTest = useMemo(() => isVotingTestEnabled(), []);
   // Check if dashboard should be shown
@@ -427,6 +442,11 @@ function App() {
   // Render Dashboard if enabled
   if (showDashboard) {
     return <Dashboard />;
+  }
+
+  // Render Winners Day Page if viewing rankings for a day
+  if (winnersDayView) {
+    return <WinnersDayPage date={winnersDayView.date} />;
   }
 
   // Render Submission Detail Page if viewing a submission

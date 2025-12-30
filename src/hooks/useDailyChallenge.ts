@@ -116,6 +116,13 @@ export function useDailyChallenge(
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const fetchChallenge = useCallback(async () => {
+    // Skip fetching if date is empty/invalid
+    if (!date) {
+      setChallenge(null);
+      setLoading(false);
+      return;
+    }
+
     // Check cache
     if (challengeCache.has(date)) {
       setChallenge(challengeCache.get(date)!);

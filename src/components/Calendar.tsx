@@ -265,12 +265,12 @@ export function Calendar({ onClose }: CalendarProps) {
         window.open(url.toString(), '_blank');
       }
     } else {
-      // Winners mode - open the first winner's submission
+      // Winners mode - open the winners day page showing all rankings
       const dayWinners = winnersByDate.get(dateStr);
       if (dayWinners && dayWinners.length > 0) {
         const url = new URL(window.location.href);
-        url.searchParams.set('view', 'submission');
-        url.searchParams.set('id', dayWinners[0].submission_id);
+        url.searchParams.set('view', 'winners-day');
+        url.searchParams.set('date', dateStr);
         window.open(url.toString(), '_blank');
       }
     }
