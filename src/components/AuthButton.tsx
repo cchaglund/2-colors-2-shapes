@@ -32,7 +32,7 @@ export function AuthButton({ profile, profileLoading = false }: AuthButtonProps)
         </span>
         <button
           onClick={signOut}
-          className="text-xs text-(--color-text-secondary) hover:text-(--color-text-primary) transition-colors"
+          className="cursor-pointer text-xs text-(--color-text-secondary) hover:text-(--color-text-primary) transition-colors"
         >
           Sign out
         </button>

@@ -5,6 +5,7 @@ import { getTodayDate, getTwoDaysAgoDate } from '../utils/dailyChallenge';
 import { fetchChallengesBatch, getChallengeSync } from '../hooks/useDailyChallenge';
 import { SubmissionThumbnail } from './SubmissionThumbnail';
 import { TrophyBadge } from './TrophyBadge';
+import { ChallengeShapeIndicators } from './ChallengeShapeIndicators';
 import { supabase } from '../lib/supabase';
 import type { Shape, DailyChallenge } from '../types';
 
@@ -496,37 +497,43 @@ export function Calendar({ onClose }: CalendarProps) {
                     }}
                   >
                     <div className="flex flex-col h-full">
-                      <span
-                        className={`text-xs font-medium ${isToday ? 'text-blue-500' : ''}`}
-                        style={{
-                          color: isToday
-                            ? undefined
-                            : submission
-                            ? 'var(--color-text-primary)'
-                            : 'var(--color-text-tertiary)',
-                        }}
-                      >
-                        {day}
-                      </span>
-                      <div className="flex-1 flex items-center justify-center relative">
-                        {submission ? (
-                          <>
-                            <SubmissionThumbnail
-                              shapes={submission.shapes}
-                              challenge={challenge}
-                              backgroundColorIndex={submission.background_color_index}
-                              size={70}
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={`text-xs font-medium ${isToday ? 'text-blue-500' : ''}`}
+                          style={{
+                            color: isToday
+                              ? undefined
+                              : submission
+                              ? 'var(--color-text-primary)'
+                              : 'var(--color-text-tertiary)',
+                          }}
+                        >
+                          {day}
+                        </span>
+                        {submission && challenge && (
+                          <div className="flex w-full px-2 justify-between items-center gap-1">
+                            <ChallengeShapeIndicators
+                              shapes={challenge.shapes}
+                              size={14}
                             />
                             {rankings.get(submission.id) !== undefined &&
                               rankings.get(submission.id)! <= 3 && (
-                                <div className="absolute -top-1 -right-1">
-                                  <TrophyBadge
-                                    rank={rankings.get(submission.id) as 1 | 2 | 3}
-                                    size="sm"
-                                  />
-                                </div>
+                                <TrophyBadge
+                                  rank={rankings.get(submission.id) as 1 | 2 | 3}
+                                  size="sm"
+                                />
                               )}
-                          </>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 flex items-center justify-center">
+                        {submission ? (
+                          <SubmissionThumbnail
+                            shapes={submission.shapes}
+                            challenge={challenge}
+                            backgroundColorIndex={submission.background_color_index}
+                            size={60}
+                          />
                         ) : !isFuture ? (
                           <div
                             className="text-xs text-center"
