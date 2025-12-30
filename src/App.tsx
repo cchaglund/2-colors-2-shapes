@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { Canvas } from './components/Canvas';
 import { Toolbar } from './components/Toolbar';
 import { LayerPanel } from './components/LayerPanel';
@@ -14,6 +14,7 @@ import { WinnersDayPage } from './components/WinnersDayPage';
 import { KeyboardSettingsModal } from './components/KeyboardSettingsModal';
 import { VotingModal } from './components/voting';
 import { WinnerAnnouncementModal } from './components/WinnerAnnouncementModal';
+import { ResetConfirmModal } from './components/ResetConfirmModal';
 import { VotingTestPage } from './test/VotingTestPage';
 import { Dashboard } from './components/Dashboard';
 import { useCanvasState } from './hooks/useCanvasState';
@@ -27,90 +28,39 @@ import { useSubmissions } from './hooks/useSubmissions';
 import { useWelcomeModal } from './hooks/useWelcomeModal';
 import { useKeyboardSettings } from './hooks/useKeyboardSettings';
 import { useWinnerAnnouncement } from './hooks/useWinnerAnnouncement';
+import { useShapeActions } from './hooks/useShapeActions';
+import { useBackgroundPanning } from './hooks/useBackgroundPanning';
+import { useSaveSubmission } from './hooks/useSaveSubmission';
+import { useSubmissionSync } from './hooks/useSubmissionSync';
 import { getTodayDate, getYesterdayDate } from './utils/dailyChallenge';
 import { useDailyChallenge } from './hooks/useDailyChallenge';
-
-const CANVAS_SIZE = 800;
-
-// Check if Shape Explorer mode is enabled via URL parameter or environment variable
-function isShapeExplorerEnabled(): boolean {
-  // Check URL parameter: ?explorer or ?explorer=true
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.has('explorer')) {
-    const value = urlParams.get('explorer');
-    return value === null || value === '' || value === 'true';
-  }
-  // Check environment variable
-  return import.meta.env.VITE_SHAPE_EXPLORER === 'true';
-}
-
-// Check if submission detail view is requested
-function getSubmissionView(): { view: 'submission'; date: string } | { view: 'submission'; id: string } | null {
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('view') === 'submission') {
-    const id = urlParams.get('id');
-    if (id) {
-      return { view: 'submission', id };
-    }
-    const date = urlParams.get('date');
-    if (date) {
-      return { view: 'submission', date };
-    }
-  }
-  return null;
-}
-
-// Check if voting test page is requested
-function isVotingTestEnabled(): boolean {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get('test') === 'voting';
-}
-
-// Check if dashboard view is requested
-function isDashboardEnabled(): boolean {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get('view') === 'dashboard';
-}
-
-// Check if color tester is requested
-function isColorTesterEnabled(): boolean {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.has('colors');
-}
-
-// Check if winners-day view is requested
-function getWinnersDayView(): { view: 'winners-day'; date: string } | null {
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('view') === 'winners-day') {
-    const date = urlParams.get('date');
-    if (date) {
-      return { view: 'winners-day', date };
-    }
-  }
-  return null;
-}
+import {
+  isShapeExplorerEnabled,
+  getSubmissionView,
+  isVotingTestEnabled,
+  isDashboardEnabled,
+  isColorTesterEnabled,
+  getWinnersDayView,
+} from './utils/urlParams';
 
 function App() {
-  // Check if Shape Explorer mode should be shown
+  // Check URL-based view modes
   const showExplorer = useMemo(() => isShapeExplorerEnabled(), []);
-  // Check if submission detail view is requested
   const submissionView = useMemo(() => getSubmissionView(), []);
-  // Check if winners-day view is requested
   const winnersDayView = useMemo(() => getWinnersDayView(), []);
-  // Check if voting test page should be shown
   const showVotingTest = useMemo(() => isVotingTestEnabled(), []);
-  // Check if dashboard should be shown
   const showDashboard = useMemo(() => isDashboardEnabled(), []);
-  // Check if color tester should be shown
   const showColorTester = useMemo(() => isColorTesterEnabled(), []);
-  // Calendar modal state
+
+  // Modal states
   const [showCalendar, setShowCalendar] = useState(false);
-  // Keyboard settings modal state
   const [showKeyboardSettings, setShowKeyboardSettings] = useState(false);
-  // Voting modal state
   const [showVotingModal, setShowVotingModal] = useState(false);
-  // Welcome modal for first-time visitors
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
   const { isOpen: showWelcome, dismiss: dismissWelcome } = useWelcomeModal();
+
+  // Refs
+  const mainRef = useRef<HTMLElement>(null);
 
   // Fetch today's challenge from server
   const todayDate = useMemo(() => getTodayDate(), []);
@@ -120,7 +70,6 @@ function App() {
   const { user } = useAuth();
   const { profile, loading: profileLoading, updateNickname } = useProfile(user?.id);
   const { saveSubmission, loadSubmission, saving, hasSubmittedToday } = useSubmissions(user?.id, todayDate);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle');
 
   // Winner announcement for yesterday's results
   const {
@@ -142,14 +91,7 @@ function App() {
     syncing: keyboardSyncing,
   } = useKeyboardSettings(user?.id);
 
-  const [showResetConfirm, setShowResetConfirm] = useState(false);
-  const [isBackgroundPanning, setIsBackgroundPanning] = useState(false);
-  const mainRef = useRef<HTMLElement>(null);
-  const panStartRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
-
-  // Track if we've synced the submission for this session to avoid repeated syncs
-  const hasSyncedSubmissionRef = useRef(false);
-
+  // Canvas state
   const {
     canvasState,
     addShape,
@@ -169,57 +111,24 @@ function App() {
     redo,
     canUndo,
     canRedo,
-    // Group management
     createGroup,
     deleteGroup,
     ungroupShapes,
     renameGroup,
     toggleGroupCollapsed,
     selectGroup,
-    // External loading
     loadCanvasState,
   } = useCanvasState(challenge, user?.id);
 
-  // Sync artwork from server when user logs in
-  // Local storage is the source of truth only if it belongs to the same user
-  useEffect(() => {
-    if (!user?.id || !challenge || hasSyncedSubmissionRef.current) return;
+  // Sync submission from server
+  useSubmissionSync({
+    userId: user?.id,
+    challenge,
+    loadSubmission,
+    loadCanvasState,
+  });
 
-    const syncSubmission = async () => {
-      // Check if we have local changes for today from the same user
-      const stored = localStorage.getItem('2colors2shapes_canvas');
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          const isSameUser = parsed.userId === user.id;
-          const isSameDay = parsed.date === challenge.date;
-          const hasShapes = parsed.canvas?.shapes?.length > 0;
-
-          if (isSameDay && isSameUser && hasShapes) {
-            // Local storage has work for today from same user - keep it as source of truth
-            hasSyncedSubmissionRef.current = true;
-            return;
-          }
-        } catch {
-          // Invalid JSON, continue to load from DB
-        }
-      }
-
-      // No valid local work for today - load from DB if available
-      const { data: submission } = await loadSubmission(challenge.date);
-      if (submission) {
-        loadCanvasState(
-          submission.shapes,
-          submission.groups || [], // Handle old submissions without groups
-          submission.background_color_index as 0 | 1 | null
-        );
-      }
-      hasSyncedSubmissionRef.current = true;
-    };
-
-    syncSubmission();
-  }, [user?.id, challenge, loadSubmission, loadCanvasState]);
-
+  // Viewport state
   const {
     viewport,
     setZoom,
@@ -231,6 +140,7 @@ function App() {
     maxZoom,
   } = useViewportState();
 
+  // Sidebar state
   const {
     leftOpen,
     rightOpen,
@@ -242,16 +152,49 @@ function App() {
     startResizeRight,
   } = useSidebarState();
 
-  const {
-    mode: themeMode,
-    setMode: setThemeMode,
-  } = useThemeState();
+  // Theme state
+  const { mode: themeMode, setMode: setThemeMode } = useThemeState();
 
-  const {
-    showGrid,
-    toggleGrid,
-  } = useGridState();
+  // Grid state
+  const { showGrid, toggleGrid } = useGridState();
 
+  // Shape actions (move, rotate, resize, mirror, duplicate)
+  const {
+    handleMoveShapes,
+    handleRotateShapes,
+    handleDuplicate,
+    handleMirrorHorizontal,
+    handleMirrorVertical,
+    handleResizeShapes,
+  } = useShapeActions({
+    shapes: canvasState.shapes,
+    selectedShapeIds: canvasState.selectedShapeIds,
+    updateShapes,
+    duplicateShapes,
+    mirrorHorizontal,
+    mirrorVertical,
+  });
+
+  // Background panning
+  const { isBackgroundPanning, handleBackgroundMouseDown } = useBackgroundPanning({
+    mainRef,
+    panX: viewport.panX,
+    panY: viewport.panY,
+    setPan,
+  });
+
+  // Save submission
+  const { saveStatus, handleSave } = useSaveSubmission({
+    challenge,
+    shapes: canvasState.shapes,
+    groups: canvasState.groups,
+    backgroundColorIndex: canvasState.backgroundColorIndex,
+    user,
+    saveSubmission,
+    onSaveSuccess: () => setShowVotingModal(true),
+  });
+
+  // Zoom handlers
   const handleZoomIn = useCallback(() => {
     setZoom(viewport.zoom + 0.1);
   }, [viewport.zoom, setZoom]);
@@ -260,167 +203,15 @@ function App() {
     setZoom(viewport.zoom - 0.1);
   }, [viewport.zoom, setZoom]);
 
-  // Movement and rotation handlers for ActionToolbar
-  const selectedShapes = useMemo(
-    () => canvasState.shapes.filter((s) => canvasState.selectedShapeIds.has(s.id)),
-    [canvasState.shapes, canvasState.selectedShapeIds]
-  );
-
-  const handleMoveShapes = useCallback(
-    (dx: number, dy: number) => {
-      if (selectedShapes.length === 0) return;
-      const updates = new Map<string, { x: number; y: number }>();
-      selectedShapes.forEach((shape) => {
-        updates.set(shape.id, { x: shape.x + dx, y: shape.y + dy });
-      });
-      updateShapes(updates);
-    },
-    [selectedShapes, updateShapes]
-  );
-
-  const handleRotateShapes = useCallback(
-    (dRotation: number) => {
-      if (selectedShapes.length === 0) return;
-      const updates = new Map<string, { rotation: number }>();
-      selectedShapes.forEach((shape) => {
-        updates.set(shape.id, { rotation: shape.rotation + dRotation });
-      });
-      updateShapes(updates);
-    },
-    [selectedShapes, updateShapes]
-  );
-
-  const handleDuplicate = useCallback(() => {
-    if (canvasState.selectedShapeIds.size === 0) return;
-    duplicateShapes(Array.from(canvasState.selectedShapeIds));
-  }, [canvasState.selectedShapeIds, duplicateShapes]);
-
-  const handleMirrorHorizontal = useCallback(() => {
-    if (canvasState.selectedShapeIds.size === 0) return;
-    mirrorHorizontal(Array.from(canvasState.selectedShapeIds));
-  }, [canvasState.selectedShapeIds, mirrorHorizontal]);
-
-  const handleMirrorVertical = useCallback(() => {
-    if (canvasState.selectedShapeIds.size === 0) return;
-    mirrorVertical(Array.from(canvasState.selectedShapeIds));
-  }, [canvasState.selectedShapeIds, mirrorVertical]);
-
-  // Resize from center - adjust position to keep center fixed
-  const handleResizeShapes = useCallback(
-    (delta: number) => {
-      if (selectedShapes.length === 0) return;
-      const updates = new Map<string, { size: number; x: number; y: number }>();
-      selectedShapes.forEach((shape) => {
-        const newSize = Math.max(10, shape.size + delta); // Minimum size of 10
-        const sizeDiff = newSize - shape.size;
-        // Adjust position to keep center fixed (shape position is top-left corner)
-        updates.set(shape.id, {
-          size: newSize,
-          x: shape.x - sizeDiff / 2,
-          y: shape.y - sizeDiff / 2,
-        });
-      });
-      updateShapes(updates);
-    },
-    [selectedShapes, updateShapes]
-  );
-
-  // Get client coordinates relative to the main element, normalized to canvas size
-  const getClientPoint = useCallback(
-    (clientX: number, clientY: number) => {
-      if (!mainRef.current) return { x: 0, y: 0 };
-      const canvasElement = mainRef.current.querySelector('svg');
-      if (!canvasElement) return { x: 0, y: 0 };
-      const rect = canvasElement.getBoundingClientRect();
-      return {
-        x: ((clientX - rect.left) / rect.width) * CANVAS_SIZE,
-        y: ((clientY - rect.top) / rect.height) * CANVAS_SIZE,
-      };
-    },
-    []
-  );
-
-  // Handle background panning (clicking on checkerboard area)
-  const handleBackgroundMouseDown = useCallback(
-    (e: React.MouseEvent<HTMLElement>) => {
-      // Only trigger if clicking directly on the main element (the checkerboard background)
-      // or the wrapper div, not on the canvas itself
-      if (e.target === mainRef.current || (e.target as HTMLElement).classList.contains('canvas-wrapper')) {
-        e.preventDefault();
-        setIsBackgroundPanning(true);
-        const point = getClientPoint(e.clientX, e.clientY);
-        panStartRef.current = {
-          x: point.x,
-          y: point.y,
-          panX: viewport.panX,
-          panY: viewport.panY,
-        };
-      }
-    },
-    [getClientPoint, viewport.panX, viewport.panY]
-  );
-
-  // Handle background panning mouse move and mouse up
-  useEffect(() => {
-    if (!isBackgroundPanning) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isBackgroundPanning || !panStartRef.current) return;
-      const point = getClientPoint(e.clientX, e.clientY);
-      const dx = point.x - panStartRef.current.x;
-      const dy = point.y - panStartRef.current.y;
-      setPan(panStartRef.current.panX + dx, panStartRef.current.panY + dy);
-    };
-
-    const handleMouseUp = () => {
-      setIsBackgroundPanning(false);
-      panStartRef.current = null;
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isBackgroundPanning, getClientPoint, setPan]);
-
-  const handleReset = () => {
-    setShowResetConfirm(true);
-  };
-
+  // Reset handlers
+  const handleReset = () => setShowResetConfirm(true);
   const confirmReset = () => {
     resetCanvas();
     setShowResetConfirm(false);
   };
+  const cancelReset = () => setShowResetConfirm(false);
 
-  const cancelReset = () => {
-    setShowResetConfirm(false);
-  };
-
-  const handleSave = useCallback(async () => {
-    if (!challenge) return;
-    setSaveStatus('idle');
-    const result = await saveSubmission({
-      challengeDate: challenge.date,
-      shapes: canvasState.shapes,
-      groups: canvasState.groups,
-      backgroundColorIndex: canvasState.backgroundColorIndex,
-    });
-    if (result.success) {
-      setSaveStatus('saved');
-      // Reset to idle after 2 seconds
-      setTimeout(() => setSaveStatus('idle'), 2000);
-      // Show voting modal if user is logged in
-      if (user) {
-        setShowVotingModal(true);
-      }
-    } else {
-      setSaveStatus('error');
-    }
-  }, [saveSubmission, challenge, canvasState.shapes, canvasState.groups, canvasState.backgroundColorIndex, user]);
-
+  // Computed values
   const backgroundColor =
     canvasState.backgroundColorIndex !== null && challenge
       ? challenge.colors[canvasState.backgroundColorIndex]
@@ -438,32 +229,12 @@ function App() {
     );
   }
 
-  // Render Shape Explorer if enabled
-  if (showExplorer) {
-    return <ShapeExplorer />;
-  }
-
-  // Render Voting Test Page if enabled
-  if (showVotingTest) {
-    return <VotingTestPage />;
-  }
-
-  // Render Dashboard if enabled
-  if (showDashboard) {
-    return <Dashboard />;
-  }
-
-  // Render Color Tester if enabled
-  if (showColorTester) {
-    return <ColorTester />;
-  }
-
-  // Render Winners Day Page if viewing rankings for a day
-  if (winnersDayView) {
-    return <WinnersDayPage date={winnersDayView.date} />;
-  }
-
-  // Render Submission Detail Page if viewing a submission
+  // Render special pages based on URL params
+  if (showExplorer) return <ShapeExplorer />;
+  if (showVotingTest) return <VotingTestPage />;
+  if (showDashboard) return <Dashboard />;
+  if (showColorTester) return <ColorTester />;
+  if (winnersDayView) return <WinnersDayPage date={winnersDayView.date} />;
   if (submissionView) {
     if ('id' in submissionView) {
       return <SubmissionDetailPage submissionId={submissionView.id} />;
@@ -478,6 +249,7 @@ function App() {
     <div className="flex h-screen">
       {showWelcome && <WelcomeModal onDismiss={dismissWelcome} />}
       {showOnboarding && <OnboardingModal onComplete={updateNickname} />}
+
       <Toolbar
         challenge={challenge}
         backgroundColorIndex={canvasState.backgroundColorIndex}
@@ -604,48 +376,7 @@ function App() {
       />
 
       {showResetConfirm && (
-        <div
-          className="fixed inset-0 flex items-center justify-center z-1000"
-          style={{ backgroundColor: 'var(--color-modal-overlay)' }}
-        >
-          <div
-            className="p-6 rounded-xl max-w-100 text-center shadow-[0_4px_20px_rgba(0,0,0,0.2)]"
-            style={{ backgroundColor: 'var(--color-modal-bg)' }}
-          >
-            <h3
-              className="m-0 mb-3 text-xl"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
-              Reset Canvas?
-            </h3>
-            <p
-              className="m-0 mb-5"
-              style={{ color: 'var(--color-text-secondary)' }}
-            >
-              This will delete all shapes and cannot be undone.
-            </p>
-            <div className="flex gap-3 justify-center">
-              <button
-                className="px-6 py-2.5 rounded-md border-none cursor-pointer text-sm font-medium transition-colors"
-                style={{
-                  backgroundColor: 'var(--color-bg-tertiary)',
-                  color: 'var(--color-text-primary)',
-                }}
-                onClick={cancelReset}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-hover)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)'}
-              >
-                Cancel
-              </button>
-              <button
-                className="px-6 py-2.5 rounded-md border-none cursor-pointer text-sm font-medium transition-colors bg-red-500 text-white hover:bg-red-600"
-                onClick={confirmReset}
-              >
-                Reset
-              </button>
-            </div>
-          </div>
-        </div>
+        <ResetConfirmModal onConfirm={confirmReset} onCancel={cancelReset} />
       )}
 
       {showCalendar && (
@@ -669,7 +400,6 @@ function App() {
           topThree={winnerTopThree}
           onDismiss={dismissWinnerAnnouncement}
           onViewSubmission={(submissionId) => {
-            // Navigate to submission detail page
             window.location.href = `?view=submission&id=${submissionId}`;
           }}
         />
