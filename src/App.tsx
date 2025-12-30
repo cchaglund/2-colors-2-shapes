@@ -5,6 +5,7 @@ import { LayerPanel } from './components/LayerPanel';
 import { ZoomControls } from './components/ZoomControls';
 import { ActionToolbar } from './components/ActionToolbar';
 import { ShapeExplorer } from './components/ShapeExplorer';
+import { ColorTester } from './components/ColorTester';
 import { OnboardingModal } from './components/OnboardingModal';
 import { WelcomeModal } from './components/WelcomeModal';
 import { Calendar } from './components/Calendar';
@@ -71,6 +72,12 @@ function isDashboardEnabled(): boolean {
   return urlParams.get('view') === 'dashboard';
 }
 
+// Check if color tester is requested
+function isColorTesterEnabled(): boolean {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.has('colors');
+}
+
 // Check if winners-day view is requested
 function getWinnersDayView(): { view: 'winners-day'; date: string } | null {
   const urlParams = new URLSearchParams(window.location.search);
@@ -94,6 +101,8 @@ function App() {
   const showVotingTest = useMemo(() => isVotingTestEnabled(), []);
   // Check if dashboard should be shown
   const showDashboard = useMemo(() => isDashboardEnabled(), []);
+  // Check if color tester should be shown
+  const showColorTester = useMemo(() => isColorTesterEnabled(), []);
   // Calendar modal state
   const [showCalendar, setShowCalendar] = useState(false);
   // Keyboard settings modal state
@@ -442,6 +451,11 @@ function App() {
   // Render Dashboard if enabled
   if (showDashboard) {
     return <Dashboard />;
+  }
+
+  // Render Color Tester if enabled
+  if (showColorTester) {
+    return <ColorTester />;
   }
 
   // Render Winners Day Page if viewing rankings for a day
