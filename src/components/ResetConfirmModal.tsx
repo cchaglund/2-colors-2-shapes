@@ -39,7 +39,10 @@ export function ResetConfirmModal({ onConfirm, onCancel }: ResetConfirmModalProp
             Cancel
           </button>
           <button
-            className="px-6 py-2.5 rounded-md border-none cursor-pointer text-sm font-medium transition-colors bg-red-500 text-white hover:bg-red-600"
+            className="px-6 py-2.5 rounded-md border-none cursor-pointer text-sm font-medium transition-colors text-white"
+            style={{ backgroundColor: 'var(--color-danger)' }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-danger-hover)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--color-danger)'}
             onClick={onConfirm}
           >
             Reset

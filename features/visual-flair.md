@@ -1,0 +1,3 @@
+The app looks a little bland. Lots of gray and white, stock font, etc. It would be nice to add some visual flair to make it more engaging and fun to use. Changing up the color palette would be a great start. Create 5 variations of palettes that work well together, then add a UI element under the ThemeToggle component that allows for switching between them (we do not need to store these in localstorage or the database, at this point).
+
+![alt text](image-7.png)

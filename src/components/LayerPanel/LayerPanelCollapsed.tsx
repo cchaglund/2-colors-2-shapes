@@ -9,13 +9,10 @@ export function LayerPanelCollapsed({ onToggle }: LayerPanelCollapsedProps) {
   return (
     <div className="relative">
       <button
-        className="absolute right-0 top-4 z-10 rounded-l-md px-1.5 py-3 cursor-pointer transition-colors"
+        className="absolute right-0 top-4 z-10 rounded-l-lg px-2 py-4 cursor-pointer transition-all"
         style={{
           backgroundColor: 'var(--color-bg-secondary)',
-          borderWidth: '1px',
-          borderStyle: 'solid',
-          borderRightWidth: 0,
-          borderColor: 'var(--color-border)',
+          boxShadow: 'var(--shadow-panel)',
         }}
         onClick={onToggle}
         title="Show Layers"

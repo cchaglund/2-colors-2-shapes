@@ -13,14 +13,11 @@ export function ThemeToggle({ mode, onSetMode }: ThemeToggleProps) {
       </h4>
       <div className="flex gap-1">
         <button
-          className={`flex-1 py-1.5 px-2 rounded text-xs font-medium transition-colors border ${
-            mode === 'light'
-              ? 'border-blue-500 text-blue-600'
-              : 'border-transparent hover:opacity-80'
-          }`}
+          className="flex-1 py-1.5 px-2 rounded text-xs font-medium transition-colors"
           style={{
             backgroundColor: mode === 'light' ? 'var(--color-selected)' : 'var(--color-bg-tertiary)',
-            color: mode === 'light' ? undefined : 'var(--color-text-secondary)',
+            color: mode === 'light' ? 'var(--color-accent)' : 'var(--color-text-secondary)',
+            border: mode === 'light' ? '1px solid var(--color-accent)' : '1px solid transparent',
           }}
           onClick={() => onSetMode('light')}
           title="Light theme"
@@ -28,14 +25,11 @@ export function ThemeToggle({ mode, onSetMode }: ThemeToggleProps) {
           Light
         </button>
         <button
-          className={`flex-1 py-1.5 px-2 rounded text-xs font-medium transition-colors border ${
-            mode === 'dark'
-              ? 'border-blue-500 text-blue-600'
-              : 'border-transparent hover:opacity-80'
-          }`}
+          className="flex-1 py-1.5 px-2 rounded text-xs font-medium transition-colors"
           style={{
             backgroundColor: mode === 'dark' ? 'var(--color-selected)' : 'var(--color-bg-tertiary)',
-            color: mode === 'dark' ? undefined : 'var(--color-text-secondary)',
+            color: mode === 'dark' ? 'var(--color-accent)' : 'var(--color-text-secondary)',
+            border: mode === 'dark' ? '1px solid var(--color-accent)' : '1px solid transparent',
           }}
           onClick={() => onSetMode('dark')}
           title="Dark theme"
@@ -43,14 +37,11 @@ export function ThemeToggle({ mode, onSetMode }: ThemeToggleProps) {
           Dark
         </button>
         <button
-          className={`flex-1 py-1.5 px-2 rounded text-xs font-medium transition-colors border ${
-            mode === 'system'
-              ? 'border-blue-500 text-blue-600'
-              : 'border-transparent hover:opacity-80'
-          }`}
+          className="flex-1 py-1.5 px-2 rounded text-xs font-medium transition-colors"
           style={{
             backgroundColor: mode === 'system' ? 'var(--color-selected)' : 'var(--color-bg-tertiary)',
-            color: mode === 'system' ? undefined : 'var(--color-text-secondary)',
+            color: mode === 'system' ? 'var(--color-accent)' : 'var(--color-text-secondary)',
+            border: mode === 'system' ? '1px solid var(--color-accent)' : '1px solid transparent',
           }}
           onClick={() => onSetMode('system')}
           title="Follow system theme"

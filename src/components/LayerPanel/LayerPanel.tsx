@@ -234,41 +234,51 @@ export function LayerPanel({
 
   return (
     <div
-      className="p-4 overflow-y-auto shrink-0 relative"
+      className="p-4 overflow-y-auto shrink-0 relative flex flex-col gap-4 z-10"
       style={{
         width,
         backgroundColor: 'var(--color-bg-secondary)',
-        borderLeft: '1px solid var(--color-border)',
+        boxShadow: 'var(--shadow-panel)',
       }}
     >
-      {/* Collapse button */}
-      <button
-        className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center bg-transparent border-none cursor-pointer rounded transition-colors"
-        style={{ color: 'var(--color-text-tertiary)' }}
-        onClick={onToggle}
-        title="Hide Layers"
-        onMouseEnter={(e) => {
-          e.currentTarget.style.color = 'var(--color-text-secondary)';
-          e.currentTarget.style.backgroundColor = 'var(--color-hover)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.color = 'var(--color-text-tertiary)';
-          e.currentTarget.style.backgroundColor = 'transparent';
-        }}
-      >
-        ›
-      </button>
-
       {/* Resize handle */}
       <div
         className="absolute top-0 left-0 w-1 h-full cursor-col-resize hover:bg-blue-400 transition-colors"
         onMouseDown={onStartResize}
       />
 
-      <h3 className="m-0 mb-2 text-sm uppercase" style={{ color: 'var(--color-text-tertiary)' }}>Layers</h3>
+      {/* Collapse button at top */}
+      <div className="flex justify-start -mt-1 -mb-2">
+        <button
+          className="w-7 h-7 flex items-center justify-center bg-transparent border-none cursor-pointer rounded transition-colors"
+          style={{ color: 'var(--color-text-tertiary)' }}
+          onClick={onToggle}
+          title="Hide Layers"
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = 'var(--color-text-secondary)';
+            e.currentTarget.style.backgroundColor = 'var(--color-hover)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = 'var(--color-text-tertiary)';
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }}
+        >
+          ›
+        </button>
+      </div>
 
-      {/* Group/Ungroup buttons */}
-      <div className="flex gap-1 mb-3">
+      {/* Layers card */}
+      <div
+        className="p-3 rounded-lg"
+        style={{
+          backgroundColor: 'var(--color-card-bg)',
+          boxShadow: 'var(--shadow-card)',
+        }}
+      >
+        <h3 className="m-0 mb-2 text-sm uppercase" style={{ color: 'var(--color-text-tertiary)' }}>Layers</h3>
+
+        {/* Group/Ungroup buttons */}
+        <div className="flex gap-1 mb-3">
         <button
           className="flex-1 px-2 py-1 text-xs rounded cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           style={{
@@ -387,8 +397,9 @@ export function LayerPanel({
             }
             return null;
           })}
-        </ul>
-      )}
-    </div>
+            </ul>
+          )}
+        </div>
+      </div>
   );
 }
