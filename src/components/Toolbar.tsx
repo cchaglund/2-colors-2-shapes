@@ -7,7 +7,7 @@ import { AuthButton } from './AuthButton';
 import { type KeyMappings, formatKeyBinding } from '../constants/keyboardActions';
 
 // Small shape preview component for the toolbar
-function ShapePreviewIcon({ type, size = 20 }: { type: ShapeType; size?: number }) {
+function ShapePreviewIcon({ type, size = 20 }: { type: ShapeType; size?: number; }) {
   const { element, props } = getShapeSVGData(type, size);
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
@@ -135,6 +135,41 @@ export function Toolbar({
         className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-400 transition-colors"
         onMouseDown={onStartResize}
       />
+
+      <div className="mb-6 border-b border-(--color-border) pb-4">
+        <h4 className="m-0 mb-3 text-xs uppercase" style={{ color: 'var(--color-text-tertiary)' }}>Account</h4>
+        <AuthButton profile={profile} profileLoading={profileLoading} />
+
+        {isLoggedIn && onOpenCalendar && (
+          <button
+            className="w-full mt-3 py-2.5 px-4 border-none rounded-md cursor-pointer text-sm font-medium transition-colors flex items-center justify-center gap-2"
+            style={{
+              backgroundColor: 'var(--color-bg-tertiary)',
+              color: 'var(--color-text-primary)',
+            }}
+            onClick={onOpenCalendar}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            My Submissions
+          </button>
+        )}
+      </div>
+
+
       <div className="mb-6">
         <h3 className="m-0 text-base" style={{ color: 'var(--color-text-primary)' }}>Today's Challenge</h3>
         <p className="mt-1 mb-0 text-sm" style={{ color: 'var(--color-text-secondary)' }}>{challenge.date}</p>
@@ -146,11 +181,10 @@ export function Toolbar({
           {challenge.colors.map((color, index) => (
             <button
               key={index}
-              className={`w-10 h-10 rounded-lg transition-transform ${
-                hasSelection
+              className={`w-10 h-10 rounded-lg transition-transform ${hasSelection
                   ? 'cursor-pointer hover:scale-110 hover:shadow-md'
                   : 'cursor-default'
-              }`}
+                }`}
               style={{
                 backgroundColor: color,
                 border: '2px solid var(--color-border-light)',
@@ -204,11 +238,10 @@ export function Toolbar({
         <h4 className="m-0 mb-3 text-xs uppercase" style={{ color: 'var(--color-text-tertiary)' }}>Background</h4>
         <div className="flex gap-2">
           <button
-            className={`w-10 h-10 rounded-lg cursor-pointer text-base transition-transform hover:scale-105 ${
-              backgroundColorIndex === null
+            className={`w-10 h-10 rounded-lg cursor-pointer text-base transition-transform hover:scale-105 ${backgroundColorIndex === null
                 ? 'border-blue-600 shadow-[0_0_0_2px_rgba(0,102,255,0.3)]'
                 : ''
-            }`}
+              }`}
             onClick={() => onSetBackground(null)}
             style={{
               backgroundColor: '#fff',
@@ -222,11 +255,10 @@ export function Toolbar({
           {challenge.colors.map((color, index) => (
             <button
               key={index}
-              className={`w-10 h-10 rounded-lg cursor-pointer text-base transition-transform hover:scale-105 ${
-                backgroundColorIndex === index
+              className={`w-10 h-10 rounded-lg cursor-pointer text-base transition-transform hover:scale-105 ${backgroundColorIndex === index
                   ? 'border-blue-600 shadow-[0_0_0_2px_rgba(0,102,255,0.3)]'
                   : ''
-              }`}
+                }`}
               onClick={() => onSetBackground(index as 0 | 1)}
               style={{
                 backgroundColor: color,
@@ -240,6 +272,31 @@ export function Toolbar({
           ))}
         </div>
       </div>
+
+
+      <div className="mb-6 border-b border-(--color-border) pb-4">
+
+        {isLoggedIn && onSave && (
+          <button
+            className="w-full mt-3 py-2.5 px-4 bg-blue-600 text-white border-none rounded-md cursor-pointer text-sm font-medium transition-colors hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={onSave}
+            disabled={isSaving}
+          >
+            {isSaving ? 'Saving...' : saveStatus === 'saved' ? '✓ Saved' : hasSubmittedToday ? 'Update Creation' : 'Save Creation'}
+          </button>
+        )}
+        {saveStatus === 'error' && (
+          <p className="mt-1 mb-0 text-xs text-red-500">Failed to save. Try again.</p>
+        )}
+
+        <button
+          className="mt-3 w-full py-2.5 px-4 bg-red-700 text-white border-none rounded-md cursor-pointer text-sm font-medium transition-colors hover:bg-red-600"
+          onClick={onReset}
+        >
+          Reset Canvas
+        </button>
+      </div>
+
 
       <div className="mb-6">
         <h4 className="m-0 mb-3 text-xs uppercase" style={{ color: 'var(--color-text-tertiary)' }}>View</h4>
@@ -274,63 +331,6 @@ export function Toolbar({
       </div>
 
       <div className="mb-6">
-        <ThemeToggle mode={themeMode} onSetMode={onSetThemeMode} />
-      </div>
-
-      <div className="mb-6">
-        <h4 className="m-0 mb-3 text-xs uppercase" style={{ color: 'var(--color-text-tertiary)' }}>Account</h4>
-        <AuthButton profile={profile} profileLoading={profileLoading} />
-        {isLoggedIn && onSave && (
-          <button
-            className="w-full mt-3 py-2.5 px-4 bg-blue-600 text-white border-none rounded-md cursor-pointer text-sm font-medium transition-colors hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={onSave}
-            disabled={isSaving}
-          >
-            {isSaving ? 'Saving...' : saveStatus === 'saved' ? '✓ Saved' : hasSubmittedToday ? 'Update Creation' : 'Save Creation'}
-          </button>
-        )}
-        {saveStatus === 'error' && (
-          <p className="mt-1 mb-0 text-xs text-red-500">Failed to save. Try again.</p>
-        )}
-        {isLoggedIn && onOpenCalendar && (
-          <button
-            className="w-full mt-3 py-2.5 px-4 border-none rounded-md cursor-pointer text-sm font-medium transition-colors flex items-center justify-center gap-2"
-            style={{
-              backgroundColor: 'var(--color-bg-tertiary)',
-              color: 'var(--color-text-primary)',
-            }}
-            onClick={onOpenCalendar}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
-            My Submissions
-          </button>
-        )}
-      </div>
-
-      <div className="mb-6">
-        <button
-          className="w-full py-2.5 px-4 bg-red-500 text-white border-none rounded-md cursor-pointer text-sm font-medium transition-colors hover:bg-red-600"
-          onClick={onReset}
-        >
-          Reset Canvas
-        </button>
-      </div>
-
-      <div className="mt-auto">
         <div className="flex items-center justify-between mb-3">
           <h4 className="m-0 text-xs uppercase" style={{ color: 'var(--color-text-tertiary)' }}>Controls</h4>
           {onOpenKeyboardSettings && (
@@ -364,6 +364,10 @@ export function Toolbar({
           <li>Hold {keyMappings.pan ? formatKeyBinding(keyMappings.pan) : 'Space'} + drag to pan</li>
           <li>{keyMappings.toggleGrid ? formatKeyBinding(keyMappings.toggleGrid) : 'G'} to toggle grid</li>
         </ul>
+      </div>
+
+      <div className="mt-auto">
+        <ThemeToggle mode={themeMode} onSetMode={onSetThemeMode} />
       </div>
     </div>
   );

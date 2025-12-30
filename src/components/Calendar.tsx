@@ -66,6 +66,17 @@ export function Calendar({ onClose }: CalendarProps) {
   // Winners are only available up to 2 days ago (voting completes the day after submission)
   const latestWinnersDate = useMemo(() => getTwoDaysAgoDate(), []);
 
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   // Load submissions on mount (only when in my-submissions mode)
   useEffect(() => {
     if (user && effectiveViewMode === 'my-submissions') {
