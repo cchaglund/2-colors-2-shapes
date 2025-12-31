@@ -27,7 +27,7 @@ export function SubmissionThumbnail({
       width={size}
       height={size}
       viewBox={`0 0 ${CANVAS_SIZE} ${CANVAS_SIZE}`}
-      style={{ borderRadius: 4 }}
+      className="rounded-sm"
     >
       <rect
         x={0}

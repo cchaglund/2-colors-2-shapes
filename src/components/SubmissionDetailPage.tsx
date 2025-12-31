@@ -54,14 +54,8 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
   // Only require auth when loading by date (own submission)
   if (!submissionId && !user) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center p-4"
-        style={{ backgroundColor: 'var(--color-bg-primary)' }}
-      >
-        <div
-          className="text-center"
-          style={{ color: 'var(--color-text-secondary)' }}
-        >
+      <div className="min-h-screen flex items-center justify-center p-4 bg-(--color-bg-primary)">
+        <div className="text-center text-(--color-text-secondary)">
           Please sign in to view this submission.
         </div>
       </div>
@@ -70,11 +64,8 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
 
   if (loading) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center p-4"
-        style={{ backgroundColor: 'var(--color-bg-primary)' }}
-      >
-        <div style={{ color: 'var(--color-text-secondary)' }}>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-(--color-bg-primary)">
+        <div className="text-(--color-text-secondary)">
           Loading submission...
         </div>
       </div>
@@ -83,11 +74,8 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
 
   if (error) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center p-4"
-        style={{ backgroundColor: 'var(--color-bg-primary)' }}
-      >
-        <div style={{ color: 'var(--color-text-secondary)' }}>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-(--color-bg-primary)">
+        <div className="text-(--color-text-secondary)">
           Error: {error}
         </div>
       </div>
@@ -96,11 +84,8 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
 
   if (!submission || !challenge) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center p-4"
-        style={{ backgroundColor: 'var(--color-bg-primary)' }}
-      >
-        <div style={{ color: 'var(--color-text-secondary)' }}>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-(--color-bg-primary)">
+        <div className="text-(--color-text-secondary)">
           {submissionId ? 'Submission not found.' : `No submission found for ${formattedDate}.`}
         </div>
       </div>
@@ -108,18 +93,14 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
   }
 
   return (
-    <div
-      className="min-h-screen p-4 md:p-8"
-      style={{ backgroundColor: 'var(--color-bg-primary)' }}
-    >
+    <div className="min-h-screen p-4 md:p-8 bg-(--color-bg-primary)">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <a
               href="/"
-              className="inline-flex items-center gap-1 text-sm hover:underline"
-              style={{ color: 'var(--color-text-secondary)' }}
+              className="inline-flex items-center gap-1 text-sm hover:underline text-(--color-text-secondary)"
             >
               <svg
                 width="16"
@@ -138,13 +119,10 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
             {/* Navigation buttons - only show when viewing by date (own submissions) */}
             {date && <SubmissionNavigation adjacentDates={adjacentDates} />}
           </div>
-          <h1
-            className="text-2xl font-bold mb-2"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
+          <h1 className="text-2xl font-bold mb-2 text-(--color-text-primary)">
             {formattedDate}
           </h1>
-          <p style={{ color: 'var(--color-text-secondary)' }}>
+          <p className="text-(--color-text-secondary)">
             Daily Challenge Submission
           </p>
         </div>
@@ -152,10 +130,7 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
         {/* Main content */}
         <div className="flex flex-col md:flex-row gap-6 items-start justify-center">
           {/* Canvas */}
-          <div
-            className="border rounded-xl overflow-hidden w-fit"
-            style={{ borderColor: 'var(--color-border)' }}
-          >
+          <div className="border rounded-xl overflow-hidden w-fit border-(--color-border)">
             <SubmissionCanvas
               shapes={submission.shapes}
               challenge={challenge}

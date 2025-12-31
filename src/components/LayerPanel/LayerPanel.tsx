@@ -234,12 +234,8 @@ export function LayerPanel({
 
   return (
     <div
-      className="p-4 overflow-y-auto shrink-0 relative flex flex-col gap-4 z-10"
-      style={{
-        width,
-        backgroundColor: 'var(--color-bg-secondary)',
-        boxShadow: 'var(--shadow-panel)',
-      }}
+      className="p-4 overflow-y-auto shrink-0 relative flex flex-col gap-4 z-10 bg-(--color-bg-secondary) shadow-(--shadow-panel)"
+      style={{ width }}
     >
       {/* Resize handle */}
       <div
@@ -250,70 +246,33 @@ export function LayerPanel({
       {/* Collapse button at top */}
       <div className="flex justify-start -mt-1 -mb-2">
         <button
-          className="w-7 h-7 flex items-center justify-center bg-transparent border-none cursor-pointer rounded transition-colors"
-          style={{ color: 'var(--color-text-tertiary)' }}
+          className="w-7 h-7 flex items-center justify-center bg-transparent border-none cursor-pointer rounded transition-colors text-(--color-text-tertiary) hover:text-(--color-text-secondary) hover:bg-(--color-hover)"
           onClick={onToggle}
           title="Hide Layers"
-          onMouseEnter={(e) => {
-            e.currentTarget.style.color = 'var(--color-text-secondary)';
-            e.currentTarget.style.backgroundColor = 'var(--color-hover)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.color = 'var(--color-text-tertiary)';
-            e.currentTarget.style.backgroundColor = 'transparent';
-          }}
         >
           ›
         </button>
       </div>
 
       {/* Layers card */}
-      <div
-        className="p-3 rounded-lg"
-        style={{
-          backgroundColor: 'var(--color-card-bg)',
-          boxShadow: 'var(--shadow-card)',
-        }}
-      >
-        <h3 className="m-0 mb-2 text-sm uppercase" style={{ color: 'var(--color-text-tertiary)' }}>Layers</h3>
+      <div className="p-3 rounded-lg bg-(--color-card-bg) shadow-(--shadow-card)">
+        <h3 className="m-0 mb-2 text-sm uppercase text-(--color-text-tertiary)">Layers</h3>
 
         {/* Group/Ungroup buttons */}
         <div className="flex gap-1 mb-3">
         <button
-          className="flex-1 px-2 py-1 text-xs rounded cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{
-            backgroundColor: 'var(--color-bg-primary)',
-            border: '1px solid var(--color-border)',
-            color: 'var(--color-text-primary)',
-          }}
+          className="flex-1 px-2 py-1 text-xs rounded cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary) hover:enabled:bg-(--color-hover)"
           disabled={!canCreateGroup}
           onClick={handleCreateGroup}
           title={canCreateGroup ? 'Group selected shapes' : 'Select 2+ shapes to group'}
-          onMouseEnter={(e) => {
-            if (canCreateGroup) e.currentTarget.style.backgroundColor = 'var(--color-hover)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--color-bg-primary)';
-          }}
         >
           Group
         </button>
         <button
-          className="flex-1 px-2 py-1 text-xs rounded cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{
-            backgroundColor: 'var(--color-bg-primary)',
-            border: '1px solid var(--color-border)',
-            color: 'var(--color-text-primary)',
-          }}
+          className="flex-1 px-2 py-1 text-xs rounded cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary) hover:enabled:bg-(--color-hover)"
           disabled={!selectedShapesInGroup}
           onClick={handleUngroup}
           title={selectedShapesInGroup ? 'Ungroup selected shapes' : 'Select grouped shapes to ungroup'}
-          onMouseEnter={(e) => {
-            if (selectedShapesInGroup) e.currentTarget.style.backgroundColor = 'var(--color-hover)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--color-bg-primary)';
-          }}
         >
           Ungroup
         </button>
@@ -322,12 +281,11 @@ export function LayerPanel({
       {/* Multi-select toggle for touch devices */}
       {isTouchDevice && (
         <button
-          className="w-full px-2 py-2 text-xs rounded cursor-pointer transition-colors mb-3"
-          style={{
-            backgroundColor: isMultiSelectMode ? 'var(--color-accent)' : 'var(--color-bg-primary)',
-            border: '1px solid var(--color-border)',
-            color: isMultiSelectMode ? 'white' : 'var(--color-text-primary)',
-          }}
+          className={`w-full px-2 py-2 text-xs rounded cursor-pointer transition-colors mb-3 border border-(--color-border) ${
+            isMultiSelectMode
+              ? 'bg-(--color-accent) text-white'
+              : 'bg-(--color-bg-primary) text-(--color-text-primary)'
+          }`}
           onClick={() => setIsMultiSelectMode(!isMultiSelectMode)}
         >
           {isMultiSelectMode ? '✓ Done Selecting' : 'Select Multiple'}
@@ -335,7 +293,7 @@ export function LayerPanel({
       )}
 
       {sortedShapes.length === 0 ? (
-        <p className="text-sm text-center py-5" style={{ color: 'var(--color-text-tertiary)' }}>No shapes yet. Add one!</p>
+        <p className="text-sm text-center py-5 text-(--color-text-tertiary)">No shapes yet. Add one!</p>
       ) : (
         <ul className="list-none p-0 m-0">
           {layerItems.map((item) => {

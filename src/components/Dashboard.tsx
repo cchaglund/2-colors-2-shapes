@@ -31,10 +31,10 @@ export function Dashboard() {
   // Loading state
   if (authLoading || adminLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
+      <div className="min-h-screen flex items-center justify-center bg-(--color-bg-primary)">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p style={{ color: 'var(--color-text-secondary)' }}>Loading...</p>
+          <p className="text-(--color-text-secondary)">Loading...</p>
         </div>
       </div>
     );
@@ -43,12 +43,12 @@ export function Dashboard() {
   // Not logged in
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
-        <div className="text-center p-8 rounded-xl" style={{ backgroundColor: 'var(--color-bg-secondary)' }}>
-          <h1 className="text-2xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>
+      <div className="min-h-screen flex items-center justify-center bg-(--color-bg-primary)">
+        <div className="text-center p-8 rounded-xl bg-(--color-bg-secondary)">
+          <h1 className="text-2xl font-bold mb-4 text-(--color-text-primary)">
             Admin Dashboard
           </h1>
-          <p className="mb-6" style={{ color: 'var(--color-text-secondary)' }}>
+          <p className="mb-6 text-(--color-text-secondary)">
             Please sign in to access the dashboard.
           </p>
           <button
@@ -65,12 +65,12 @@ export function Dashboard() {
   // Not an admin
   if (!isAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
-        <div className="text-center p-8 rounded-xl" style={{ backgroundColor: 'var(--color-bg-secondary)' }}>
-          <h1 className="text-2xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>
+      <div className="min-h-screen flex items-center justify-center bg-(--color-bg-primary)">
+        <div className="text-center p-8 rounded-xl bg-(--color-bg-secondary)">
+          <h1 className="text-2xl font-bold mb-4 text-(--color-text-primary)">
             Access Denied
           </h1>
-          <p className="mb-6" style={{ color: 'var(--color-text-secondary)' }}>
+          <p className="mb-6 text-(--color-text-secondary)">
             You don't have permission to view this page.
           </p>
           <a
@@ -87,10 +87,10 @@ export function Dashboard() {
   // Stats loading
   if (statsLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
+      <div className="min-h-screen flex items-center justify-center bg-(--color-bg-primary)">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p style={{ color: 'var(--color-text-secondary)' }}>Loading dashboard stats...</p>
+          <p className="text-(--color-text-secondary)">Loading dashboard stats...</p>
         </div>
       </div>
     );
@@ -99,10 +99,10 @@ export function Dashboard() {
   // Stats error
   if (statsError) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
-        <div className="text-center p-8 rounded-xl" style={{ backgroundColor: 'var(--color-bg-secondary)' }}>
+      <div className="min-h-screen flex items-center justify-center bg-(--color-bg-primary)">
+        <div className="text-center p-8 rounded-xl bg-(--color-bg-secondary)">
           <h1 className="text-2xl font-bold mb-4 text-red-500">Error</h1>
-          <p className="mb-6" style={{ color: 'var(--color-text-secondary)' }}>
+          <p className="mb-6 text-(--color-text-secondary)">
             {statsError}
           </p>
           <button
@@ -118,20 +118,16 @@ export function Dashboard() {
 
   // Dashboard content
   return (
-    <div className="min-h-screen p-8" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
+    <div className="min-h-screen p-8 bg-(--color-bg-primary)">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
+          <h1 className="text-3xl font-bold text-(--color-text-primary)">
             Admin Dashboard
           </h1>
           <a
             href="/"
-            className="px-4 py-2 rounded-lg transition-colors"
-            style={{
-              backgroundColor: 'var(--color-bg-tertiary)',
-              color: 'var(--color-text-primary)',
-            }}
+            className="px-4 py-2 rounded-lg transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary)"
           >
             Back to App
           </a>
@@ -157,8 +153,8 @@ export function Dashboard() {
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Submissions Chart */}
-          <div className="p-6 rounded-xl" style={{ backgroundColor: 'var(--color-bg-secondary)' }}>
-            <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--color-text-primary)' }}>
+          <div className="p-6 rounded-xl bg-(--color-bg-secondary)">
+            <h2 className="text-xl font-semibold mb-4 text-(--color-text-primary)">
               Submissions (Last 7 Days)
             </h2>
             <div className="h-64">
@@ -182,8 +178,8 @@ export function Dashboard() {
           </div>
 
           {/* Votes Chart */}
-          <div className="p-6 rounded-xl" style={{ backgroundColor: 'var(--color-bg-secondary)' }}>
-            <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--color-text-primary)' }}>
+          <div className="p-6 rounded-xl bg-(--color-bg-secondary)">
+            <h2 className="text-xl font-semibold mb-4 text-(--color-text-primary)">
               Votes (Last 7 Days)
             </h2>
             <div className="h-64">
@@ -235,15 +231,15 @@ interface StatCardProps {
 
 function StatCard({ title, value, subtitle }: StatCardProps) {
   return (
-    <div className="p-6 rounded-xl" style={{ backgroundColor: 'var(--color-bg-secondary)' }}>
-      <h3 className="text-sm font-medium mb-2" style={{ color: 'var(--color-text-secondary)' }}>
+    <div className="p-6 rounded-xl bg-(--color-bg-secondary)">
+      <h3 className="text-sm font-medium mb-2 text-(--color-text-secondary)">
         {title}
       </h3>
-      <p className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
+      <p className="text-3xl font-bold text-(--color-text-primary)">
         {value.toLocaleString()}
       </p>
       {subtitle && (
-        <p className="text-sm mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
+        <p className="text-sm mt-1 text-(--color-text-tertiary)">
           {subtitle}
         </p>
       )}

@@ -117,7 +117,7 @@ const CollapseIcon = ({ collapsed }: { collapsed: boolean }) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    style={{ transform: collapsed ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}
+    className={`transition-transform duration-200 ${collapsed ? 'rotate-180' : ''}`}
   >
     <polyline points="18 15 12 9 6 15" />
   </svg>
@@ -158,11 +158,7 @@ function ToolbarButton({ icon, label, shortcut, onClick, disabled }: ToolbarButt
   return (
     <div className="relative">
       <button
-        className="w-8 h-8 flex items-center justify-center rounded disabled:opacity-40 disabled:cursor-not-allowed"
-        style={{
-          color: 'var(--color-text-primary)',
-          backgroundColor: isHovered && !disabled ? 'var(--color-hover)' : 'transparent',
-        }}
+        className="w-8 h-8 flex items-center justify-center rounded disabled:opacity-40 disabled:cursor-not-allowed text-(--color-text-primary) hover:enabled:bg-(--color-hover) transition-colors"
         onClick={onClick}
         disabled={disabled}
         onMouseEnter={() => setIsHovered(true)}
@@ -174,17 +170,9 @@ function ToolbarButton({ icon, label, shortcut, onClick, disabled }: ToolbarButt
 
       {/* Tooltip */}
       {isHovered && (
-        <div
-          className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded text-xs whitespace-nowrap z-50 pointer-events-none"
-          style={{
-            backgroundColor: 'var(--color-bg-primary)',
-            color: 'var(--color-text-primary)',
-            border: '1px solid var(--color-border)',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-          }}
-        >
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded text-xs whitespace-nowrap z-50 pointer-events-none bg-(--color-bg-primary) text-(--color-text-primary) border border-(--color-border) shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
           <div className="font-medium">{label}</div>
-          <div style={{ color: 'var(--color-text-secondary)' }}>{shortcut}</div>
+          <div className="text-(--color-text-secondary)">{shortcut}</div>
         </div>
       )}
     </div>
@@ -192,12 +180,7 @@ function ToolbarButton({ icon, label, shortcut, onClick, disabled }: ToolbarButt
 }
 
 function Separator() {
-  return (
-    <div
-      className="w-px h-5 mx-1"
-      style={{ backgroundColor: 'var(--color-border)' }}
-    />
-  );
+  return <div className="w-px h-5 mx-1 bg-(--color-border)" />;
 }
 
 export function ActionToolbar({
@@ -231,21 +214,14 @@ export function ActionToolbar({
 
   return (
     <div
-      className="flex items-center gap-1 backdrop-blur-sm rounded-lg shadow-md px-2 py-1"
-      style={{
-        backgroundColor: 'var(--color-overlay)',
-        border: '1px solid var(--color-border)',
-      }}
+      className="flex items-center gap-1 backdrop-blur-sm rounded-lg shadow-md px-2 py-1 bg-(--color-overlay) border border-(--color-border)"
       onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
     >
       {/* Collapse toggle */}
       <button
-        className="w-6 h-6 flex items-center justify-center rounded"
-        style={{ color: 'var(--color-text-secondary)' }}
+        className="w-6 h-6 flex items-center justify-center rounded text-(--color-text-secondary) hover:bg-(--color-hover) transition-colors"
         onClick={() => setCollapsed(!collapsed)}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-hover)'}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
         title={collapsed ? 'Expand toolbar' : 'Collapse toolbar'}
         aria-label={collapsed ? 'Expand toolbar' : 'Collapse toolbar'}
       >

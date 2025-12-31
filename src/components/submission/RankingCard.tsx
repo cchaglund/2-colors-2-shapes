@@ -7,17 +7,8 @@ interface RankingCardProps {
 
 export function RankingCard({ rankInfo }: RankingCardProps) {
   return (
-    <div
-      className="border rounded-xl p-4"
-      style={{
-        backgroundColor: 'var(--color-bg-secondary)',
-        borderColor: 'var(--color-border)',
-      }}
-    >
-      <h2
-        className="text-sm font-semibold mb-3"
-        style={{ color: 'var(--color-text-primary)' }}
-      >
+    <div className="border rounded-xl p-4 bg-(--color-bg-secondary) border-(--color-border)">
+      <h2 className="text-sm font-semibold mb-3 text-(--color-text-primary)">
         Ranking
       </h2>
       <div className="flex items-center gap-3">
@@ -27,10 +18,7 @@ export function RankingCard({ rankInfo }: RankingCardProps) {
         <RankingBadge rank={rankInfo.rank} total={rankInfo.total} />
       </div>
       {rankInfo.rank === 1 && (
-        <p
-          className="mt-2 text-sm"
-          style={{ color: 'var(--color-text-secondary)' }}
-        >
+        <p className="mt-2 text-sm text-(--color-text-secondary)">
           Winner of the day!
         </p>
       )}

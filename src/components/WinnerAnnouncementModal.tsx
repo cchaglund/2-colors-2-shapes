@@ -77,8 +77,8 @@ export function WinnerAnnouncementModal({
       >
         <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 shadow-xl">
           <div className="text-center">
-            <div className="inline-block w-8 h-8 border-4 border-t-transparent rounded-full animate-spin mb-4" style={{ borderColor: 'var(--color-text-secondary)', borderTopColor: 'transparent' }} />
-            <p style={{ color: 'var(--color-text-secondary)' }}>Loading...</p>
+            <div className="inline-block w-8 h-8 border-4 border-(--color-text-secondary) border-t-transparent rounded-full animate-spin mb-4" />
+            <p className="text-(--color-text-secondary)">Loading...</p>
           </div>
         </div>
       </div>

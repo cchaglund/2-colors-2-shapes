@@ -392,12 +392,8 @@ export function Canvas({
         width={CANVAS_SIZE}
         height={CANVAS_SIZE}
         viewBox={`${viewBoxX} ${viewBoxY} ${viewBoxSize} ${viewBoxSize}`}
-        className="border touch-none"
-        style={{
-          overflow: 'visible',
-          cursor: cursorStyle,
-          borderColor: 'var(--color-border)',
-        }}
+        className="border touch-none overflow-visible border-(--color-border)"
+        style={{ cursor: cursorStyle }}
         onMouseDown={handleCanvasMouseDown}
         onTouchStart={handleCanvasTouchStart}
         onTouchMove={handleCanvasTouchMove}

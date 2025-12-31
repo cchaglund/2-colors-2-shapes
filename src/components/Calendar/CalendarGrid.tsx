@@ -9,10 +9,7 @@ interface CalendarGridProps {
 export function CalendarGrid({ loading, loadingMessage, children }: CalendarGridProps) {
   if (loading) {
     return (
-      <div
-        className="flex items-center justify-center py-12"
-        style={{ color: 'var(--color-text-secondary)' }}
-      >
+      <div className="flex items-center justify-center py-12 text-(--color-text-secondary)">
         {loadingMessage}
       </div>
     );
@@ -24,8 +21,7 @@ export function CalendarGrid({ loading, loadingMessage, children }: CalendarGrid
       {DAYS_OF_WEEK.map((day) => (
         <div
           key={day}
-          className="text-center py-2 text-sm font-medium"
-          style={{ color: 'var(--color-text-tertiary)' }}
+          className="text-center py-2 text-sm font-medium text-(--color-text-tertiary)"
         >
           {day}
         </div>

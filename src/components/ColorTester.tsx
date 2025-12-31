@@ -118,27 +118,15 @@ export function ColorTester() {
   })() : null;
 
   return (
-    <div
-      className="min-h-screen p-8 flex flex-col items-center"
-      style={{ backgroundColor: 'var(--color-bg-primary)' }}
-    >
+    <div className="min-h-screen p-8 flex flex-col items-center bg-(--color-bg-primary)">
       <div className="max-w-lg w-full">
         <header className="mb-8 text-center">
-          <h1
-            className="text-3xl font-bold mb-2"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
+          <h1 className="text-3xl font-bold mb-2 text-(--color-text-primary)">
             Color Tester
           </h1>
-          <p
-            className="text-sm"
-            style={{ color: 'var(--color-text-secondary)' }}
-          >
+          <p className="text-sm text-(--color-text-secondary)">
             Test the color generation algorithm. Access via{' '}
-            <code
-              className="px-2 py-1 rounded text-xs"
-              style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
-            >
+            <code className="px-2 py-1 rounded text-xs bg-(--color-bg-tertiary)">
               ?colors
             </code>{' '}
             URL parameter.
@@ -148,13 +136,7 @@ export function ColorTester() {
         <div className="flex flex-col items-center gap-6">
           <button
             onClick={handleGenerate}
-            className="px-6 py-3 rounded-lg font-medium text-lg cursor-pointer transition-colors"
-            style={{
-              backgroundColor: 'var(--color-text-primary)',
-              color: 'var(--color-bg-primary)',
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
-            onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+            className="px-6 py-3 rounded-lg font-medium text-lg cursor-pointer transition-opacity bg-(--color-text-primary) text-(--color-bg-primary) hover:opacity-80"
           >
             Generate Colors
           </button>
@@ -167,8 +149,7 @@ export function ColorTester() {
                   width="150"
                   height="150"
                   viewBox="0 0 150 150"
-                  className="absolute"
-                  style={{ left: '20px' }}
+                  className="absolute left-5"
                 >
                   <circle cx="75" cy="75" r="70" fill={colors[0]} stroke="none" />
                 </svg>
@@ -177,31 +158,24 @@ export function ColorTester() {
                   width="150"
                   height="150"
                   viewBox="0 0 150 150"
-                  className="absolute"
-                  style={{ right: '20px' }}
+                  className="absolute right-5"
                 >
                   <circle cx="75" cy="75" r="70" fill={colors[1]} stroke="none" />
                 </svg>
               </>
             ) : (
-              <p style={{ color: 'var(--color-text-tertiary)' }}>
+              <p className="text-(--color-text-tertiary)">
                 Click the button to generate colors
               </p>
             )}
           </div>
 
           {colors && (
-            <div
-              className="w-full p-4 rounded-lg"
-              style={{ backgroundColor: 'var(--color-bg-secondary)' }}
-            >
-              <h3
-                className="text-sm font-semibold mb-3"
-                style={{ color: 'var(--color-text-primary)' }}
-              >
+            <div className="w-full p-4 rounded-lg bg-(--color-bg-secondary)">
+              <h3 className="text-sm font-semibold mb-3 text-(--color-text-primary)">
                 Color Details
               </h3>
-              <div className="space-y-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+              <div className="space-y-2 text-sm text-(--color-text-secondary)">
                 <div className="flex items-center gap-2">
                   <div
                     className="w-4 h-4 rounded"
@@ -216,11 +190,11 @@ export function ColorTester() {
                   />
                   <code>{colors[1]}</code>
                 </div>
-                <hr style={{ borderColor: 'var(--color-border)', margin: '12px 0' }} />
+                <hr className="border-(--color-border) my-3" />
                 <div>
                   <strong>Contrast Ratio:</strong> {contrastRatio?.toFixed(2)}:1
                   {contrastRatio && contrastRatio >= 3.0 && (
-                    <span style={{ marginLeft: '8px', color: '#22c55e' }}>(passes WCAG)</span>
+                    <span className="ml-2 text-green-500">(passes WCAG)</span>
                   )}
                 </div>
                 <div>
@@ -234,18 +208,11 @@ export function ColorTester() {
           )}
         </div>
 
-        <footer
-          className="mt-8 pt-6 border-t text-center text-sm"
-          style={{
-            borderColor: 'var(--color-border)',
-            color: 'var(--color-text-tertiary)',
-          }}
-        >
+        <footer className="mt-8 pt-6 border-t text-center text-sm border-(--color-border) text-(--color-text-tertiary)">
           <p>
             <a
               href="/"
-              className="underline hover:no-underline"
-              style={{ color: 'var(--color-text-secondary)' }}
+              className="underline hover:no-underline text-(--color-text-secondary)"
             >
               Return to main app
             </a>

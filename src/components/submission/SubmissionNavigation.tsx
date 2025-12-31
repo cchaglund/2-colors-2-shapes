@@ -14,11 +14,7 @@ export function SubmissionNavigation({ adjacentDates }: SubmissionNavigationProp
       <button
         onClick={() => adjacentDates.prev && navigateTo(adjacentDates.prev)}
         disabled={!adjacentDates.prev}
-        className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1"
-        style={{
-          backgroundColor: 'var(--color-bg-tertiary)',
-          color: 'var(--color-text-primary)',
-        }}
+        className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 bg-(--color-bg-tertiary) text-(--color-text-primary)"
       >
         <svg
           width="14"
@@ -37,11 +33,7 @@ export function SubmissionNavigation({ adjacentDates }: SubmissionNavigationProp
       <button
         onClick={() => adjacentDates.next && navigateTo(adjacentDates.next)}
         disabled={!adjacentDates.next}
-        className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1"
-        style={{
-          backgroundColor: 'var(--color-bg-tertiary)',
-          color: 'var(--color-text-primary)',
-        }}
+        className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 bg-(--color-bg-tertiary) text-(--color-text-primary)"
       >
         Next
         <svg

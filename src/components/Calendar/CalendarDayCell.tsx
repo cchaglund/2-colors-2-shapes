@@ -38,27 +38,21 @@ export function CalendarDayCell({
         onClick={() => !isFuture && submission && onClick(day)}
         className={`
           aspect-square rounded-lg p-1 transition-all
-          ${submission ? 'cursor-pointer hover:ring-2 hover:ring-blue-500' : ''}
+          ${submission ? 'cursor-pointer hover:ring-2 hover:ring-blue-500 bg-(--color-bg-secondary)' : 'bg-(--color-bg-tertiary)'}
           ${isFuture ? 'opacity-30' : ''}
           ${isToday ? 'ring-2 ring-blue-500' : ''}
         `}
-        style={{
-          backgroundColor: submission
-            ? 'var(--color-bg-secondary)'
-            : 'var(--color-bg-tertiary)',
-        }}
       >
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between">
             <span
-              className={`text-xs font-medium ${isToday ? 'text-blue-500' : ''}`}
-              style={{
-                color: isToday
-                  ? undefined
+              className={`text-xs font-medium ${
+                isToday
+                  ? 'text-blue-500'
                   : submission
-                  ? 'var(--color-text-primary)'
-                  : 'var(--color-text-tertiary)',
-              }}
+                  ? 'text-(--color-text-primary)'
+                  : 'text-(--color-text-tertiary)'
+              }`}
             >
               {day}
             </span>
@@ -86,10 +80,7 @@ export function CalendarDayCell({
                 size={60}
               />
             ) : !isFuture ? (
-              <div
-                className="text-xs text-center"
-                style={{ color: 'var(--color-text-tertiary)' }}
-              >
+              <div className="text-xs text-center text-(--color-text-tertiary)">
                 No submission
               </div>
             ) : null}
@@ -108,26 +99,20 @@ export function CalendarDayCell({
       onClick={() => hasWinner && onClick(day)}
       className={`
         aspect-square rounded-lg p-1 transition-all
-        ${hasWinner ? 'cursor-pointer hover:ring-2 hover:ring-yellow-500' : ''}
+        ${hasWinner ? 'cursor-pointer hover:ring-2 hover:ring-yellow-500 bg-(--color-bg-secondary)' : 'bg-(--color-bg-tertiary)'}
         ${isFuture ? 'opacity-30' : ''}
         ${isToday ? 'ring-2 ring-blue-500' : ''}
       `}
-      style={{
-        backgroundColor: hasWinner
-          ? 'var(--color-bg-secondary)'
-          : 'var(--color-bg-tertiary)',
-      }}
     >
       <div className="flex flex-col h-full">
         <span
-          className={`text-xs font-medium ${isToday ? 'text-blue-500' : ''}`}
-          style={{
-            color: isToday
-              ? undefined
+          className={`text-xs font-medium ${
+            isToday
+              ? 'text-blue-500'
               : hasWinner
-              ? 'var(--color-text-primary)'
-              : 'var(--color-text-tertiary)',
-          }}
+              ? 'text-(--color-text-primary)'
+              : 'text-(--color-text-tertiary)'
+          }`}
         >
           {day}
         </span>
@@ -144,29 +129,17 @@ export function CalendarDayCell({
                 <TrophyBadge rank={1} size="sm" />
               </div>
               {dayWinners.length > 1 && (
-                <div
-                  className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-xs px-1 rounded"
-                  style={{
-                    backgroundColor: 'var(--color-bg-primary)',
-                    color: 'var(--color-text-secondary)',
-                  }}
-                >
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-xs px-1 rounded bg-(--color-bg-primary) text-(--color-text-secondary)">
                   +{dayWinners.length - 1}
                 </div>
               )}
             </>
           ) : !isFuture && hasResults ? (
-            <div
-              className="text-xs text-center"
-              style={{ color: 'var(--color-text-tertiary)' }}
-            >
+            <div className="text-xs text-center text-(--color-text-tertiary)">
               No winner
             </div>
           ) : !isFuture && !hasResults ? (
-            <div
-              className="text-xs text-center"
-              style={{ color: 'var(--color-text-tertiary)' }}
-            >
+            <div className="text-xs text-center text-(--color-text-tertiary)">
               Voting...
             </div>
           ) : null}

@@ -45,11 +45,8 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
 
   if (loading || challengeLoading) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center p-4"
-        style={{ backgroundColor: 'var(--color-bg-primary)' }}
-      >
-        <div style={{ color: 'var(--color-text-secondary)' }}>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-(--color-bg-primary)">
+        <div className="text-(--color-text-secondary)">
           Loading rankings...
         </div>
       </div>
@@ -58,11 +55,8 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
 
   if (!challenge) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center p-4"
-        style={{ backgroundColor: 'var(--color-bg-primary)' }}
-      >
-        <div style={{ color: 'var(--color-text-secondary)' }}>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-(--color-bg-primary)">
+        <div className="text-(--color-text-secondary)">
           Challenge not found for {formattedDate}.
         </div>
       </div>
@@ -70,18 +64,14 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
   }
 
   return (
-    <div
-      className="min-h-screen p-4 md:p-8"
-      style={{ backgroundColor: 'var(--color-bg-primary)' }}
-    >
+    <div className="min-h-screen p-4 md:p-8 bg-(--color-bg-primary)">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <a
               href="/"
-              className="inline-flex items-center gap-1 text-sm hover:underline"
-              style={{ color: 'var(--color-text-secondary)' }}
+              className="inline-flex items-center gap-1 text-sm hover:underline text-(--color-text-secondary)"
             >
               <svg
                 width="16"
@@ -108,11 +98,7 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
                   }
                 }}
                 disabled={!adjacentDates.prev}
-                className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1"
-                style={{
-                  backgroundColor: 'var(--color-bg-tertiary)',
-                  color: 'var(--color-text-primary)',
-                }}
+                className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 bg-(--color-bg-tertiary) text-(--color-text-primary)"
               >
                 <svg
                   width="14"
@@ -137,11 +123,7 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
                   }
                 }}
                 disabled={!adjacentDates.next}
-                className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1"
-                style={{
-                  backgroundColor: 'var(--color-bg-tertiary)',
-                  color: 'var(--color-text-primary)',
-                }}
+                className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 bg-(--color-bg-tertiary) text-(--color-text-primary)"
               >
                 Next
                 <svg
@@ -159,13 +141,10 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
               </button>
             </div>
           </div>
-          <h1
-            className="text-2xl font-bold mb-2"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
+          <h1 className="text-2xl font-bold mb-2 text-(--color-text-primary)">
             {formattedDate}
           </h1>
-          <p style={{ color: 'var(--color-text-secondary)' }}>
+          <p className="text-(--color-text-secondary)">
             Daily Challenge Rankings
           </p>
         </div>
@@ -175,10 +154,7 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
           {/* Rankings */}
           <div className="flex-1 space-y-6">
             {topThree.length === 0 ? (
-              <div
-                className="text-center py-12"
-                style={{ color: 'var(--color-text-secondary)' }}
-              >
+              <div className="text-center py-12 text-(--color-text-secondary)">
                 No rankings available for this day.
               </div>
             ) : (
@@ -186,10 +162,7 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
                 {/* Winners (1st place) */}
                 {winners.length > 0 && (
                   <div className="text-center">
-                    <h2
-                      className="text-sm font-medium mb-4"
-                      style={{ color: 'var(--color-text-tertiary)' }}
-                    >
+                    <h2 className="text-sm font-medium mb-4 text-(--color-text-tertiary)">
                       {winners.length > 1 ? '1st Place (Tie)' : '1st Place'}
                     </h2>
                     <div className={`flex justify-center ${winners.length > 1 ? 'gap-6' : ''}`}>
@@ -238,37 +211,22 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
 
           {/* Challenge details sidebar */}
           <div className="w-full md:w-75 space-y-4">
-            <div
-              className="border rounded-xl p-4"
-              style={{
-                backgroundColor: 'var(--color-bg-secondary)',
-                borderColor: 'var(--color-border)',
-              }}
-            >
-              <h2
-                className="text-sm font-semibold mb-3"
-                style={{ color: 'var(--color-text-primary)' }}
-              >
+            <div className="border rounded-xl p-4 bg-(--color-bg-secondary) border-(--color-border)">
+              <h2 className="text-sm font-semibold mb-3 text-(--color-text-primary)">
                 Challenge Details
               </h2>
 
               {/* Colors */}
               <div className="mb-4">
-                <span
-                  className="text-xs"
-                  style={{ color: 'var(--color-text-tertiary)' }}
-                >
+                <span className="text-xs text-(--color-text-tertiary)">
                   Colors
                 </span>
                 <div className="flex gap-2 mt-1">
                   {challenge.colors.map((color, i) => (
                     <div
                       key={i}
-                      className="w-8 h-8 rounded-md border"
-                      style={{
-                        backgroundColor: color,
-                        borderColor: 'var(--color-border)',
-                      }}
+                      className="w-8 h-8 rounded-md border border-(--color-border)"
+                      style={{ backgroundColor: color }}
                       title={color}
                     />
                   ))}
@@ -277,10 +235,7 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
 
               {/* Shapes */}
               <div>
-                <span
-                  className="text-xs"
-                  style={{ color: 'var(--color-text-tertiary)' }}
-                >
+                <span className="text-xs text-(--color-text-tertiary)">
                   Shapes
                 </span>
                 <div className="flex flex-wrap gap-2 mt-1">
@@ -289,10 +244,7 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
                     return (
                       <div
                         key={i}
-                        className="rounded-md p-1 flex items-center justify-center"
-                        style={{
-                          backgroundColor: 'var(--color-bg-tertiary)',
-                        }}
+                        className="rounded-md p-1 flex items-center justify-center bg-(--color-bg-tertiary)"
                         title={shapeData.name}
                       >
                         <svg width={40} height={40} viewBox="0 0 32 32">
@@ -354,10 +306,7 @@ function WinnerCard({ entry, challenge, onView, size, borderColor }: WinnerCardP
           />
         </div>
       </div>
-      <p
-        className="mt-3 font-medium"
-        style={{ color: 'var(--color-text-primary)' }}
-      >
+      <p className="mt-3 font-medium text-(--color-text-primary)">
         @{entry.nickname}
       </p>
     </button>

@@ -265,16 +265,11 @@ export function Calendar({ onClose }: CalendarProps) {
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center z-50"
-      style={{ backgroundColor: 'var(--color-modal-overlay)' }}
+      className="fixed inset-0 flex items-center justify-center z-50 bg-(--color-modal-overlay)"
       onClick={onClose}
     >
       <div
-        className="border rounded-xl p-6 w-full max-w-4xl mx-4 shadow-xl max-h-[90vh] overflow-auto"
-        style={{
-          backgroundColor: 'var(--color-bg-primary)',
-          borderColor: 'var(--color-border)',
-        }}
+        className="border rounded-xl p-6 w-full max-w-4xl mx-4 shadow-xl max-h-[90vh] overflow-auto bg-(--color-bg-primary) border-(--color-border)"
         onClick={(e) => e.stopPropagation()}
       >
         <CalendarHeader onClose={onClose} />

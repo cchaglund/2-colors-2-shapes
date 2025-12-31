@@ -21,11 +21,7 @@ export function CalendarNavigation({
     <div className="flex items-center justify-between mb-4">
       <button
         onClick={onPrevious}
-        className="p-2 rounded-md cursor-pointer transition-colors"
-        style={{
-          backgroundColor: 'var(--color-bg-tertiary)',
-          color: 'var(--color-text-primary)',
-        }}
+        className="p-2 rounded-md cursor-pointer transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary)"
         aria-label="Previous month"
       >
         <svg
@@ -43,19 +39,12 @@ export function CalendarNavigation({
       </button>
 
       <div className="flex items-center gap-4">
-        <span
-          className="text-lg font-medium"
-          style={{ color: 'var(--color-text-primary)' }}
-        >
+        <span className="text-lg font-medium text-(--color-text-primary)">
           {MONTHS[currentMonth]} {currentYear}
         </span>
         <button
           onClick={onToday}
-          className="px-3 py-1 rounded-md cursor-pointer text-sm transition-colors"
-          style={{
-            backgroundColor: 'var(--color-bg-tertiary)',
-            color: 'var(--color-text-secondary)',
-          }}
+          className="px-3 py-1 rounded-md cursor-pointer text-sm transition-colors bg-(--color-bg-tertiary) text-(--color-text-secondary)"
         >
           Today
         </button>
@@ -64,11 +53,7 @@ export function CalendarNavigation({
       <button
         onClick={onNext}
         disabled={!canGoNext}
-        className="p-2 rounded-md cursor-pointer transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-        style={{
-          backgroundColor: 'var(--color-bg-tertiary)',
-          color: 'var(--color-text-primary)',
-        }}
+        className="p-2 rounded-md cursor-pointer transition-colors disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-tertiary) text-(--color-text-primary)"
         aria-label="Next month"
       >
         <svg

@@ -10,27 +10,14 @@ export function ExportActionsCard({
   onCopyLink,
 }: ExportActionsCardProps) {
   return (
-    <div
-      className="border rounded-xl p-4"
-      style={{
-        backgroundColor: 'var(--color-bg-secondary)',
-        borderColor: 'var(--color-border)',
-      }}
-    >
-      <h2
-        className="text-sm font-semibold mb-3"
-        style={{ color: 'var(--color-text-primary)' }}
-      >
+    <div className="border rounded-xl p-4 bg-(--color-bg-secondary) border-(--color-border)">
+      <h2 className="text-sm font-semibold mb-3 text-(--color-text-primary)">
         Export & Share
       </h2>
       <div className="space-y-2">
         <button
           onClick={onDownloadPNG}
-          className="w-full px-4 py-2 rounded-md cursor-pointer text-sm font-medium transition-colors flex items-center justify-center gap-2"
-          style={{
-            backgroundColor: 'var(--color-bg-tertiary)',
-            color: 'var(--color-text-primary)',
-          }}
+          className="w-full px-4 py-2 rounded-md cursor-pointer text-sm font-medium transition-colors flex items-center justify-center gap-2 bg-(--color-bg-tertiary) text-(--color-text-primary)"
         >
           <svg
             width="16"
@@ -50,11 +37,7 @@ export function ExportActionsCard({
         </button>
         <button
           onClick={onDownloadSVG}
-          className="w-full px-4 py-2 rounded-md cursor-pointer text-sm font-medium transition-colors flex items-center justify-center gap-2"
-          style={{
-            backgroundColor: 'var(--color-bg-tertiary)',
-            color: 'var(--color-text-primary)',
-          }}
+          className="w-full px-4 py-2 rounded-md cursor-pointer text-sm font-medium transition-colors flex items-center justify-center gap-2 bg-(--color-bg-tertiary) text-(--color-text-primary)"
         >
           <svg
             width="16"
@@ -74,11 +57,7 @@ export function ExportActionsCard({
         </button>
         <button
           onClick={onCopyLink}
-          className="w-full px-4 py-2 rounded-md cursor-pointer text-sm font-medium transition-colors flex items-center justify-center gap-2"
-          style={{
-            backgroundColor: 'var(--color-bg-tertiary)',
-            color: 'var(--color-text-primary)',
-          }}
+          className="w-full px-4 py-2 rounded-md cursor-pointer text-sm font-medium transition-colors flex items-center justify-center gap-2 bg-(--color-bg-tertiary) text-(--color-text-primary)"
         >
           <svg
             width="16"
