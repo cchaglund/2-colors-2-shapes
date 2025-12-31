@@ -7,7 +7,9 @@ export interface LayerPanelProps {
   challenge: DailyChallenge;
   onSelectShape: (id: string | null, options?: { toggle?: boolean; range?: boolean; orderedIds?: string[] }) => void;
   onMoveLayer: (id: string, direction: 'up' | 'down' | 'top' | 'bottom') => void;
+  onMoveGroup: (groupId: string, direction: 'up' | 'down' | 'top' | 'bottom') => void;
   onReorderLayers: (draggedId: string, targetIndex: number, targetGroupId: string | null) => void;
+  onReorderGroup: (draggedGroupId: string, targetIndex: number) => void;
   onDeleteShape: (id: string) => void;
   onRenameShape: (id: string, name: string) => void;
   // Group handlers
@@ -30,6 +32,9 @@ export interface LayerItem {
   group?: ShapeGroup;
   shapesInGroup?: Shape[];
   belongsToGroupId?: string; // Track which group this item belongs to for drag-drop
+  isTopItem?: boolean; // For group headers: is this group at the top of the unified list
+  isBottomItem?: boolean; // For group headers: is this group at the bottom of the unified list
+  topLevelIndex?: number; // Index in the unified top-level list (for drag-drop)
 }
 
 export interface LayerItemProps {
@@ -69,6 +74,11 @@ export interface GroupHeaderProps {
   isTouchDevice: boolean;
   isMultiSelectMode: boolean;
   modifierKeyHint: string;
+  isTop: boolean;
+  isBottom: boolean;
+  topLevelIndex: number;
+  draggedGroupId: string | null;
+  dropTargetTopLevelIndex: number | null;
   onGroupClick: (e: React.MouseEvent, groupId: string) => void;
   onStartEditingGroup: (group: ShapeGroup) => void;
   onEditValueChange: (value: string) => void;
@@ -76,4 +86,9 @@ export interface GroupHeaderProps {
   onKeyDown: (e: React.KeyboardEvent) => void;
   onToggleGroupCollapsed: (groupId: string) => void;
   onDeleteGroup: (groupId: string) => void;
+  onMoveGroup: (groupId: string, direction: 'up' | 'down' | 'top' | 'bottom') => void;
+  onGroupDragStart: (e: React.DragEvent, groupId: string) => void;
+  onGroupDragEnd: () => void;
+  onGroupDragOver: (e: React.DragEvent, topLevelIndex: number) => void;
+  onGroupDrop: (e: React.DragEvent, targetTopLevelIndex: number) => void;
 }

@@ -506,6 +506,254 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
     [setCanvasState]
   );
 
+  const moveGroup = useCallback(
+    (groupId: string, direction: 'up' | 'down' | 'top' | 'bottom') => {
+      setCanvasState((prev) => {
+        const group = prev.groups.find((g) => g.id === groupId);
+        if (!group) return prev;
+
+        // Get shapes in this group
+        const shapesInGroup = prev.shapes.filter((s) => s.groupId === groupId);
+        if (shapesInGroup.length === 0) return prev;
+
+        // Calculate group's effective zIndex (max of its shapes)
+        const groupMaxZ = Math.max(...shapesInGroup.map((s) => s.zIndex));
+        const groupMinZ = Math.min(...shapesInGroup.map((s) => s.zIndex));
+
+        // Build a unified list of "top-level items" for ordering
+        type TopLevelItem =
+          | { type: 'group'; groupId: string; maxZIndex: number; minZIndex: number }
+          | { type: 'ungrouped-shape'; shapeId: string; zIndex: number };
+
+        const topLevelItems: TopLevelItem[] = [];
+
+        // Add all groups
+        for (const g of prev.groups) {
+          const gShapes = prev.shapes.filter((s) => s.groupId === g.id);
+          if (gShapes.length === 0) continue;
+          const maxZ = Math.max(...gShapes.map((s) => s.zIndex));
+          const minZ = Math.min(...gShapes.map((s) => s.zIndex));
+          topLevelItems.push({ type: 'group', groupId: g.id, maxZIndex: maxZ, minZIndex: minZ });
+        }
+
+        // Add ungrouped shapes
+        for (const s of prev.shapes) {
+          if (!s.groupId) {
+            topLevelItems.push({ type: 'ungrouped-shape', shapeId: s.id, zIndex: s.zIndex });
+          }
+        }
+
+        // Sort by zIndex descending (highest first)
+        topLevelItems.sort((a, b) => {
+          const aZ = a.type === 'group' ? a.maxZIndex : a.zIndex;
+          const bZ = b.type === 'group' ? b.maxZIndex : b.zIndex;
+          return bZ - aZ;
+        });
+
+        // Find current group's position
+        const currentIndex = topLevelItems.findIndex(
+          (item) => item.type === 'group' && item.groupId === groupId
+        );
+        if (currentIndex === -1) return prev;
+
+        let newShapes = prev.shapes;
+
+        if (direction === 'up' && currentIndex > 0) {
+          // Move group above the item at currentIndex - 1
+          const itemAbove = topLevelItems[currentIndex - 1];
+          if (itemAbove.type === 'group') {
+            // Swap with another group: swap all their zIndex ranges
+            const aboveMaxZ = itemAbove.maxZIndex;
+            const aboveMinZ = itemAbove.minZIndex;
+            const groupRange = groupMaxZ - groupMinZ;
+            const aboveRange = aboveMaxZ - aboveMinZ;
+
+            // Move our group to above's position, and above group to our position
+            newShapes = prev.shapes.map((s) => {
+              if (s.groupId === groupId) {
+                // Shift to take above's position (higher zIndex)
+                const offset = s.zIndex - groupMinZ;
+                return { ...s, zIndex: aboveMaxZ - groupRange + offset + aboveRange + 1 };
+              }
+              if (s.groupId === itemAbove.groupId) {
+                // Shift down to our old position
+                const offset = s.zIndex - aboveMinZ;
+                return { ...s, zIndex: groupMinZ + offset };
+              }
+              return s;
+            });
+          } else {
+            // Swap with ungrouped shape: give group higher zIndex
+            const shapeAboveZ = itemAbove.zIndex;
+            const zDiff = shapeAboveZ - groupMaxZ;
+            newShapes = prev.shapes.map((s) => {
+              if (s.groupId === groupId) {
+                return { ...s, zIndex: s.zIndex + zDiff + 1 };
+              }
+              if (s.id === itemAbove.shapeId) {
+                return { ...s, zIndex: groupMinZ - 1 };
+              }
+              return s;
+            });
+          }
+        } else if (direction === 'down' && currentIndex < topLevelItems.length - 1) {
+          // Move group below the item at currentIndex + 1
+          const itemBelow = topLevelItems[currentIndex + 1];
+          if (itemBelow.type === 'group') {
+            // Swap with another group
+            const belowMaxZ = itemBelow.maxZIndex;
+            const belowMinZ = itemBelow.minZIndex;
+            const groupRange = groupMaxZ - groupMinZ;
+            const belowRange = belowMaxZ - belowMinZ;
+
+            newShapes = prev.shapes.map((s) => {
+              if (s.groupId === groupId) {
+                // Shift down to below's position
+                const offset = s.zIndex - groupMinZ;
+                return { ...s, zIndex: belowMinZ + offset };
+              }
+              if (s.groupId === itemBelow.groupId) {
+                // Shift up to our old position
+                const offset = s.zIndex - belowMinZ;
+                return { ...s, zIndex: groupMaxZ - belowRange + offset + groupRange + 1 };
+              }
+              return s;
+            });
+          } else {
+            // Swap with ungrouped shape
+            const shapeBelowZ = itemBelow.zIndex;
+            const zDiff = groupMinZ - shapeBelowZ;
+            newShapes = prev.shapes.map((s) => {
+              if (s.groupId === groupId) {
+                return { ...s, zIndex: s.zIndex - zDiff - 1 };
+              }
+              if (s.id === itemBelow.shapeId) {
+                return { ...s, zIndex: groupMaxZ + 1 };
+              }
+              return s;
+            });
+          }
+        } else if (direction === 'top' && currentIndex > 0) {
+          // Move to very top
+          const topZ = Math.max(...prev.shapes.map((s) => s.zIndex));
+          const zDiff = topZ - groupMaxZ;
+          newShapes = prev.shapes.map((s) => {
+            if (s.groupId === groupId) {
+              return { ...s, zIndex: s.zIndex + zDiff + 1 };
+            }
+            return s;
+          });
+        } else if (direction === 'bottom' && currentIndex < topLevelItems.length - 1) {
+          // Move to very bottom
+          const bottomZ = Math.min(...prev.shapes.map((s) => s.zIndex));
+          const zDiff = groupMinZ - bottomZ;
+          newShapes = prev.shapes.map((s) => {
+            if (s.groupId === groupId) {
+              return { ...s, zIndex: s.zIndex - zDiff - 1 };
+            }
+            return s;
+          });
+        } else {
+          return prev;
+        }
+
+        return { ...prev, shapes: newShapes };
+      });
+    },
+    [setCanvasState]
+  );
+
+  const reorderGroup = useCallback(
+    (draggedGroupId: string, targetTopLevelIndex: number) => {
+      setCanvasState((prev) => {
+        const group = prev.groups.find((g) => g.id === draggedGroupId);
+        if (!group) return prev;
+
+        // Get shapes in the dragged group
+        const shapesInGroup = prev.shapes.filter((s) => s.groupId === draggedGroupId);
+        if (shapesInGroup.length === 0) return prev;
+
+        // Build a unified list of "top-level items" for ordering (same logic as LayerPanel)
+        type TopLevelItem =
+          | { type: 'group'; groupId: string; maxZIndex: number; minZIndex: number; shapeIds: string[] }
+          | { type: 'ungrouped-shape'; shapeId: string; zIndex: number };
+
+        const topLevelItems: TopLevelItem[] = [];
+
+        // Add all groups
+        for (const g of prev.groups) {
+          const gShapes = prev.shapes.filter((s) => s.groupId === g.id);
+          if (gShapes.length === 0) continue;
+          const maxZ = Math.max(...gShapes.map((s) => s.zIndex));
+          const minZ = Math.min(...gShapes.map((s) => s.zIndex));
+          topLevelItems.push({
+            type: 'group',
+            groupId: g.id,
+            maxZIndex: maxZ,
+            minZIndex: minZ,
+            shapeIds: gShapes.map((s) => s.id),
+          });
+        }
+
+        // Add ungrouped shapes
+        for (const s of prev.shapes) {
+          if (!s.groupId) {
+            topLevelItems.push({ type: 'ungrouped-shape', shapeId: s.id, zIndex: s.zIndex });
+          }
+        }
+
+        // Sort by zIndex descending (highest first)
+        topLevelItems.sort((a, b) => {
+          const aZ = a.type === 'group' ? a.maxZIndex : a.zIndex;
+          const bZ = b.type === 'group' ? b.maxZIndex : b.zIndex;
+          return bZ - aZ;
+        });
+
+        // Find the dragged group's current position
+        const currentIndex = topLevelItems.findIndex(
+          (item) => item.type === 'group' && item.groupId === draggedGroupId
+        );
+        if (currentIndex === -1 || currentIndex === targetTopLevelIndex) return prev;
+
+        // Remove dragged group and insert at target position
+        const reordered = [...topLevelItems];
+        const [removed] = reordered.splice(currentIndex, 1);
+        reordered.splice(targetTopLevelIndex, 0, removed);
+
+        // Reassign zIndex values based on new order
+        // Each top-level item gets a range of zIndex values
+        let currentZ = reordered.length * 10; // Start high and go down
+        const newZIndexMap = new Map<string, number>();
+
+        for (const item of reordered) {
+          if (item.type === 'group') {
+            // Assign consecutive zIndex values to shapes in the group
+            const groupShapes = prev.shapes.filter((s) => s.groupId === item.groupId);
+            // Preserve relative order within group
+            const sortedGroupShapes = [...groupShapes].sort((a, b) => b.zIndex - a.zIndex);
+            for (const shape of sortedGroupShapes) {
+              newZIndexMap.set(shape.id, currentZ--);
+            }
+          } else {
+            newZIndexMap.set(item.shapeId, currentZ--);
+          }
+        }
+
+        // Apply new zIndex values
+        const newShapes = prev.shapes.map((shape) => {
+          const newZ = newZIndexMap.get(shape.id);
+          if (newZ !== undefined && newZ !== shape.zIndex) {
+            return { ...shape, zIndex: newZ };
+          }
+          return shape;
+        });
+
+        return { ...prev, shapes: newShapes };
+      });
+    },
+    [setCanvasState]
+  );
+
   const setBackgroundColor = useCallback(
     (colorIndex: 0 | 1 | null) => {
       setCanvasState((prev) => ({
@@ -871,7 +1119,9 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
     deleteSelectedShapes,
     selectShape,
     moveLayer,
+    moveGroup,
     reorderLayers,
+    reorderGroup,
     setBackgroundColor,
     resetCanvas,
     mirrorHorizontal,

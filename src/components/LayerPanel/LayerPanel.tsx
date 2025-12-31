@@ -16,7 +16,9 @@ export function LayerPanel({
   challenge,
   onSelectShape,
   onMoveLayer,
+  onMoveGroup,
   onReorderLayers,
+  onReorderGroup,
   onDeleteShape,
   onRenameShape,
   onCreateGroup,
@@ -37,13 +39,15 @@ export function LayerPanel({
   const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_dropTargetGroupId, setDropTargetGroupId] = useState<string | null>(null);
+  const [draggedGroupId, setDraggedGroupId] = useState<string | null>(null);
+  const [dropTargetTopLevelIndex, setDropTargetTopLevelIndex] = useState<number | null>(null);
   const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
   const isTouchDevice = useIsTouchDevice();
 
   // Sort shapes by zIndex descending (top layer first in list)
   const sortedShapes = useMemo(() => [...shapes].sort((a, b) => b.zIndex - a.zIndex), [shapes]);
 
-  // Organize shapes into groups and ungrouped
+  // Organize shapes into groups and ungrouped, then build a unified ordered list
   const { layerItems, orderedIds } = useMemo(() => {
     const groupedShapes = new Map<string, Shape[]>();
     const ungroupedShapes: Shape[] = [];
@@ -59,40 +63,68 @@ export function LayerPanel({
       }
     }
 
-    // Build layer items list with groups at top, ungrouped at bottom
-    const items: LayerItem[] = [];
-    const ids: string[] = [];
+    // Build unified list of "top-level items" (groups or ungrouped shapes)
+    // Each item has a representative zIndex for sorting
+    type TopLevelItem =
+      | { type: 'group'; group: ShapeGroup; shapesInGroup: Shape[]; maxZIndex: number }
+      | { type: 'ungrouped-shape'; shape: Shape };
 
-    // Sort groups by zIndex descending
-    const sortedGroups = [...groups].sort((a, b) => b.zIndex - a.zIndex);
+    const topLevelItems: TopLevelItem[] = [];
 
-    // Add groups and their shapes
-    for (const group of sortedGroups) {
+    // Add groups with their max zIndex
+    for (const group of groups) {
       const shapesInGroup = groupedShapes.get(group.id) || [];
       if (shapesInGroup.length === 0) continue;
-
-      items.push({
-        type: 'group-header',
-        group,
-        shapesInGroup,
-        belongsToGroupId: group.id,
-      });
-
-      for (const shape of shapesInGroup) {
-        ids.push(shape.id);
-      }
-
-      if (!group.isCollapsed) {
-        for (const shape of shapesInGroup) {
-          items.push({ type: 'shape', shape, belongsToGroupId: group.id });
-        }
-      }
+      const maxZIndex = Math.max(...shapesInGroup.map(s => s.zIndex));
+      topLevelItems.push({ type: 'group', group, shapesInGroup, maxZIndex });
     }
 
     // Add ungrouped shapes
     for (const shape of ungroupedShapes) {
-      items.push({ type: 'shape', shape });
-      ids.push(shape.id);
+      topLevelItems.push({ type: 'ungrouped-shape', shape });
+    }
+
+    // Sort by zIndex descending (highest first = top of layer panel)
+    topLevelItems.sort((a, b) => {
+      const aZ = a.type === 'group' ? a.maxZIndex : a.shape.zIndex;
+      const bZ = b.type === 'group' ? b.maxZIndex : b.shape.zIndex;
+      return bZ - aZ;
+    });
+
+    // Build final layer items list
+    const items: LayerItem[] = [];
+    const ids: string[] = [];
+
+    for (let i = 0; i < topLevelItems.length; i++) {
+      const topItem = topLevelItems[i];
+      const isTopItem = i === 0;
+      const isBottomItem = i === topLevelItems.length - 1;
+
+      if (topItem.type === 'group') {
+        const { group, shapesInGroup } = topItem;
+        items.push({
+          type: 'group-header',
+          group,
+          shapesInGroup,
+          belongsToGroupId: group.id,
+          isTopItem,
+          isBottomItem,
+          topLevelIndex: i,
+        });
+
+        for (const shape of shapesInGroup) {
+          ids.push(shape.id);
+        }
+
+        if (!group.isCollapsed) {
+          for (const shape of shapesInGroup) {
+            items.push({ type: 'shape', shape, belongsToGroupId: group.id });
+          }
+        }
+      } else {
+        items.push({ type: 'shape', shape: topItem.shape });
+        ids.push(topItem.shape.id);
+      }
     }
 
     return { layerItems: items, orderedIds: ids };
@@ -204,6 +236,35 @@ export function LayerPanel({
     setDropTargetGroupId(null);
   };
 
+  // Group drag handlers
+  const handleGroupDragStart = (e: React.DragEvent, groupId: string) => {
+    setDraggedGroupId(groupId);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', `group:${groupId}`);
+  };
+
+  const handleGroupDragEnd = () => {
+    setDraggedGroupId(null);
+    setDropTargetTopLevelIndex(null);
+  };
+
+  const handleGroupDragOver = (e: React.DragEvent, topLevelIndex: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDropTargetTopLevelIndex(topLevelIndex);
+  };
+
+  const handleGroupDrop = (e: React.DragEvent, targetTopLevelIndex: number) => {
+    e.preventDefault();
+    const data = e.dataTransfer.getData('text/plain');
+    if (data.startsWith('group:')) {
+      const groupId = data.replace('group:', '');
+      onReorderGroup(groupId, targetTopLevelIndex);
+    }
+    setDraggedGroupId(null);
+    setDropTargetTopLevelIndex(null);
+  };
+
   // Group action handlers
   const canCreateGroup = selectedShapeIds.size >= 2;
 
@@ -309,6 +370,11 @@ export function LayerPanel({
                   isTouchDevice={isTouchDevice}
                   isMultiSelectMode={isMultiSelectMode}
                   modifierKeyHint={modifierKeyHint}
+                  isTop={item.isTopItem ?? false}
+                  isBottom={item.isBottomItem ?? false}
+                  topLevelIndex={item.topLevelIndex ?? 0}
+                  draggedGroupId={draggedGroupId}
+                  dropTargetTopLevelIndex={dropTargetTopLevelIndex}
                   onGroupClick={handleGroupClick}
                   onStartEditingGroup={startEditingGroup}
                   onEditValueChange={setEditValue}
@@ -316,6 +382,11 @@ export function LayerPanel({
                   onKeyDown={handleKeyDown}
                   onToggleGroupCollapsed={onToggleGroupCollapsed}
                   onDeleteGroup={onDeleteGroup}
+                  onMoveGroup={onMoveGroup}
+                  onGroupDragStart={handleGroupDragStart}
+                  onGroupDragEnd={handleGroupDragEnd}
+                  onGroupDragOver={handleGroupDragOver}
+                  onGroupDrop={handleGroupDrop}
                 />
               );
             } else if (item.type === 'shape' && item.shape) {

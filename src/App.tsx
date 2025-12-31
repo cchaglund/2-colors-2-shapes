@@ -102,7 +102,9 @@ function App() {
     deleteSelectedShapes,
     selectShape,
     moveLayer,
+    moveGroup,
     reorderLayers,
+    reorderGroup,
     setBackgroundColor,
     resetCanvas,
     mirrorHorizontal,
@@ -360,7 +362,9 @@ function App() {
         challenge={challenge}
         onSelectShape={selectShape}
         onMoveLayer={moveLayer}
+        onMoveGroup={moveGroup}
         onReorderLayers={reorderLayers}
+        onReorderGroup={reorderGroup}
         onDeleteShape={deleteShape}
         onRenameShape={(id, name) => updateShape(id, { name })}
         onCreateGroup={createGroup}
