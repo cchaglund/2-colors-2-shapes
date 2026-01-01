@@ -12,6 +12,7 @@ export const MOCK_CHALLENGE: DailyChallenge = {
     { type: 'circle', name: 'Circle', svg: 'M50,10 a40,40 0 1,0 0.001,0 Z' },
     { type: 'square', name: 'Square', svg: 'M10,10 H90 V90 H10 Z' },
   ],
+  word: 'creativity',
 };
 
 // Mock shapes for test submissions

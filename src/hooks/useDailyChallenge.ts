@@ -9,7 +9,7 @@ import { supabase } from '../lib/supabase';
 // =============================================================================
 
 const CACHE_KEY = 'challenge-cache';
-const CACHE_VERSION = 2; // Increment when data format changes (added SVG data)
+const CACHE_VERSION = 3; // Increment when data format changes (added word field)
 
 interface CacheData {
   version: number;
@@ -166,6 +166,7 @@ export function useDailyChallenge(
         date: data.date,
         colors: data.colors,
         shapes: data.shapes,
+        word: data.word,
       };
 
       // Cache the result (with persistence)
@@ -236,6 +237,7 @@ export async function fetchChallengesBatch(
         date: challenge.date,
         colors: challenge.colors,
         shapes: challenge.shapes,
+        word: challenge.word,
       };
       cacheChallenge(c);
     }
@@ -279,6 +281,7 @@ export async function prefetchChallenge(date: string): Promise<void> {
         date: data.date,
         colors: data.colors,
         shapes: data.shapes,
+        word: data.word,
       });
     }
   } catch {

@@ -12,6 +12,14 @@ export function ChallengeDetailsCard({ challenge }: ChallengeDetailsCardProps) {
         Challenge Details
       </h2>
 
+      {/* Daily Word */}
+      <div className="mb-4">
+        <span className="text-xs text-(--color-text-tertiary)">Inspiration</span>
+        <p className="mt-1 text-base font-medium italic text-(--color-text-primary)">
+          "{challenge.word}"
+        </p>
+      </div>
+
       {/* Colors */}
       <div className="mb-4">
         <span className="text-xs text-(--color-text-tertiary)">Colors</span>

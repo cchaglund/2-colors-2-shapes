@@ -29,6 +29,9 @@ export function VotingPairView({
             Vote on Yesterday's Submissions
           </h2>
           <p className="text-sm text-(--color-text-secondary)">{formatDate(challengeDate)}</p>
+          <p className="text-sm text-(--color-text-tertiary) mt-1">
+            Today's word: <span className="italic">"{challenge.word}"</span>
+          </p>
         </div>
         <div className="text-right">
           <div className="text-sm font-medium text-(--color-text-primary)">
@@ -84,6 +87,11 @@ export function VotingPairView({
           </div>
         </button>
       </div>
+
+      {/* Voting guidance */}
+      <p className="text-xs text-center text-(--color-text-tertiary) mb-4">
+        Vote for whichever you prefer! You might consider creativity, composition, or interpretation of the daily word.
+      </p>
 
       {/* Actions */}
       <div className="flex justify-between items-center">

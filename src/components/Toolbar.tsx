@@ -161,6 +161,12 @@ export function Toolbar({
         <h3 className="m-0 text-base text-(--color-text-primary)">Today's Challenge</h3>
         <p className="mt-1 mb-3 text-sm text-(--color-text-secondary)">{challenge.date}</p>
 
+        {/* Daily Word */}
+        <div className="mb-4 pb-3 border-b border-(--color-border-light)">
+          <h4 className="m-0 mb-1 text-xs uppercase text-(--color-text-tertiary)">Inspiration</h4>
+          <p className="m-0 text-lg font-medium italic text-(--color-text-primary) capitalize">"{challenge.word}"</p>
+        </div>
+
         <h4 className="m-0 mb-2 text-xs uppercase text-(--color-text-tertiary)">Colors</h4>
         <div className="flex gap-2 mb-3">
           {challenge.colors.map((color, index) => (

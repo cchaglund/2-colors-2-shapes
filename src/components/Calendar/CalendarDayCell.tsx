@@ -36,6 +36,7 @@ export function CalendarDayCell({
     return (
       <div
         onClick={() => !isFuture && submission && onClick(day)}
+        title={challenge?.word ? `"${challenge.word}"` : undefined}
         className={`
           aspect-square rounded-lg p-1 transition-all
           ${submission ? 'cursor-pointer hover:ring-2 hover:ring-blue-500 bg-(--color-bg-secondary)' : 'bg-(--color-bg-tertiary)'}
@@ -97,6 +98,7 @@ export function CalendarDayCell({
   return (
     <div
       onClick={() => hasWinner && onClick(day)}
+      title={challenge?.word ? `"${challenge.word}"` : undefined}
       className={`
         aspect-square rounded-lg p-1 transition-all
         ${hasWinner ? 'cursor-pointer hover:ring-2 hover:ring-yellow-500 bg-(--color-bg-secondary)' : 'bg-(--color-bg-tertiary)'}

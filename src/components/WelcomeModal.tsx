@@ -62,8 +62,20 @@ export function WelcomeModal({ onDismiss }: WelcomeModalProps) {
               Daily Challenges
             </h3>
             <p>
-              Each day brings a new creative challenge with 2 colors and 2 shapes.
-              Use these constraints to create unique artwork.
+              Each day brings a new creative challenge with 2 colors, 2 shapes,
+              and an optional <strong>daily word</strong> for inspiration.
+              The word is just a suggestion — use it however you like, or ignore it entirely!
+            </p>
+          </section>
+
+          <section>
+            <h3 className="font-medium text-(--color-text-primary) mb-1">
+              Vote & Compete
+            </h3>
+            <p>
+              Submit your art today, and tomorrow the community votes on it.
+              Winners are announced the day after voting ends.
+              It's optional but fun — see how your work stacks up!
             </p>
           </section>
 

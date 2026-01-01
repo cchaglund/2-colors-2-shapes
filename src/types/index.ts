@@ -76,6 +76,7 @@ export interface DailyChallenge {
   date: string; // YYYY-MM-DD format
   colors: [string, string];
   shapes: [ChallengeShapeData, ChallengeShapeData];
+  word: string; // Daily word for creative inspiration
 }
 
 export interface CanvasState {

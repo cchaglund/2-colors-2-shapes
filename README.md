@@ -9,8 +9,9 @@ https://2-colors-2-shapes.netlify.app/
 Every day, the app generates a unique set of constraints:
 - **2 Colors**: Two visually distinct colors (ensured to be different enough to distinguish)
 - **2 Shapes**: Two geometric shapes from 41 available shapes including basic shapes (circle, square, triangle, etc.), sophisticated polygons (diamond, trapezoid, parallelogram, etc.), and irregular abstract shapes with mixed straight/curved edges
+- **1 Word** (optional): A daily word for creative inspiration — interpret it however you like, or ignore it entirely!
 
-The same date always generates the same colors and shapes (seed-based randomization).
+The same date always generates the same colors, shapes, and word (seed-based randomization).
 
 ## Features
 

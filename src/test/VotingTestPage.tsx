@@ -405,7 +405,6 @@ export function VotingTestPage() {
         return (
           <div className="flex items-center justify-center min-h-100">
             <VotingOptInPrompt
-              variant="zero"
               onOptIn={() => console.log('Opted in')}
               onSkip={() => console.log('Skipped')}
             />
@@ -416,7 +415,6 @@ export function VotingTestPage() {
         return (
           <div className="flex items-center justify-center min-h-100">
             <VotingOptInPrompt
-              variant="one"
               onOptIn={() => console.log('Opted in')}
               onSkip={() => console.log('Skipped')}
             />
