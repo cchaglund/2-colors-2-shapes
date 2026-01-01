@@ -23,7 +23,8 @@ export function VotingModal({
   onOptInToRanking,
 }: VotingModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
-  const [showConfirmation, setShowConfirmation] = useState(false);
+  // Track if user dismissed confirmation to continue voting
+  const [dismissedConfirmation, setDismissedConfirmation] = useState(false);
 
   // Fetch challenge for the date being voted on
   const { challenge } = useDailyChallenge(challengeDate);
@@ -51,12 +52,8 @@ export function VotingModal({
     });
   }, [initializeVoting, fetchNextPair]);
 
-  // Show confirmation when user reaches required votes
-  useEffect(() => {
-    if (hasEnteredRanking && !showConfirmation) {
-      setShowConfirmation(true);
-    }
-  }, [hasEnteredRanking, showConfirmation]);
+  // Derive showConfirmation from state instead of using an effect
+  const showConfirmation = hasEnteredRanking && !dismissedConfirmation;
 
   // Focus trap and keyboard handling
   useEffect(() => {
@@ -99,7 +96,7 @@ export function VotingModal({
   };
 
   const handleContinueVoting = () => {
-    setShowConfirmation(false);
+    setDismissedConfirmation(true);
   };
 
   const handleOptIn = () => {
@@ -111,13 +108,8 @@ export function VotingModal({
   // Determine content to render
   const renderContent = () => {
     // Bootstrap case: No submissions yesterday
-    if (noSubmissions && !loading) {
-      return <VotingOptInPrompt variant="zero" onOptIn={handleOptIn} onSkip={onSkipVoting} />;
-    }
-
-    // Bootstrap case: Only 1 submission
-    if (submissionCount === 1 && !loading) {
-      return <VotingOptInPrompt variant="one" onOptIn={handleOptIn} onSkip={onSkipVoting} />;
+    if ((noSubmissions || submissionCount === 0) && !loading) {
+      return <VotingOptInPrompt onOptIn={handleOptIn} onSkip={onSkipVoting} />;
     }
 
     // Confirmation screen after reaching required votes

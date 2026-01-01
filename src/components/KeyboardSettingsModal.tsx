@@ -237,7 +237,7 @@ export function KeyboardSettingsModal({
             )}
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-md border-none cursor-pointer text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 rounded-md border-none cursor-pointer text-sm font-medium bg-(--color-accent) text-white hover:bg-(--color-accent-hover) transition-colors"
             >
               Done
             </button>
@@ -273,7 +273,7 @@ export function KeyboardSettingsModal({
               </button>
               <button
                 onClick={() => handleResolveConflict(true)}
-                className="px-4 py-2 rounded-md border-none cursor-pointer text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                className="px-4 py-2 rounded-md border-none cursor-pointer text-sm font-medium bg-(--color-accent) text-white hover:bg-(--color-accent-hover) transition-colors"
               >
                 Replace
               </button>

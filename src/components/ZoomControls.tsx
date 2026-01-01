@@ -35,7 +35,7 @@ export function ZoomControls({
         className={`min-w-14 h-7 px-2 flex items-center justify-center rounded text-sm font-medium transition-colors ${
           isDefaultZoom
             ? 'cursor-default text-(--color-text-tertiary)'
-            : 'cursor-pointer text-blue-600 hover:bg-blue-600/10'
+            : 'cursor-pointer text-(--color-accent) hover:bg-(--color-accent)/10'
         }`}
         onClick={onResetZoom}
         disabled={isDefaultZoom}

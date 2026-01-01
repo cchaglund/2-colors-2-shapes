@@ -11,3 +11,7 @@
 - moving shapes with arrow buttons seems to be jumping too much, should be 1px per press
 - when holding two fingers on trackpad and moving them you should pan the canvas (right now it's just scrolling the page)
 - should we have more colors...? allows background to be any color? Allow bg to be either one of the two colors or black or white?
+- when i log out and click log in again, I'm not able to select between my google accounts, it just logs in with the last one I used.
+- can see wall of the day's submissions - but only after you've submitted something yourself. 
+- button hover effects
+- some buttons are blue

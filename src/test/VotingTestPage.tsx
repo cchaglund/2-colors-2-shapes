@@ -430,7 +430,7 @@ export function VotingTestPage() {
           <div className="text-center">
             <button
               onClick={() => setShowModal(true)}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"
+              className="px-6 py-3 bg-(--color-accent) text-white rounded-lg font-medium hover:bg-(--color-accent-hover)"
             >
               Show Winner Modal
             </button>
@@ -444,7 +444,7 @@ export function VotingTestPage() {
           <div className="text-center">
             <button
               onClick={() => setShowModal(true)}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"
+              className="px-6 py-3 bg-(--color-accent) text-white rounded-lg font-medium hover:bg-(--color-accent-hover)"
             >
               Show Tied Winner Modal
             </button>
@@ -458,7 +458,7 @@ export function VotingTestPage() {
           <div className="text-center">
             <button
               onClick={() => setShowModal(true)}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"
+              className="px-6 py-3 bg-(--color-accent) text-white rounded-lg font-medium hover:bg-(--color-accent-hover)"
             >
               Show Three-Way Tie Modal
             </button>
@@ -503,7 +503,7 @@ export function VotingTestPage() {
               }}
               className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                 activeScenario === scenario
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-(--color-accent) text-white'
                   : 'text-(--color-text-primary) hover:bg-(--color-bg-secondary)'
               }`}
             >
@@ -525,7 +525,7 @@ export function VotingTestPage() {
               }}
               className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                 activeScenario === scenario
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-(--color-accent) text-white'
                   : 'text-(--color-text-primary) hover:bg-(--color-bg-secondary)'
               }`}
             >

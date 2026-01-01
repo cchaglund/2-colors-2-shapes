@@ -18,7 +18,7 @@ export function VotingProgress({ voteCount, requiredVotes }: VotingProgressProps
       </div>
       <div className="w-full h-2 bg-(--color-bg-tertiary) rounded-full overflow-hidden">
         <div
-          className="h-full bg-blue-600 transition-all duration-300"
+          className="h-full bg-(--color-accent) transition-all duration-300"
           style={{ width: `${percentage}%` }}
         />
       </div>

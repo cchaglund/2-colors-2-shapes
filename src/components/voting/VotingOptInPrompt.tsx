@@ -1,10 +1,8 @@
 import type { VotingOptInPromptProps } from './types';
 
-export function VotingOptInPrompt({ variant, onOptIn, onSkip }: VotingOptInPromptProps) {
-  const message =
-    variant === 'zero'
-      ? 'There were too few submissions yesterday to vote on. Would you like your artwork to be included in tomorrow\'s voting?'
-      : 'There was only 1 submission yesterday, so there\'s nothing to vote on yet. Would you like your artwork to be included in tomorrow\'s voting?';
+export function VotingOptInPrompt({ onOptIn, onSkip }: VotingOptInPromptProps) {
+  const message = 'If you opt in, your artwork will be visible for others to vote on tomorrow. Winners are announced the following day.';
+  const message3 = 'Your artwork has been saved to your gallery regardless of your choice.';
 
   return (
     <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md shadow-xl text-center">
@@ -13,6 +11,7 @@ export function VotingOptInPrompt({ variant, onOptIn, onSkip }: VotingOptInPromp
         Submit for Voting?
       </h2>
       <p className="text-(--color-text-secondary) mb-6">{message}</p>
+      <p className="text-(--color-text-secondary) text-sm mb-6 italic">{message3}</p>
       <div className="flex gap-3">
         <button
           onClick={onSkip}
@@ -22,7 +21,7 @@ export function VotingOptInPrompt({ variant, onOptIn, onSkip }: VotingOptInPromp
         </button>
         <button
           onClick={onOptIn}
-          className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="flex-1 px-4 py-2.5 bg-(--color-accent) text-white rounded-lg font-medium hover:bg-(--color-accent-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2"
         >
           Yes, include me!
         </button>

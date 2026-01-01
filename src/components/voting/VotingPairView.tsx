@@ -45,7 +45,7 @@ export function VotingPairView({
       {/* Progress bar */}
       <div className="w-full h-2 bg-(--color-bg-tertiary) rounded-full mb-6 overflow-hidden">
         <div
-          className="h-full bg-blue-600 transition-all duration-300"
+          className="h-full bg-(--color-accent) transition-all duration-300"
           style={{ width: `${requiredVotes > 0 ? Math.min((voteCount / requiredVotes) * 100, 100) : 100}%` }}
         />
       </div>
@@ -55,7 +55,7 @@ export function VotingPairView({
         <button
           onClick={() => onVote(currentPair.submissionA.id)}
           disabled={submitting}
-          className="group relative border-2 border-(--color-border) rounded-xl overflow-hidden hover:border-blue-500 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="group relative border-2 border-(--color-border) rounded-xl overflow-hidden hover:border-(--color-accent) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <SubmissionThumbnail
             shapes={currentPair.submissionA.shapes}
@@ -63,7 +63,7 @@ export function VotingPairView({
             backgroundColorIndex={currentPair.submissionA.background_color_index}
             size={280}
           />
-          <div className="absolute inset-0 flex items-center justify-center bg-blue-600/80 text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute inset-0 flex items-center justify-center bg-(--color-accent)/80 text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
             Choose this one
           </div>
         </button>
@@ -71,7 +71,7 @@ export function VotingPairView({
         <button
           onClick={() => onVote(currentPair.submissionB.id)}
           disabled={submitting}
-          className="group relative border-2 border-(--color-border) rounded-xl overflow-hidden hover:border-blue-500 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="group relative border-2 border-(--color-border) rounded-xl overflow-hidden hover:border-(--color-accent) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <SubmissionThumbnail
             shapes={currentPair.submissionB.shapes}
@@ -79,7 +79,7 @@ export function VotingPairView({
             backgroundColorIndex={currentPair.submissionB.background_color_index}
             size={280}
           />
-          <div className="absolute inset-0 flex items-center justify-center bg-blue-600/80 text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute inset-0 flex items-center justify-center bg-(--color-accent)/80 text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
             Choose this one
           </div>
         </button>

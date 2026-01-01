@@ -32,7 +32,6 @@ export interface VotingNoPairsProps {
 }
 
 export interface VotingOptInPromptProps {
-  variant: 'zero' | 'one';
   onOptIn: () => void;
   onSkip: () => void;
 }

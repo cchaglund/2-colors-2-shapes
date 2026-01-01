@@ -53,7 +53,7 @@ export function Dashboard() {
           </p>
           <button
             onClick={signInWithGoogle}
-            className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+            className="px-6 py-3 bg-(--color-accent) text-white rounded-lg hover:bg-(--color-accent-hover) transition-colors font-medium"
           >
             Sign in with Google
           </button>
@@ -75,7 +75,7 @@ export function Dashboard() {
           </p>
           <a
             href="/"
-            className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium inline-block"
+            className="px-6 py-3 bg-(--color-accent) text-white rounded-lg hover:bg-(--color-accent-hover) transition-colors font-medium inline-block"
           >
             Go to Home
           </a>
@@ -107,7 +107,7 @@ export function Dashboard() {
           </p>
           <button
             onClick={fetchStats}
-            className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+            className="px-6 py-3 bg-(--color-accent) text-white rounded-lg hover:bg-(--color-accent-hover) transition-colors font-medium"
           >
             Retry
           </button>
@@ -213,7 +213,7 @@ export function Dashboard() {
         <div className="mt-8 text-center">
           <button
             onClick={fetchStats}
-            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            className="px-6 py-2 bg-(--color-accent) text-white rounded-lg hover:bg-(--color-accent-hover) transition-colors"
           >
             Refresh Stats
           </button>

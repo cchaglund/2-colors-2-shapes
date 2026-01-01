@@ -46,7 +46,7 @@ export function VotingNoPairs({
       )}
       <button
         onClick={hasVotedEnough ? onDone : onSkipVoting}
-        className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        className="w-full px-4 py-2.5 bg-(--color-accent) text-white rounded-lg font-medium hover:bg-(--color-accent-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2"
       >
         {hasVotedEnough ? 'Done' : 'Continue Without Ranking'}
       </button>
