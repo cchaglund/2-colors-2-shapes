@@ -55,10 +55,19 @@ interface ShapePreviewProps {
 }
 
 function ShapePreview({ type, size }: ShapePreviewProps) {
-  const { element, props } = getShapeSVGData(type, size);
+  const { element, props, viewBox } = getShapeSVGData(type, size);
+
+  // Scale to fit within size while preserving aspect ratio
+  const scale = Math.min(size / viewBox.width, size / viewBox.height);
+  const displayWidth = viewBox.width * scale;
+  const displayHeight = viewBox.height * scale;
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+    <svg
+      width={displayWidth}
+      height={displayHeight}
+      viewBox={`0 0 ${viewBox.width} ${viewBox.height}`}
+    >
       {element === 'ellipse' && <ellipse {...props} fill="#000" />}
       {element === 'rect' && <rect {...props} fill="#000" />}
       {element === 'polygon' && <polygon {...props} fill="#000" />}

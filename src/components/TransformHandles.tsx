@@ -108,13 +108,15 @@ export function TransformInteractionLayer({
   const rotateOffset = BASE_ROTATE_HANDLE_OFFSET * scale;
   const interactionRadius = BASE_INTERACTION_RADIUS * scale;
 
-  const corners = getCorners(shape.size, shape.size);
-  const rotationHandles = getRotationHandles(shape.size, shape.size, rotateOffset);
-  const center = shape.size / 2;
+  const { viewBox } = getShapeSVGData(shape.type, shape.size);
+  const corners = getCorners(viewBox.width, viewBox.height);
+  const rotationHandles = getRotationHandles(viewBox.width, viewBox.height, rotateOffset);
+  const centerX = viewBox.width / 2;
+  const centerY = viewBox.height / 2;
   const scaleX = shape.flipX ? -1 : 1;
   const scaleY = shape.flipY ? -1 : 1;
   // Match the transform order from ShapeElement: flip applied after rotation visually
-  const transform = `translate(${shape.x}, ${shape.y}) translate(${center}, ${center}) scale(${scaleX}, ${scaleY}) translate(${-center}, ${-center}) rotate(${shape.rotation}, ${center}, ${center})`;
+  const transform = `translate(${shape.x}, ${shape.y}) translate(${centerX}, ${centerY}) scale(${scaleX}, ${scaleY}) translate(${-centerX}, ${-centerY}) rotate(${shape.rotation}, ${centerX}, ${centerY})`;
 
   return (
     <g transform={transform} style={{ pointerEvents: 'all' }}>
@@ -122,8 +124,8 @@ export function TransformInteractionLayer({
       <rect
         x={0}
         y={0}
-        width={shape.size}
-        height={shape.size}
+        width={viewBox.width}
+        height={viewBox.height}
         fill="transparent"
         style={{ cursor: 'move', touchAction: 'none' }}
         onMouseDown={onMoveStart}
@@ -172,14 +174,15 @@ export function TransformVisualLayer({ shape, zoom = 1 }: { shape: Shape; zoom?:
   const strokeWidth = BASE_STROKE_WIDTH * scale;
   const dashStrokeWidth = BASE_DASH_STROKE_WIDTH * scale;
 
-  const corners = getCorners(shape.size, shape.size);
-  const rotationHandles = getRotationHandles(shape.size, shape.size, rotateOffset);
-  const center = shape.size / 2;
+  const { element, props, viewBox } = getShapeSVGData(shape.type, shape.size);
+  const corners = getCorners(viewBox.width, viewBox.height);
+  const rotationHandles = getRotationHandles(viewBox.width, viewBox.height, rotateOffset);
+  const centerX = viewBox.width / 2;
+  const centerY = viewBox.height / 2;
   const scaleX = shape.flipX ? -1 : 1;
   const scaleY = shape.flipY ? -1 : 1;
   // Match the transform order from ShapeElement: flip applied after rotation visually
-  const transform = `translate(${shape.x}, ${shape.y}) translate(${center}, ${center}) scale(${scaleX}, ${scaleY}) translate(${-center}, ${-center}) rotate(${shape.rotation}, ${center}, ${center})`;
-  const { element, props } = getShapeSVGData(shape.type, shape.size);
+  const transform = `translate(${shape.x}, ${shape.y}) translate(${centerX}, ${centerY}) scale(${scaleX}, ${scaleY}) translate(${-centerX}, ${-centerY}) rotate(${shape.rotation}, ${centerX}, ${centerY})`;
 
   // Common props for the shape outline
   const outlineProps = {
@@ -201,8 +204,8 @@ export function TransformVisualLayer({ shape, zoom = 1 }: { shape: Shape; zoom?:
       <rect
         x={0}
         y={0}
-        width={shape.size}
-        height={shape.size}
+        width={viewBox.width}
+        height={viewBox.height}
         fill="none"
         stroke="#0066ff"
         strokeWidth={strokeWidth}
@@ -267,14 +270,15 @@ export function MultiSelectTransformLayer({
   // For single shape, use the existing visual layer behavior
   if (isSingleShape) {
     const shape = shapes[0];
-    const corners = getCorners(shape.size, shape.size);
-    const rotationHandles = getRotationHandles(shape.size, shape.size, rotateOffset);
-    const center = shape.size / 2;
+    const { element, props, viewBox } = getShapeSVGData(shape.type, shape.size);
+    const corners = getCorners(viewBox.width, viewBox.height);
+    const rotationHandles = getRotationHandles(viewBox.width, viewBox.height, rotateOffset);
+    const centerX = viewBox.width / 2;
+    const centerY = viewBox.height / 2;
     const scaleX = shape.flipX ? -1 : 1;
     const scaleY = shape.flipY ? -1 : 1;
     // Match the transform order from ShapeElement: flip applied after rotation visually
-    const transform = `translate(${shape.x}, ${shape.y}) translate(${center}, ${center}) scale(${scaleX}, ${scaleY}) translate(${-center}, ${-center}) rotate(${shape.rotation}, ${center}, ${center})`;
-    const { element, props } = getShapeSVGData(shape.type, shape.size);
+    const transform = `translate(${shape.x}, ${shape.y}) translate(${centerX}, ${centerY}) scale(${scaleX}, ${scaleY}) translate(${-centerX}, ${-centerY}) rotate(${shape.rotation}, ${centerX}, ${centerY})`;
 
     const outlineProps = {
       ...props,
@@ -295,8 +299,8 @@ export function MultiSelectTransformLayer({
         <rect
           x={0}
           y={0}
-          width={shape.size}
-          height={shape.size}
+          width={viewBox.width}
+          height={viewBox.height}
           fill="none"
           stroke="#0066ff"
           strokeWidth={strokeWidth}
@@ -350,12 +354,13 @@ export function MultiSelectTransformLayer({
       {/* Individual shape outlines (black dashed) */}
       {showIndividualOutlines &&
         shapes.map((shape) => {
-          const center = shape.size / 2;
+          const { element, props, viewBox } = getShapeSVGData(shape.type, shape.size);
+          const centerX = viewBox.width / 2;
+          const centerY = viewBox.height / 2;
           const scaleX = shape.flipX ? -1 : 1;
           const scaleY = shape.flipY ? -1 : 1;
           // Match the transform order from ShapeElement: flip applied after rotation visually
-          const transform = `translate(${shape.x}, ${shape.y}) translate(${center}, ${center}) scale(${scaleX}, ${scaleY}) translate(${-center}, ${-center}) rotate(${shape.rotation}, ${center}, ${center})`;
-          const { element, props } = getShapeSVGData(shape.type, shape.size);
+          const transform = `translate(${shape.x}, ${shape.y}) translate(${centerX}, ${centerY}) scale(${scaleX}, ${scaleY}) translate(${-centerX}, ${-centerY}) rotate(${shape.rotation}, ${centerX}, ${centerY})`;
 
           const outlineProps = {
             ...props,

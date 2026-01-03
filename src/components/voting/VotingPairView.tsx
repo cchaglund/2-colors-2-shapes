@@ -30,7 +30,7 @@ export function VotingPairView({
           </h2>
           <p className="text-sm text-(--color-text-secondary)">{formatDate(challengeDate)}</p>
           <p className="text-sm text-(--color-text-tertiary) mt-1">
-            Today's word: <span className="italic">"{challenge.word}"</span>
+            Word of the day was: <span className="italic">"{challenge.word}"</span>
           </p>
         </div>
         <div className="text-right">

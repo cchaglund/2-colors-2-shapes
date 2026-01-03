@@ -14,4 +14,4 @@
 - when i log out and click log in again, I'm not able to select between my google accounts, it just logs in with the last one I used.
 - can see wall of the day's submissions - but only after you've submitted something yourself. 
 - button hover effects
-- some buttons are blue
+- i can hover over the days in the calender view and see the day's word in a tooltip, which is ok (use actual tooltip library), but I can also see the words for the upcoming days, which I shouldn't be able to.
