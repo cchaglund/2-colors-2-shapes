@@ -7,7 +7,7 @@ interface RankingCardProps {
 
 export function RankingCard({ rankInfo }: RankingCardProps) {
   return (
-    <div className="border rounded-xl p-4 bg-(--color-bg-secondary) border-(--color-border)">
+    <div className="border rounded-xl p-4 bg-white border-(--color-border)">
       <h2 className="text-sm font-semibold mb-3 text-(--color-text-primary)">
         Ranking
       </h2>

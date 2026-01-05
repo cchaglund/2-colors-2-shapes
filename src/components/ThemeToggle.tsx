@@ -16,7 +16,7 @@ export function ThemeToggle({ mode, onSetMode }: ThemeToggleProps) {
           className={`flex-1 py-1.5 px-2 rounded text-xs font-medium transition-colors ${
             mode === 'light'
               ? 'bg-(--color-selected) text-(--color-accent) border border-(--color-accent)'
-              : 'bg-(--color-bg-tertiary) text-(--color-text-secondary) border border-transparent'
+              : 'bg-(--color-bg-tertiary) text-(--color-text-secondary) border border-transparent hover:bg-(--color-hover)'
           }`}
           onClick={() => onSetMode('light')}
           title="Light theme"
@@ -27,7 +27,7 @@ export function ThemeToggle({ mode, onSetMode }: ThemeToggleProps) {
           className={`flex-1 py-1.5 px-2 rounded text-xs font-medium transition-colors ${
             mode === 'dark'
               ? 'bg-(--color-selected) text-(--color-accent) border border-(--color-accent)'
-              : 'bg-(--color-bg-tertiary) text-(--color-text-secondary) border border-transparent'
+              : 'bg-(--color-bg-tertiary) text-(--color-text-secondary) border border-transparent hover:bg-(--color-hover)'
           }`}
           onClick={() => onSetMode('dark')}
           title="Dark theme"
@@ -38,7 +38,7 @@ export function ThemeToggle({ mode, onSetMode }: ThemeToggleProps) {
           className={`flex-1 py-1.5 px-2 rounded text-xs font-medium transition-colors ${
             mode === 'system'
               ? 'bg-(--color-selected) text-(--color-accent) border border-(--color-accent)'
-              : 'bg-(--color-bg-tertiary) text-(--color-text-secondary) border border-transparent'
+              : 'bg-(--color-bg-tertiary) text-(--color-text-secondary) border border-transparent hover:bg-(--color-hover)'
           }`}
           onClick={() => onSetMode('system')}
           title="Follow system theme"

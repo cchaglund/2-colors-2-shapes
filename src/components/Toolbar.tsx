@@ -133,7 +133,7 @@ export function Toolbar({
 
         {isLoggedIn && onOpenCalendar && (
           <button
-            className="w-full mt-3 py-2.5 px-4 border-none rounded-md cursor-pointer text-sm font-medium transition-colors flex items-center justify-center gap-2 bg-(--color-bg-tertiary) text-(--color-text-primary)"
+            className="w-full mt-3 py-2.5 px-4 border-none rounded-md cursor-pointer text-sm font-medium transition-colors flex items-center justify-center gap-2 bg-(--color-bg-tertiary) text-(--color-text-primary) hover:bg-(--color-hover)"
             onClick={onOpenCalendar}
           >
             <svg
@@ -280,7 +280,7 @@ export function Toolbar({
       <Card>
         <h4 className="m-0 mb-2 text-xs uppercase text-(--color-text-tertiary)">View</h4>
         <button
-          className={`flex items-center gap-2 w-full py-2 px-3 rounded-md cursor-pointer text-sm transition-colors text-(--color-text-primary) ${
+          className={`flex items-center gap-2 w-full py-2 px-3 rounded-md cursor-pointer text-sm transition-colors text-(--color-text-primary) hover:bg-(--color-hover) ${
             showGrid
               ? 'bg-(--color-bg-tertiary) border border-(--color-border)'
               : 'bg-transparent border border-transparent'
@@ -315,7 +315,7 @@ export function Toolbar({
           {onOpenKeyboardSettings && (
             <button
               onClick={onOpenKeyboardSettings}
-              className="text-xs px-2 py-1 rounded-md border-none cursor-pointer transition-colors bg-(--color-bg-tertiary) text-(--color-text-secondary)"
+              className="text-xs px-2 py-1 rounded-md border-none cursor-pointer transition-colors bg-(--color-bg-tertiary) text-(--color-text-secondary) hover:bg-(--color-hover)"
               title="Customize keyboard shortcuts"
             >
               Customize

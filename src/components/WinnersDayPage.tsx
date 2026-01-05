@@ -211,7 +211,7 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
 
           {/* Challenge details sidebar */}
           <div className="w-full md:w-75 space-y-4">
-            <div className="border rounded-xl p-4 bg-(--color-bg-secondary) border-(--color-border)">
+            <div className="border rounded-xl p-4 bg-white border-(--color-border)">
               <h2 className="text-sm font-semibold mb-3 text-(--color-text-primary)">
                 Challenge Details
               </h2>

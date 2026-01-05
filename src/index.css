@@ -17,14 +17,14 @@
 
     /* Light theme colors */
     --color-bg-primary: #fafaf7;
-    --color-bg-secondary: #E6E6DB;
-    --color-bg-tertiary: #F0E7D8;
+    --color-bg-secondary: #E6E6DB; /* sidebar bg */
+    --color-bg-tertiary: #F0E7D8; /* // button */
     --color-text-primary: #37352f;
     --color-text-secondary: #6b6b60;
     --color-text-tertiary: #241023;
     --color-border: #D1D1D1;
     --color-border-light: rgba(55, 53, 47, 0.16);
-    --color-hover: #f0f0ea;
+    --color-hover: #E8DBC4; /* // button hover */
     --color-selected: #E0E0E2;
     --color-selected-partial: #e6fffa;
     --color-overlay: rgba(250, 250, 247, 0.95);

@@ -10,14 +10,14 @@ export function ExportActionsCard({
   onCopyLink,
 }: ExportActionsCardProps) {
   return (
-    <div className="border rounded-xl p-4 bg-(--color-bg-secondary) border-(--color-border)">
+    <div className="border rounded-xl p-4 bg-white border-(--color-border)">
       <h2 className="text-sm font-semibold mb-3 text-(--color-text-primary)">
         Export & Share
       </h2>
       <div className="space-y-2">
         <button
           onClick={onDownloadPNG}
-          className="w-full px-4 py-2 rounded-md cursor-pointer text-sm font-medium transition-colors flex items-center justify-center gap-2 bg-(--color-bg-tertiary) text-(--color-text-primary)"
+          className="w-full px-4 py-2 rounded-md cursor-pointer text-sm font-medium transition-colors flex items-center justify-center gap-2 bg-(--color-bg-tertiary) text-(--color-text-primary) hover:bg-(--color-hover)"
         >
           <svg
             width="16"
@@ -37,7 +37,7 @@ export function ExportActionsCard({
         </button>
         <button
           onClick={onDownloadSVG}
-          className="w-full px-4 py-2 rounded-md cursor-pointer text-sm font-medium transition-colors flex items-center justify-center gap-2 bg-(--color-bg-tertiary) text-(--color-text-primary)"
+          className="w-full px-4 py-2 rounded-md cursor-pointer text-sm font-medium transition-colors flex items-center justify-center gap-2 bg-(--color-bg-tertiary) text-(--color-text-primary) hover:bg-(--color-hover)"
         >
           <svg
             width="16"
@@ -57,7 +57,7 @@ export function ExportActionsCard({
         </button>
         <button
           onClick={onCopyLink}
-          className="w-full px-4 py-2 rounded-md cursor-pointer text-sm font-medium transition-colors flex items-center justify-center gap-2 bg-(--color-bg-tertiary) text-(--color-text-primary)"
+          className="w-full px-4 py-2 rounded-md cursor-pointer text-sm font-medium transition-colors flex items-center justify-center gap-2 bg-(--color-bg-tertiary) text-(--color-text-primary) hover:bg-(--color-hover)"
         >
           <svg
             width="16"
