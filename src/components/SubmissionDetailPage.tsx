@@ -100,18 +100,9 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
           <div className="flex items-center justify-between mb-4">
             <a
               href="/"
-              className="inline-flex items-center gap-1 text-sm hover:underline text-(--color-text-secondary)"
+              className="inline-flex items-center gap-1 text-[13px] transition-colors text-(--color-text-secondary) hover:text-(--color-text-primary)"
             >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="15 18 9 12 15 6" />
               </svg>
               Back to app
@@ -119,18 +110,18 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
             {/* Navigation buttons - only show when viewing by date (own submissions) */}
             {date && <SubmissionNavigation adjacentDates={adjacentDates} />}
           </div>
-          <h1 className="text-2xl font-bold mb-2 text-(--color-text-primary)">
+          <h1 className="text-xl font-semibold mb-1 text-(--color-text-primary)">
             {formattedDate}
           </h1>
-          <p className="text-(--color-text-secondary)">
+          <p className="text-[13px] text-(--color-text-secondary)">
             Daily Challenge Submission
           </p>
         </div>
 
         {/* Main content */}
-        <div className="flex flex-col md:flex-row gap-6 items-start justify-center">
+        <div className="flex flex-col md:flex-row gap-5 items-start justify-center">
           {/* Canvas */}
-          <div className="border rounded-xl overflow-hidden w-fit border-(--color-border)">
+          <div className="border rounded-lg overflow-hidden w-fit border-(--color-border)">
             <SubmissionCanvas
               shapes={submission.shapes}
               challenge={challenge}
@@ -140,7 +131,7 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
           </div>
 
           {/* Info sidebar */}
-          <div className="space-y-4 w-full md:w-75">
+          <div className="space-y-3 w-full md:w-72">
             <ChallengeDetailsCard challenge={challenge} />
             {rankInfo && <RankingCard rankInfo={rankInfo} />}
             <SubmissionStatsCard submission={submission} />

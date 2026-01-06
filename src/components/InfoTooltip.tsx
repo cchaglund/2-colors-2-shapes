@@ -37,7 +37,7 @@ export function Tooltip({ text, children }: TooltipProps) {
         // eslint-disable-next-line react-hooks/refs -- callback ref from floating-ui
         ref={setReference}
         {...getReferenceProps()}
-        style={{ display: 'inline-block', width: '100%', height: '100%' }}
+        className="inline-block h-full"
       >
         {children}
       </div>
@@ -48,7 +48,7 @@ export function Tooltip({ text, children }: TooltipProps) {
             ref={setFloating}
             style={floatingStyles}
             {...getFloatingProps()}
-            className="max-w-xs px-3 py-2 text-xs text-white bg-gray-800 rounded-lg shadow-lg z-50"
+            className="max-w-xs px-2.5 py-1.5 text-[11px] text-white bg-neutral-800 rounded-md z-50"
           >
             {text}
           </div>
@@ -62,7 +62,7 @@ export function InfoTooltip({ text }: { text: string }) {
   return (
     <Tooltip text={text}>
       <span
-        className="inline-flex items-center justify-center w-4 h-4 ml-1.5 text-xs rounded-full bg-(--color-bg-tertiary) text-(--color-text-tertiary) cursor-help hover:bg-(--color-accent) hover:text-white transition-colors"
+        className="align-middle inline-flex items-center justify-center w-4 h-4 ml-1.5 text-xs rounded-full bg-(--color-bg-tertiary) text-(--color-text-tertiary) cursor-help hover:bg-(--color-accent) hover:text-white transition-colors"
         aria-label="More information"
       >
         i

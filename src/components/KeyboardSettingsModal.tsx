@@ -139,7 +139,7 @@ export function KeyboardSettingsModal({
     >
       <div
         ref={modalRef}
-        className="rounded-xl max-w-lg w-full max-h-[80vh] overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.2)] flex flex-col bg-(--color-modal-bg)"
+        className="rounded-lg max-w-lg w-full max-h-[80vh] overflow-hidden flex flex-col bg-(--color-bg-primary) border border-(--color-border)"
         role="dialog"
         aria-modal="true"
         aria-labelledby="keyboard-settings-title"
@@ -163,7 +163,7 @@ export function KeyboardSettingsModal({
 
         {/* Content */}
         <div className="p-4 overflow-y-auto flex-1">
-          <p className="mt-0 mb-4 text-sm text-(--color-text-secondary)">
+          <p className="mt-0 mb-4 text-[13px] text-(--color-text-secondary)">
             Click on a shortcut to change it. Press Escape to cancel.
           </p>
 
@@ -184,18 +184,18 @@ export function KeyboardSettingsModal({
                       className="flex items-center justify-between py-2 px-3 rounded-md bg-(--color-bg-tertiary)"
                     >
                       <div className="flex-1 min-w-0 pr-4">
-                        <div className="text-sm font-medium text-(--color-text-primary)">
+                        <div className="text-[13px] font-medium text-(--color-text-primary)">
                           {action.label}
                         </div>
-                        <div className="text-xs truncate text-(--color-text-tertiary)">
+                        <div className="text-[11px] truncate text-(--color-text-tertiary)">
                           {action.description}
                         </div>
                       </div>
                       <button
                         onClick={() => handleStartListening(action.id)}
                         disabled={!isRemappable}
-                        className={`px-3 py-1.5 rounded-md text-sm font-mono border transition-colors min-w-20 bg-(--color-bg-secondary) border-(--color-border) ${
-                          isListening ? 'ring-2 ring-blue-500' : ''
+                        className={`px-3 py-1.5 rounded-md text-[11px] font-mono border transition-colors min-w-20 bg-(--color-bg-secondary) border-(--color-border) ${
+                          isListening ? 'ring-2 ring-(--color-accent)' : ''
                         } ${
                           binding ? 'text-(--color-text-primary)' : 'text-(--color-text-tertiary)'
                         } ${
@@ -225,19 +225,19 @@ export function KeyboardSettingsModal({
         <div className="p-4 border-t flex items-center justify-between border-(--color-border)">
           <button
             onClick={handleResetAll}
-            className="px-4 py-2 rounded-md border-none cursor-pointer text-sm font-medium transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary)"
+            className="px-4 py-2 rounded-md cursor-pointer text-[13px] font-medium transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary) border border-(--color-border) hover:bg-(--color-hover)"
           >
             Reset to Defaults
           </button>
           <div className="flex items-center gap-3">
             {syncing && (
-              <span className="text-xs text-(--color-text-tertiary)">
+              <span className="text-[11px] text-(--color-text-tertiary)">
                 Saving...
               </span>
             )}
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-md border-none cursor-pointer text-sm font-medium bg-(--color-accent) text-white hover:bg-(--color-accent-hover) transition-colors"
+              className="px-4 py-2 rounded-md cursor-pointer text-[13px] font-medium bg-(--color-accent) text-white hover:bg-(--color-accent-hover) transition-colors"
             >
               Done
             </button>
@@ -248,11 +248,11 @@ export function KeyboardSettingsModal({
       {/* Conflict Resolution Dialog */}
       {pendingConflicts && (
         <div className="fixed inset-0 flex items-center justify-center z-60 bg-black/50">
-          <div className="p-6 rounded-xl max-w-sm text-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] bg-(--color-modal-bg)">
+          <div className="p-6 rounded-lg max-w-sm text-center bg-(--color-bg-primary) border border-(--color-border)">
             <h3 className="m-0 mb-3 text-lg font-semibold text-(--color-text-primary)">
               Shortcut Conflict
             </h3>
-            <p className="m-0 mb-4 text-sm text-(--color-text-secondary)">
+            <p className="m-0 mb-4 text-[13px] text-(--color-text-secondary)">
               <span className="font-mono font-medium">
                 {formatKeyBinding(pendingConflicts.binding)}
               </span>{' '}
@@ -267,13 +267,13 @@ export function KeyboardSettingsModal({
             <div className="flex gap-3 justify-center">
               <button
                 onClick={() => handleResolveConflict(false)}
-                className="px-4 py-2 rounded-md border-none cursor-pointer text-sm font-medium transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary)"
+                className="px-4 py-2 rounded-md cursor-pointer text-[13px] font-medium transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary) border border-(--color-border) hover:bg-(--color-hover)"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleResolveConflict(true)}
-                className="px-4 py-2 rounded-md border-none cursor-pointer text-sm font-medium bg-(--color-accent) text-white hover:bg-(--color-accent-hover) transition-colors"
+                className="px-4 py-2 rounded-md cursor-pointer text-[13px] font-medium bg-(--color-accent) text-white hover:bg-(--color-accent-hover) transition-colors"
               >
                 Replace
               </button>

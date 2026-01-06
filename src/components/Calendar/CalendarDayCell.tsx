@@ -40,18 +40,18 @@ export function CalendarDayCell({
       <div
         onClick={() => !isFuture && submission && onClick(day)}
         className={`
-          aspect-square rounded-lg p-1 transition-all
-          ${submission ? 'cursor-pointer hover:ring-2 hover:ring-blue-500 bg-(--color-bg-secondary)' : 'bg-(--color-bg-tertiary)'}
+          aspect-square rounded-md p-1.5 transition-all border
+          ${submission ? 'cursor-pointer hover:border-(--color-accent) bg-(--color-bg-tertiary) border-(--color-border-light)' : 'bg-(--color-bg-primary) border-(--color-border-light)'}
           ${isFuture ? 'opacity-30' : ''}
-          ${isToday ? 'ring-2 ring-blue-500' : ''}
+          ${isToday ? 'ring-2 ring-(--color-accent) ring-offset-1' : ''}
         `}
       >
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between">
             <span
-              className={`text-xs font-medium ${
+              className={`text-[11px] font-medium tabular-nums ${
                 isToday
-                  ? 'text-blue-500'
+                  ? 'text-(--color-accent)'
                   : submission
                   ? 'text-(--color-text-primary)'
                   : 'text-(--color-text-tertiary)'
@@ -60,10 +60,10 @@ export function CalendarDayCell({
               {day}
             </span>
             {submission && challenge && (
-              <div className="flex w-full px-2 justify-between items-center gap-1">
+              <div className="flex w-full px-1 justify-between items-center gap-0.5">
                 <ChallengeShapeIndicators
                   shapes={challenge.shapes}
-                  size={14}
+                  size={12}
                 />
                 {ranking !== undefined && ranking <= 3 && (
                   <TrophyBadge
@@ -80,12 +80,8 @@ export function CalendarDayCell({
                 shapes={submission.shapes}
                 challenge={challenge}
                 backgroundColorIndex={submission.background_color_index}
-                size={60}
+                size={56}
               />
-            ) : !isFuture ? (
-              <div className="text-xs text-center text-(--color-text-tertiary)">
-                No submission
-              </div>
             ) : null}
           </div>
         </div>
@@ -106,17 +102,17 @@ export function CalendarDayCell({
     <div
       onClick={() => hasWinner && onClick(day)}
       className={`
-        aspect-square rounded-lg p-1 transition-all
-        ${hasWinner ? 'cursor-pointer hover:ring-2 hover:ring-yellow-500 bg-(--color-bg-secondary)' : 'bg-(--color-bg-tertiary)'}
+        aspect-square rounded-md p-1.5 transition-all border
+        ${hasWinner ? 'cursor-pointer hover:border-(--color-accent) bg-(--color-bg-tertiary) border-(--color-border-light)' : 'bg-(--color-bg-primary) border-(--color-border-light)'}
         ${isFuture ? 'opacity-30' : ''}
-        ${isToday ? 'ring-2 ring-blue-500' : ''}
+        ${isToday ? 'ring-2 ring-(--color-accent) ring-offset-1' : ''}
       `}
     >
       <div className="flex flex-col h-full">
         <span
-          className={`text-xs font-medium ${
+          className={`text-[11px] font-medium tabular-nums ${
             isToday
-              ? 'text-blue-500'
+              ? 'text-(--color-accent)'
               : hasWinner
               ? 'text-(--color-text-primary)'
               : 'text-(--color-text-tertiary)'
@@ -131,23 +127,19 @@ export function CalendarDayCell({
                 shapes={dayWinners[0].shapes}
                 challenge={challenge}
                 backgroundColorIndex={dayWinners[0].background_color_index}
-                size={70}
+                size={60}
               />
-              <div className="absolute -top-1 -right-1">
+              <div className="absolute -top-0.5 -right-0.5">
                 <TrophyBadge rank={1} size="sm" />
               </div>
               {dayWinners.length > 1 && (
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-xs px-1 rounded bg-(--color-bg-primary) text-(--color-text-secondary)">
+                <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 text-[10px] px-1 rounded bg-(--color-bg-primary) border border-(--color-border-light) text-(--color-text-secondary)">
                   +{dayWinners.length - 1}
                 </div>
               )}
             </>
-          ) : !isFuture && hasResults ? (
-            <div className="text-xs text-center text-(--color-text-tertiary)">
-              No winner
-            </div>
           ) : !isFuture && !hasResults ? (
-            <div className="text-xs text-center text-(--color-text-tertiary)">
+            <div className="text-[11px] text-center text-(--color-text-tertiary)">
               {isToday ? 'Creating...' : 'Voting...'}
             </div>
           ) : null}

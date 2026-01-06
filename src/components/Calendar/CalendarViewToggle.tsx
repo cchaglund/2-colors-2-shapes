@@ -12,16 +12,16 @@ export function CalendarViewToggle({
   onSetViewMode,
 }: CalendarViewToggleProps) {
   return (
-    <div className="flex rounded-lg p-1 mb-4 bg-(--color-bg-tertiary)">
+    <div className="flex rounded-md p-0.5 mb-4 border border-(--color-border) bg-(--color-bg-tertiary)">
       <button
         onClick={() => onSetViewMode('my-submissions')}
         disabled={!user}
-        className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+        className={`flex-1 px-4 py-1.5 rounded text-[13px] font-medium transition-colors ${
           !user ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
         } ${
           effectiveViewMode === 'my-submissions'
-            ? 'bg-(--color-bg-primary) text-(--color-text-primary) shadow-sm'
-            : 'bg-transparent text-(--color-text-secondary)'
+            ? 'bg-(--color-bg-primary) text-(--color-text-primary) border border-(--color-border-light)'
+            : 'bg-transparent text-(--color-text-secondary) border border-transparent'
         }`}
         title={!user ? 'Sign in to view your submissions' : undefined}
       >
@@ -29,13 +29,13 @@ export function CalendarViewToggle({
       </button>
       <button
         onClick={() => onSetViewMode('winners')}
-        className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
+        className={`flex-1 px-4 py-1.5 rounded text-[13px] font-medium transition-colors cursor-pointer ${
           effectiveViewMode === 'winners'
-            ? 'bg-(--color-bg-primary) text-(--color-text-primary) shadow-sm'
-            : 'bg-transparent text-(--color-text-secondary)'
+            ? 'bg-(--color-bg-primary) text-(--color-text-primary) border border-(--color-border-light)'
+            : 'bg-transparent text-(--color-text-secondary) border border-transparent'
         }`}
       >
-        🏆 Winners
+        Winners
       </button>
     </div>
   );

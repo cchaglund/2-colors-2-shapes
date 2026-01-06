@@ -170,9 +170,9 @@ function ToolbarButton({ icon, label, shortcut, onClick, disabled }: ToolbarButt
 
       {/* Tooltip */}
       {isHovered && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded text-xs whitespace-nowrap z-50 pointer-events-none bg-(--color-bg-primary) text-(--color-text-primary) border border-(--color-border) shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1.5 rounded-md text-[11px] whitespace-nowrap z-50 pointer-events-none bg-(--color-bg-primary) text-(--color-text-primary) border border-(--color-border)">
           <div className="font-medium">{label}</div>
-          <div className="text-(--color-text-secondary)">{shortcut}</div>
+          <div className="text-(--color-text-tertiary)">{shortcut}</div>
         </div>
       )}
     </div>

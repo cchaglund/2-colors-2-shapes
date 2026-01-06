@@ -295,67 +295,70 @@ export function LayerPanel({
 
   return (
     <div
-      className="p-4 overflow-y-auto shrink-0 relative flex flex-col gap-4 z-10 bg-(--color-bg-secondary) shadow-(--shadow-panel)"
+      className="overflow-y-auto shrink-0 relative flex flex-col z-10 bg-(--color-bg-primary) border-l border-(--color-border)"
       style={{ width }}
     >
       {/* Resize handle */}
       <div
-        className="absolute top-0 left-0 w-1 h-full cursor-col-resize hover:bg-blue-400 transition-colors"
+        className="absolute top-0 left-0 w-1 h-full cursor-col-resize hover:bg-(--color-accent) transition-colors"
         onMouseDown={onStartResize}
       />
 
-      {/* Collapse button at top */}
-      <div className="flex justify-start -mt-1 -mb-2">
-        <button
-          className="w-7 h-7 flex items-center justify-center bg-transparent border-none cursor-pointer rounded transition-colors text-(--color-text-tertiary) hover:text-(--color-text-secondary) hover:bg-(--color-hover)"
-          onClick={onToggle}
-          title="Hide Layers"
-        >
-          ›
-        </button>
-      </div>
-
-      {/* Layers card */}
-      <div className="p-3 rounded-lg bg-(--color-card-bg) shadow-(--shadow-card)">
-        <h3 className="m-0 mb-2 text-sm uppercase text-(--color-text-tertiary)">Layers</h3>
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto px-4">
+        {/* Header with collapse */}
+        <div className="flex items-center justify-between py-3 border-b border-(--color-border-light)">
+          <span className="text-[13px] font-medium text-(--color-text-primary)">Layers</span>
+          <button
+            className="w-6 h-6 flex items-center justify-center bg-transparent border-none cursor-pointer rounded transition-colors text-(--color-text-tertiary) hover:text-(--color-text-secondary) hover:bg-(--color-hover)"
+            onClick={onToggle}
+            title="Hide Layers"
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <polyline points="4 2 8 6 4 10" />
+            </svg>
+          </button>
+        </div>
 
         {/* Group/Ungroup buttons */}
-        <div className="flex gap-1 mb-3">
-        <button
-          className="flex-1 px-2 py-1 text-xs rounded cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary) hover:enabled:bg-(--color-hover)"
-          disabled={!canCreateGroup}
-          onClick={handleCreateGroup}
-          title={canCreateGroup ? 'Group selected shapes' : 'Select 2+ shapes to group'}
-        >
-          Group
-        </button>
-        <button
-          className="flex-1 px-2 py-1 text-xs rounded cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary) hover:enabled:bg-(--color-hover)"
-          disabled={!selectedShapesInGroup}
-          onClick={handleUngroup}
-          title={selectedShapesInGroup ? 'Ungroup selected shapes' : 'Select grouped shapes to ungroup'}
-        >
-          Ungroup
-        </button>
-      </div>
+        <div className="flex gap-1 py-3 border-b border-(--color-border-light)">
+          <button
+            className="flex-1 px-2 py-1.5 text-[11px] rounded-md cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed bg-transparent border border-(--color-border) text-(--color-text-secondary) hover:enabled:bg-(--color-hover) hover:enabled:text-(--color-text-primary)"
+            disabled={!canCreateGroup}
+            onClick={handleCreateGroup}
+            title={canCreateGroup ? 'Group selected shapes' : 'Select 2+ shapes to group'}
+          >
+            Group
+          </button>
+          <button
+            className="flex-1 px-2 py-1.5 text-[11px] rounded-md cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed bg-transparent border border-(--color-border) text-(--color-text-secondary) hover:enabled:bg-(--color-hover) hover:enabled:text-(--color-text-primary)"
+            disabled={!selectedShapesInGroup}
+            onClick={handleUngroup}
+            title={selectedShapesInGroup ? 'Ungroup selected shapes' : 'Select grouped shapes to ungroup'}
+          >
+            Ungroup
+          </button>
+        </div>
 
-      {/* Multi-select toggle for touch devices */}
-      {isTouchDevice && (
-        <button
-          className={`w-full px-2 py-2 text-xs rounded cursor-pointer transition-colors mb-3 border border-(--color-border) ${
-            isMultiSelectMode
-              ? 'bg-(--color-accent) text-white'
-              : 'bg-(--color-bg-primary) text-(--color-text-primary)'
-          }`}
-          onClick={() => setIsMultiSelectMode(!isMultiSelectMode)}
-        >
-          {isMultiSelectMode ? '✓ Done Selecting' : 'Select Multiple'}
-        </button>
-      )}
+        {/* Multi-select toggle for touch devices */}
+        {isTouchDevice && (
+          <button
+            className={`w-full px-2 py-2 text-[11px] rounded-md cursor-pointer transition-colors my-3 border ${
+              isMultiSelectMode
+                ? 'bg-(--color-accent) text-white border-(--color-accent)'
+                : 'bg-transparent text-(--color-text-secondary) border-(--color-border)'
+            }`}
+            onClick={() => setIsMultiSelectMode(!isMultiSelectMode)}
+          >
+            {isMultiSelectMode ? 'Done Selecting' : 'Select Multiple'}
+          </button>
+        )}
 
-      {sortedShapes.length === 0 ? (
-        <p className="text-sm text-center py-5 text-(--color-text-tertiary)">No shapes yet. Add one!</p>
-      ) : (
+        {/* Layer list */}
+        <div className="py-3">
+          {sortedShapes.length === 0 ? (
+            <p className="text-[13px] text-center py-4 text-(--color-text-tertiary)">No shapes yet. Add one!</p>
+          ) : (
         <ul className="list-none p-0 m-0">
           {layerItems.map((item) => {
             if (item.type === 'group-header' && item.group && item.shapesInGroup) {
@@ -426,9 +429,10 @@ export function LayerPanel({
             }
             return null;
           })}
-            </ul>
+        </ul>
           )}
         </div>
       </div>
+    </div>
   );
 }

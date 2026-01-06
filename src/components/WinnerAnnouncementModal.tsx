@@ -71,14 +71,14 @@ export function WinnerAnnouncementModal({
   if (challengeLoading || !challenge) {
     return (
       <div
-        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+        className="fixed inset-0 bg-(--color-modal-overlay) flex items-center justify-center z-50"
         role="dialog"
         aria-modal="true"
       >
-        <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 shadow-xl">
+        <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-lg p-6">
           <div className="text-center">
-            <div className="inline-block w-8 h-8 border-4 border-(--color-text-secondary) border-t-transparent rounded-full animate-spin mb-4" />
-            <p className="text-(--color-text-secondary)">Loading...</p>
+            <div className="inline-block w-6 h-6 border-2 border-(--color-text-tertiary) border-t-transparent rounded-full animate-spin mb-3" />
+            <p className="text-[13px] text-(--color-text-secondary)">Loading...</p>
           </div>
         </div>
       </div>
@@ -87,22 +87,22 @@ export function WinnerAnnouncementModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-(--color-modal-overlay) flex items-center justify-center z-50"
       role="dialog"
       aria-modal="true"
       aria-labelledby="winner-title"
     >
       <div
         ref={modalRef}
-        className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-lg mx-4 shadow-xl"
+        className="bg-(--color-bg-primary) border border-(--color-border) rounded-lg p-6 w-full max-w-md mx-4"
       >
-        <div className="text-center mb-6">
-          <h2 id="winner-title" className="text-xl font-semibold text-(--color-text-primary) mb-1">
+        <div className="text-center mb-5">
+          <h2 id="winner-title" className="text-lg font-semibold text-(--color-text-primary) mb-0.5">
             {formatDate(challengeDate)}
           </h2>
-          <p className="text-sm text-(--color-text-secondary)">{winners.length > 1 ? 'Winners' : 'Winner'}</p>
+          <p className="text-[13px] text-(--color-text-secondary)">{winners.length > 1 ? 'Winners' : 'Winner'}</p>
           {winners.length > 1 && (
-            <p className="text-xs text-(--color-text-tertiary) mt-1">
+            <p className="text-[11px] text-(--color-text-tertiary) mt-0.5">
               {winners.length === 3 ? 'Three-way tie!' : winners.length === 2 ? 'Tie for 1st place!' : ''}
             </p>
           )}
@@ -110,28 +110,28 @@ export function WinnerAnnouncementModal({
 
         {/* Winners (1st place) - show all tied winners */}
         {winners.length > 0 && (
-          <div className={`flex justify-center ${winners.length > 1 ? 'gap-6' : ''} mb-6`}>
+          <div className={`flex justify-center ${winners.length > 1 ? 'gap-4' : ''} mb-5`}>
             {winners.map((winner) => (
               <button
                 key={winner.submission_id}
-                className="flex flex-col items-center bg-transparent border-0 p-0 cursor-pointer transition-transform hover:scale-105"
+                className="flex flex-col items-center bg-transparent border-0 p-0 cursor-pointer transition-transform hover:scale-[1.02]"
                 onClick={() => onViewSubmission?.(winner.submission_id)}
                 title="View submission"
               >
                 <div className="relative">
-                  <div className="absolute -top-3 -right-3 z-10">
+                  <div className="absolute -top-2 -right-2 z-10">
                     <TrophyBadge rank={1} size={winners.length > 2 ? 'md' : 'lg'} />
                   </div>
-                  <div className="border-4 border-yellow-400 rounded-xl p-2 shadow-lg">
+                  <div className="border-2 border-amber-400 rounded-lg p-1.5 bg-(--color-bg-tertiary)">
                     <SubmissionThumbnail
                       shapes={winner.shapes}
                       challenge={challenge}
                       backgroundColorIndex={winner.background_color_index}
-                      size={winners.length > 2 ? 120 : winners.length > 1 ? 140 : 180}
+                      size={winners.length > 2 ? 100 : winners.length > 1 ? 120 : 160}
                     />
                   </div>
                 </div>
-                <p className="mt-3 font-medium text-(--color-text-primary)">@{winner.nickname}</p>
+                <p className="mt-2 text-[13px] font-medium text-(--color-text-primary)">@{winner.nickname}</p>
               </button>
             ))}
           </div>
@@ -139,53 +139,53 @@ export function WinnerAnnouncementModal({
 
         {/* 2nd and 3rd place - show if single winner, or show 3rd place for 2-way tie */}
         {(winners.length === 1 && (runnerUps.length > 0 || thirdPlaces.length > 0)) || (winners.length === 2 && thirdPlaces.length > 0) ? (
-          <div className="flex justify-center gap-8 mb-6">
+          <div className="flex justify-center gap-6 mb-5">
             {/* Only show 2nd place if there's a single winner (no tie for 1st) */}
             {winners.length === 1 && runnerUps.map((runnerUp) => (
               <button
                 key={runnerUp.submission_id}
-                className="flex flex-col items-center bg-transparent border-0 p-0 cursor-pointer transition-transform hover:scale-105"
+                className="flex flex-col items-center bg-transparent border-0 p-0 cursor-pointer transition-transform hover:scale-[1.02]"
                 onClick={() => onViewSubmission?.(runnerUp.submission_id)}
                 title="View submission"
               >
                 <div className="relative">
-                  <div className="absolute -top-2 -right-2 z-10">
+                  <div className="absolute -top-1.5 -right-1.5 z-10">
                     <TrophyBadge rank={2} size="md" />
                   </div>
-                  <div className="border-2 border-gray-300 rounded-lg p-1">
+                  <div className="border border-(--color-border) rounded-md p-1 bg-(--color-bg-tertiary)">
                     <SubmissionThumbnail
                       shapes={runnerUp.shapes}
                       challenge={challenge}
                       backgroundColorIndex={runnerUp.background_color_index}
-                      size={100}
+                      size={80}
                     />
                   </div>
                 </div>
-                <p className="mt-2 text-sm text-(--color-text-secondary)">@{runnerUp.nickname}</p>
+                <p className="mt-1.5 text-[12px] text-(--color-text-secondary)">@{runnerUp.nickname}</p>
               </button>
             ))}
 
             {thirdPlaces.map((thirdPlace) => (
               <button
                 key={thirdPlace.submission_id}
-                className="flex flex-col items-center bg-transparent border-0 p-0 cursor-pointer transition-transform hover:scale-105"
+                className="flex flex-col items-center bg-transparent border-0 p-0 cursor-pointer transition-transform hover:scale-[1.02]"
                 onClick={() => onViewSubmission?.(thirdPlace.submission_id)}
                 title="View submission"
               >
                 <div className="relative">
-                  <div className="absolute -top-2 -right-2 z-10">
+                  <div className="absolute -top-1.5 -right-1.5 z-10">
                     <TrophyBadge rank={3} size="md" />
                   </div>
-                  <div className="border-2 border-amber-600 rounded-lg p-1">
+                  <div className="border border-(--color-border) rounded-md p-1 bg-(--color-bg-tertiary)">
                     <SubmissionThumbnail
                       shapes={thirdPlace.shapes}
                       challenge={challenge}
                       backgroundColorIndex={thirdPlace.background_color_index}
-                      size={100}
+                      size={80}
                     />
                   </div>
                 </div>
-                <p className="mt-2 text-sm text-(--color-text-secondary)">@{thirdPlace.nickname}</p>
+                <p className="mt-1.5 text-[12px] text-(--color-text-secondary)">@{thirdPlace.nickname}</p>
               </button>
             ))}
           </div>
@@ -194,7 +194,7 @@ export function WinnerAnnouncementModal({
         <button
           ref={buttonRef}
           onClick={onDismiss}
-          className="w-full px-4 py-2.5 bg-(--color-accent) text-white rounded-lg font-medium hover:bg-(--color-accent-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2"
+          className="w-full px-4 py-2 bg-(--color-accent) text-white text-[13px] rounded-md font-medium hover:bg-(--color-accent-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2"
         >
           Awesome!
         </button>

@@ -269,7 +269,7 @@ export function Calendar({ onClose }: CalendarProps) {
       onClick={onClose}
     >
       <div
-        className="border rounded-xl p-6 w-full max-w-4xl mx-4 shadow-xl max-h-[90vh] overflow-auto bg-(--color-bg-primary) border-(--color-border)"
+        className="border rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-auto bg-(--color-bg-primary) border-(--color-border)"
         onClick={(e) => e.stopPropagation()}
       >
         <CalendarHeader onClose={onClose} />

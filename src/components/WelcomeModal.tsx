@@ -47,16 +47,16 @@ export function WelcomeModal({ onDismiss }: WelcomeModalProps) {
     >
       <div
         ref={modalRef}
-        className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-md mx-4 shadow-xl"
+        className="bg-(--color-bg-primary) border border-(--color-border) rounded-lg p-6 w-full max-w-md mx-4"
       >
         <h2
           id="welcome-title"
-          className="text-xl font-semibold text-(--color-text-primary) mb-4"
+          className="text-lg font-semibold text-(--color-text-primary) mb-4"
         >
           Welcome to 2 Colors 2 Shapes!
         </h2>
 
-        <div className="space-y-4 text-sm text-(--color-text-secondary)">
+        <div className="space-y-4 text-[13px] text-(--color-text-secondary)">
           <section>
             <h3 className="font-medium text-(--color-text-primary) mb-1">
               Daily Challenges
@@ -114,7 +114,7 @@ export function WelcomeModal({ onDismiss }: WelcomeModalProps) {
         <button
           ref={buttonRef}
           onClick={onDismiss}
-          className="w-full mt-6 px-4 py-2.5 text-white rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 bg-(--color-accent) hover:bg-(--color-accent-hover)"
+          className="w-full mt-6 px-4 py-2 text-white rounded-md text-[13px] font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 bg-(--color-accent) hover:bg-(--color-accent-hover) cursor-pointer"
         >
           Got it!
         </button>

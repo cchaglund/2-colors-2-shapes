@@ -1,42 +1,64 @@
-/* DM Sans font for the Playful theme */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+/* Inter font for refined utility aesthetic */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
 @import "tailwindcss";
 
 @layer base {
   :root {
-    font-family: 'DM Sans', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     line-height: 1.5;
     font-weight: 400;
 
-    /* Accent colors */
-    --color-accent: #4F6367;
-    --color-accent-hover: #3E4E52;
-    --color-danger: #CD4631;
-    --color-danger-hover: #A83624;
+    /*
+     * Refined Utility Design System
+     * Near-neutral foundation that recedes to let artwork shine
+     * Muted teal accent, borders-only depth approach
+     */
 
-    /* Light theme colors */
-    --color-bg-primary: #fafaf7;
-    --color-bg-secondary: #E6E6DB; /* sidebar bg */
-    --color-bg-tertiary: #F0E7D8; /* // button */
-    --color-text-primary: #37352f;
-    --color-text-secondary: #6b6b60;
-    --color-text-tertiary: #241023;
-    --color-border: #D1D1D1;
-    --color-border-light: rgba(55, 53, 47, 0.16);
-    --color-hover: #E8DBC4; /* // button hover */
-    --color-selected: #E0E0E2;
-    --color-selected-partial: #e6fffa;
-    --color-overlay: rgba(250, 250, 247, 0.95);
-    --color-modal-overlay: rgba(55, 53, 47, 0.5);
+    /* Accent colors - muted teal */
+    --color-accent: #5c8a8a;
+    --color-accent-hover: #4a7272;
+    --color-accent-subtle: rgba(92, 138, 138, 0.12);
+    --color-danger: #c45c4a;
+    --color-danger-hover: #a84a3a;
+
+    /* Light theme - true neutral grays */
+    --color-bg-primary: #fafafa;
+    --color-bg-secondary: #fafafa;
+    --color-bg-tertiary: #f5f5f5;
+    --color-bg-elevated: #ffffff;
+
+    /* Text hierarchy - 4 levels */
+    --color-text-primary: #1a1a1a;
+    --color-text-secondary: #525252;
+    --color-text-tertiary: #8a8a8a;
+    --color-text-faint: #b3b3b3;
+
+    /* Borders - subtle definition */
+    --color-border: rgba(0, 0, 0, 0.08);
+    --color-border-light: rgba(0, 0, 0, 0.05);
+    --color-border-emphasis: rgba(0, 0, 0, 0.12);
+
+    /* Interactive states */
+    --color-hover: rgba(0, 0, 0, 0.04);
+    --color-selected: rgba(92, 138, 138, 0.12);
+    --color-selected-partial: rgba(92, 138, 138, 0.06);
+
+    /* Overlays */
+    --color-overlay: rgba(250, 250, 250, 0.95);
+    --color-modal-overlay: rgba(0, 0, 0, 0.4);
     --color-modal-bg: #ffffff;
-    --color-checkered-bg: #D8DDDE;
-    --color-checkered-pattern: #F7F7FF;
 
-    /* Card and shadow styles */
+    /* Canvas checkered pattern - very subtle */
+    --color-checkered-bg: #e8e8e8;
+    --color-checkered-pattern: #f2f2f2;
+
+    /* Cards and surfaces - borders-only approach */
     --color-card-bg: #ffffff;
-    --shadow-panel: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
-    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --shadow-panel: none;
+    --shadow-card: none;
+    --border-panel: 1px solid var(--color-border);
+    --border-card: 1px solid var(--color-border-light);
 
     color: var(--color-text-primary);
     background-color: var(--color-bg-primary);
@@ -45,36 +67,64 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+
+    /* Typography scale */
+    --text-xs: 0.6875rem;   /* 11px */
+    --text-sm: 0.8125rem;   /* 13px */
+    --text-base: 0.875rem;  /* 14px */
+    --text-lg: 1rem;        /* 16px */
+    --text-xl: 1.125rem;    /* 18px */
+    --text-2xl: 1.5rem;     /* 24px */
+
+    /* Spacing scale - 4px grid */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+
+    /* Border radius - sharp/technical */
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
   }
 
   /* Dark theme colors */
   :root.dark {
-    --color-accent: #419D78;
-    --color-accent-hover: #2F7F5E;
-    --color-danger: #b45309;
-    --color-danger-hover: #92400e;
+    --color-accent: #6b9e9e;
+    --color-accent-hover: #5a8888;
+    --color-accent-subtle: rgba(107, 158, 158, 0.15);
+    --color-danger: #d4705e;
+    --color-danger-hover: #c45c4a;
 
-    --color-bg-primary: #191919;
-    --color-bg-secondary: #202020;
-    --color-bg-tertiary: #2f2f2f;
-    --color-text-primary: #ffffffcf;
-    --color-text-secondary: #ffffff9e;
-    --color-text-tertiary: #ffffff5e;
-    --color-border: #373737;
-    --color-border-light: rgba(255, 255, 255, 0.13);
-    --color-hover: #2f2f2f;
-    --color-selected: #134e4a;
-    --color-selected-partial: #0d3d38;
-    --color-overlay: rgba(32, 32, 32, 0.95);
-    --color-modal-overlay: rgba(0, 0, 0, 0.7);
-    --color-modal-bg: #252525;
-    --color-checkered-bg: #232323;
-    --color-checkered-pattern: #2d2d2d;
+    --color-bg-primary: #161616;
+    --color-bg-secondary: #161616;
+    --color-bg-tertiary: #1e1e1e;
+    --color-bg-elevated: #222222;
 
-    /* Card and shadow styles */
-    --color-card-bg: #2a2a2a;
-    --shadow-panel: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
-    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.25);
+    --color-text-primary: rgba(255, 255, 255, 0.9);
+    --color-text-secondary: rgba(255, 255, 255, 0.6);
+    --color-text-tertiary: rgba(255, 255, 255, 0.4);
+    --color-text-faint: rgba(255, 255, 255, 0.25);
+
+    --color-border: rgba(255, 255, 255, 0.08);
+    --color-border-light: rgba(255, 255, 255, 0.05);
+    --color-border-emphasis: rgba(255, 255, 255, 0.12);
+
+    --color-hover: rgba(255, 255, 255, 0.05);
+    --color-selected: rgba(107, 158, 158, 0.2);
+    --color-selected-partial: rgba(107, 158, 158, 0.1);
+
+    --color-overlay: rgba(22, 22, 22, 0.95);
+    --color-modal-overlay: rgba(0, 0, 0, 0.6);
+    --color-modal-bg: #1e1e1e;
+
+    --color-checkered-bg: #1a1a1a;
+    --color-checkered-pattern: #222222;
+
+    --color-card-bg: #1e1e1e;
 
     color: var(--color-text-primary);
     background-color: var(--color-bg-primary);
