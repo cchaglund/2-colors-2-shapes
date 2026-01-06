@@ -80,7 +80,7 @@ export function CalendarDayCell({
                 shapes={submission.shapes}
                 challenge={challenge}
                 backgroundColorIndex={submission.background_color_index}
-                size={56}
+                size={70}
               />
             ) : null}
           </div>
@@ -127,11 +127,8 @@ export function CalendarDayCell({
                 shapes={dayWinners[0].shapes}
                 challenge={challenge}
                 backgroundColorIndex={dayWinners[0].background_color_index}
-                size={60}
+                size={80}
               />
-              <div className="absolute -top-0.5 -right-0.5">
-                <TrophyBadge rank={1} size="sm" />
-              </div>
               {dayWinners.length > 1 && (
                 <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 text-[10px] px-1 rounded bg-(--color-bg-primary) border border-(--color-border-light) text-(--color-text-secondary)">
                   +{dayWinners.length - 1}
