@@ -4,6 +4,7 @@ import type { ViewMode, WinnerEntry } from './types';
 import { SubmissionThumbnail } from '../SubmissionThumbnail';
 import { TrophyBadge } from '../TrophyBadge';
 import { ChallengeShapeIndicators } from '../ChallengeShapeIndicators';
+import { Tooltip } from '../InfoTooltip';
 
 interface CalendarDayCellProps {
   day: number;
@@ -32,11 +33,12 @@ export function CalendarDayCell({
   latestWinnersDate,
   onClick,
 }: CalendarDayCellProps) {
+  const showWordTooltip = !isFuture && challenge?.word;
+
   if (viewMode === 'my-submissions') {
-    return (
+    const cellContent = (
       <div
         onClick={() => !isFuture && submission && onClick(day)}
-        title={challenge?.word ? `"${challenge.word}"` : undefined}
         className={`
           aspect-square rounded-lg p-1 transition-all
           ${submission ? 'cursor-pointer hover:ring-2 hover:ring-blue-500 bg-(--color-bg-secondary)' : 'bg-(--color-bg-tertiary)'}
@@ -89,16 +91,20 @@ export function CalendarDayCell({
         </div>
       </div>
     );
+
+    if (showWordTooltip) {
+      return <Tooltip text={`"${challenge.word}"`}>{cellContent}</Tooltip>;
+    }
+    return cellContent;
   }
 
   // Winners view
   const hasWinner = dayWinners && dayWinners.length > 0;
   const hasResults = dateStr <= latestWinnersDate;
 
-  return (
+  const cellContent = (
     <div
       onClick={() => hasWinner && onClick(day)}
-      title={challenge?.word ? `"${challenge.word}"` : undefined}
       className={`
         aspect-square rounded-lg p-1 transition-all
         ${hasWinner ? 'cursor-pointer hover:ring-2 hover:ring-yellow-500 bg-(--color-bg-secondary)' : 'bg-(--color-bg-tertiary)'}
@@ -142,11 +148,16 @@ export function CalendarDayCell({
             </div>
           ) : !isFuture && !hasResults ? (
             <div className="text-xs text-center text-(--color-text-tertiary)">
-              Voting...
+              {isToday ? 'Creating...' : 'Voting...'}
             </div>
           ) : null}
         </div>
       </div>
     </div>
   );
+
+  if (showWordTooltip) {
+    return <Tooltip text={`"${challenge.word}"`}>{cellContent}</Tooltip>;
+  }
+  return cellContent;
 }

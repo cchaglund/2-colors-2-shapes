@@ -10,10 +10,10 @@
     font-weight: 400;
 
     /* Accent colors */
-    --color-accent: #0d9488;
-    --color-accent-hover: #0f766e;
-    --color-danger: #f97316;
-    --color-danger-hover: #ea580c;
+    --color-accent: #4F6367;
+    --color-accent-hover: #3E4E52;
+    --color-danger: #CD4631;
+    --color-danger-hover: #A83624;
 
     /* Light theme colors */
     --color-bg-primary: #fafaf7;

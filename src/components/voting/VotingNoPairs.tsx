@@ -24,10 +24,13 @@ export function VotingNoPairs({
         <>
           <div className="text-4xl mb-4">🎉</div>
           <h2 id="voting-title" className="text-xl font-semibold text-(--color-text-primary) mb-2">
-            All Done!
+            Your art has been entered!
           </h2>
+          <p className="text-(--color-text-secondary) mb-2">
+            Tomorrow users will be able to vote on your artwork, with winners announced the following day.
+          </p>
           <p className="text-(--color-text-secondary) mb-6">
-            You've voted on all available pairs. Your artwork is entered in today's ranking!
+            Thanks for participating!
           </p>
         </>
       ) : (
