@@ -10,8 +10,26 @@ interface VoteRequest {
   submissionAId: string;
   submissionBId: string;
   winnerId: string | null; // null if skipped
-  challengeDate: string; // YYYY-MM-DD
   requiredVotes?: number; // Dynamic threshold based on available submissions (default: 5)
+}
+
+/**
+ * Get yesterday's date in UTC (YYYY-MM-DD format)
+ * Voting always happens on submissions from the previous day
+ */
+function getYesterdayDateUTC(): string {
+  const now = new Date();
+  const yesterday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1));
+  return yesterday.toISOString().split('T')[0];
+}
+
+/**
+ * Get today's date in UTC (YYYY-MM-DD format)
+ */
+function getTodayDateUTC(): string {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+    .toISOString().split('T')[0];
 }
 
 interface EloResult {
@@ -77,15 +95,19 @@ serve(async (req: Request) => {
     }
 
     // Parse request body
-    const { submissionAId, submissionBId, winnerId, challengeDate, requiredVotes = 5 }: VoteRequest = await req.json();
+    const { submissionAId, submissionBId, winnerId, requiredVotes = 5 }: VoteRequest = await req.json();
 
     // Validate input
-    if (!submissionAId || !submissionBId || !challengeDate) {
+    if (!submissionAId || !submissionBId) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    // Calculate challenge date server-side (voting is always for yesterday's submissions)
+    const challengeDate = getYesterdayDateUTC();
+    const todayDate = getTodayDateUTC();
 
     // Create service role client for database operations
     const supabaseAdmin = createClient(
@@ -172,14 +194,11 @@ serve(async (req: Request) => {
 
       // If user just hit 5 votes, mark their submission as included in ranking
       if (enteredRanking && !existingStatus.entered_ranking) {
-        // Get today's date (the day after challengeDate, when user is voting)
-        const today = new Date().toISOString().split('T')[0];
-
         await supabaseAdmin
           .from('submissions')
           .update({ included_in_ranking: true })
           .eq('user_id', user.id)
-          .eq('challenge_date', today);
+          .eq('challenge_date', todayDate);
       }
 
       return new Response(

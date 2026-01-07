@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Shape, ShapeGroup, CanvasState, DailyChallenge } from '../types';
 import { generateId } from '../utils/shapeHelpers';
-import { getTodayDate } from '../utils/dailyChallenge';
+import { getTodayDateUTC } from '../utils/dailyChallenge';
 
 const STORAGE_KEY = '2colors2shapes_canvas';
 const MAX_HISTORY = 50;
@@ -49,7 +49,7 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
   const [canvasState, setCanvasStateInternal] = useState<CanvasState>(() => {
     const stored = loadFromStorage();
     // Only restore if it's the same day (user check happens in App.tsx sync effect)
-    if (stored && stored.date === getTodayDate()) {
+    if (stored && stored.date === getTodayDateUTC()) {
       // Handle migration from old selectedShapeId format
       const canvas = stored.canvas;
       // Support old format with selectedShapeId
@@ -126,7 +126,7 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
   // Persist to localStorage on changes
   useEffect(() => {
     saveToStorage({
-      date: getTodayDate(),
+      date: getTodayDateUTC(),
       userId: userIdRef.current,
       canvas: canvasState,
     });
@@ -1100,7 +1100,7 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
 
       // Also save to localStorage immediately
       saveToStorage({
-        date: getTodayDate(),
+        date: getTodayDateUTC(),
         userId: userIdRef.current,
         canvas: newState,
       });

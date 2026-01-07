@@ -195,7 +195,7 @@ export function Toolbar({
           <Label>Background</Label>
           <div className="flex gap-2">
             <button
-              className={`w-8 h-8 rounded-md cursor-pointer text-[11px] transition-all bg-white border ${
+              className={`w-8 h-8 rounded-md cursor-pointer text-[11px] transition-all flex items-center justify-center bg-white border ${
                 backgroundColorIndex === null
                   ? 'border-(--color-accent) ring-2 ring-(--color-accent-subtle)'
                   : 'border-(--color-border) hover:border-(--color-border-emphasis)'

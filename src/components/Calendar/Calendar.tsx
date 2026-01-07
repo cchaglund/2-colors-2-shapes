@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useSubmissions, type Submission } from '../../hooks/useSubmissions';
-import { getTodayDate, getTwoDaysAgoDate } from '../../utils/dailyChallenge';
+import { getTodayDateUTC, getTwoDaysAgoDateUTC } from '../../utils/dailyChallenge';
 import { fetchChallengesBatch, getChallengeSync } from '../../hooks/useDailyChallenge';
 import { supabase } from '../../lib/supabase';
 import type { Shape, DailyChallenge } from '../../types';
@@ -29,9 +29,9 @@ export function Calendar({ onClose }: CalendarProps) {
   // Determine effective view mode - null until auth loads, then based on user
   const effectiveViewMode: ViewMode = viewMode ?? (user ? 'my-submissions' : 'winners');
 
-  const todayStr = useMemo(() => getTodayDate(), []);
+  const todayStr = useMemo(() => getTodayDateUTC(), []);
   // Winners are only available up to 2 days ago (voting completes the day after submission)
-  const latestWinnersDate = useMemo(() => getTwoDaysAgoDate(), []);
+  const latestWinnersDate = useMemo(() => getTwoDaysAgoDateUTC(), []);
 
   // Close on Escape key
   useEffect(() => {

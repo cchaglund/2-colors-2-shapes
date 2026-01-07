@@ -200,22 +200,25 @@ export function getWordForDate(dateStr: string): string {
 
 // =============================================================================
 // Date Utilities (exported for use elsewhere)
+// All dates use UTC to ensure consistency across timezones
 // =============================================================================
 
-export function getTodayDate(): string {
-  return new Date().toISOString().split('T')[0];
+export function getTodayDateUTC(): string {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+    .toISOString().split('T')[0];
 }
 
-export function getYesterdayDate(): string {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return d.toISOString().split('T')[0];
+export function getYesterdayDateUTC(): string {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1))
+    .toISOString().split('T')[0];
 }
 
-export function getTwoDaysAgoDate(): string {
-  const d = new Date();
-  d.setDate(d.getDate() - 2);
-  return d.toISOString().split('T')[0];
+export function getTwoDaysAgoDateUTC(): string {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 2))
+    .toISOString().split('T')[0];
 }
 
 // =============================================================================
@@ -253,5 +256,5 @@ export function generateDailyChallenge(dateStr: string): DailyChallenge {
 }
 
 export function getTodayChallenge(): DailyChallenge {
-  return generateDailyChallenge(getTodayDate());
+  return generateDailyChallenge(getTodayDateUTC());
 }

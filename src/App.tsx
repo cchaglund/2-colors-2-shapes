@@ -32,7 +32,7 @@ import { useShapeActions } from './hooks/useShapeActions';
 import { useBackgroundPanning } from './hooks/useBackgroundPanning';
 import { useSaveSubmission } from './hooks/useSaveSubmission';
 import { useSubmissionSync } from './hooks/useSubmissionSync';
-import { getTodayDate, getYesterdayDate } from './utils/dailyChallenge';
+import { getTodayDateUTC, getYesterdayDateUTC } from './utils/dailyChallenge';
 import { useDailyChallenge } from './hooks/useDailyChallenge';
 import {
   isShapeExplorerEnabled,
@@ -63,7 +63,7 @@ function App() {
   const mainRef = useRef<HTMLElement>(null);
 
   // Fetch today's challenge from server
-  const todayDate = useMemo(() => getTodayDate(), []);
+  const todayDate = useMemo(() => getTodayDateUTC(), []);
   const { challenge, loading: challengeLoading } = useDailyChallenge(todayDate);
 
   // Auth state
@@ -81,7 +81,7 @@ function App() {
   } = useWinnerAnnouncement(user?.id);
 
   // Yesterday's date for voting
-  const yesterdayDate = useMemo(() => getYesterdayDate(), []);
+  const yesterdayDate = useMemo(() => getYesterdayDateUTC(), []);
 
   // Keyboard settings
   const {

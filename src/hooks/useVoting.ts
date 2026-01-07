@@ -204,7 +204,6 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
             submissionAId: currentPair.submissionA.id,
             submissionBId: currentPair.submissionB.id,
             winnerId,
-            challengeDate,
             requiredVotes,
           },
         });
@@ -223,7 +222,7 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
 
       setSubmitting(false);
     },
-    [userId, currentPair, challengeDate, requiredVotes, fetchNextPair]
+    [userId, currentPair, requiredVotes, fetchNextPair]
   );
 
   // Skip the current pair (doesn't count toward vote requirement)
@@ -238,7 +237,6 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
           submissionAId: currentPair.submissionA.id,
           submissionBId: currentPair.submissionB.id,
           winnerId: null, // null = skip
-          challengeDate,
           requiredVotes,
         },
       });
@@ -252,7 +250,7 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
     }
 
     setSubmitting(false);
-  }, [userId, currentPair, challengeDate, requiredVotes, fetchNextPair]);
+  }, [userId, currentPair, requiredVotes, fetchNextPair]);
 
   return {
     currentPair,

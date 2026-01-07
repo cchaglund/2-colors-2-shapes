@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { getTwoDaysAgoDate } from '../utils/dailyChallenge';
+import { getTwoDaysAgoDateUTC } from '../utils/dailyChallenge';
 import type { RankingEntry, Shape } from '../types';
 
 interface RankingRow {
@@ -34,7 +34,7 @@ export function useWinnerAnnouncement(userId: string | undefined): UseWinnerAnno
   const [topThree, setTopThree] = useState<RankingEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const challengeDate = getTwoDaysAgoDate();
+  const challengeDate = getTwoDaysAgoDateUTC();
 
   const checkAnnouncement = useCallback(async () => {
     if (!userId) {
