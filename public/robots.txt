@@ -1,0 +1,7 @@
+# robots.txt for 2colors2shapes.art
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://2colors2shapes.art/sitemap.xml

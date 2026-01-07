@@ -1,4 +1,4 @@
-# Shapeshade
+# 2 Colors 2 Shapes
 
 A daily art challenge app where you create art using only 2 colors and 2 geometric shapes.
 

@@ -121,7 +121,7 @@ export function Toolbar({
       <div className="flex-1 overflow-y-auto px-4">
         {/* Header with collapse */}
         <div className="flex items-center justify-between py-3 border-b border-(--color-border-light)">
-          <span className="text-[13px] font-medium text-(--color-text-primary)">Shapeshade</span>
+          <span className="text-[13px] font-medium text-(--color-text-primary)">2 Colors 2 Shapes</span>
           <button
             className="w-6 h-6 flex items-center justify-center bg-transparent border-none cursor-pointer rounded transition-colors text-(--color-text-tertiary) hover:text-(--color-text-secondary) hover:bg-(--color-hover)"
             onClick={onToggle}
