@@ -11,3 +11,16 @@
 - should we have more colors...? allows background to be any color? Allow bg to be either one of the two colors or black or white?
 - when i log out and click log in again, I'm not able to select between my google accounts, it just logs in with the last one I used.
 - can see wall of the day's submissions - but only after you've submitted something yourself. 
+- forms for submitting feedback, reporting bugs, requesting features
+- when you select two shapes the bounding box surrounding them is larger than it should be (at least if one of the shapes has been flipped)
+- the bounding boxes can be made thinner, they look too thick currently
+
+What you need to provide
+1. OG image → Save as /public/og-image.png
+- Size: 1200 x 630 pixels
+- Will be used for social sharing previews
+
+After launch: Google Search Console
+Once the domain is live, submit it to Google Search Console and:
+1. Verify ownership (you already have /public/googled1c25da4c512d2d8.html - may need updating for the new domain)
+2. Submit the sitemap: https://2colors2shapes.art/sitemap.xml

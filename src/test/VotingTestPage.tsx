@@ -9,7 +9,7 @@
  */
 
 import { useState } from 'react';
-import { WinnerAnnouncementModal } from '../components/WinnerAnnouncementModal';
+
 import {
   VotingPairView,
   VotingConfirmation,
@@ -26,6 +26,7 @@ import {
 } from './mockData';
 import { calculateRequiredVotes, calculateTotalPairs } from '../utils/votingRules';
 import type { RankingEntry } from '../types';
+import { WinnerAnnouncementModal } from '../components/modals/WinnerAnnouncementModal';
 
 type TestScenario =
   | 'voting-ui'

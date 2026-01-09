@@ -1,5 +1,5 @@
-import type { ShapeType } from '../types';
-import { getShapeSVGData, SHAPE_NAMES } from '../utils/shapeHelpers';
+import type { ShapeType } from '../../types';
+import { getShapeSVGData, SHAPE_NAMES } from '../../utils/shapeHelpers';
 
 const SHAPE_TYPES: ShapeType[] = [
   'circle',

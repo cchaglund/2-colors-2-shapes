@@ -4,19 +4,18 @@ import { Toolbar } from './components/Toolbar';
 import { LayerPanel } from './components/LayerPanel';
 import { ZoomControls } from './components/ZoomControls';
 import { ActionToolbar } from './components/ActionToolbar';
-import { ShapeExplorer } from './components/ShapeExplorer';
-import { ColorTester } from './components/ColorTester';
-import { OnboardingModal } from './components/OnboardingModal';
-import { WelcomeModal } from './components/WelcomeModal';
+import { ShapeExplorer } from './components/admin/ShapeExplorer';
+import { ColorTester } from './components/admin/ColorTester';
+import { OnboardingModal } from './components/modals/OnboardingModal';
+import { WelcomeModal } from './components/modals/WelcomeModal';
 import { Calendar } from './components/Calendar';
 import { SubmissionDetailPage } from './components/SubmissionDetailPage';
 import { WinnersDayPage } from './components/WinnersDayPage';
 import { KeyboardSettingsModal } from './components/KeyboardSettingsModal';
 import { VotingModal } from './components/voting';
-import { WinnerAnnouncementModal } from './components/WinnerAnnouncementModal';
 import { ResetConfirmModal } from './components/ResetConfirmModal';
 import { VotingTestPage } from './test/VotingTestPage';
-import { Dashboard } from './components/Dashboard';
+import { Dashboard } from './components/admin/Dashboard';
 import { useCanvasState } from './hooks/useCanvasState';
 import { useViewportState } from './hooks/useViewportState';
 import { useSidebarState } from './hooks/useSidebarState';
@@ -42,6 +41,7 @@ import {
   isColorTesterEnabled,
   getWinnersDayView,
 } from './utils/urlParams';
+import { WinnerAnnouncementModal } from './components/modals/WinnerAnnouncementModal';
 
 function App() {
   // Check URL-based view modes
@@ -403,7 +403,7 @@ function App() {
           challengeDate={winnerChallengeDate}
           topThree={winnerTopThree}
           onDismiss={dismissWinnerAnnouncement}
-          onViewSubmission={(submissionId) => {
+          onViewSubmission={(submissionId: any) => {
             window.location.href = `?view=submission&id=${submissionId}`;
           }}
         />

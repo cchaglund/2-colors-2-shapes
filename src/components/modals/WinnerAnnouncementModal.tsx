@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
-import { SubmissionThumbnail } from './SubmissionThumbnail';
-import { TrophyBadge } from './TrophyBadge';
-import { useDailyChallenge } from '../hooks/useDailyChallenge';
-import type { RankingEntry } from '../types';
+import type { RankingEntry } from '../../types';
+import { useDailyChallenge } from '../../hooks/useDailyChallenge';
+import { SubmissionThumbnail } from '../SubmissionThumbnail';
+import { TrophyBadge } from '../TrophyBadge';
 
 interface WinnerAnnouncementModalProps {
   challengeDate: string;
@@ -51,7 +51,7 @@ export function WinnerAnnouncementModal({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onDismiss]);
+  }, [challengeLoading, onDismiss]);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr + 'T12:00:00');
