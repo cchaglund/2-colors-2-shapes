@@ -48,7 +48,7 @@ export function Tooltip({ text, children }: TooltipProps) {
             ref={setFloating}
             style={floatingStyles}
             {...getFloatingProps()}
-            className="max-w-xs px-2.5 py-1.5 text-[11px] text-white bg-neutral-800 rounded-md z-50"
+            className="capitalize max-w-xs px-2.5 py-1.5 text-[11px] text-white bg-neutral-800 rounded-md z-50"
           >
             {text}
           </div>

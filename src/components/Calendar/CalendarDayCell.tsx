@@ -40,7 +40,7 @@ export function CalendarDayCell({
       <div
         onClick={() => !isFuture && submission && onClick(day)}
         className={`
-          aspect-square rounded-md p-1.5 transition-all border
+          group aspect-square rounded-md p-1.5 transition-all border
           ${submission ? 'cursor-pointer hover:border-(--color-accent) bg-(--color-bg-tertiary) border-(--color-border-light)' : 'bg-(--color-bg-primary) border-(--color-border-light)'}
           ${isFuture ? 'opacity-30' : ''}
           ${isToday ? 'ring-2 ring-(--color-accent) ring-offset-1' : ''}
@@ -61,15 +61,19 @@ export function CalendarDayCell({
             </span>
             {submission && challenge && (
               <div className="flex w-full px-1 justify-between items-center gap-0.5">
-                <ChallengeShapeIndicators
-                  shapes={challenge.shapes}
-                  size={12}
-                />
-                {ranking !== undefined && ranking <= 3 && (
-                  <TrophyBadge
-                    rank={ranking as 1 | 2 | 3}
-                    size="sm"
+                <div className="hidden group-hover:block pl-2">
+                  <ChallengeShapeIndicators
+                    shapes={challenge.shapes}
+                    size={12}
                   />
+                </div>
+                {ranking !== undefined && ranking <= 3 && (
+                  <div className='ml-auto'>
+                    <TrophyBadge
+                      rank={ranking as 1 | 2 | 3}
+                      size="sm"
+                    />
+                  </div>
                 )}
               </div>
             )}
@@ -82,6 +86,20 @@ export function CalendarDayCell({
                 backgroundColorIndex={submission.background_color_index}
                 size={70}
               />
+            ) : !isFuture ? (
+              <svg
+                className="w-6 h-6 text-(--color-text-tertiary) opacity-40"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
             ) : null}
           </div>
         </div>
@@ -135,10 +153,16 @@ export function CalendarDayCell({
                 </div>
               )}
             </>
-          ) : !isFuture && !hasResults ? (
-            <div className="text-[11px] text-center text-(--color-text-tertiary)">
-              {isToday ? 'Creating...' : 'Voting...'}
-            </div>
+          ) : !isFuture ? (
+            hasResults ? (
+              <div className="text-[11px] text-center text-(--color-text-tertiary)">
+                No winners
+              </div>
+            ) : (
+              <div className="text-[11px] text-center text-(--color-text-tertiary)">
+                {isToday ? 'Creating...' : 'Voting...'}
+              </div>
+            )
           ) : null}
         </div>
       </div>
