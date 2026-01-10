@@ -61,6 +61,9 @@ interface ToolbarProps {
   // Grid toggle
   showGrid?: boolean;
   onToggleGrid?: () => void;
+  // Off-canvas toggle
+  showOffCanvas?: boolean;
+  onToggleOffCanvas?: () => void;
 }
 
 export function Toolbar({
@@ -89,6 +92,8 @@ export function Toolbar({
   profileLoading,
   showGrid,
   onToggleGrid,
+  showOffCanvas,
+  onToggleOffCanvas,
 }: ToolbarProps) {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const hasSelection = selectedShapeIds.size > 0;
@@ -318,6 +323,23 @@ export function Toolbar({
             </svg>
             <span>Grid Lines</span>
             {showGrid && <span className="ml-auto text-[11px] text-(--color-text-tertiary)">On</span>}
+          </button>
+          <button
+            className={`flex items-center gap-2 w-full py-1.5 px-2 rounded-md cursor-pointer text-[13px] transition-colors ${
+              showOffCanvas
+                ? 'bg-(--color-selected) text-(--color-text-primary)'
+                : 'bg-transparent text-(--color-text-secondary) hover:bg-(--color-hover)'
+            }`}
+            onClick={onToggleOffCanvas}
+            title={`${showOffCanvas ? 'Hide' : 'Show'} shapes outside canvas bounds`}
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              <rect x="4" y="4" width="8" height="8" />
+              <circle cx="2" cy="8" r="1.5" fill="currentColor" stroke="none" />
+              <circle cx="14" cy="8" r="1.5" fill="currentColor" stroke="none" />
+            </svg>
+            <span>Off-Canvas</span>
+            {showOffCanvas && <span className="ml-auto text-[11px] text-(--color-text-tertiary)">On</span>}
           </button>
         </div>
 

@@ -69,6 +69,11 @@ The same date always generates the same colors, shapes, and word (seed-based ran
   - Toggle with G key or toolbar button
   - Grid state saved in localStorage
   - Grid lines are editor-only (not included in exports)
+- **Off-canvas shapes**: Toggle visibility of shapes outside the 800x800 canvas
+  - Build "components" off-canvas and bring them in when ready
+  - Toggle via button in the View section of the toolbar
+  - Off-canvas shapes are visible for editing but not included in exports
+  - Setting saved in localStorage
 - **Touchscreen support**: Full touch gesture support for tablets and mobile devices
   - Tap to select shapes, tap empty space to deselect
   - Tap and drag to move shapes

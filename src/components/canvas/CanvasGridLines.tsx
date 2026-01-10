@@ -2,12 +2,14 @@ import { CANVAS_SIZE } from '../../types/canvas';
 
 interface CanvasGridLinesProps {
   zoom: number;
+  showOffCanvas?: boolean;
 }
 
 /**
- * Renders rule-of-thirds and center grid lines on the canvas
+ * Renders rule-of-thirds and center grid lines on the canvas.
+ * When showOffCanvas is true, also renders canvas boundary lines.
  */
-export function CanvasGridLines({ zoom }: CanvasGridLinesProps) {
+export function CanvasGridLines({ zoom, showOffCanvas }: CanvasGridLinesProps) {
   const strokeWidth = 1 / zoom;
 
   return (
@@ -62,6 +64,18 @@ export function CanvasGridLines({ zoom }: CanvasGridLinesProps) {
         stroke="rgba(120, 120, 120, 0.6)"
         strokeWidth={strokeWidth}
       />
+      {/* Canvas boundary lines - shown when off-canvas mode is enabled */}
+      {showOffCanvas && (
+        <rect
+          x={0}
+          y={0}
+          width={CANVAS_SIZE}
+          height={CANVAS_SIZE}
+          fill="none"
+          stroke="rgba(100, 100, 100, 0.7)"
+          strokeWidth={strokeWidth * 1.5}
+        />
+      )}
     </g>
   );
 }

@@ -21,6 +21,7 @@ import { useViewportState } from './hooks/useViewportState';
 import { useSidebarState } from './hooks/useSidebarState';
 import { useThemeState } from './hooks/useThemeState';
 import { useGridState } from './hooks/useGridState';
+import { useOffCanvasState } from './hooks/useOffCanvasState';
 import { useAuth } from './hooks/useAuth';
 import { useProfile } from './hooks/useProfile';
 import { useSubmissions } from './hooks/useSubmissions';
@@ -160,6 +161,9 @@ function App() {
   // Grid state
   const { showGrid, toggleGrid } = useGridState();
 
+  // Off-canvas state
+  const { showOffCanvas, toggleOffCanvas } = useOffCanvasState();
+
   // Shape actions (move, rotate, resize, mirror, duplicate)
   const {
     handleMoveShapes,
@@ -284,6 +288,8 @@ function App() {
         profileLoading={profileLoading}
         showGrid={showGrid}
         onToggleGrid={toggleGrid}
+        showOffCanvas={showOffCanvas}
+        onToggleOffCanvas={toggleOffCanvas}
       />
 
       <main
@@ -302,6 +308,7 @@ function App() {
             viewport={viewport}
             keyMappings={keyMappings}
             showGrid={showGrid}
+            showOffCanvas={showOffCanvas}
             onSelectShape={selectShape}
             onUpdateShape={updateShape}
             onUpdateShapes={updateShapes}

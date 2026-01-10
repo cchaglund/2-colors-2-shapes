@@ -28,6 +28,7 @@ interface CanvasProps {
   viewport: ViewportState;
   keyMappings: KeyMappings;
   showGrid?: boolean;
+  showOffCanvas?: boolean;
   onSelectShape: (id: string | null, options?: { toggle?: boolean; range?: boolean; orderedIds?: string[] }) => void;
   onUpdateShape: (id: string, updates: Partial<Shape>) => void;
   onUpdateShapes: (updates: Map<string, Partial<Shape>>) => void;
@@ -52,6 +53,7 @@ export function Canvas({
   viewport,
   keyMappings,
   showGrid,
+  showOffCanvas,
   onSelectShape,
   onUpdateShape,
   onUpdateShapes,
@@ -418,8 +420,8 @@ export function Canvas({
           onMouseDown={() => !isSpacePressed && onSelectShape(null)}
         />
 
-        {/* Render shapes clipped to canvas bounds */}
-        <g clipPath="url(#canvas-clip)">
+        {/* Render shapes - optionally clipped to canvas bounds */}
+        <g clipPath={showOffCanvas ? undefined : "url(#canvas-clip)"}>
           {sortedShapes.map((shape) => (
             <g key={shape.id}>
               <g onMouseDown={(e) => !isSpacePressed && handleShapeMouseDown(e, shape.id)}>
@@ -434,7 +436,7 @@ export function Canvas({
         </g>
 
         {/* Grid lines - rendered on top of shapes but don't export/print */}
-        {showGrid && <CanvasGridLines zoom={viewport.zoom} />}
+        {showGrid && <CanvasGridLines zoom={viewport.zoom} showOffCanvas={showOffCanvas} />}
 
         {/* Interaction layers - outside clip path for better hit detection */}
         {!isSpacePressed && sortedShapes.map((shape) => (
