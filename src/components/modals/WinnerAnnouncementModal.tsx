@@ -94,13 +94,13 @@ export function WinnerAnnouncementModal({
     >
       <div
         ref={modalRef}
-        className="bg-(--color-bg-primary) border border-(--color-border) rounded-lg p-6 w-full max-w-md mx-4"
+        className="bg-(--color-bg-primary) border border-(--color-border) rounded-lg p-6 w-full max-w-lg mx-4"
       >
         <div className="text-center mb-5">
           <h2 id="winner-title" className="text-lg font-semibold text-(--color-text-primary) mb-0.5">
-            {formatDate(challengeDate)}
+            Winners of {formatDate(challengeDate)}
           </h2>
-          <p className="text-[13px] text-(--color-text-secondary)">{winners.length > 1 ? 'Winners' : 'Winner'}</p>
+          <p className="text-[13px] text-(--color-text-secondary)">Word of the day was "{challenge.word}"</p>
           {winners.length > 1 && (
             <p className="text-[11px] text-(--color-text-tertiary) mt-0.5">
               {winners.length === 3 ? 'Three-way tie!' : winners.length === 2 ? 'Tie for 1st place!' : ''}
@@ -127,7 +127,7 @@ export function WinnerAnnouncementModal({
                       shapes={winner.shapes}
                       challenge={challenge}
                       backgroundColorIndex={winner.background_color_index}
-                      size={winners.length > 2 ? 100 : winners.length > 1 ? 120 : 160}
+                      size={winners.length > 2 ? 150 : winners.length > 1 ? 180 : 240}
                     />
                   </div>
                 </div>
@@ -157,7 +157,7 @@ export function WinnerAnnouncementModal({
                       shapes={runnerUp.shapes}
                       challenge={challenge}
                       backgroundColorIndex={runnerUp.background_color_index}
-                      size={80}
+                      size={200}
                     />
                   </div>
                 </div>
@@ -181,7 +181,7 @@ export function WinnerAnnouncementModal({
                       shapes={thirdPlace.shapes}
                       challenge={challenge}
                       backgroundColorIndex={thirdPlace.background_color_index}
-                      size={80}
+                      size={200}
                     />
                   </div>
                 </div>

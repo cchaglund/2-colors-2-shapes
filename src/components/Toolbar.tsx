@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import type { DailyChallenge, ShapeType } from '../types';
 import type { ThemeMode } from '../hooks/useThemeState';
 import type { Profile } from '../hooks/useProfile';
 import { getShapeSVGData } from '../utils/shapeHelpers';
 import { ThemeToggle } from './ThemeToggle';
 import { AuthButton } from './AuthButton';
+import { LoginPromptModal } from './LoginPromptModal';
 import { type KeyMappings, formatKeyBinding } from '../constants/keyboardActions';
 
 // Small shape preview component for the toolbar
@@ -88,6 +90,7 @@ export function Toolbar({
   showGrid,
   onToggleGrid,
 }: ToolbarProps) {
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const hasSelection = selectedShapeIds.size > 0;
 
   if (!isOpen) {
@@ -263,7 +266,7 @@ export function Toolbar({
 
         {/* Actions Section */}
         <div className="py-4 border-b border-(--color-border-light)">
-          {isLoggedIn && onSave && (
+          {isLoggedIn && onSave ? (
             <button
               className="w-full py-2 px-3 text-white border-none rounded-md cursor-pointer text-[13px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-(--color-accent) hover:bg-(--color-accent-hover)"
               onClick={onSave}
@@ -271,18 +274,29 @@ export function Toolbar({
             >
               {isSaving ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : hasSubmittedToday ? 'Update Creation' : 'Save Creation'}
             </button>
+          ) : (
+            <button
+              className="w-full py-2 px-3 text-white border-none rounded-md cursor-pointer text-[13px] font-medium transition-colors bg-(--color-accent) hover:bg-(--color-accent-hover)"
+              onClick={() => setShowLoginModal(true)}
+            >
+              Save Creation
+            </button>
           )}
           {saveStatus === 'error' && (
             <p className="mt-1 mb-0 text-[11px] text-(--color-danger)">Failed to save. Try again.</p>
           )}
 
           <button
-            className={`w-full py-2 px-3 border border-(--color-border) rounded-md cursor-pointer text-[13px] font-medium transition-colors text-(--color-text-secondary) hover:text-(--color-danger) hover:border-(--color-danger) hover:bg-transparent ${isLoggedIn && onSave ? 'mt-2' : ''}`}
+            className="w-full py-2 px-3 border border-(--color-border) rounded-md cursor-pointer text-[13px] font-medium transition-colors text-(--color-text-secondary) hover:text-(--color-danger) hover:border-(--color-danger) hover:bg-transparent mt-2"
             onClick={onReset}
           >
             Reset Canvas
           </button>
         </div>
+
+        {showLoginModal && (
+          <LoginPromptModal onClose={() => setShowLoginModal(false)} />
+        )}
 
         {/* View Section */}
         <div className="py-4 border-b border-(--color-border-light)">
