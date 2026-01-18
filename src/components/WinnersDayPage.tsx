@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useRanking } from '../hooks/useRanking';
 import { useDailyChallenge } from '../hooks/useDailyChallenge';
-import { SubmissionThumbnail } from './SubmissionThumbnail';
-import { TrophyBadge } from './TrophyBadge';
+import { WinnerCard } from './WinnerCard';
 import { getShapeSVGData } from '../utils/shapeHelpers';
-import type { RankingEntry, DailyChallenge } from '../types';
 
 interface WinnersDayPageProps {
   date: string;
@@ -160,6 +158,7 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
             ) : (
               <>
                 {/* Winners (1st place) */}
+                
                 {winners.length > 0 && (
                   <div className="text-center">
                     <h2 className="text-sm font-medium mb-4 text-(--color-text-tertiary)">
@@ -173,7 +172,6 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
                           challenge={challenge}
                           onView={handleViewSubmission}
                           size={winners.length > 2 ? 'sm' : winners.length > 1 ? 'md' : 'lg'}
-                          borderColor="border-yellow-400"
                         />
                       ))}
                     </div>
@@ -190,7 +188,6 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
                         challenge={challenge}
                         onView={handleViewSubmission}
                         size="sm"
-                        borderColor="border-gray-300"
                       />
                     ))}
                     {thirdPlaces.map((entry) => (
@@ -200,7 +197,6 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
                         challenge={challenge}
                         onView={handleViewSubmission}
                         size="sm"
-                        borderColor="border-amber-600"
                       />
                     ))}
                   </div>
@@ -284,41 +280,3 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
   );
 }
 
-interface WinnerCardProps {
-  entry: RankingEntry;
-  challenge: DailyChallenge;
-  onView: (submissionId: string) => void;
-  size: 'sm' | 'md' | 'lg';
-  borderColor: string;
-}
-
-function WinnerCard({ entry, challenge, onView, size, borderColor }: WinnerCardProps) {
-  const thumbnailSize = size === 'lg' ? 180 : size === 'md' ? 140 : 100;
-  const badgeSize = size === 'lg' ? 'lg' : size === 'md' ? 'md' : 'sm';
-  const borderWidth = size === 'lg' ? 'border-4' : 'border-2';
-
-  return (
-    <button
-      className="flex flex-col items-center bg-transparent border-0 p-0 cursor-pointer transition-transform hover:scale-105"
-      onClick={() => onView(entry.submission_id)}
-      title="View submission (opens in new tab)"
-    >
-      <div className="relative">
-        <div className="absolute -top-3 -right-3 z-10">
-          <TrophyBadge rank={entry.rank as 1 | 2 | 3} size={badgeSize as 'sm' | 'md' | 'lg'} />
-        </div>
-        <div className={`${borderWidth} ${borderColor} rounded-xl p-2 shadow-lg`}>
-          <SubmissionThumbnail
-            shapes={entry.shapes}
-            challenge={challenge}
-            backgroundColorIndex={entry.background_color_index}
-            size={thumbnailSize}
-          />
-        </div>
-      </div>
-      <p className="mt-3 font-medium text-(--color-text-primary)">
-        @{entry.nickname}
-      </p>
-    </button>
-  );
-}

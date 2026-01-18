@@ -1,8 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { RankingEntry } from '../../types';
 import { useDailyChallenge } from '../../hooks/useDailyChallenge';
-import { SubmissionThumbnail } from '../SubmissionThumbnail';
-import { TrophyBadge } from '../TrophyBadge';
+import { WinnerCard } from '../WinnerCard';
 
 interface WinnerAnnouncementModalProps {
   challengeDate: string;
@@ -112,27 +111,13 @@ export function WinnerAnnouncementModal({
         {winners.length > 0 && (
           <div className={`flex justify-center ${winners.length > 1 ? 'gap-4' : ''} mb-5`}>
             {winners.map((winner) => (
-              <button
+              <WinnerCard
                 key={winner.submission_id}
-                className="flex flex-col items-center bg-transparent border-0 p-0 cursor-pointer transition-transform hover:scale-[1.02]"
-                onClick={() => onViewSubmission?.(winner.submission_id)}
-                title="View submission"
-              >
-                <div className="relative">
-                  <div className="absolute -top-2 -right-2 z-10">
-                    <TrophyBadge rank={1} size={winners.length > 2 ? 'md' : 'lg'} />
-                  </div>
-                  <div className="border-2 border-amber-400 rounded-lg p-1.5 bg-(--color-bg-tertiary)">
-                    <SubmissionThumbnail
-                      shapes={winner.shapes}
-                      challenge={challenge}
-                      backgroundColorIndex={winner.background_color_index}
-                      size={winners.length > 2 ? 150 : winners.length > 1 ? 180 : 240}
-                    />
-                  </div>
-                </div>
-                <p className="mt-2 text-[13px] font-medium text-(--color-text-primary)">@{winner.nickname}</p>
-              </button>
+                entry={winner}
+                challenge={challenge}
+                onView={onViewSubmission}
+                size={winners.length > 2 ? 'sm' : 'lg'}
+              />
             ))}
           </div>
         )}
@@ -142,51 +127,23 @@ export function WinnerAnnouncementModal({
           <div className="flex justify-center gap-6 mb-5">
             {/* Only show 2nd place if there's a single winner (no tie for 1st) */}
             {winners.length === 1 && runnerUps.map((runnerUp) => (
-              <button
+              <WinnerCard
                 key={runnerUp.submission_id}
-                className="flex flex-col items-center bg-transparent border-0 p-0 cursor-pointer transition-transform hover:scale-[1.02]"
-                onClick={() => onViewSubmission?.(runnerUp.submission_id)}
-                title="View submission"
-              >
-                <div className="relative">
-                  <div className="absolute -top-1.5 -right-1.5 z-10">
-                    <TrophyBadge rank={2} size="md" />
-                  </div>
-                  <div className="border border-(--color-border) rounded-md p-1 bg-(--color-bg-tertiary)">
-                    <SubmissionThumbnail
-                      shapes={runnerUp.shapes}
-                      challenge={challenge}
-                      backgroundColorIndex={runnerUp.background_color_index}
-                      size={200}
-                    />
-                  </div>
-                </div>
-                <p className="mt-1.5 text-[12px] text-(--color-text-secondary)">@{runnerUp.nickname}</p>
-              </button>
+                entry={runnerUp}
+                challenge={challenge}
+                onView={onViewSubmission}
+                size="sm"
+              />
             ))}
 
             {thirdPlaces.map((thirdPlace) => (
-              <button
+              <WinnerCard
                 key={thirdPlace.submission_id}
-                className="flex flex-col items-center bg-transparent border-0 p-0 cursor-pointer transition-transform hover:scale-[1.02]"
-                onClick={() => onViewSubmission?.(thirdPlace.submission_id)}
-                title="View submission"
-              >
-                <div className="relative">
-                  <div className="absolute -top-1.5 -right-1.5 z-10">
-                    <TrophyBadge rank={3} size="md" />
-                  </div>
-                  <div className="border border-(--color-border) rounded-md p-1 bg-(--color-bg-tertiary)">
-                    <SubmissionThumbnail
-                      shapes={thirdPlace.shapes}
-                      challenge={challenge}
-                      backgroundColorIndex={thirdPlace.background_color_index}
-                      size={200}
-                    />
-                  </div>
-                </div>
-                <p className="mt-1.5 text-[12px] text-(--color-text-secondary)">@{thirdPlace.nickname}</p>
-              </button>
+                entry={thirdPlace}
+                challenge={challenge}
+                onView={onViewSubmission}
+                size="sm"
+              />
             ))}
           </div>
         ) : null}
