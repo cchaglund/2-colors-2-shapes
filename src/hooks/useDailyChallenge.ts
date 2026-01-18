@@ -151,6 +151,7 @@ export function useDailyChallenge(
     abortControllerRef.current = new AbortController();
 
     const fetchPromise = (async (): Promise<DailyChallenge> => {
+      // throw new Error('Fetch aborted'); // add this if you want to be able to have custom shapes. Used in conjunction with `function generateShapes(random: () => number): [ShapeType, ShapeType] {` in dailyChallenge.ts
       const { data, error: fetchError } = await supabase.functions.invoke(
         'get-daily-challenge',
         {

@@ -1,11 +1,11 @@
 import type { ShapeType } from '../types';
 
-// Generate polygon points for regular polygons, normalized to fill bounding box
+// Generate polygon points for regular polygons, scaled to fill width
 export function getPolygonPoints(
   sides: number,
   size: number,
   offsetAngle: number = 0
-): string {
+): { points: string; width: number; height: number } {
   const rawPoints: { x: number; y: number }[] = [];
   const angleStep = (2 * Math.PI) / sides;
   const radius = 1; // Use unit circle first
@@ -22,27 +22,32 @@ export function getPolygonPoints(
   const maxX = Math.max(...rawPoints.map((p) => p.x));
   const minY = Math.min(...rawPoints.map((p) => p.y));
   const maxY = Math.max(...rawPoints.map((p) => p.y));
-  const width = maxX - minX;
-  const height = maxY - minY;
+  const rawWidth = maxX - minX;
+  const rawHeight = maxY - minY;
 
-  // Normalize to fill 0-size
-  return rawPoints
+  // Scale to fill width, height follows aspect ratio
+  const scaledWidth = size;
+  const scaledHeight = (rawHeight / rawWidth) * size;
+
+  const points = rawPoints
     .map((p) => {
-      const nx = ((p.x - minX) / width) * size;
-      const ny = ((p.y - minY) / height) * size;
+      const nx = ((p.x - minX) / rawWidth) * scaledWidth;
+      const ny = ((p.y - minY) / rawHeight) * scaledHeight;
       return `${nx},${ny}`;
     })
     .join(' ');
+
+  return { points, width: scaledWidth, height: scaledHeight };
 }
 
-// Generate star points, normalized to fill bounding box
-export function getStarPoints(size: number, points: number = 5): string {
+// Generate star points, scaled to fill width
+export function getStarPoints(size: number, numPoints: number = 5): { points: string; width: number; height: number } {
   const rawPoints: { x: number; y: number }[] = [];
   const outerRadius = 1;
   const innerRadius = outerRadius * 0.4;
-  const angleStep = Math.PI / points;
+  const angleStep = Math.PI / numPoints;
 
-  for (let i = 0; i < points * 2; i++) {
+  for (let i = 0; i < numPoints * 2; i++) {
     const radius = i % 2 === 0 ? outerRadius : innerRadius;
     const angle = angleStep * i - Math.PI / 2;
     const x = radius * Math.cos(angle);
@@ -55,17 +60,22 @@ export function getStarPoints(size: number, points: number = 5): string {
   const maxX = Math.max(...rawPoints.map((p) => p.x));
   const minY = Math.min(...rawPoints.map((p) => p.y));
   const maxY = Math.max(...rawPoints.map((p) => p.y));
-  const width = maxX - minX;
-  const height = maxY - minY;
+  const rawWidth = maxX - minX;
+  const rawHeight = maxY - minY;
 
-  // Normalize to fill 0-size
-  return rawPoints
+  // Scale to fill width, height follows aspect ratio
+  const scaledWidth = size;
+  const scaledHeight = (rawHeight / rawWidth) * size;
+
+  const points = rawPoints
     .map((p) => {
-      const nx = ((p.x - minX) / width) * size;
-      const ny = ((p.y - minY) / height) * size;
+      const nx = ((p.x - minX) / rawWidth) * scaledWidth;
+      const ny = ((p.y - minY) / rawHeight) * scaledHeight;
       return `${nx},${ny}`;
     })
     .join(' ');
+
+  return { points, width: scaledWidth, height: scaledHeight };
 }
 
 // Generate right triangle points
@@ -361,33 +371,41 @@ export function getShapeSVGData(type: ShapeType, size: number) {
         viewBox: { width, height },
       };
 
-    case 'triangle':
+    case 'triangle': {
+      const tri = getPolygonPoints(3, size);
       return {
         element: 'polygon' as const,
-        props: { points: getPolygonPoints(3, size) },
-        viewBox: { width, height },
+        props: { points: tri.points },
+        viewBox: { width: tri.width, height: tri.height },
       };
+    }
 
-    case 'pentagon':
+    case 'pentagon': {
+      const pent = getPolygonPoints(5, size);
       return {
         element: 'polygon' as const,
-        props: { points: getPolygonPoints(5, size) },
-        viewBox: { width, height },
+        props: { points: pent.points },
+        viewBox: { width: pent.width, height: pent.height },
       };
+    }
 
-    case 'hexagon':
+    case 'hexagon': {
+      const hex = getPolygonPoints(6, size);
       return {
         element: 'polygon' as const,
-        props: { points: getPolygonPoints(6, size) },
-        viewBox: { width, height },
+        props: { points: hex.points },
+        viewBox: { width: hex.width, height: hex.height },
       };
+    }
 
-    case 'star':
+    case 'star': {
+      const star = getStarPoints(size);
       return {
         element: 'polygon' as const,
-        props: { points: getStarPoints(size) },
-        viewBox: { width, height },
+        props: { points: star.points },
+        viewBox: { width: star.width, height: star.height },
       };
+    }
 
     case 'rightTriangle':
       return {
@@ -431,12 +449,14 @@ export function getShapeSVGData(type: ShapeType, size: number) {
         viewBox: { width, height },
       };
 
-    case 'heptagon':
+    case 'heptagon': {
+      const hept = getPolygonPoints(7, size);
       return {
         element: 'polygon' as const,
-        props: { points: getPolygonPoints(7, size) },
-        viewBox: { width, height },
+        props: { points: hept.points },
+        viewBox: { width: hept.width, height: hept.height },
       };
+    }
 
     case 'cross':
       return {

@@ -178,7 +178,7 @@ const ALL_SHAPES: ShapeType[] = [
 
 function generateShapes(random: () => number): [ShapeType, ShapeType] {
   const shuffled = [...ALL_SHAPES].sort(() => random() - 0.5);
-  return [shuffled[0], shuffled[1]];
+  return [shuffled[0], shuffled[1]]; // here you can return specific shapes for testing, but you need to throw an error in the fetch function in useDailyChallenge to trigger this (and reset local storage)
 }
 
 // =============================================================================
