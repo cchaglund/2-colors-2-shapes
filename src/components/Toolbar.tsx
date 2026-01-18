@@ -275,9 +275,16 @@ export function Toolbar({
             <button
               className="w-full py-2 px-3 text-white border-none rounded-md cursor-pointer text-[13px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-(--color-accent) hover:bg-(--color-accent-hover)"
               onClick={onSave}
-              disabled={isSaving}
+              disabled={isSaving || hasSubmittedToday}
             >
-              {isSaving ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : hasSubmittedToday ? 'Update Creation' : 'Save Creation'}
+              {isSaving 
+                ? 'Saving...' 
+                : saveStatus === 'saved' 
+                  ? 'Saved' 
+                  : hasSubmittedToday
+                    ? 'Submitted'
+                    : 'Save Creation'
+                }
             </button>
           ) : (
             <button

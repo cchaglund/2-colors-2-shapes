@@ -28,6 +28,7 @@ export function useSubmissionDetail({
   const [rankInfo, setRankInfo] = useState<{ rank: number; total: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [adjacentDates, setAdjacentDates] = useState<{ prev: string | null; next: string | null }>({ prev: null, next: null });
+  const [nickname, setNickname] = useState<string | null>(null);
 
   // Track what we've loaded to prevent duplicate fetches
   const loadedForRef = useRef<string | null>(null);
@@ -60,6 +61,15 @@ export function useSubmissionDetail({
             loadedForRef.current = null; // Reset on error to allow retry
           } else {
             setSubmission(data as Submission);
+            // Fetch profile for username display
+            if (data?.user_id) {
+              const { data: profileData } = await supabase
+                .from('profiles')
+                .select('nickname')
+                .eq('id', data.user_id)
+                .single();
+              setNickname(profileData?.nickname || null);
+            }
             // Fetch ranking info
             if (data?.id) {
               const { data: rankingData } = await supabase
@@ -119,5 +129,6 @@ export function useSubmissionDetail({
     rankInfo,
     error,
     adjacentDates,
+    nickname,
   };
 }

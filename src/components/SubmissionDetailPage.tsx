@@ -26,7 +26,7 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
   const svgRef = useRef<SVGSVGElement>(null);
 
   // Load submission data
-  const { submission, loading, rankInfo, error, adjacentDates } = useSubmissionDetail({
+  const { submission, loading, rankInfo, error, adjacentDates, nickname } = useSubmissionDetail({
     date,
     submissionId,
     user,
@@ -114,7 +114,7 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
             {formattedDate}
           </h1>
           <p className="text-[13px] text-(--color-text-secondary)">
-            Daily Challenge Submission
+            {nickname ? `@${nickname}'s Submission` : 'Daily Challenge Submission'}
           </p>
         </div>
 
@@ -139,6 +139,7 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
               onDownloadPNG={downloadPNG}
               onDownloadSVG={downloadSVG}
               onCopyLink={copyShareLink}
+              showDownloadButtons={!submissionId}
             />
           </div>
         </div>
