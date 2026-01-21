@@ -52,6 +52,8 @@ interface ToolbarProps {
   hasSubmittedToday?: boolean;
   // Calendar
   onOpenCalendar?: () => void;
+  // Friends modal
+  onOpenFriendsModal?: () => void;
   // Keyboard settings
   keyMappings: KeyMappings;
   onOpenKeyboardSettings?: () => void;
@@ -86,6 +88,7 @@ export function Toolbar({
   saveStatus,
   hasSubmittedToday,
   onOpenCalendar,
+  onOpenFriendsModal,
   keyMappings,
   onOpenKeyboardSettings,
   profile,
@@ -158,6 +161,21 @@ export function Toolbar({
                 <line x1="3" y1="10" x2="21" y2="10" />
               </svg>
               Submissions
+            </button>
+          )}
+
+          {isLoggedIn && onOpenFriendsModal && (
+            <button
+              className="w-full mt-2 py-2 px-3 border border-(--color-border) rounded-md cursor-pointer text-[13px] font-medium transition-colors flex items-center justify-center gap-2 bg-transparent text-(--color-text-primary) hover:bg-(--color-hover)"
+              onClick={onOpenFriendsModal}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+              Friends
             </button>
           )}
         </div>

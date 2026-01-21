@@ -1,8 +1,131 @@
 /**
- * Mock data for testing voting components
+ * Mock data for testing voting components and social features
  */
 
 import type { Shape, RankingEntry, VotingPair, DailyChallenge } from '../types';
+import type { Profile } from '../hooks/useProfile';
+
+// ============================================================================
+// MOCK USERS - Minimal Supabase User objects for testing
+// ============================================================================
+
+export interface MockUser {
+  id: string;
+  email: string;
+  created_at: string;
+}
+
+export const MOCK_USERS = {
+  viewer: {
+    id: 'user-viewer-001',
+    email: 'viewer@test.com',
+    created_at: '2024-01-01T00:00:00.000Z',
+  },
+  alice: {
+    id: 'user-alice-002',
+    email: 'alice@test.com',
+    created_at: '2024-01-02T00:00:00.000Z',
+  },
+  bob: {
+    id: 'user-bob-003',
+    email: 'bob@test.com',
+    created_at: '2024-01-03T00:00:00.000Z',
+  },
+  carol: {
+    id: 'user-carol-004',
+    email: 'carol@test.com',
+    created_at: '2024-01-04T00:00:00.000Z',
+  },
+} as const satisfies Record<string, MockUser>;
+
+// ============================================================================
+// MOCK PROFILES - Corresponding profiles for each mock user
+// ============================================================================
+
+export const MOCK_PROFILES = {
+  viewer: {
+    id: MOCK_USERS.viewer.id,
+    nickname: 'Viewer',
+    avatar_url: null,
+    onboarding_complete: true,
+    created_at: MOCK_USERS.viewer.created_at,
+  },
+  alice: {
+    id: MOCK_USERS.alice.id,
+    nickname: 'AliceArt',
+    avatar_url: 'https://example.com/alice.jpg',
+    onboarding_complete: true,
+    created_at: MOCK_USERS.alice.created_at,
+  },
+  bob: {
+    id: MOCK_USERS.bob.id,
+    nickname: 'BobCreates',
+    avatar_url: 'https://example.com/bob.jpg',
+    onboarding_complete: true,
+    created_at: MOCK_USERS.bob.created_at,
+  },
+  carol: {
+    id: MOCK_USERS.carol.id,
+    nickname: 'CarolDesign',
+    avatar_url: null,
+    onboarding_complete: true,
+    created_at: MOCK_USERS.carol.created_at,
+  },
+} as const satisfies Record<string, Profile>;
+
+// ============================================================================
+// MOCK FOLLOWS - Follow relationships between mock users
+// Relationships: viewer follows alice+bob, alice follows viewer
+// ============================================================================
+
+export interface MockFollow {
+  id: string;
+  follower_id: string;
+  following_id: string;
+  created_at: string;
+}
+
+export const MOCK_FOLLOWS: MockFollow[] = [
+  {
+    id: 'follow-001',
+    follower_id: MOCK_USERS.viewer.id,
+    following_id: MOCK_USERS.alice.id,
+    created_at: '2024-01-10T00:00:00.000Z',
+  },
+  {
+    id: 'follow-002',
+    follower_id: MOCK_USERS.viewer.id,
+    following_id: MOCK_USERS.bob.id,
+    created_at: '2024-01-11T00:00:00.000Z',
+  },
+  {
+    id: 'follow-003',
+    follower_id: MOCK_USERS.alice.id,
+    following_id: MOCK_USERS.viewer.id,
+    created_at: '2024-01-12T00:00:00.000Z',
+  },
+];
+
+// Helper to check follow relationships
+export function isFollowing(followerId: string, followingId: string): boolean {
+  return MOCK_FOLLOWS.some(
+    f => f.follower_id === followerId && f.following_id === followingId
+  );
+}
+
+// Get all users that a user follows
+export function getFollowing(userId: string): string[] {
+  return MOCK_FOLLOWS
+    .filter(f => f.follower_id === userId)
+    .map(f => f.following_id);
+}
+
+// Get all users that follow a user
+export function getFollowers(userId: string): string[] {
+  return MOCK_FOLLOWS
+    .filter(f => f.following_id === userId)
+    .map(f => f.follower_id);
+}
 
 // Fixed challenge for consistent test rendering
 export const MOCK_CHALLENGE: DailyChallenge = {
@@ -174,3 +297,128 @@ export const MOCK_THREE_WAY_TIE: RankingEntry[] = [
     background_color_index: null,
   },
 ];
+
+// ============================================================================
+// MOCK WALL SUBMISSIONS - 50+ submissions for Wall of the Day testing
+// Distributed across various users to simulate a real wall
+// ============================================================================
+
+export interface WallSubmission {
+  id: string;
+  user_id: string;
+  nickname: string;
+  shapes: Shape[];
+  background_color_index: number | null;
+  created_at: string;
+  challenge_date: string;
+}
+
+// Helper to create a wall submission with all required fields
+function createWallSubmission(
+  index: number,
+  userId: string,
+  nickname: string,
+  challengeDate: string
+): WallSubmission {
+  const base = createMockSubmission(`wall-sub-${index}`, userId, index);
+  return {
+    ...base,
+    nickname,
+    created_at: new Date(Date.UTC(2024, 0, 15, index % 24, (index * 7) % 60)).toISOString(),
+    challenge_date: challengeDate,
+  };
+}
+
+// Generate 60 wall submissions from various users
+const wallUserPool = [
+  { id: MOCK_USERS.viewer.id, nickname: MOCK_PROFILES.viewer.nickname },
+  { id: MOCK_USERS.alice.id, nickname: MOCK_PROFILES.alice.nickname },
+  { id: MOCK_USERS.bob.id, nickname: MOCK_PROFILES.bob.nickname },
+  { id: MOCK_USERS.carol.id, nickname: MOCK_PROFILES.carol.nickname },
+  { id: 'user-extra-001', nickname: 'ArtLover' },
+  { id: 'user-extra-002', nickname: 'DesignFan' },
+  { id: 'user-extra-003', nickname: 'ColorMaster' },
+  { id: 'user-extra-004', nickname: 'ShapeWiz' },
+  { id: 'user-extra-005', nickname: 'CreativeSoul' },
+  { id: 'user-extra-006', nickname: 'PixelPro' },
+  { id: 'user-extra-007', nickname: 'DrawDaily' },
+  { id: 'user-extra-008', nickname: 'SketchKing' },
+  { id: 'user-extra-009', nickname: 'FormFinder' },
+  { id: 'user-extra-010', nickname: 'GeoGenius' },
+];
+
+export const MOCK_WALL_SUBMISSIONS: WallSubmission[] = Array.from(
+  { length: 60 },
+  (_, i) => {
+    const user = wallUserPool[i % wallUserPool.length];
+    return createWallSubmission(i, user.id, user.nickname, MOCK_CHALLENGE.date);
+  }
+);
+
+// Subset of wall submissions from followed users only (for filter testing)
+export const MOCK_WALL_SUBMISSIONS_FOLLOWED = MOCK_WALL_SUBMISSIONS.filter(
+  sub => sub.user_id === MOCK_USERS.alice.id || sub.user_id === MOCK_USERS.bob.id
+);
+
+// ============================================================================
+// SCENARIOS - Preset configurations for testing different states
+// ============================================================================
+
+export interface Scenario {
+  name: string;
+  description: string;
+  user: MockUser | null;
+  profile: Profile | null;
+  follows: MockFollow[];
+  viewerSubmission: WallSubmission | null;
+}
+
+// Viewer's submission for scenarios that need it
+const VIEWER_SUBMISSION = createWallSubmission(
+  999,
+  MOCK_USERS.viewer.id,
+  MOCK_PROFILES.viewer.nickname,
+  MOCK_CHALLENGE.date
+);
+
+export const SCENARIOS = {
+  /** Logged out - no user, no profile, no follows */
+  loggedOut: {
+    name: 'Logged Out',
+    description: 'User is not logged in',
+    user: null,
+    profile: null,
+    follows: [],
+    viewerSubmission: null,
+  },
+
+  /** Logged in but has not saved art for today's challenge */
+  loggedInNoSubmission: {
+    name: 'Logged In (No Submission)',
+    description: 'User is logged in but has not submitted art today',
+    user: MOCK_USERS.viewer,
+    profile: MOCK_PROFILES.viewer,
+    follows: [],
+    viewerSubmission: null,
+  },
+
+  /** Logged in with a saved submission for today */
+  loggedInWithSubmission: {
+    name: 'Logged In (With Submission)',
+    description: 'User is logged in and has submitted art today',
+    user: MOCK_USERS.viewer,
+    profile: MOCK_PROFILES.viewer,
+    follows: [],
+    viewerSubmission: VIEWER_SUBMISSION,
+  },
+
+  /** Logged in with submission and follow relationships */
+  loggedInWithFollows: {
+    name: 'Logged In (With Follows)',
+    description: 'User is logged in with submission and follows alice+bob',
+    user: MOCK_USERS.viewer,
+    profile: MOCK_PROFILES.viewer,
+    follows: MOCK_FOLLOWS,
+    viewerSubmission: VIEWER_SUBMISSION,
+  },
+} as const satisfies Record<string, Scenario>;

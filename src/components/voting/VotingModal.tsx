@@ -1,10 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { useState } from 'react';
 import { useVoting } from '../../hooks/useVoting';
 import { useDailyChallenge } from '../../hooks/useDailyChallenge';
+import { getTodayDateUTC } from '../../utils/dailyChallenge';
 import { VotingPairView } from './VotingPairView';
 import { VotingConfirmation } from './VotingConfirmation';
-import { VotingNoPairs } from './VotingNoPairs';
 import { VotingOptInPrompt } from './VotingOptInPrompt';
 
 interface VotingModalProps {
@@ -25,6 +25,11 @@ export function VotingModal({
   const modalRef = useRef<HTMLDivElement>(null);
   // Track if user dismissed confirmation to continue voting
   const [dismissedConfirmation, setDismissedConfirmation] = useState(false);
+  // Track confirmation state after opt-in prompt: 'entered' | 'skipped' | null
+  const [optInConfirmation, setOptInConfirmation] = useState<'entered' | 'skipped' | null>(null);
+
+  // Today's date for Wall URL
+  const todayDate = useMemo(() => getTodayDateUTC(), []);
 
   // Fetch challenge for the date being voted on
   const { challenge } = useDailyChallenge(challengeDate);
@@ -59,7 +64,7 @@ export function VotingModal({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        if (showConfirmation) {
+        if (showConfirmation || optInConfirmation) {
           onComplete();
         } else {
           onSkipVoting();
@@ -85,7 +90,7 @@ export function VotingModal({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [showConfirmation, onComplete, onSkipVoting]);
+  }, [showConfirmation, optInConfirmation, onComplete, onSkipVoting]);
 
   const handleVote = async (winnerId: string) => {
     await vote(winnerId);
@@ -102,20 +107,40 @@ export function VotingModal({
   const handleOptIn = () => {
     // User opts in to ranking without voting (bootstrap case)
     onOptInToRanking?.();
-    onComplete();
+    setOptInConfirmation('entered');
+  };
+
+  const handleOptInSkip = () => {
+    // User skips ranking (bootstrap case)
+    setOptInConfirmation('skipped');
   };
 
   // Determine content to render
   const renderContent = () => {
+    // Show confirmation after opt-in prompt action
+    if (optInConfirmation) {
+      return (
+        <VotingConfirmation
+          isEntered={optInConfirmation === 'entered'}
+          wallDate={todayDate}
+          canContinueVoting={false}
+          onContinue={() => {}} // Not used when canContinueVoting is false
+          onDone={onComplete}
+        />
+      );
+    }
+
     // Bootstrap case: No submissions yesterday
     if ((noSubmissions || submissionCount === 0) && !loading) {
-      return <VotingOptInPrompt onOptIn={handleOptIn} onSkip={onSkipVoting} />;
+      return <VotingOptInPrompt onOptIn={handleOptIn} onSkip={handleOptInSkip} />;
     }
 
     // Confirmation screen after reaching required votes
     if (showConfirmation) {
       return (
         <VotingConfirmation
+          isEntered={true}
+          wallDate={todayDate}
           canContinueVoting={!noMorePairs}
           onContinue={handleContinueVoting}
           onDone={onComplete}
@@ -123,15 +148,15 @@ export function VotingModal({
       );
     }
 
-    // No more pairs to vote on
+    // No more pairs to vote on - show confirmation with canContinueVoting=false
     if (noMorePairs && !loading) {
       return (
-        <VotingNoPairs
-          voteCount={voteCount}
-          requiredVotes={requiredVotes}
-          challengeDate={challengeDate}
+        <VotingConfirmation
+          isEntered={hasEnteredRanking}
+          wallDate={todayDate}
+          canContinueVoting={false}
+          onContinue={() => {}} // Not used when canContinueVoting is false
           onDone={onComplete}
-          onSkipVoting={onSkipVoting}
         />
       );
     }

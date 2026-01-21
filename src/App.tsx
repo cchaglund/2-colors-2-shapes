@@ -11,10 +11,16 @@ import { WelcomeModal } from './components/modals/WelcomeModal';
 import { Calendar } from './components/Calendar';
 import { SubmissionDetailPage } from './components/SubmissionDetailPage';
 import { WinnersDayPage } from './components/WinnersDayPage';
+import { WallOfTheDayPage } from './components/WallOfTheDay/WallOfTheDayPage';
+import { UserProfilePage } from './components/UserProfilePage';
+import { FriendsFeedPage } from './components/FriendsFeed/FriendsFeedPage';
+import { FollowsProvider } from './contexts/FollowsContext';
 import { KeyboardSettingsModal } from './components/KeyboardSettingsModal';
+import { FriendsModal } from './components/modals/FriendsModal';
 import { VotingModal } from './components/voting';
 import { ResetConfirmModal } from './components/ResetConfirmModal';
 import { VotingTestPage } from './test/VotingTestPage';
+import { SocialTestPage } from './test/SocialTestPage';
 import { Dashboard } from './components/admin/Dashboard';
 import { useCanvasState } from './hooks/useCanvasState';
 import { useViewportState } from './hooks/useViewportState';
@@ -32,15 +38,21 @@ import { useShapeActions } from './hooks/useShapeActions';
 import { useBackgroundPanning } from './hooks/useBackgroundPanning';
 import { useSaveSubmission } from './hooks/useSaveSubmission';
 import { useSubmissionSync } from './hooks/useSubmissionSync';
+import { invalidateWallCache } from './hooks/useWallOfTheDay';
 import { getTodayDateUTC, getYesterdayDateUTC } from './utils/dailyChallenge';
+import { supabase } from './lib/supabase';
 import { useDailyChallenge } from './hooks/useDailyChallenge';
 import {
   isShapeExplorerEnabled,
   getSubmissionView,
   isVotingTestEnabled,
+  isSocialTestEnabled,
   isDashboardEnabled,
   isColorTesterEnabled,
   getWinnersDayView,
+  getWallOfTheDayView,
+  getProfileView,
+  getFriendsFeedView,
 } from './utils/urlParams';
 import { WinnerAnnouncementModal } from './components/modals/WinnerAnnouncementModal';
 
@@ -50,6 +62,10 @@ function App() {
   const submissionView = useMemo(() => getSubmissionView(), []);
   const winnersDayView = useMemo(() => getWinnersDayView(), []);
   const showVotingTest = useMemo(() => isVotingTestEnabled(), []);
+  const showSocialTest = useMemo(() => isSocialTestEnabled(), []);
+  const wallOfTheDayView = useMemo(() => getWallOfTheDayView(), []);
+  const profileView = useMemo(() => getProfileView(), []);
+  const friendsFeedView = useMemo(() => getFriendsFeedView(), []);
   const showDashboard = useMemo(() => isDashboardEnabled(), []);
   const showColorTester = useMemo(() => isColorTesterEnabled(), []);
 
@@ -58,6 +74,7 @@ function App() {
   const [showKeyboardSettings, setShowKeyboardSettings] = useState(false);
   const [showVotingModal, setShowVotingModal] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [showFriendsModal, setShowFriendsModal] = useState(false);
   const { isOpen: showWelcome, dismiss: dismissWelcome } = useWelcomeModal();
 
   // Refs
@@ -197,7 +214,12 @@ function App() {
     backgroundColorIndex: canvasState.backgroundColorIndex,
     user,
     saveSubmission,
-    onSaveSuccess: () => setShowVotingModal(true),
+    onSaveSuccess: () => {
+      if (challenge) {
+        invalidateWallCache(challenge.date);
+      }
+      setShowVotingModal(true);
+    },
   });
 
   // Zoom handlers
@@ -217,11 +239,42 @@ function App() {
   };
   const cancelReset = () => setShowResetConfirm(false);
 
+  // Handler for opting into ranking without voting (bootstrap case: < 2 other submissions)
+  const handleOptInToRanking = useCallback(async () => {
+    if (!user || !challenge) {
+      console.error('[handleOptInToRanking] Missing user or challenge', { user: !!user, challenge: !!challenge });
+      return;
+    }
+    console.log('[handleOptInToRanking] Updating submission', { userId: user.id, date: challenge.date });
+    const { error } = await supabase
+      .from('submissions')
+      .update({ included_in_ranking: true })
+      .eq('user_id', user.id)
+      .eq('challenge_date', challenge.date);
+    if (error) {
+      console.error('[handleOptInToRanking] Error:', error);
+    } else {
+      console.log('[handleOptInToRanking] Success!');
+    }
+  }, [user, challenge]);
+
   // Computed values
   const backgroundColor =
     canvasState.backgroundColorIndex !== null && challenge
       ? challenge.colors[canvasState.backgroundColorIndex]
       : null;
+
+  // Render test pages early (before challenge loading) since they use mock data
+  if (showExplorer) return <ShapeExplorer />;
+  if (showVotingTest) return <VotingTestPage />;
+  if (showSocialTest) return <SocialTestPage />;
+  if (showDashboard) return <Dashboard />;
+  if (showColorTester) return <ColorTester />;
+
+  // Standalone pages that don't need challenge data
+  if (wallOfTheDayView) return <WallOfTheDayPage date={wallOfTheDayView.date} />;
+  if (profileView) return <FollowsProvider><UserProfilePage userId={profileView.userId} /></FollowsProvider>;
+  if (friendsFeedView) return <FollowsProvider><FriendsFeedPage date={friendsFeedView.date} /></FollowsProvider>;
 
   // Show loading spinner while challenge is loading
   if (challengeLoading || !challenge) {
@@ -235,17 +288,13 @@ function App() {
     );
   }
 
-  // Render special pages based on URL params
-  if (showExplorer) return <ShapeExplorer />;
-  if (showVotingTest) return <VotingTestPage />;
-  if (showDashboard) return <Dashboard />;
-  if (showColorTester) return <ColorTester />;
+  // Render special view pages based on URL params
   if (winnersDayView) return <WinnersDayPage date={winnersDayView.date} />;
   if (submissionView) {
     if ('id' in submissionView) {
-      return <SubmissionDetailPage submissionId={submissionView.id} />;
+      return <FollowsProvider><SubmissionDetailPage submissionId={submissionView.id} /></FollowsProvider>;
     }
-    return <SubmissionDetailPage date={submissionView.date} />;
+    return <FollowsProvider><SubmissionDetailPage date={submissionView.date} /></FollowsProvider>;
   }
 
   // Show onboarding modal if user is logged in but hasn't completed onboarding
@@ -282,6 +331,7 @@ function App() {
         saveStatus={saveStatus}
         hasSubmittedToday={hasSubmittedToday}
         onOpenCalendar={() => setShowCalendar(true)}
+        onOpenFriendsModal={() => setShowFriendsModal(true)}
         keyMappings={keyMappings}
         onOpenKeyboardSettings={() => setShowKeyboardSettings(true)}
         profile={profile}
@@ -391,7 +441,9 @@ function App() {
       )}
 
       {showCalendar && (
-        <Calendar onClose={() => setShowCalendar(false)} />
+        <FollowsProvider>
+          <Calendar onClose={() => setShowCalendar(false)} />
+        </FollowsProvider>
       )}
 
       {showKeyboardSettings && (
@@ -423,7 +475,15 @@ function App() {
           challengeDate={yesterdayDate}
           onComplete={() => setShowVotingModal(false)}
           onSkipVoting={() => setShowVotingModal(false)}
+          onOptInToRanking={handleOptInToRanking}
         />
+      )}
+
+      {/* Friends modal */}
+      {showFriendsModal && (
+        <FollowsProvider>
+          <FriendsModal onClose={() => setShowFriendsModal(false)} />
+        </FollowsProvider>
       )}
     </div>
   );

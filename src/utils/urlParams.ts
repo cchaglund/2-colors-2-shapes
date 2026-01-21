@@ -36,6 +36,18 @@ export function isVotingTestEnabled(): boolean {
   return urlParams.get('test') === 'voting';
 }
 
+// Check if social test page is requested
+export function isSocialTestEnabled(): boolean {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('test') === 'social';
+}
+
+// Get the scenario parameter for social test page
+export function getSocialTestScenario(): string | null {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('scenario');
+}
+
 // Check if dashboard view is requested
 export function isDashboardEnabled(): boolean {
   const urlParams = new URLSearchParams(window.location.search);
@@ -56,6 +68,64 @@ export function getWinnersDayView(): { view: 'winners-day'; date: string } | nul
     if (date) {
       return { view: 'winners-day', date };
     }
+  }
+  return null;
+}
+
+// Check if profile view is requested
+export function getProfileView(): { view: 'profile'; userId: string } | null {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('view') === 'profile') {
+    const userId = urlParams.get('user');
+    if (userId) return { view: 'profile', userId };
+  }
+  return null;
+}
+
+// Check if wall-of-the-day view is requested
+export function getWallOfTheDayView(): { view: 'wall-of-the-day'; date: string } | null {
+  // Import getTodayDateUTC inline to avoid circular dependency
+  const getTodayDateUTC = (): string => {
+    const now = new Date();
+    return now.toISOString().split('T')[0];
+  };
+
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('view') === 'wall-of-the-day') {
+    const date = urlParams.get('date') || getTodayDateUTC();
+    // Validate date format
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return { view: 'wall-of-the-day', date: getTodayDateUTC() };
+    }
+    // Redirect future dates to today
+    if (date > getTodayDateUTC()) {
+      return { view: 'wall-of-the-day', date: getTodayDateUTC() };
+    }
+    return { view: 'wall-of-the-day', date };
+  }
+  return null;
+}
+
+// Check if friends-feed view is requested
+export function getFriendsFeedView(): { view: 'friends-feed'; date: string } | null {
+  // Import getTodayDateUTC inline to avoid circular dependency
+  const getTodayDateUTC = (): string => {
+    const now = new Date();
+    return now.toISOString().split('T')[0];
+  };
+
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('view') === 'friends-feed') {
+    const date = urlParams.get('date') || getTodayDateUTC();
+    // Validate date format
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return { view: 'friends-feed', date: getTodayDateUTC() };
+    }
+    // Redirect future dates to today
+    if (date > getTodayDateUTC()) {
+      return { view: 'friends-feed', date: getTodayDateUTC() };
+    }
+    return { view: 'friends-feed', date };
   }
   return null;
 }

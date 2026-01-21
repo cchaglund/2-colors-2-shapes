@@ -5,6 +5,7 @@ import { useRanking } from '../hooks/useRanking';
 import { useDailyChallenge } from '../hooks/useDailyChallenge';
 import { useSubmissionDetail } from '../hooks/useSubmissionDetail';
 import { useExportActions } from '../hooks/useExportActions';
+import { FollowButton } from './FollowButton';
 import {
   SubmissionCanvas,
   SubmissionNavigation,
@@ -113,9 +114,25 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
           <h1 className="text-xl font-semibold mb-1 text-(--color-text-primary)">
             {formattedDate}
           </h1>
-          <p className="text-[13px] text-(--color-text-secondary)">
-            {nickname ? `@${nickname}'s Submission` : 'Daily Challenge Submission'}
-          </p>
+          <div className="flex items-center gap-2 text-[13px]">
+            {nickname && submission?.user_id ? (
+              <>
+                <a
+                  href={`?view=profile&user=${submission.user_id}`}
+                  className="text-(--color-text-secondary) hover:text-(--color-accent) transition-colors"
+                >
+                  @{nickname}
+                </a>
+                <span className="text-(--color-text-tertiary)">·</span>
+                <span className="text-(--color-text-secondary)">Submission</span>
+                {user && user.id !== submission.user_id && (
+                  <FollowButton targetUserId={submission.user_id} size="sm" />
+                )}
+              </>
+            ) : (
+              <span className="text-(--color-text-secondary)">Daily Challenge Submission</span>
+            )}
+          </div>
         </div>
 
         {/* Main content */}

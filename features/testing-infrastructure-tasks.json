@@ -1,0 +1,99 @@
+{
+  "plan": "features/testing-infrastructure-plan.md",
+  "phases": {
+    "foundation": {
+      "description": "Complete BEFORE starting social features",
+      "tasks": ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    },
+    "feature-specific": {
+      "description": "Complete ALONGSIDE social features implementation",
+      "tasks": ["10", "11", "12", "13", "14"]
+    }
+  },
+  "tasks": [
+    {
+      "id": "1",
+      "description": "Extend src/test/mockData.ts with MOCK_USERS (viewer, alice, bob, carol) and MOCK_PROFILES for each user",
+      "passes": true,
+      "verification": "File contains MOCK_USERS and MOCK_PROFILES exports with 4 users each"
+    },
+    {
+      "id": "2",
+      "description": "Add MOCK_FOLLOWS to mockData.ts with follow relationships (viewer follows alice+bob, alice follows viewer)",
+      "passes": true,
+      "verification": "File contains MOCK_FOLLOWS export with correct relationships"
+    },
+    {
+      "id": "3",
+      "description": "Add MOCK_WALL_SUBMISSIONS to mockData.ts with 50+ submissions using createMockSubmission helper",
+      "passes": true,
+      "verification": "File contains MOCK_WALL_SUBMISSIONS with at least 50 items"
+    },
+    {
+      "id": "4",
+      "description": "Add SCENARIOS presets to mockData.ts (loggedOut, loggedInNoSubmission, loggedInWithSubmission, loggedInWithFollows)",
+      "passes": true,
+      "verification": "File contains SCENARIOS export with 4 preset configurations"
+    },
+    {
+      "id": "5",
+      "description": "Create src/test/mockSupabase.ts with createMockSupabaseClient factory function",
+      "passes": true,
+      "verification": "File exists and exports createMockSupabaseClient"
+    },
+    {
+      "id": "6",
+      "description": "Create src/test/testUtils.tsx with TestProviders component and renderWithProviders helper",
+      "passes": true,
+      "verification": "File exists and exports TestProviders and renderWithProviders"
+    },
+    {
+      "id": "7",
+      "description": "Create vitest.setup.ts and update vite.config.ts to use it",
+      "passes": true,
+      "verification": "npm run test:run works with setup file loaded"
+    },
+    {
+      "id": "8",
+      "description": "Create src/test/SocialTestPage.tsx with basic structure (scenario selector sidebar, content area, reset button)",
+      "passes": true,
+      "verification": "File exists with scenario type definitions and basic layout"
+    },
+    {
+      "id": "9",
+      "description": "Add ?test=social route to App.tsx to render SocialTestPage",
+      "passes": true,
+      "verification": "Navigating to localhost:5173/?test=social shows the test page"
+    },
+    {
+      "id": "10",
+      "description": "Add wall-locked scenario to SocialTestPage (shows 'Save your art first' message)",
+      "passes": true,
+      "verification": "Selecting wall-locked scenario shows lock message"
+    },
+    {
+      "id": "11",
+      "description": "Add wall-grid scenario to SocialTestPage (shows grid of 20 mock submissions)",
+      "passes": true,
+      "verification": "Selecting wall-grid scenario shows 20 submission thumbnails"
+    },
+    {
+      "id": "12",
+      "description": "Add follow-button scenario to SocialTestPage (shows all button states)",
+      "passes": true,
+      "verification": "Selecting follow-button shows Follow/Following/Unfollow states"
+    },
+    {
+      "id": "13",
+      "description": "Create src/utils/__tests__/privacyRules.test.ts with canViewCurrentDay tests",
+      "passes": true,
+      "verification": "npm run test:run passes with new privacy rules tests"
+    },
+    {
+      "id": "14",
+      "description": "Create src/utils/__tests__/wallSorting.test.ts with Fisher-Yates shuffle tests",
+      "passes": true,
+      "verification": "npm run test:run passes with new wall sorting tests"
+    }
+  ]
+}

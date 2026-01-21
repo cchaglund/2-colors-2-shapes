@@ -1,6 +1,6 @@
 import type { Shape } from '../../types';
 
-export type ViewMode = 'my-submissions' | 'winners';
+export type ViewMode = 'my-submissions' | 'winners' | 'wall' | 'friends';
 
 export interface RankingInfo {
   submission_id: string;

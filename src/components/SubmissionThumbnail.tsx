@@ -6,6 +6,9 @@ interface SubmissionThumbnailProps {
   challenge: DailyChallenge;
   backgroundColorIndex: number | null;
   size?: number;
+  showNickname?: boolean;
+  nickname?: string;
+  onClick?: () => void;
 }
 
 const CANVAS_SIZE = 800;
@@ -15,6 +18,9 @@ export function SubmissionThumbnail({
   challenge,
   backgroundColorIndex,
   size = 100,
+  showNickname = false,
+  nickname,
+  onClick,
 }: SubmissionThumbnailProps) {
   const sortedShapes = [...shapes].sort((a, b) => a.zIndex - b.zIndex);
   const backgroundColor =
@@ -22,7 +28,7 @@ export function SubmissionThumbnail({
       ? challenge.colors[backgroundColorIndex]
       : '#ffffff';
 
-  return (
+  const svg = (
     <svg
       width={size}
       height={size}
@@ -56,4 +62,33 @@ export function SubmissionThumbnail({
       })}
     </svg>
   );
+
+  if (!showNickname && !onClick) {
+    return svg;
+  }
+
+  const content = (
+    <div className="flex flex-col items-center gap-1">
+      {svg}
+      {showNickname && nickname && (
+        <span className="text-xs text-gray-600 truncate max-w-full">
+          {nickname}
+        </span>
+      )}
+    </div>
+  );
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className="cursor-pointer hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return content;
 }

@@ -6,6 +6,7 @@
 - do logo
 - bug: när man flyttar en grupp under en annan så hamnar inte alla element under den andra gruppen. Det är som att varje element i gruppen har sin egen z-index.
 - bug: när man roterar en hel drös med shapes så verkar de rotera lite olika mängder
+- select multiple shapes by dragging a box around them with the mouse
 
 - if i got a trophy for a challenge's submission I should get a congratulations message/modal when I load/log in for that day (today I see the challenge's winners, but it's possible to miss that I won, I have to check the list to see if I won. It should be more obvious).
 - test a bunch of manipulations (scaling, rotating, moving around) to see if the outline updates correctly in all cases.

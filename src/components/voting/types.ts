@@ -18,17 +18,11 @@ export interface VotingPairViewProps {
 }
 
 export interface VotingConfirmationProps {
+  isEntered: boolean;
+  wallDate: string;
   canContinueVoting: boolean;
   onContinue: () => void;
   onDone: () => void;
-}
-
-export interface VotingNoPairsProps {
-  voteCount: number;
-  requiredVotes: number;
-  challengeDate: string;
-  onDone: () => void;
-  onSkipVoting: () => void;
 }
 
 export interface VotingOptInPromptProps {

@@ -13,7 +13,6 @@ import { useState } from 'react';
 import {
   VotingPairView,
   VotingConfirmation,
-  VotingNoPairs,
   VotingOptInPrompt,
   VotingProgress,
 } from '../components/voting';
@@ -272,18 +271,20 @@ export function VotingTestPage() {
               {flowShowConfirmation ? (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                   <VotingConfirmation
+                    isEntered={true}
+                    wallDate={MOCK_CHALLENGE.date}
                     canContinueVoting={flowPairIndex < flowTotalPairs}
                     onContinue={handleFlowContinueVoting}
                     onDone={handleFlowDone}
                   />
                 </div>
               ) : noMorePairs ? (
-                <VotingNoPairs
-                  voteCount={flowVoteCount}
-                  requiredVotes={flowRequiredVotes}
-                  challengeDate={MOCK_CHALLENGE.date}
+                <VotingConfirmation
+                  isEntered={flowHasEnteredRanking}
+                  wallDate={MOCK_CHALLENGE.date}
+                  canContinueVoting={false}
+                  onContinue={() => {}}
                   onDone={handleFlowDone}
-                  onSkipVoting={handleFlowDone}
                 />
               ) : (
                 <VotingPairView
@@ -324,6 +325,8 @@ export function VotingTestPage() {
         return (
           <div className="flex items-center justify-center min-h-100">
             <VotingConfirmation
+              isEntered={true}
+              wallDate={MOCK_CHALLENGE.date}
               canContinueVoting={true}
               onContinue={() => console.log('Continue clicked')}
               onDone={() => console.log('Done clicked')}
@@ -342,43 +345,43 @@ export function VotingTestPage() {
               this naturally leads to entering the ranking since you voted on everything available.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Scenario: 2 submissions (1 pair), user voted on it - entered! */}
+              {/* Scenario: Entered ranking */}
               <div>
                 <p className="text-sm text-(--color-text-secondary) mb-2">
-                  2 subs = 1 pair → voted on it = entered!
+                  Entered ranking (no more pairs)
                 </p>
-                <VotingNoPairs
-                  voteCount={1}
-                  requiredVotes={1}
-                  challengeDate={MOCK_CHALLENGE.date}
+                <VotingConfirmation
+                  isEntered={true}
+                  wallDate={MOCK_CHALLENGE.date}
+                  canContinueVoting={false}
+                  onContinue={() => {}}
                   onDone={() => console.log('Done')}
-                  onSkipVoting={() => console.log('Skip')}
                 />
               </div>
-              {/* Scenario: 3 submissions (3 pairs possible), user voted on all 3 - entered ranking! */}
+              {/* Scenario: Not entered ranking */}
               <div>
                 <p className="text-sm text-(--color-text-secondary) mb-2">
-                  3 subs = 3 pairs → voted on all = entered!
+                  Not entered (skipped voting)
                 </p>
-                <VotingNoPairs
-                  voteCount={3}
-                  requiredVotes={3}
-                  challengeDate={MOCK_CHALLENGE.date}
+                <VotingConfirmation
+                  isEntered={false}
+                  wallDate={MOCK_CHALLENGE.date}
+                  canContinueVoting={false}
+                  onContinue={() => {}}
                   onDone={() => console.log('Done')}
-                  onSkipVoting={() => console.log('Skip')}
                 />
               </div>
-              {/* Scenario: 5+ submissions, voted on all 5 required - entered! */}
+              {/* Scenario: Entered with continue voting option */}
               <div>
                 <p className="text-sm text-(--color-text-secondary) mb-2">
-                  5+ subs → voted 5 = entered!
+                  Entered with more pairs available
                 </p>
-                <VotingNoPairs
-                  voteCount={5}
-                  requiredVotes={5}
-                  challengeDate={MOCK_CHALLENGE.date}
+                <VotingConfirmation
+                  isEntered={true}
+                  wallDate={MOCK_CHALLENGE.date}
+                  canContinueVoting={true}
+                  onContinue={() => console.log('Continue')}
                   onDone={() => console.log('Done')}
-                  onSkipVoting={() => console.log('Skip')}
                 />
               </div>
             </div>

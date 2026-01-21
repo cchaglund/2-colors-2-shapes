@@ -1,0 +1,174 @@
+{
+  "plan": "features/friends-feature-plan.md",
+  "phases": {
+    "database": ["1"],
+    "follows-context": ["2", "3", "4"],
+    "follow-button": ["5"],
+    "friends-modal": ["6", "7", "8", "9", "10"],
+    "user-profile": ["11", "12", "13"],
+    "friends-feed": ["14", "15", "16", "17"],
+    "url-routing": ["18", "19"],
+    "integration": ["20", "21", "22"],
+    "testing": ["23", "24"]
+  },
+  "tasks": [
+    {
+      "id": "1",
+      "description": "Create supabase/migrations/XXX_follows.sql with follows table, RLS policies, and count_friends_submissions_by_date function",
+      "passes": true,
+      "verification": "Run supabase db push; table exists with correct RLS policies"
+    },
+    {
+      "id": "2",
+      "description": "Create src/contexts/FollowsContext.tsx with FollowsProvider and useFollows hook",
+      "passes": true,
+      "verification": "Context exports FollowsProvider and useFollows"
+    },
+    {
+      "id": "3",
+      "description": "Implement follow/unfollow methods in FollowsContext with optimistic updates",
+      "passes": true,
+      "verification": "follow() and unfollow() update UI immediately, rollback on error"
+    },
+    {
+      "id": "4",
+      "description": "Implement 500-user follow limit in FollowsContext",
+      "passes": true,
+      "verification": "follow() returns error when at 500 follows"
+    },
+    {
+      "id": "5",
+      "description": "Create src/components/FollowButton.tsx with all states (Follow/Following/Unfollow hover)",
+      "passes": true,
+      "verification": "Button shows correct state and styling for each condition"
+    },
+    {
+      "id": "6",
+      "description": "Create src/components/modals/FriendsModal.tsx (modal container)",
+      "passes": true,
+      "verification": "Modal opens/closes, has correct overlay styling"
+    },
+    {
+      "id": "7",
+      "description": "Create src/components/modals/FriendsModalTabs.tsx (Following/Followers toggle)",
+      "passes": true,
+      "verification": "Tabs render and switch correctly",
+      "comment": "Also updated SocialTestPage to include standalone FriendsModalTabs demo since the FriendsModal shows logged-out state (no auth in test page). The standalone demo allows testing tab switching behavior directly."
+    },
+    {
+      "id": "8",
+      "description": "Create src/components/modals/FriendRow.tsx (single user row)",
+      "passes": true,
+      "verification": "Row shows nickname and FollowButton",
+      "comment": "Added FriendRow demo to SocialTestPage friends-modal scenario for visual testing"
+    },
+    {
+      "id": "9",
+      "description": "Create src/components/modals/FriendsList.tsx (list of users)",
+      "passes": true,
+      "verification": "List renders FriendRow for each user, shows empty states",
+      "comment": "Integrated FriendsList into FriendsModal and added FriendsList demo to SocialTestPage for visual testing of all states (with users, empty following, empty followers, loading)."
+    },
+    {
+      "id": "10",
+      "description": "Create src/components/modals/UserSearchBar.tsx (debounced search)",
+      "passes": true,
+      "verification": "Search input with 300ms debounce, queries profiles table",
+      "comment": "Created UserSearchBar with 300ms debounce, search icon, clear button, loading state, and 'No users found' empty state. Integrated into FriendsModal (logged-in state) and added standalone demo to SocialTestPage friends-modal scenario."
+    },
+    {
+      "id": "11",
+      "description": "Create src/hooks/useUserProfile.ts (fetch user profile and submissions)",
+      "passes": true,
+      "verification": "Hook fetches profile and public submissions for userId"
+    },
+    {
+      "id": "12",
+      "description": "Create src/components/UserProfilePage.tsx (profile page with calendar)",
+      "passes": true,
+      "verification": "Page shows nickname, follow counts, calendar with submissions",
+      "comment": "Created UserProfilePage with: profile header (@nickname, follow counts, FollowButton), calendar navigation, calendar grid showing thumbnails for public submissions. Includes privacy rules (canViewCurrentDay) for current day restriction. Also includes basic notFound/loading states for component stability, but task 13 will formalize the error handling."
+    },
+    {
+      "id": "13",
+      "description": "Handle 'User not found' error state in UserProfilePage",
+      "passes": true,
+      "verification": "Invalid userId shows error message with back link",
+      "comment": "Added error state handling for both notFound (valid UUID but no user) and error (network/API errors). Also added user-profile scenario to SocialTestPage for visual testing of all error states."
+    },
+    {
+      "id": "14",
+      "description": "Create src/hooks/useFriendsFeed.ts (fetch friends submissions with caching)",
+      "passes": true,
+      "verification": "Hook fetches friends' submissions, handles cache invalidation on follow/unfollow",
+      "comment": "Created useFriendsFeed hook following same pattern as useWallOfTheDay. Exports invalidateFriendsFeedCache() for cache invalidation on follow/unfollow. Hook tracks followingIds changes and invalidates cache when user follows/unfollows someone."
+    },
+    {
+      "id": "15",
+      "description": "Create src/components/FriendsFeed/FriendsFeedContent.tsx (grid + calendar views)",
+      "passes": true,
+      "verification": "Component renders grid view with sorting, calendar view with count badges",
+      "comment": "Created FriendsFeedContent with: Grid view (sorting via WallSortControls, load more pagination), Calendar view (month navigation, count badges showing friends who posted, click day to switch to grid), empty states (not logged in, no friends, no submissions for day, locked state for current day). Also added friends-feed scenario to SocialTestPage for visual testing."
+    },
+    {
+      "id": "16",
+      "description": "Create src/components/Calendar/tabs/FriendsFeedTab.tsx (tab wrapper)",
+      "passes": true,
+      "verification": "FriendsFeedTab renders FriendsFeedContent"
+    },
+    {
+      "id": "17",
+      "description": "Create src/components/FriendsFeed/FriendsFeedPage.tsx (standalone page)",
+      "passes": true,
+      "verification": "Page renders for ?view=friends-feed URL",
+      "comment": "Created FriendsFeedPage following WallOfTheDayPage pattern. Includes: header with back link and title, date display, FriendsFeedContent with showNavigation. URL routing will be added in task 19-20."
+    },
+    {
+      "id": "18",
+      "description": "Add getProfileView() to src/utils/urlParams.ts",
+      "passes": true,
+      "verification": "Function parses ?view=profile&user=USER_ID correctly"
+    },
+    {
+      "id": "19",
+      "description": "Add getFriendsFeedView() to src/utils/urlParams.ts",
+      "passes": true,
+      "verification": "Function parses ?view=friends-feed&date=YYYY-MM-DD correctly"
+    },
+    {
+      "id": "20",
+      "description": "Add URL routing in App.tsx for profile and friends-feed views",
+      "passes": true,
+      "verification": "URLs route to correct pages",
+      "comment": "Added imports for getProfileView, getFriendsFeedView, UserProfilePage, FriendsFeedPage, and FollowsProvider. Both pages are wrapped with FollowsProvider since they use useFollows via FollowButton and FriendsFeedContent."
+    },
+    {
+      "id": "21",
+      "description": "Add Friends button to Toolbar.tsx (logged-in only)",
+      "passes": true,
+      "verification": "Button appears when logged in, opens FriendsModal",
+      "comment": "Added onOpenFriendsModal prop to Toolbar, Friends button renders in Account section when isLoggedIn && onOpenFriendsModal. App.tsx manages showFriendsModal state and renders FriendsModal wrapped in FollowsProvider."
+    },
+    {
+      "id": "22",
+      "description": "Make nickname clickable + add FollowButton in SubmissionDetailPage.tsx",
+      "passes": true,
+      "verification": "Clicking nickname navigates to profile, FollowButton shows for other users",
+      "comment": "Added FollowButton import and clickable @nickname link. Wrapped SubmissionDetailPage in FollowsProvider in App.tsx. FollowButton only shows when user is logged in and viewing another user's submission."
+    },
+    {
+      "id": "23",
+      "description": "Add 'friends' to ViewMode in Calendar types and integrate FriendsFeedTab",
+      "passes": true,
+      "verification": "Friends tab appears in Calendar modal and works",
+      "comment": "Added 'friends' to ViewMode type, added Friends tab button to CalendarViewToggle (disabled when not logged in, like My Submissions), added friendsFeedDate state to Calendar.tsx, and integrated FriendsFeedTab rendering when viewMode === 'friends'."
+    },
+    {
+      "id": "24",
+      "description": "Add friends-modal and follow-button scenarios to SocialTestPage",
+      "passes": true,
+      "verification": "Test scenarios render correctly with mock data",
+      "comment": "Both scenarios were already implemented by previous tasks. Verified via Chrome DevTools: follow-button shows all states (Follow/Following/Unfollow) with working toggle, friends-modal shows FriendsModalTabs, FriendRow, FriendsList (all states), UserSearchBar, and full modal."
+    }
+  ]
+}

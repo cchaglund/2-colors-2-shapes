@@ -13,6 +13,8 @@ import { CalendarNavigation } from './CalendarNavigation';
 import { CalendarGrid } from './CalendarGrid';
 import { CalendarDayCell } from './CalendarDayCell';
 import { CalendarStats } from './CalendarStats';
+import { WallTab } from './tabs/WallTab';
+import { FriendsFeedTab } from './tabs/FriendsFeedTab';
 
 export function Calendar({ onClose }: CalendarProps) {
   const { user } = useAuth();
@@ -25,6 +27,8 @@ export function Calendar({ onClose }: CalendarProps) {
   const [winners, setWinners] = useState<WinnerEntry[]>([]);
   const [winnersLoading, setWinnersLoading] = useState(false);
   const [challenges, setChallenges] = useState<Map<string, DailyChallenge>>(new Map());
+  const [wallDate, setWallDate] = useState(() => getTodayDateUTC());
+  const [friendsFeedDate, setFriendsFeedDate] = useState(() => getTodayDateUTC());
 
   // Determine effective view mode - null until auth loads, then based on user
   const effectiveViewMode: ViewMode = viewMode ?? (user ? 'my-submissions' : 'winners');
@@ -176,6 +180,11 @@ export function Calendar({ onClose }: CalendarProps) {
     return map;
   }, [submissions]);
 
+  // Check if user has submitted today (needed for Wall tab)
+  const hasSubmittedToday = useMemo(() => {
+    return submissionsByDate.has(todayStr);
+  }, [submissionsByDate, todayStr]);
+
   // Create a map of date -> winners for quick lookup
   const winnersByDate = useMemo(() => {
     const map = new Map<string, WinnerEntry[]>();
@@ -280,54 +289,71 @@ export function Calendar({ onClose }: CalendarProps) {
           onSetViewMode={setViewMode}
         />
 
-        <CalendarNavigation
-          currentYear={currentYear}
-          currentMonth={currentMonth}
-          canGoNext={canGoNext}
-          onPrevious={goToPreviousMonth}
-          onNext={goToNextMonth}
-          onToday={goToToday}
-        />
+        {effectiveViewMode === 'wall' ? (
+          <WallTab
+            date={wallDate}
+            onDateChange={setWallDate}
+            hasSubmittedToday={hasSubmittedToday}
+            isLoggedIn={!!user}
+          />
+        ) : effectiveViewMode === 'friends' ? (
+          <FriendsFeedTab
+            date={friendsFeedDate}
+            onDateChange={setFriendsFeedDate}
+            hasSubmittedToday={hasSubmittedToday}
+          />
+        ) : (
+          <>
+            <CalendarNavigation
+              currentYear={currentYear}
+              currentMonth={currentMonth}
+              canGoNext={canGoNext}
+              onPrevious={goToPreviousMonth}
+              onNext={goToNextMonth}
+              onToday={goToToday}
+            />
 
-        <CalendarGrid loading={isLoading} loadingMessage={loadingMessage}>
-          {calendarDays.map((day, index) => {
-            if (day === null) {
-              return <div key={`empty-${index}`} className="aspect-square" />;
-            }
+            <CalendarGrid loading={isLoading} loadingMessage={loadingMessage}>
+              {calendarDays.map((day, index) => {
+                if (day === null) {
+                  return <div key={`empty-${index}`} className="aspect-square" />;
+                }
 
-            const dateStr = formatDate(currentYear, currentMonth, day);
-            const isToday = dateStr === todayStr;
-            const isFuture = dateStr > todayStr;
-            const challenge = challenges.get(dateStr) || getChallengeSync(dateStr);
-            const submission = submissionsByDate.get(dateStr);
-            const ranking = submission ? rankings.get(submission.id) : undefined;
-            const dayWinners = winnersByDate.get(dateStr);
+                const dateStr = formatDate(currentYear, currentMonth, day);
+                const isToday = dateStr === todayStr;
+                const isFuture = dateStr > todayStr;
+                const challenge = challenges.get(dateStr) || getChallengeSync(dateStr);
+                const submission = submissionsByDate.get(dateStr);
+                const ranking = submission ? rankings.get(submission.id) : undefined;
+                const dayWinners = winnersByDate.get(dateStr);
 
-            return (
-              <CalendarDayCell
-                key={dateStr}
-                day={day}
-                dateStr={dateStr}
-                viewMode={effectiveViewMode}
-                isToday={isToday}
-                isFuture={isFuture}
-                challenge={challenge}
-                submission={submission}
-                ranking={ranking}
-                dayWinners={dayWinners}
-                latestWinnersDate={latestWinnersDate}
-                onClick={handleDayClick}
-              />
-            );
-          })}
-        </CalendarGrid>
+                return (
+                  <CalendarDayCell
+                    key={dateStr}
+                    day={day}
+                    dateStr={dateStr}
+                    viewMode={effectiveViewMode}
+                    isToday={isToday}
+                    isFuture={isFuture}
+                    challenge={challenge}
+                    submission={submission}
+                    ranking={ranking}
+                    dayWinners={dayWinners}
+                    latestWinnersDate={latestWinnersDate}
+                    onClick={handleDayClick}
+                  />
+                );
+              })}
+            </CalendarGrid>
 
-        <CalendarStats
-          effectiveViewMode={effectiveViewMode}
-          submissions={submissions}
-          rankings={rankings}
-          winners={winners}
-        />
+            <CalendarStats
+              effectiveViewMode={effectiveViewMode}
+              submissions={submissions}
+              rankings={rankings}
+              winners={winners}
+            />
+          </>
+        )}
       </div>
     </div>
   );
