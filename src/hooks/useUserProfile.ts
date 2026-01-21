@@ -119,7 +119,7 @@ async function fetchUserProfile(userId: string): Promise<CachedUserData | null> 
     const followingCount = followingResult.count ?? 0;
     const followersCount = followersResult.count ?? 0;
 
-    // Fetch public submissions
+    // Fetch public submissions with rankings
     const { data: submissionsData, error: submissionsError } = await supabase
       .from('submissions')
       .select(`
@@ -129,7 +129,7 @@ async function fetchUserProfile(userId: string): Promise<CachedUserData | null> 
         groups,
         background_color_index,
         created_at,
-        final_rank
+        daily_rankings!daily_rankings_submission_id_fkey(final_rank)
       `)
       .eq('user_id', userId)
       .eq('included_in_ranking', true)
@@ -153,7 +153,7 @@ async function fetchUserProfile(userId: string): Promise<CachedUserData | null> 
       groups: (s.groups as ShapeGroup[]) || [],
       background_color_index: s.background_color_index,
       created_at: s.created_at,
-      final_rank: s.final_rank ?? undefined,
+      final_rank: (s.daily_rankings as { final_rank: number | null }[] | null)?.[0]?.final_rank ?? undefined,
     }));
 
     return {
