@@ -4,12 +4,12 @@
 2. Decide which task to work on next. This should be the one YOU decide has the highest priority - not necessarily the first in the list.
 3. Check any feedback loops, such as types and tests.
 4. Mark the task as done in PRD.json by setting `"passes": true`.
-5. Append your progress and any notes to the progress.txt file.
+5. Append your progress and any notes to the progress.txt file. Use this to leave a note for whomever comes after you.
 6. Make a git commit of that feature.
 
-ONLY DO ONE TASK AT A TIME.
+Only do a single task, and then stop. You're done.
 
-If, while implementing the feature, you notice that all work is complete, output <promise>COMPLETE</promise>.
+If, while implementing the feature, you notice that all work in the PRD is complete, output <promise>COMPLETE</promise>.
 
 # Progress tracking
 
