@@ -8,3 +8,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// For agent/console testing - call from browser console or Playwright
+export const testLogin = async (email: string, password: string) => {
+  return supabase.auth.signInWithPassword({ email, password });
+};

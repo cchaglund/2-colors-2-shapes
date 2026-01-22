@@ -245,28 +245,35 @@ http://localhost:5173/?explorer
 VITE_SHAPE_EXPLORER=true npm run dev
 ```
 
-### Voting Test Page
+### Visual Demo Pages (Not Automated Tests)
 
-A visual test page for voting components with hardcoded mock data. Allows testing the voting UI without needing real submissions or database interaction.
+The `src/test/` directory contains **visual demo pages** for manually inspecting UI components in various states. These are similar to Storybook - they render components with mock data for visual inspection, but they do **not** run automated assertions or provide test coverage.
 
-**Access via URL parameter:**
+**Important limitations:**
+- No automated assertions or test coverage
+- Some demo components (e.g., `FollowButtonDemo`) are standalone reimplementations, not the actual production components
+- Mock data may drift from actual component props over time
+- Requires manual visual inspection to catch issues
+
+**Available demo pages:**
+
+#### Voting Test Page (`?test=voting`)
+Visual demo for voting-related components with mock data.
+
 ```
 http://localhost:5173/?test=voting
 ```
 
-**Test scenarios available:**
-- **Voting UI**: Main voting interface with a pair of submissions
-- **Interactive Flow**: Simulate full voting flow with confirmation modal
-- **Voting Progress**: Vote progress bar states (0-5 votes)
-- **Dynamic Threshold**: Vote requirements based on available submissions (2-4 subs)
-- **Voting Confirmation**: Confirmation screen after reaching vote requirement
-- **No More Pairs**: When all pairs have been voted on
-- **Bootstrap (0 subs)**: Day 1 scenario with no submissions - opt-in prompt
-- **Bootstrap (1 sub)**: Only 1 submission exists - no pairs possible
-- **Winner - Normal**: Standard winner announcement with top 3
-- **Winner - Tied**: Winner announcement with 1st place tie
-- **Winner - Three-Way Tie**: Winner announcement with three-way tie
-- **Calendar with Trophies**: User calendar showing submissions with various trophy placements
+Scenarios: Voting UI, Interactive Flow, Vote Progress states, Dynamic Threshold, No More Pairs, Bootstrap states, Winner announcements (normal, tied, three-way tie), Calendar with Trophies.
+
+#### Social Test Page (`?test=social`)
+Visual demo for social features (Wall of the Day, Follow system, Friends modal).
+
+```
+http://localhost:5173/?test=social
+```
+
+Scenarios: Wall (locked/grid), Follow Button states, Friends Modal, User Profile, Friends Feed.
 
 ### Admin Dashboard
 
@@ -291,6 +298,29 @@ UPDATE profiles SET is_admin = true WHERE id = (
 ```
 
 ## Testing
+
+## Agent Browser/visual Testing
+
+The agent can log in, allowing them to see and test many of the features (which are hidden behind a login). The account has admin privileges (`is_admin: true`), letting them also e.g. view the admin dashboard.
+
+**Credentials:** 
+See `TEST_USER_EMAIL` and `TEST_USER_PASSWORD` in `.env.local`
+
+**Login from browser:**
+- Browser console: `import('./lib/supabase').then(m => m.testLogin(email, password))`
+
+**Login from Node.js script:**
+```js
+const { testLogin } = await import('./src/lib/supabase.ts');
+await testLogin('agent@test.local', 'vbe2HJG7tfu*qvq0jrt');
+```
+
+**Login from React component:**
+```js
+const { signInWithEmail } = useAuth();
+await signInWithEmail('agent@test.local', 'vbe2HJG7tfu*qvq0jrt');
+```
+
 
 ### Unit Tests
 
