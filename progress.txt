@@ -1,0 +1,14 @@
+## PRD Item: Database (1/12)
+- Created 009_likes.sql migration
+- likes table: id, user_id, submission_id, created_at, unique(user_id, submission_id)
+- RLS: public select, auth insert/delete own
+- FK: submission_id REFERENCES submissions(id) ON DELETE CASCADE
+- Added like_count INTEGER DEFAULT 0 to submissions
+- Triggers: increment on INSERT to likes, decrement on DELETE
+- Index: submissions(challenge_date, like_count DESC, created_at ASC) for wall sorting
+- Migration pushed to remote (supabase db push --include-all)
+- Typecheck: pass, Tests: 112 pass, Lint: pre-existing errors (unrelated to my changes)
+- Files: supabase/migrations/009_likes.sql
+
+Note: Local supabase start fails due to missing initial submissions table migration.
+Remote DB has full schema; local migrations incomplete. Not blocking remote development.
