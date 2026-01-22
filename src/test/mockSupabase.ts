@@ -48,7 +48,7 @@ class MockQueryBuilder<T> {
     this.data = data;
   }
 
-  select(_columns: string = '*'): this {
+  select(): this {
     // Column selection not implemented in mock - returns all columns
     return this;
   }

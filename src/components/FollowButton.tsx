@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useFollows } from '../contexts/FollowsContext';
+import { useFollows } from '../hooks/useFollows';
 import { useAuth } from '../hooks/useAuth';
 
 interface FollowButtonProps {

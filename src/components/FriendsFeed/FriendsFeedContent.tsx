@@ -4,7 +4,7 @@ import { WallSortControls } from '../Wall/WallSortControls';
 import { SubmissionThumbnail } from '../SubmissionThumbnail';
 import { generateDailyChallenge, getTodayDateUTC } from '../../utils/dailyChallenge';
 import { useAuth } from '../../hooks/useAuth';
-import { useFollows } from '../../contexts/FollowsContext';
+import { useFollows } from '../../hooks/useFollows';
 import { supabase } from '../../lib/supabase';
 import { formatDate, getDaysInMonth, getFirstDayOfMonth } from '../../utils/calendarUtils';
 import type { DailyChallenge } from '../../types';

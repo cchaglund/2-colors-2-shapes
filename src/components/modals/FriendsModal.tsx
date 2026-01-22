@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { useFollows } from '../../contexts/FollowsContext';
+import { useFollows } from '../../hooks/useFollows';
 import { FriendsModalTabs, type FriendsTab } from './FriendsModalTabs';
 import { FriendsList } from './FriendsList';
 import { UserSearchBar } from './UserSearchBar';

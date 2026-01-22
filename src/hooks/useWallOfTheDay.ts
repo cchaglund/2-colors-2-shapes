@@ -273,13 +273,14 @@ export function useWallOfTheDay(options: UseWallOfTheDayOptions): UseWallOfTheDa
     let sorted: WallSubmission[];
 
     switch (sortMode) {
-      case 'random':
+      case 'random': {
         // Use pre-shuffled order
         const idToSubmission = new Map(submissions.map(s => [s.id, s]));
         sorted = shuffledIds
           .map(id => idToSubmission.get(id))
           .filter((s): s is WallSubmission => s !== undefined);
         break;
+      }
 
       case 'newest':
         sorted = [...submissions].sort(

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 /**
  * Test utilities for React Testing Library
  *
@@ -29,11 +30,7 @@ export function TestProviders({ children }: TestProvidersProps): ReactElement {
 /**
  * Custom render options extending RTL's RenderOptions
  */
-interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
-  /**
-   * Additional providers or configuration can be passed here in the future
-   */
-}
+type CustomRenderOptions = Omit<RenderOptions, 'wrapper'>;
 
 /**
  * Render a component wrapped with all test providers.

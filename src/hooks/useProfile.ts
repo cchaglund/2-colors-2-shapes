@@ -39,6 +39,7 @@ export function useProfile(userId: string | undefined) {
   }, [userId]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Async data fetching is legitimate
     fetchProfile();
   }, [fetchProfile]);
 
