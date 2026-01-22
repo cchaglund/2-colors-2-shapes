@@ -397,7 +397,7 @@ export function WallContent({
 
                       {/* Submission count badge */}
                       {submissionCount > 0 && !isFuture && !isCurrentDayLocked && (
-                        <span className="absolute top-1 right-1 bg-(--color-accent) text-white text-[10px] font-medium rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
+                        <span className="absolute top-1 right-1 bg-(--color-accent) text-white text-[10px] font-medium rounded-full min-w-4.5 h-4.5 flex items-center justify-center">
                           {submissionCount}
                         </span>
                       )}
