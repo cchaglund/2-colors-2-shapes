@@ -2,9 +2,15 @@ import { useAuth } from '../hooks/useAuth';
 
 interface LoginPromptModalProps {
   onClose: () => void;
+  title?: string;
+  message?: string;
 }
 
-export function LoginPromptModal({ onClose }: LoginPromptModalProps) {
+export function LoginPromptModal({
+  onClose,
+  title = 'Save Your Creation',
+  message = 'To save your art, you need to be logged in.',
+}: LoginPromptModalProps) {
   const { signInWithGoogle } = useAuth();
 
   const handleLogin = () => {
@@ -16,10 +22,10 @@ export function LoginPromptModal({ onClose }: LoginPromptModalProps) {
     <div className="fixed inset-0 flex items-center justify-center z-1000 bg-(--color-modal-overlay)">
       <div className="p-6 rounded-lg max-w-80 text-center bg-(--color-bg-primary) border border-(--color-border)">
         <h3 className="m-0 mb-3 text-lg font-semibold text-(--color-text-primary)">
-          Save Your Creation
+          {title}
         </h3>
         <p className="m-0 mb-5 text-[13px] text-(--color-text-secondary)">
-          To save your art, you need to be logged in.
+          {message}
         </p>
         <div className="flex flex-col gap-3">
           <button

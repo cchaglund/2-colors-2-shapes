@@ -39,3 +39,11 @@ Files changed:
 - src/components/submission/index.ts (export LikeButton)
 - src/components/SubmissionDetailPage.tsx (added LikeButton below canvas)
 - Typecheck: pass, Tests: 112 pass, Lint: pass
+
+## PRD Item: Authentication (9/14)
+- Like button clickable for logged-out users, opens LoginPromptModal
+- Made LoginPromptModal accept optional title/message props for reuse
+- Button looks disabled (opacity) but responds to clicks to show modal
+- Modal: "Sign In to Like" title, "You need to be logged in to like submissions."
+- Files: src/components/LoginPromptModal.tsx (added props), src/components/submission/LikeButton.tsx (state + modal)
+- Typecheck: pass, Tests: 112 pass, Lint: pass

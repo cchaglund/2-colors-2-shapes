@@ -142,6 +142,6 @@
       "Like button disabled, tooltip 'Sign in to like'",
       "Click disabled button → login modal opens or redirect to sign-in page"
     ],
-    "passes": false
+    "passes": true
   }
 ]
