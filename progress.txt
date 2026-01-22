@@ -65,3 +65,10 @@ Files changed:
 - WallContent passes showLikeCount={sortMode === 'likes'} and likeCount from submission
 - Files: src/components/SubmissionThumbnail.tsx, src/components/Wall/WallContent.tsx
 - Typecheck: pass, Tests: 112 pass, Lint: pass
+
+## PRD Item: Wall - No Like Button on Thumbnails (13/14)
+- Verified SubmissionThumbnail has NO LikeButton component
+- Only static like count badge exists (for Likes filter mode)
+- LikeButton only on SubmissionDetailPage, not thumbnails
+- Files: none changed (verification only)
+- Typecheck: pass, Tests: 112 pass, Lint: pass

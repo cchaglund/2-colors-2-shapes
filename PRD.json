@@ -122,7 +122,7 @@
       "View wall in any sort mode",
       "Verify no like/heart button on any thumbnail"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Wall - Like Count on Thumbnails (Likes Filter)",
