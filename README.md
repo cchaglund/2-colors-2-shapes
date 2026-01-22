@@ -405,6 +405,15 @@ src/
    - If both shapes AND colors are too similar to recent days, a new challenge is generated
    - Uses a modified seed for re-rolling while maintaining determinism
 
+## Ralph Wiggum technique
+This project uses the "Ralph" technique for AI-assisted development. 
+
+To create a PRD.md, run claude with the create-prd skill. It will help you convert your feature requirements into structured PRD items.
+
+With that in place:
+- To run it once run `./ralph-once.sh`
+- To run the AFK Ralph mode run `./ralph-afk.sh`, where the first argument is the number of loops/tasks to do, e.g. `./ralph-afk.sh 10` to do 10 tasks in a row.
+
 ## License
 
 MIT
