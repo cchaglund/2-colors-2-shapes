@@ -4,3 +4,4 @@ export { ChallengeDetailsCard } from './ChallengeDetailsCard';
 export { RankingCard } from './RankingCard';
 export { SubmissionStatsCard } from './SubmissionStatsCard';
 export { ExportActionsCard } from './ExportActionsCard';
+export { LikeButton } from './LikeButton';

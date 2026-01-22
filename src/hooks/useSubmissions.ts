@@ -11,6 +11,7 @@ export interface Submission {
   background_color_index: number | null;
   created_at: string;
   updated_at: string;
+  like_count: number;
 }
 
 interface SaveSubmissionParams {

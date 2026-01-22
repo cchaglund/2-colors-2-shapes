@@ -19,3 +19,23 @@ Remote DB has full schema; local migrations incomplete. Not blocking remote deve
 - Migration 009_likes.sql confirmed on production
 - Triggers verified via migration SQL review (SECURITY DEFINER functions)
 - Files: none changed (verification only)
+
+## PRD Items: Like Button on Submission Detail (3-8/14)
+Implemented 6 PRD items in single commit (tightly coupled):
+- Like Button Display: heart icon, outlined/filled states, disabled during mutation
+- Like Button Disabled for Own: disabled + tooltip "You can't like your own work"
+- Like/Unlike Action: toggle, optimistic UI, DB persistence, rollback on error
+- Like Count Display: 0=no count, 1+=show count, >9999="9999+"
+- Tooltip: "Like"/"Unlike" based on state, "Sign in to like" for logged out
+- Accessibility: aria-pressed, aria-label, focus ring, keyboard support
+
+Note: Toast for errors not impl (no toast system exists). Errors logged to console.
+Click-to-login for logged out users deferred to Authentication PRD item.
+
+Files changed:
+- src/hooks/useSubmissions.ts (added like_count to Submission interface)
+- src/hooks/useLikes.ts (new: check/toggle like status)
+- src/components/submission/LikeButton.tsx (new: heart button component)
+- src/components/submission/index.ts (export LikeButton)
+- src/components/SubmissionDetailPage.tsx (added LikeButton below canvas)
+- Typecheck: pass, Tests: 112 pass, Lint: pass

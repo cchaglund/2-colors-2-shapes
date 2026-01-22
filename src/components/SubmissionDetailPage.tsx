@@ -13,6 +13,7 @@ import {
   RankingCard,
   SubmissionStatsCard,
   ExportActionsCard,
+  LikeButton,
 } from './submission';
 
 interface SubmissionDetailPageProps {
@@ -137,14 +138,24 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
 
         {/* Main content */}
         <div className="flex flex-col md:flex-row gap-5 items-start justify-center">
-          {/* Canvas */}
-          <div className="border rounded-lg overflow-hidden w-fit border-(--color-border)">
-            <SubmissionCanvas
-              shapes={submission.shapes}
-              challenge={challenge}
-              backgroundColorIndex={submission.background_color_index}
-              svgRef={svgRef}
-            />
+          {/* Canvas and actions */}
+          <div className="flex flex-col gap-3">
+            <div className="border rounded-lg overflow-hidden w-fit border-(--color-border)">
+              <SubmissionCanvas
+                shapes={submission.shapes}
+                challenge={challenge}
+                backgroundColorIndex={submission.background_color_index}
+                svgRef={svgRef}
+              />
+            </div>
+            {/* Like button */}
+            <div className="flex items-center">
+              <LikeButton
+                submissionId={submission.id}
+                submissionUserId={submission.user_id}
+                initialLikeCount={submission.like_count}
+              />
+            </div>
           </div>
 
           {/* Info sidebar */}

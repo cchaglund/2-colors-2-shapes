@@ -41,7 +41,7 @@
       "Heart is outlined if not liked, filled red if liked",
       "During like/unlike request, button is briefly disabled (no double-click)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Single Submission - Like Button Disabled for Own",
@@ -51,7 +51,7 @@
       "Verify like button is disabled and not clickable",
       "Tooltip shows 'You can't like your own work'"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Single Submission - Like/Unlike Action",
@@ -64,7 +64,7 @@
       "Simulate network error → UI rolls back to previous state, toast shown",
       "Try to like deleted submission → toast 'Submission no longer exists'"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Single Submission - Like Count Display",
@@ -74,7 +74,7 @@
       "View submission with 1+ likes → shows heart icon + count",
       "After liking/unliking, count updates immediately"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Single Submission - Tooltip",
@@ -83,7 +83,7 @@
       "Hover over unliked heart → tooltip shows 'Like'",
       "Hover over liked heart → tooltip shows 'Unlike'"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Single Submission - Accessibility",
@@ -93,7 +93,7 @@
       "Press Enter/Space → toggles like state",
       "Screen reader announces 'Like/Unlike submission' and pressed state"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Wall - Likes Filter Option",
