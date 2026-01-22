@@ -11,7 +11,7 @@ import { useAuth } from './useAuth';
 // Types
 // =============================================================================
 
-export type SortMode = 'random' | 'newest' | 'oldest' | 'ranked';
+export type SortMode = 'random' | 'newest' | 'oldest' | 'ranked' | 'likes';
 
 export interface FriendsSubmission {
   id: string;

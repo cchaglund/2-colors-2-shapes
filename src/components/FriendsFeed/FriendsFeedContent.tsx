@@ -371,6 +371,7 @@ export function FriendsFeedContent({
               sortMode={sortMode}
               onSortModeChange={(mode: SortMode) => setSortMode(mode)}
               isRankedAvailable={isRankedAvailable}
+              showLikesOption={false}
             />
           )}
         </div>

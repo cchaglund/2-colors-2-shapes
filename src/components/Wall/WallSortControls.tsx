@@ -1,22 +1,28 @@
-export type SortMode = 'random' | 'newest' | 'oldest' | 'ranked';
+export type SortMode = 'random' | 'newest' | 'oldest' | 'ranked' | 'likes';
 
 interface WallSortControlsProps {
   sortMode: SortMode;
   onSortModeChange: (mode: SortMode) => void;
   isRankedAvailable: boolean;
+  showLikesOption?: boolean;
 }
 
 export function WallSortControls({
   sortMode,
   onSortModeChange,
   isRankedAvailable,
+  showLikesOption = true,
 }: WallSortControlsProps) {
-  const options: { value: SortMode; label: string }[] = [
+  const allOptions: { value: SortMode; label: string }[] = [
     { value: 'random', label: 'Random' },
     { value: 'newest', label: 'Newest' },
     { value: 'oldest', label: 'Oldest' },
     { value: 'ranked', label: 'Ranked' },
+    { value: 'likes', label: 'Likes' },
   ];
+  const options = showLikesOption
+    ? allOptions
+    : allOptions.filter(o => o.value !== 'likes');
 
   return (
     <div className="flex rounded-md p-0.5 border border-(--color-border) bg-(--color-bg-tertiary)">

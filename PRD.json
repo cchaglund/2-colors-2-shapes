@@ -103,7 +103,7 @@
       "Verify 'Likes' appears in sort controls",
       "Can select 'Likes' filter"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Wall - Likes Sorting Logic",
@@ -113,7 +113,7 @@
       "Verify submissions with more likes appear first",
       "Two submissions with same likes → earlier one first"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Wall - No Like Button on Thumbnails",

@@ -47,3 +47,12 @@ Files changed:
 - Modal: "Sign In to Like" title, "You need to be logged in to like submissions."
 - Files: src/components/LoginPromptModal.tsx (added props), src/components/submission/LikeButton.tsx (state + modal)
 - Typecheck: pass, Tests: 112 pass, Lint: pass
+
+## PRD Items: Wall - Likes Filter Option & Sorting Logic (10-11/14)
+- Added 'likes' to SortMode type in WallSortControls, useWallOfTheDay, useFriendsFeed
+- Added 'Likes' button to sort controls UI
+- Implemented sorting: like_count DESC, ties broken by created_at ASC
+- Added like_count to WallSubmission interface and fetch query
+- Added showLikesOption prop to WallSortControls (false for FriendsFeed, true for Wall)
+- Files: src/components/Wall/WallSortControls.tsx, src/hooks/useWallOfTheDay.ts, src/hooks/useFriendsFeed.ts, src/components/FriendsFeed/FriendsFeedContent.tsx
+- Typecheck: pass, Tests: 112 pass, Lint: pass
