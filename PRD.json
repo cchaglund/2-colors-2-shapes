@@ -1,5 +1,14 @@
 [
   {
+    "category": "Cleanup - Docker",
+    "description": "Remove accidentally created local Supabase Docker containers/images. Run: docker ps -a | grep supabase (list containers), docker rm <ids> (remove containers), docker images | grep supabase (list images), docker rmi <ids> (remove images). Verify no supabase containers/images remain.",
+    "steps_to_verify": [
+      "docker ps -a | grep supabase returns nothing",
+      "docker images | grep supabase returns nothing"
+    ],
+    "passes": false
+  },
+  {
     "category": "Database",
     "description": "Create likes table with user_id, submission_id, created_at, unique constraint on (user_id, submission_id), RLS policies (public read, authenticated insert/delete own). Add like_count INTEGER DEFAULT 0 column to submissions table. Create database triggers: on INSERT to likes increment submission.like_count, on DELETE decrement it. Add index on submissions(challenge_date, like_count DESC, created_at ASC) for wall sorting. FK: likes.submission_id REFERENCES submissions(id) ON DELETE CASCADE.",
     "steps_to_verify": [
@@ -10,6 +19,16 @@
       "Test trigger: INSERT like → like_count increments",
       "Test trigger: DELETE like → like_count decrements",
       "Test cascade: DELETE submission → likes auto-deleted"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Database - Verify Production",
+    "description": "Verify that 009_likes.sql migration was applied to production. Run queries against remote DB to confirm likes table exists, submissions.like_count column exists, triggers work correctly.",
+    "steps_to_verify": [
+      "supabase db execute 'SELECT * FROM likes LIMIT 1' succeeds (table exists)",
+      "supabase db execute 'SELECT like_count FROM submissions LIMIT 1' succeeds (column exists)",
+      "Manually test: insert a like row, verify submission.like_count increments"
     ],
     "passes": false
   },

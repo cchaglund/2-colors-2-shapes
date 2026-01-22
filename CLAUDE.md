@@ -9,6 +9,15 @@ Turn off the lights when you leave:
 - if you've started a dev server, stop it before you consider yourself finished.
 - If you've started an MCP server, stop it before you go (e.g. Chrome dev tools or playwright), killing it if necessary.
 
+## Supabase - REMOTE ONLY
+
+This project uses the REMOTE Supabase database, NOT local.
+- NEVER run `supabase start` - it downloads 690MB of Docker images unnecessarily
+- NEVER use `--local` flag with supabase commands
+- To understand schema: read `supabase/migrations/*.sql` files
+- To run migrations: use `supabase db push` (pushes to remote)
+- Edge functions: `supabase functions deploy` (deploys to remote)
+
 ## Plan Mode
 
 - Make the plan extremely concise. Sacrifice grammar for the sake of concision.

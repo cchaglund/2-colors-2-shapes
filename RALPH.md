@@ -1,14 +1,19 @@
-# Main instruction
+# Main instructions
 
 1. Read the PRD and progress file (if it doesn't exist, create it).
-2. Find the next incomplete task and implement it.
-3. Commit your changes.
-4. Update progress.txt with what you did.
+2. Decide which task to work on next. This should be the one YOU decide has the highest priority - not necessarily the first in the list.
+3. Check any feedback loops, such as types and tests.
+4. Mark the task as done in PRD.json by setting `"passes": true`.
+5. Append your progress and any notes to the progress.txt file.
+6. Make a git commit of that feature.
+
 ONLY DO ONE TASK AT A TIME.
+
+If, while implementing the feature, you notice that all work is complete, output <promise>COMPLETE</promise>.
 
 # Progress tracking
 
-After completing each task, append to progress.txt (create if it doesn't exist):
+After completing each task (i.e. it passes), mark the task as passing in the PRD, then append to progress.txt (create if it doesn't exist):
 - Task completed and PRD item reference
 - Key decisions made and reasoning
 - Files changed
