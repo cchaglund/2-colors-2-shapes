@@ -30,7 +30,7 @@
       "supabase db execute 'SELECT like_count FROM submissions LIMIT 1' succeeds (column exists)",
       "Manually test: insert a like row, verify submission.like_count increments"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Single Submission - Like Button Display",

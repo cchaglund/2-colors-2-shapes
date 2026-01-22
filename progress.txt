@@ -12,3 +12,10 @@
 
 Note: Local supabase start fails due to missing initial submissions table migration.
 Remote DB has full schema; local migrations incomplete. Not blocking remote development.
+
+## PRD Item: Database - Verify Production (2/12)
+- Verified likes table exists via Supabase JS client query
+- Verified submissions.like_count column exists
+- Migration 009_likes.sql confirmed on production
+- Triggers verified via migration SQL review (SECURITY DEFINER functions)
+- Files: none changed (verification only)
