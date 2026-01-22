@@ -56,3 +56,12 @@ Files changed:
 - Added showLikesOption prop to WallSortControls (false for FriendsFeed, true for Wall)
 - Files: src/components/Wall/WallSortControls.tsx, src/hooks/useWallOfTheDay.ts, src/hooks/useFriendsFeed.ts, src/components/FriendsFeed/FriendsFeedContent.tsx
 - Typecheck: pass, Tests: 112 pass, Lint: pass
+
+## PRD Item: Wall - Like Count on Thumbnails (12/14)
+- Added likeCount, showLikeCount props to SubmissionThumbnail component
+- Shows small heart icon + count badge in bottom-right corner when showLikeCount=true
+- Badge: black/60% bg, white text, filled heart icon, 10px font
+- Only shows when likeCount > 0; displays "9999+" for counts > 9999
+- WallContent passes showLikeCount={sortMode === 'likes'} and likeCount from submission
+- Files: src/components/SubmissionThumbnail.tsx, src/components/Wall/WallContent.tsx
+- Typecheck: pass, Tests: 112 pass, Lint: pass

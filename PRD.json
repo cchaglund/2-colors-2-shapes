@@ -132,7 +132,7 @@
       "Each thumbnail shows heart icon + number in corner",
       "Switch to other filter → like count badge disappears"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Authentication",

@@ -453,6 +453,8 @@ export function WallContent({
                   showNickname={true}
                   nickname={submission.nickname}
                   onClick={() => handleThumbnailClick(submission.id)}
+                  likeCount={submission.like_count}
+                  showLikeCount={sortMode === 'likes'}
                 />
               </div>
             ))}
