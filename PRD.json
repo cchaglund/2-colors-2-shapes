@@ -6,7 +6,7 @@
       "docker ps -a | grep supabase returns nothing",
       "docker images | grep supabase returns nothing"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Database",
