@@ -2,6 +2,37 @@ import type { DailyChallenge, ShapeType, ChallengeShapeData } from '../types';
 import { getShapeSVGData, SHAPE_NAMES } from './shapeHelpers';
 
 // =============================================================================
+// COLOR GENERATION CONFIG - Edit these to change color behavior
+// =============================================================================
+
+const COLOR_CONFIG = {
+  // Color space: 'oklch' (perceptually uniform) or 'hsl' (legacy)
+  colorSpace: 'oklch' as 'oklch' | 'hsl',
+
+  // Exclude muddy hues (browns/muddy yellows in 30-60° HSL range)
+  excludeMuddyHues: true,
+
+  // Force one light + one dark color for better contrast variety
+  forceContrast: true,
+
+  // OKLCH lightness ranges (0-1 scale)
+  oklch: {
+    lightRange: { min: 0.70, max: 0.9 },  // For light colors
+    darkRange: { min: 0.45, max: 0.60 },   // For dark colors - not too dark to keep color
+    chroma: { min: 0.07, max: 0.93 },      // Color intensity
+  },
+
+  // HSL ranges (legacy fallback)
+  hsl: {
+    saturation: { min: 50, max: 90 },
+    lightness: { min: 35, max: 70 },
+  },
+
+  // Minimum contrast ratio (WCAG). 2.5 allows more colorful pairs than 3.0
+  minContrastRatio: 2.5,
+};
+
+// =============================================================================
 // Daily Word Data
 // =============================================================================
 
@@ -61,12 +92,95 @@ function dateToSeed(dateStr: string): number {
   return Math.abs(hash);
 }
 
-function generateColor(random: () => number): string {
-  const hue = Math.floor(random() * 360);
-  const saturation = 50 + Math.floor(random() * 40);
-  const lightness = 35 + Math.floor(random() * 35);
-  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+// =============================================================================
+// OKLCH Color Space Conversion
+// =============================================================================
+
+interface OKLCH {
+  l: number; // 0-1 (lightness)
+  c: number; // 0-0.4 (chroma/saturation)
+  h: number; // 0-360 (hue)
 }
+
+function oklchToRgb(oklch: OKLCH): { r: number; g: number; b: number } {
+  const { l, c, h } = oklch;
+  const hRad = (h * Math.PI) / 180;
+  const a = c * Math.cos(hRad);
+  const b = c * Math.sin(hRad);
+
+  // OKLab to linear RGB
+  const l_ = l + 0.3963377774 * a + 0.2158037573 * b;
+  const m_ = l - 0.1055613458 * a - 0.0638541728 * b;
+  const s_ = l - 0.0894841775 * a - 1.291485548 * b;
+
+  const l3 = l_ * l_ * l_;
+  const m3 = m_ * m_ * m_;
+  const s3 = s_ * s_ * s_;
+
+  const rLinear = 4.0767416621 * l3 - 3.3077115913 * m3 + 0.2309699292 * s3;
+  const gLinear = -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3;
+  const bLinear = -0.0041960863 * l3 - 0.7034186147 * m3 + 1.707614701 * s3;
+
+  // Linear to sRGB
+  const toSrgb = (x: number) => {
+    const clamped = Math.max(0, Math.min(1, x));
+    return clamped <= 0.0031308
+      ? clamped * 12.92
+      : 1.055 * Math.pow(clamped, 1 / 2.4) - 0.055;
+  };
+
+  return {
+    r: Math.round(toSrgb(rLinear) * 255),
+    g: Math.round(toSrgb(gLinear) * 255),
+    b: Math.round(toSrgb(bLinear) * 255),
+  };
+}
+
+function oklchToHsl(oklch: OKLCH): { h: number; s: number; l: number } {
+  const rgb = oklchToRgb(oklch);
+  const r = rgb.r / 255;
+  const g = rgb.g / 255;
+  const b = rgb.b / 255;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  let h = 0;
+  let s = 0;
+
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+
+  return {
+    h: Math.round(h * 360),
+    s: Math.round(s * 100),
+    l: Math.round(l * 100),
+  };
+}
+
+// =============================================================================
+// Muddy Hue Exclusion
+// =============================================================================
+
+function generateSafeHue(random: () => number, excludeMuddy: boolean): number {
+  if (!excludeMuddy) {
+    return Math.floor(random() * 360);
+  }
+  // Skip the 30-60° range by generating in 0-330° and shifting if needed
+  const hue = Math.floor(random() * 330);
+  return hue >= 30 ? hue + 30 : hue;
+}
+
+// =============================================================================
+// Color Generation
+// =============================================================================
 
 function parseHSL(hsl: string): { h: number; s: number; l: number } {
   const match = hsl.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
@@ -120,50 +234,104 @@ function getContrastRatio(color1: string, color2: string): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-function colorDistance(color1: string, color2: string): number {
-  const c1 = parseHSL(color1);
-  const c2 = parseHSL(color2);
+function generateColorWithOKLCH(
+  random: () => number,
+  hue: number,
+  lightnessHint: 'light' | 'dark'
+): string {
+  const { oklch } = COLOR_CONFIG;
+  let l: number;
 
-  let hueDiff = Math.abs(c1.h - c2.h);
-  if (hueDiff > 180) hueDiff = 360 - hueDiff;
+  if (lightnessHint === 'light') {
+    l = oklch.lightRange.min + random() * (oklch.lightRange.max - oklch.lightRange.min);
+  } else {
+    l = oklch.darkRange.min + random() * (oklch.darkRange.max - oklch.darkRange.min);
+  }
 
-  return Math.sqrt(
-    Math.pow(hueDiff * 2, 2) +
-    Math.pow((c1.l - c2.l) * 1.5, 2) +
-    Math.pow((c1.s - c2.s) * 0.5, 2)
-  );
+  const c = oklch.chroma.min + random() * (oklch.chroma.max - oklch.chroma.min);
+  const hsl = oklchToHsl({ l, c, h: hue });
+  return `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+}
+
+function generateColorWithHSL(
+  random: () => number,
+  hue: number,
+  lightnessHint: 'light' | 'dark'
+): string {
+  const { hsl } = COLOR_CONFIG;
+  const saturation = hsl.saturation.min + Math.floor(random() * (hsl.saturation.max - hsl.saturation.min));
+  let lightness: number;
+
+  if (lightnessHint === 'light') {
+    lightness = 55 + Math.floor(random() * 20); // 55-75%
+  } else {
+    lightness = 25 + Math.floor(random() * 20); // 25-45%
+  }
+
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
 function generateDistinctColors(random: () => number): [string, string] {
-  const minDistance = 80;
-  const minContrastRatio = 3.0; // WCAG AA for large graphical objects
-  const minHueDiff = 30; // Ensure colors look distinctly different
+  const { colorSpace, excludeMuddyHues, forceContrast, minContrastRatio } = COLOR_CONFIG;
+  const minHueDiff = 30;
 
   for (let i = 0; i < 100; i++) {
-    const color1 = generateColor(random);
-    const color2 = generateColor(random);
+    // Generate two distinct hues
+    const hue1 = generateSafeHue(random, excludeMuddyHues);
+    const hue2 = generateSafeHue(random, excludeMuddyHues);
 
-    // Check perceptual distance
-    if (colorDistance(color1, color2) < minDistance) continue;
+    // Check hue difference
+    let hueDiff = Math.abs(hue1 - hue2);
+    if (hueDiff > 180) hueDiff = 360 - hueDiff;
+    if (hueDiff < minHueDiff) continue;
+
+    // Determine lightness assignment
+    let lightness1: 'light' | 'dark';
+    let lightness2: 'light' | 'dark';
+
+    if (forceContrast) {
+      // Randomly decide which color is light vs dark
+      if (random() > 0.5) {
+        lightness1 = 'light';
+        lightness2 = 'dark';
+      } else {
+        lightness1 = 'dark';
+        lightness2 = 'light';
+      }
+    } else {
+      lightness1 = random() > 0.5 ? 'light' : 'dark';
+      lightness2 = random() > 0.5 ? 'light' : 'dark';
+    }
+
+    // Generate colors based on color space
+    let color1: string;
+    let color2: string;
+
+    if (colorSpace === 'oklch') {
+      color1 = generateColorWithOKLCH(random, hue1, lightness1);
+      color2 = generateColorWithOKLCH(random, hue2, lightness2);
+    } else {
+      color1 = generateColorWithHSL(random, hue1, lightness1);
+      color2 = generateColorWithHSL(random, hue2, lightness2);
+    }
 
     // Check WCAG contrast ratio
     if (getContrastRatio(color1, color2) < minContrastRatio) continue;
 
-    // Check hue difference to avoid colors that look too similar
-    const c1 = parseHSL(color1);
-    const c2 = parseHSL(color2);
-    let hueDiff = Math.abs(c1.h - c2.h);
-    if (hueDiff > 180) hueDiff = 360 - hueDiff;
-    if (hueDiff < minHueDiff) continue;
-
     return [color1, color2];
   }
 
-  // Fallback: generate complementary colors with good contrast
-  const hue = Math.floor(random() * 360);
-  const sat = 60 + Math.floor(random() * 30);
-  // Use significantly different lightness values to ensure contrast
-  return [`hsl(${hue}, ${sat}%, 35%)`, `hsl(${(hue + 180) % 360}, ${sat}%, 65%)`];
+  // Fallback: generate complementary colors with forced contrast
+  const hue = generateSafeHue(random, excludeMuddyHues);
+  if (colorSpace === 'oklch') {
+    return [
+      generateColorWithOKLCH(random, hue, 'light'),
+      generateColorWithOKLCH(random, (hue + 180) % 360, 'dark'),
+    ];
+  } else {
+    const sat = 60 + Math.floor(random() * 30);
+    return [`hsl(${hue}, ${sat}%, 65%)`, `hsl(${(hue + 180) % 360}, ${sat}%, 35%)`];
+  }
 }
 
 const ALL_SHAPES: ShapeType[] = [
