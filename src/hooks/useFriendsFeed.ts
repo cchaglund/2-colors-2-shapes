@@ -4,14 +4,14 @@ import type { Shape, ShapeGroup } from '../types';
 import { getTodayDateUTC } from '../utils/dailyChallenge';
 import { canViewCurrentDay as canViewCurrentDayUtil } from '../utils/privacyRules';
 import { fisherYatesShuffle } from '../utils/wallSorting';
-import { useFollows } from '../contexts/FollowsContext';
+import { useFollows } from './useFollows';
 import { useAuth } from './useAuth';
 
 // =============================================================================
 // Types
 // =============================================================================
 
-export type SortMode = 'random' | 'newest' | 'oldest' | 'ranked';
+export type SortMode = 'random' | 'newest' | 'oldest' | 'ranked' | 'likes';
 
 export interface FriendsSubmission {
   id: string;
@@ -329,13 +329,14 @@ export function useFriendsFeed(options: UseFriendsFeedOptions): UseFriendsFeedRe
     let sorted: FriendsSubmission[];
 
     switch (sortMode) {
-      case 'random':
+      case 'random': {
         // Use pre-shuffled order
         const idToSubmission = new Map(submissions.map(s => [s.id, s]));
         sorted = shuffledIds
           .map(id => idToSubmission.get(id))
           .filter((s): s is FriendsSubmission => s !== undefined);
         break;
+      }
 
       case 'newest':
         sorted = [...submissions].sort(

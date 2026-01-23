@@ -9,6 +9,8 @@ interface SubmissionThumbnailProps {
   showNickname?: boolean;
   nickname?: string;
   onClick?: () => void;
+  likeCount?: number;
+  showLikeCount?: boolean;
 }
 
 const CANVAS_SIZE = 800;
@@ -21,6 +23,8 @@ export function SubmissionThumbnail({
   showNickname = false,
   nickname,
   onClick,
+  likeCount,
+  showLikeCount = false,
 }: SubmissionThumbnailProps) {
   const sortedShapes = [...shapes].sort((a, b) => a.zIndex - b.zIndex);
   const backgroundColor =
@@ -28,39 +32,58 @@ export function SubmissionThumbnail({
       ? challenge.colors[backgroundColorIndex]
       : '#ffffff';
 
-  const svg = (
-    <svg
-      width={size}
-      height={size}
-      viewBox={`0 0 ${CANVAS_SIZE} ${CANVAS_SIZE}`}
-      className="rounded-sm"
-    >
-      <rect
-        x={0}
-        y={0}
-        width={CANVAS_SIZE}
-        height={CANVAS_SIZE}
-        fill={backgroundColor}
-      />
-      {sortedShapes.map((shape) => {
-        const { element, props, viewBox } = getShapeSVGData(shape.type, shape.size);
-        const centerX = viewBox.width / 2;
-        const centerY = viewBox.height / 2;
-        const scaleX = shape.flipX ? -1 : 1;
-        const scaleY = shape.flipY ? -1 : 1;
-        const transform = `translate(${shape.x}, ${shape.y}) translate(${centerX}, ${centerY}) scale(${scaleX}, ${scaleY}) translate(${-centerX}, ${-centerY}) rotate(${shape.rotation}, ${centerX}, ${centerY})`;
-        const color = challenge.colors[shape.colorIndex];
+  // Format like count for display
+  const displayLikeCount = likeCount !== undefined && likeCount > 9999 ? '9999+' : likeCount;
 
-        return (
-          <g key={shape.id} transform={transform}>
-            {element === 'ellipse' && <ellipse {...props} fill={color} />}
-            {element === 'rect' && <rect {...props} fill={color} />}
-            {element === 'polygon' && <polygon {...props} fill={color} />}
-            {element === 'path' && <path {...props} fill={color} />}
-          </g>
-        );
-      })}
-    </svg>
+  const svg = (
+    <div className="relative">
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${CANVAS_SIZE} ${CANVAS_SIZE}`}
+        className="rounded-sm"
+      >
+        <rect
+          x={0}
+          y={0}
+          width={CANVAS_SIZE}
+          height={CANVAS_SIZE}
+          fill={backgroundColor}
+        />
+        {sortedShapes.map((shape) => {
+          const { element, props, viewBox } = getShapeSVGData(shape.type, shape.size);
+          const centerX = viewBox.width / 2;
+          const centerY = viewBox.height / 2;
+          const scaleX = shape.flipX ? -1 : 1;
+          const scaleY = shape.flipY ? -1 : 1;
+          const transform = `translate(${shape.x}, ${shape.y}) translate(${centerX}, ${centerY}) scale(${scaleX}, ${scaleY}) translate(${-centerX}, ${-centerY}) rotate(${shape.rotation}, ${centerX}, ${centerY})`;
+          const color = challenge.colors[shape.colorIndex];
+
+          return (
+            <g key={shape.id} transform={transform}>
+              {element === 'ellipse' && <ellipse {...props} fill={color} />}
+              {element === 'rect' && <rect {...props} fill={color} />}
+              {element === 'polygon' && <polygon {...props} fill={color} />}
+              {element === 'path' && <path {...props} fill={color} />}
+            </g>
+          );
+        })}
+      </svg>
+      {showLikeCount && likeCount !== undefined && likeCount > 0 && (
+        <div className="absolute bottom-1 right-1 flex items-center gap-0.5 bg-black/60 text-white text-[10px] font-medium rounded px-1 py-0.5">
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            stroke="none"
+          >
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+          <span>{displayLikeCount}</span>
+        </div>
+      )}
+    </div>
   );
 
   if (!showNickname && !onClick) {

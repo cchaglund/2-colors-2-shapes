@@ -4,7 +4,7 @@ import { WallSortControls } from '../Wall/WallSortControls';
 import { SubmissionThumbnail } from '../SubmissionThumbnail';
 import { generateDailyChallenge, getTodayDateUTC } from '../../utils/dailyChallenge';
 import { useAuth } from '../../hooks/useAuth';
-import { useFollows } from '../../contexts/FollowsContext';
+import { useFollows } from '../../hooks/useFollows';
 import { supabase } from '../../lib/supabase';
 import { formatDate, getDaysInMonth, getFirstDayOfMonth } from '../../utils/calendarUtils';
 import type { DailyChallenge } from '../../types';
@@ -371,6 +371,7 @@ export function FriendsFeedContent({
               sortMode={sortMode}
               onSortModeChange={(mode: SortMode) => setSortMode(mode)}
               isRankedAvailable={isRankedAvailable}
+              showLikesOption={false}
             />
           )}
         </div>
@@ -485,7 +486,7 @@ export function FriendsFeedContent({
 
                       {/* Friend count badge */}
                       {friendCount > 0 && !isFuture && !isCurrentDayLocked && (
-                        <span className="absolute top-1 right-1 bg-(--color-accent) text-white text-[10px] font-medium rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
+                        <span className="absolute top-1 right-1 bg-(--color-accent) text-white text-[10px] font-medium rounded-full min-w-4.5 h-4.5 flex items-center justify-center">
                           {friendCount}
                         </span>
                       )}

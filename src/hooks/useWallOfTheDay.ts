@@ -9,7 +9,7 @@ import { fisherYatesShuffle } from '../utils/wallSorting';
 // Types
 // =============================================================================
 
-export type SortMode = 'random' | 'newest' | 'oldest' | 'ranked';
+export type SortMode = 'random' | 'newest' | 'oldest' | 'ranked' | 'likes';
 
 export interface WallSubmission {
   id: string;
@@ -20,6 +20,7 @@ export interface WallSubmission {
   background_color_index: number | null;
   created_at: string;
   final_rank?: number;
+  like_count: number;
 }
 
 export interface UseWallOfTheDayOptions {
@@ -132,7 +133,8 @@ async function fetchWallSubmissions(date: string): Promise<WallSubmission[]> {
         shapes,
         groups,
         background_color_index,
-        created_at
+        created_at,
+        like_count
       `)
       .eq('challenge_date', date)
       .eq('included_in_ranking', true)
@@ -175,6 +177,7 @@ async function fetchWallSubmissions(date: string): Promise<WallSubmission[]> {
       background_color_index: s.background_color_index,
       created_at: s.created_at,
       final_rank: undefined, // TODO: join from daily_rankings if needed
+      like_count: s.like_count ?? 0,
     }));
 
     return wallSubmissions;
@@ -273,13 +276,14 @@ export function useWallOfTheDay(options: UseWallOfTheDayOptions): UseWallOfTheDa
     let sorted: WallSubmission[];
 
     switch (sortMode) {
-      case 'random':
+      case 'random': {
         // Use pre-shuffled order
         const idToSubmission = new Map(submissions.map(s => [s.id, s]));
         sorted = shuffledIds
           .map(id => idToSubmission.get(id))
           .filter((s): s is WallSubmission => s !== undefined);
         break;
+      }
 
       case 'newest':
         sorted = [...submissions].sort(
@@ -302,6 +306,15 @@ export function useWallOfTheDay(options: UseWallOfTheDayOptions): UseWallOfTheDa
           const withRank = submissions.filter(s => s.final_rank !== undefined);
           sorted = withRank.sort((a, b) => (a.final_rank ?? 0) - (b.final_rank ?? 0));
         }
+        break;
+
+      case 'likes':
+        // Sort by like_count DESC, ties broken by earliest submission time
+        sorted = [...submissions].sort((a, b) => {
+          const likeDiff = b.like_count - a.like_count;
+          if (likeDiff !== 0) return likeDiff;
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        });
         break;
 
       default:

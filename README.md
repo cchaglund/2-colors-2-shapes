@@ -408,7 +408,13 @@ src/
 ## Ralph Wiggum technique
 This project uses the "Ralph" technique for AI-assisted development. 
 
-To create a PRD.md, run claude with the create-prd skill. It will help you convert your feature requirements into structured PRD items.
+To create a PRD.md, run claude with the create-prd skill. It will help you convert your feature requirements into structured PRD items: `/create-prd @feature-request.md`
+
+Then with a separate agent, criticise the plan with the critique-plan skill: `/critique-plan @feature-request.md @PRD.json`
+
+Then use the good-cop skill to sensibly address the valid concerns raised in the critique and update the plan accordingly: `/good-cop @feature-request.md @PRD.json @CRITIQUE.md`
+
+Finally, use the ralph agent to implement the plan.
 
 With that in place:
 - To run it once run `./ralph-once.sh`

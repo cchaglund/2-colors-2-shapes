@@ -11,6 +11,7 @@ export interface Submission {
   background_color_index: number | null;
   created_at: string;
   updated_at: string;
+  like_count: number;
 }
 
 interface SaveSubmissionParams {
@@ -28,8 +29,7 @@ export function useSubmissions(userId: string | undefined, todayDate?: string) {
   // Check if user has already submitted today
   useEffect(() => {
     if (!userId || !todayDate) {
-      setHasSubmittedToday(false);
-      return;
+      return; // Initial state (false) handles the no-user case
     }
 
     const checkExistingSubmission = async () => {

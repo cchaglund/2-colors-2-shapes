@@ -1,0 +1,147 @@
+[
+  {
+    "category": "Cleanup - Docker",
+    "description": "Remove accidentally created local Supabase Docker containers/images. Run: docker ps -a | grep supabase (list containers), docker rm <ids> (remove containers), docker images | grep supabase (list images), docker rmi <ids> (remove images). Verify no supabase containers/images remain.",
+    "steps_to_verify": [
+      "docker ps -a | grep supabase returns nothing",
+      "docker images | grep supabase returns nothing"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Database",
+    "description": "Create likes table with user_id, submission_id, created_at, unique constraint on (user_id, submission_id), RLS policies (public read, authenticated insert/delete own). Add like_count INTEGER DEFAULT 0 column to submissions table. Create database triggers: on INSERT to likes increment submission.like_count, on DELETE decrement it. Add index on submissions(challenge_date, like_count DESC, created_at ASC) for wall sorting. FK: likes.submission_id REFERENCES submissions(id) ON DELETE CASCADE.",
+    "steps_to_verify": [
+      "Run migration successfully",
+      "Verify likes table exists with correct columns",
+      "Verify submissions.like_count column exists",
+      "Test RLS: anonymous can SELECT, authenticated can INSERT/DELETE own likes only",
+      "Test trigger: INSERT like → like_count increments",
+      "Test trigger: DELETE like → like_count decrements",
+      "Test cascade: DELETE submission → likes auto-deleted"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Database - Verify Production",
+    "description": "Verify that 009_likes.sql migration was applied to production. Run queries against remote DB to confirm likes table exists, submissions.like_count column exists, triggers work correctly.",
+    "steps_to_verify": [
+      "supabase db execute 'SELECT * FROM likes LIMIT 1' succeeds (table exists)",
+      "supabase db execute 'SELECT like_count FROM submissions LIMIT 1' succeeds (column exists)",
+      "Manually test: insert a like row, verify submission.like_count increments"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Single Submission - Like Button Display",
+    "description": "Heart icon button on submission detail page. Outlined when not liked, filled (red) when liked. Button disabled during mutation to prevent double-clicks.",
+    "steps_to_verify": [
+      "Navigate to any submission detail page",
+      "Verify heart icon is visible",
+      "Heart is outlined if not liked, filled red if liked",
+      "During like/unlike request, button is briefly disabled (no double-click)"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Single Submission - Like Button Disabled for Own",
+    "description": "Like button disabled/grayed out when viewing user's own submission",
+    "steps_to_verify": [
+      "Log in and view own submission",
+      "Verify like button is disabled and not clickable",
+      "Tooltip shows 'You can't like your own work'"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Single Submission - Like/Unlike Action",
+    "description": "Clicking like button toggles state and updates count. Persists in database. Uses optimistic UI: state updates immediately, rollback on error with toast 'Failed to like. Please try again.' If submission was deleted (404/foreign key error), show toast 'Submission no longer exists'.",
+    "steps_to_verify": [
+      "Click heart on unliked submission → fills immediately (optimistic), count +1",
+      "Click again → unfills immediately, count -1",
+      "Refresh page → state persists",
+      "Check database: likes row exists/removed accordingly",
+      "Simulate network error → UI rolls back to previous state, toast shown",
+      "Try to like deleted submission → toast 'Submission no longer exists'"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Single Submission - Like Count Display",
+    "description": "Show total like count next to the like button. 0 likes: show heart icon only, no number. 1+ likes: show heart icon + count. Display raw number (no abbreviation). If >9999, show '9999+'.",
+    "steps_to_verify": [
+      "View submission with 0 likes → shows heart icon only, no number",
+      "View submission with 1+ likes → shows heart icon + count",
+      "After liking/unliking, count updates immediately"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Single Submission - Tooltip",
+    "description": "Tooltip shows 'Like' when not liked, 'Unlike' when liked",
+    "steps_to_verify": [
+      "Hover over unliked heart → tooltip shows 'Like'",
+      "Hover over liked heart → tooltip shows 'Unlike'"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Single Submission - Accessibility",
+    "description": "Like button accessible via keyboard and screen readers (aria-pressed, aria-label, focus ring)",
+    "steps_to_verify": [
+      "Tab to like button → visible focus ring",
+      "Press Enter/Space → toggles like state",
+      "Screen reader announces 'Like/Unlike submission' and pressed state"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Wall - Likes Filter Option",
+    "description": "Add 'Likes' to sort options (alongside Random, Newest, Oldest, Ranked)",
+    "steps_to_verify": [
+      "Open wall of the day",
+      "Verify 'Likes' appears in sort controls",
+      "Can select 'Likes' filter"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Wall - Likes Sorting Logic",
+    "description": "When 'Likes' filter active: sort by like count DESC, ties broken by earliest submission time",
+    "steps_to_verify": [
+      "Select 'Likes' filter",
+      "Verify submissions with more likes appear first",
+      "Two submissions with same likes → earlier one first"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Wall - No Like Button on Thumbnails",
+    "description": "Like button NOT shown on wall thumbnails (too small to meaningfully engage)",
+    "steps_to_verify": [
+      "View wall in any sort mode",
+      "Verify no like/heart button on any thumbnail"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Wall - Like Count on Thumbnails (Likes Filter)",
+    "description": "When 'Likes' filter active, show small heart icon + count in corner of each thumbnail",
+    "steps_to_verify": [
+      "Select 'Likes' filter",
+      "Each thumbnail shows heart icon + number in corner",
+      "Switch to other filter → like count badge disappears"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Authentication",
+    "description": "Like button only functional for logged-in users. Show disabled state with tooltip for anonymous users. Clicking the disabled button opens login modal/redirects to sign-in.",
+    "steps_to_verify": [
+      "View submission while logged out",
+      "Like button disabled, tooltip 'Sign in to like'",
+      "Click disabled button → login modal opens or redirect to sign-in page"
+    ],
+    "passes": true
+  }
+]

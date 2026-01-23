@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from 'react';
+/* eslint-disable react-refresh/only-export-components -- Context exported for useFollows hook */
+import { createContext, useState, useEffect, useCallback, useMemo, type ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 
@@ -8,7 +9,7 @@ export interface FollowUser {
   followedAt: string;
 }
 
-interface FollowsContextValue {
+export interface FollowsContextValue {
   // Data
   following: FollowUser[];
   followers: FollowUser[];
@@ -27,7 +28,7 @@ interface FollowsContextValue {
   actionLoading: boolean;
 }
 
-const FollowsContext = createContext<FollowsContextValue | null>(null);
+export const FollowsContext = createContext<FollowsContextValue | null>(null);
 
 interface FollowsProviderProps {
   children: ReactNode;
@@ -245,12 +246,4 @@ export function FollowsProvider({ children }: FollowsProviderProps) {
       {children}
     </FollowsContext.Provider>
   );
-}
-
-export function useFollows(): FollowsContextValue {
-  const context = useContext(FollowsContext);
-  if (!context) {
-    throw new Error('useFollows must be used within a FollowsProvider');
-  }
-  return context;
 }

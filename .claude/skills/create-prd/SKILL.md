@@ -3,4 +3,4 @@ name: create-prd
 description: Convert my feature requirements into structured PRD items.
 ---
 
-Convert my feature requirements into structured PRD items. Each item should have: category, description, steps to verify, and passes: false. Format as JSON. Be specific about acceptance criteria. Save this the PRD as PRD.md in the root of the project.
+Convert my feature requirements into structured PRD items. Each item should have: category, description, steps to verify, and passes: false. Format as JSON. Be specific about acceptance criteria. Save this the PRD as PRD.json in the root of the project.
