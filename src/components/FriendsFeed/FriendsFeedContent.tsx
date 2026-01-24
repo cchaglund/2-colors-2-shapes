@@ -1,13 +1,13 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useFriendsFeed, type SortMode } from '../../hooks/useFriendsFeed';
+import { useDailyChallenge } from '../../hooks/useDailyChallenge';
 import { WallSortControls } from '../Wall/WallSortControls';
 import { SubmissionThumbnail } from '../SubmissionThumbnail';
-import { generateDailyChallenge, getTodayDateUTC } from '../../utils/dailyChallenge';
+import { getTodayDateUTC } from '../../utils/dailyChallenge';
 import { useAuth } from '../../hooks/useAuth';
 import { useFollows } from '../../hooks/useFollows';
 import { supabase } from '../../lib/supabase';
 import { formatDate, getDaysInMonth, getFirstDayOfMonth } from '../../utils/calendarUtils';
-import type { DailyChallenge } from '../../types';
 
 type ViewType = 'grid' | 'calendar';
 
@@ -55,11 +55,8 @@ export function FriendsFeedContent({
     adjacentDates,
   } = useFriendsFeed({ date, hasSubmittedToday });
 
-  // Generate challenge data for the date to get colors
-  const challenge: DailyChallenge = useMemo(
-    () => generateDailyChallenge(date),
-    [date]
-  );
+  // Fetch challenge data for the date to get colors from DB
+  const { challenge } = useDailyChallenge(date);
 
   const todayStr = useMemo(() => getTodayDateUTC(), []);
 
@@ -544,7 +541,7 @@ export function FriendsFeedContent({
                 None of your friends posted on this day
               </p>
             </div>
-          ) : (
+          ) : challenge ? (
             <>
               {/* Grid of submissions */}
               <div
@@ -584,7 +581,7 @@ export function FriendsFeedContent({
                 </div>
               )}
             </>
-          )}
+          ) : null}
         </>
       )}
     </div>

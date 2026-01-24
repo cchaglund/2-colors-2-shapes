@@ -1,13 +1,13 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useWallOfTheDay, type SortMode } from '../../hooks/useWallOfTheDay';
+import { useDailyChallenge } from '../../hooks/useDailyChallenge';
 import { WallSortControls } from './WallSortControls';
 import { WallLockedState } from './WallLockedState';
 import { WallEmptyState } from './WallEmptyState';
 import { SubmissionThumbnail } from '../SubmissionThumbnail';
-import { generateDailyChallenge, getTodayDateUTC } from '../../utils/dailyChallenge';
+import { getTodayDateUTC } from '../../utils/dailyChallenge';
 import { formatDate, getDaysInMonth, getFirstDayOfMonth } from '../../utils/calendarUtils';
 import { supabase } from '../../lib/supabase';
-import type { DailyChallenge } from '../../types';
 
 type ViewType = 'grid' | 'calendar';
 
@@ -50,11 +50,8 @@ export function WallContent({
     adjacentDates,
   } = useWallOfTheDay({ date, hasSubmittedToday });
 
-  // Generate challenge data for the date to get colors
-  const challenge: DailyChallenge = useMemo(
-    () => generateDailyChallenge(date),
-    [date]
-  );
+  // Fetch challenge data for the date to get colors from DB
+  const { challenge } = useDailyChallenge(date);
 
   // Get today's date for "Today" button
   const todayDate = useMemo(() => getTodayDateUTC(), []);
@@ -430,7 +427,7 @@ export function WallContent({
       )}
 
       {/* Grid view */}
-      {viewType === 'grid' && (
+      {viewType === 'grid' && challenge && (
         <>
           {/* Grid of submissions */}
           <div
