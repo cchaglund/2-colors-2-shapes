@@ -20,7 +20,7 @@ export function CalendarViewToggle({
           !user ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
         } ${
           effectiveViewMode === 'my-submissions'
-            ? 'bg-(--color-bg-primary) text-(--color-text-primary) border border-(--color-border-light)'
+            ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
             : 'bg-transparent text-(--color-text-secondary) border border-transparent'
         }`}
         title={!user ? 'Sign in to view your submissions' : undefined}
@@ -31,7 +31,7 @@ export function CalendarViewToggle({
         onClick={() => onSetViewMode('winners')}
         className={`flex-1 px-4 py-1.5 rounded text-[13px] font-medium transition-colors cursor-pointer ${
           effectiveViewMode === 'winners'
-            ? 'bg-(--color-bg-primary) text-(--color-text-primary) border border-(--color-border-light)'
+            ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
             : 'bg-transparent text-(--color-text-secondary) border border-transparent'
         }`}
       >
@@ -41,7 +41,7 @@ export function CalendarViewToggle({
         onClick={() => onSetViewMode('wall')}
         className={`flex-1 px-4 py-1.5 rounded text-[13px] font-medium transition-colors cursor-pointer ${
           effectiveViewMode === 'wall'
-            ? 'bg-(--color-bg-primary) text-(--color-text-primary) border border-(--color-border-light)'
+            ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
             : 'bg-transparent text-(--color-text-secondary) border border-transparent'
         }`}
       >
@@ -54,7 +54,7 @@ export function CalendarViewToggle({
           !user ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
         } ${
           effectiveViewMode === 'friends'
-            ? 'bg-(--color-bg-primary) text-(--color-text-primary) border border-(--color-border-light)'
+            ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
             : 'bg-transparent text-(--color-text-secondary) border border-transparent'
         }`}
         title={!user ? 'Sign in to see friends\' submissions' : undefined}

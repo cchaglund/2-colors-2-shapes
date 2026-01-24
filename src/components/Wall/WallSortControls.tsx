@@ -39,7 +39,7 @@ export function WallSortControls({
               isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
             } ${
               isSelected
-                ? 'bg-(--color-bg-primary) text-(--color-text-primary) border border-(--color-border-light)'
+                ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
                 : 'bg-transparent text-(--color-text-secondary) border border-transparent'
             }`}
             title={isDisabled ? 'Voting still in progress' : undefined}

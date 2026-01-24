@@ -344,7 +344,7 @@ export function FriendsFeedContent({
               onClick={() => setViewType('grid')}
               className={`px-3 py-1.5 rounded text-[13px] font-medium transition-colors ${
                 viewType === 'grid'
-                  ? 'bg-(--color-bg-primary) text-(--color-text-primary) border border-(--color-border-light)'
+                  ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
                   : 'bg-transparent text-(--color-text-secondary) border border-transparent'
               }`}
             >
@@ -354,7 +354,7 @@ export function FriendsFeedContent({
               onClick={() => setViewType('calendar')}
               className={`px-3 py-1.5 rounded text-[13px] font-medium transition-colors ${
                 viewType === 'calendar'
-                  ? 'bg-(--color-bg-primary) text-(--color-text-primary) border border-(--color-border-light)'
+                  ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
                   : 'bg-transparent text-(--color-text-secondary) border border-transparent'
               }`}
             >
