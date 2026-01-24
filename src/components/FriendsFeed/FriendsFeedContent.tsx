@@ -3,6 +3,7 @@ import { useFriendsFeed, type SortMode } from '../../hooks/useFriendsFeed';
 import { useDailyChallenge } from '../../hooks/useDailyChallenge';
 import { WallSortControls } from '../Wall/WallSortControls';
 import { SubmissionThumbnail } from '../SubmissionThumbnail';
+import { ContentNavigation } from '../Calendar/ContentNavigation';
 import { getTodayDateUTC } from '../../utils/dailyChallenge';
 import { useAuth } from '../../hooks/useAuth';
 import { useFollows } from '../../hooks/useFollows';
@@ -59,18 +60,6 @@ export function FriendsFeedContent({
   const { challenge } = useDailyChallenge(date);
 
   const todayStr = useMemo(() => getTodayDateUTC(), []);
-
-  // Format date for display
-  const formattedDate = useMemo(() => {
-    const d = new Date(date + 'T00:00:00Z');
-    return d.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      timeZone: 'UTC',
-    });
-  }, [date]);
 
   // Format submission time for tooltip
   const formatTime = (createdAt: string) => {
@@ -221,6 +210,19 @@ export function FriendsFeedContent({
     return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   }, [calendarYear, calendarMonth]);
 
+  // Short date format for grid view navigation
+  const shortDateLabel = useMemo(() => {
+    const d = new Date(date + 'T00:00:00Z');
+    return d.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      timeZone: 'UTC',
+    });
+  }, [date]);
+
+  const isToday = date === todayStr;
+
   // Not logged in state
   if (!user) {
     return (
@@ -277,38 +279,6 @@ export function FriendsFeedContent({
     );
   }
 
-  // Locked state (today and hasn't submitted)
-  if (!canViewCurrentDay) {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-        <div className="w-12 h-12 rounded-full bg-(--color-bg-tertiary) flex items-center justify-center mb-4">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="var(--color-text-tertiary)"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-          </svg>
-        </div>
-        <p className="text-[13px] text-(--color-text-secondary) mb-4">
-          Save your art first to see friends' submissions for today
-        </p>
-        <a
-          href="/"
-          className="text-[13px] text-(--color-accent) hover:underline"
-        >
-          ← Back to canvas
-        </a>
-      </div>
-    );
-  }
-
   // Loading state
   if (loading && viewType === 'grid') {
     return (
@@ -335,99 +305,58 @@ export function FriendsFeedContent({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* View toggle and controls */}
-      <div className="flex flex-col gap-3">
-        {/* View type toggle */}
-        <div className="flex items-center justify-between">
-          <div className="flex rounded-md p-0.5 border border-(--color-border) bg-(--color-bg-tertiary)">
-            <button
-              onClick={() => setViewType('grid')}
-              className={`px-3 py-1.5 rounded text-[13px] font-medium transition-colors ${
-                viewType === 'grid'
-                  ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
-                  : 'bg-transparent text-(--color-text-secondary) border border-transparent'
-              }`}
-            >
-              Grid
-            </button>
-            <button
-              onClick={() => setViewType('calendar')}
-              className={`px-3 py-1.5 rounded text-[13px] font-medium transition-colors ${
-                viewType === 'calendar'
-                  ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
-                  : 'bg-transparent text-(--color-text-secondary) border border-transparent'
-              }`}
-            >
-              Calendar
-            </button>
-          </div>
+      {/* Navigation */}
+      {showNavigation && (
+        <ContentNavigation
+          label={viewType === 'calendar' ? monthYearLabel : shortDateLabel}
+          onPrev={viewType === 'calendar' ? goToPreviousMonth : () => adjacentDates.prev && onDateChange(adjacentDates.prev)}
+          onNext={viewType === 'calendar' ? goToNextMonth : () => adjacentDates.next && onDateChange(adjacentDates.next)}
+          onToday={goToToday}
+          canGoPrev={viewType === 'calendar' ? true : !!adjacentDates.prev}
+          canGoNext={viewType === 'calendar' ? canGoNext : !!adjacentDates.next}
+          showToday={!isToday}
+        />
+      )}
 
-          {/* Sort controls - only show in grid view */}
-          {viewType === 'grid' && (
-            <WallSortControls
-              sortMode={sortMode}
-              onSortModeChange={(mode: SortMode) => setSortMode(mode)}
-              isRankedAvailable={isRankedAvailable}
-              showLikesOption={false}
-            />
-          )}
+      {/* View toggle and sort controls */}
+      <div className="flex items-center justify-between">
+        <div className="flex rounded-md p-0.5 border border-(--color-border) bg-(--color-bg-tertiary)">
+          <button
+            onClick={() => setViewType('grid')}
+            className={`px-3 py-1.5 rounded text-[13px] font-medium transition-colors ${
+              viewType === 'grid'
+                ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
+                : 'bg-transparent text-(--color-text-secondary) border border-transparent'
+            }`}
+          >
+            Grid
+          </button>
+          <button
+            onClick={() => setViewType('calendar')}
+            className={`px-3 py-1.5 rounded text-[13px] font-medium transition-colors ${
+              viewType === 'calendar'
+                ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
+                : 'bg-transparent text-(--color-text-secondary) border border-transparent'
+            }`}
+          >
+            Calendar
+          </button>
         </div>
 
-        {/* Date navigation - only show in grid view */}
-        {showNavigation && viewType === 'grid' && (
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => adjacentDates.prev && onDateChange(adjacentDates.prev)}
-              disabled={!adjacentDates.prev}
-              className="text-[13px] text-(--color-accent) hover:underline disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline"
-            >
-              ← Previous
-            </button>
-            <span className="text-[13px] font-medium text-(--color-text-primary)">
-              {formattedDate}
-            </span>
-            <button
-              onClick={() => adjacentDates.next && onDateChange(adjacentDates.next)}
-              disabled={!adjacentDates.next}
-              className="text-[13px] text-(--color-accent) hover:underline disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline"
-            >
-              Next →
-            </button>
-          </div>
+        {/* Sort controls - only show in grid view */}
+        {viewType === 'grid' && (
+          <WallSortControls
+            sortMode={sortMode}
+            onSortModeChange={(mode: SortMode) => setSortMode(mode)}
+            isRankedAvailable={isRankedAvailable}
+            showLikesOption={false}
+          />
         )}
       </div>
 
       {/* Calendar view */}
       {viewType === 'calendar' && (
         <div className="flex flex-col gap-4">
-          {/* Calendar navigation */}
-          <div className="flex items-center justify-between">
-            <button
-              onClick={goToPreviousMonth}
-              className="text-[13px] text-(--color-accent) hover:underline"
-            >
-              ← Previous
-            </button>
-            <div className="flex items-center gap-3">
-              <span className="text-[15px] font-semibold text-(--color-text-primary)">
-                {monthYearLabel}
-              </span>
-              <button
-                onClick={goToToday}
-                className="text-[11px] text-(--color-text-secondary) hover:text-(--color-accent) px-2 py-1 border border-(--color-border) rounded"
-              >
-                Today
-              </button>
-            </div>
-            <button
-              onClick={goToNextMonth}
-              disabled={!canGoNext}
-              className="text-[13px] text-(--color-accent) hover:underline disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline"
-            >
-              Next →
-            </button>
-          </div>
-
           {/* Calendar loading state */}
           {calendarLoading ? (
             <div className="flex items-center justify-center py-8">
@@ -517,9 +446,37 @@ export function FriendsFeedContent({
 
       {/* Grid view */}
       {viewType === 'grid' && (
-        <>
-          {/* Empty state for no submissions on this day */}
-          {submissions.length === 0 ? (
+        !canViewCurrentDay ? (
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+            <div className="w-12 h-12 rounded-full bg-(--color-bg-tertiary) flex items-center justify-center mb-4">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--color-text-tertiary)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            </div>
+            <p className="text-[13px] text-(--color-text-secondary) mb-4">
+              Save your art first to see friends' submissions for today
+            </p>
+            <a
+              href="/"
+              className="text-[13px] text-(--color-accent) hover:underline"
+            >
+              ← Back to canvas
+            </a>
+          </div>
+        ) : (
+          <>
+            {/* Empty state for no submissions on this day */}
+            {submissions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
               <div className="w-12 h-12 rounded-full bg-(--color-bg-tertiary) flex items-center justify-center mb-4">
                 <svg
@@ -582,7 +539,8 @@ export function FriendsFeedContent({
               )}
             </>
           ) : null}
-        </>
+          </>
+        )
       )}
     </div>
   );

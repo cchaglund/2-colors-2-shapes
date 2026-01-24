@@ -1,3 +1,5 @@
+import { useState, useRef, useEffect } from 'react';
+
 export type SortMode = 'random' | 'newest' | 'oldest' | 'ranked' | 'likes';
 
 interface WallSortControlsProps {
@@ -7,47 +9,97 @@ interface WallSortControlsProps {
   showLikesOption?: boolean;
 }
 
+const SORT_LABELS: Record<SortMode, string> = {
+  random: 'Random',
+  newest: 'Newest',
+  oldest: 'Oldest',
+  ranked: 'Ranked',
+  likes: 'Likes',
+};
+
 export function WallSortControls({
   sortMode,
   onSortModeChange,
   isRankedAvailable,
   showLikesOption = true,
 }: WallSortControlsProps) {
-  const allOptions: { value: SortMode; label: string }[] = [
-    { value: 'random', label: 'Random' },
-    { value: 'newest', label: 'Newest' },
-    { value: 'oldest', label: 'Oldest' },
-    { value: 'ranked', label: 'Ranked' },
-    { value: 'likes', label: 'Likes' },
-  ];
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const allOptions: SortMode[] = ['random', 'newest', 'oldest', 'ranked', 'likes'];
   const options = showLikesOption
     ? allOptions
-    : allOptions.filter(o => o.value !== 'likes');
+    : allOptions.filter(o => o !== 'likes');
+
+  // Close on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isOpen]);
+
+  const handleSelect = (mode: SortMode) => {
+    if (mode === 'ranked' && !isRankedAvailable) return;
+    onSortModeChange(mode);
+    setIsOpen(false);
+  };
 
   return (
-    <div className="flex rounded-md p-0.5 border border-(--color-border) bg-(--color-bg-tertiary)">
-      {options.map((option) => {
-        const isDisabled = option.value === 'ranked' && !isRankedAvailable;
-        const isSelected = sortMode === option.value;
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-1.5 rounded-md text-[13px] font-medium cursor-pointer transition-colors bg-(--color-bg-tertiary) text-(--color-text-secondary) border border-(--color-border) hover:text-(--color-text-primary)"
+      >
+        {SORT_LABELS[sortMode]}
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
 
-        return (
-          <button
-            key={option.value}
-            onClick={() => !isDisabled && onSortModeChange(option.value)}
-            disabled={isDisabled}
-            className={`flex-1 px-3 py-1.5 rounded text-[13px] font-medium transition-colors ${
-              isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-            } ${
-              isSelected
-                ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
-                : 'bg-transparent text-(--color-text-secondary) border border-transparent'
-            }`}
-            title={isDisabled ? 'Voting still in progress' : undefined}
-          >
-            {option.label}
-          </button>
-        );
-      })}
+      {isOpen && (
+        <div className="absolute right-0 top-full mt-1 py-1 min-w-30 rounded-md bg-(--color-bg-primary) border border-(--color-border) shadow-lg z-10">
+          {options.map((mode) => {
+            const isDisabled = mode === 'ranked' && !isRankedAvailable;
+            const isSelected = sortMode === mode;
+
+            return (
+              <button
+                key={mode}
+                onClick={() => handleSelect(mode)}
+                disabled={isDisabled}
+                className={`w-full text-left px-3 py-1.5 text-[13px] transition-colors ${
+                  isDisabled
+                    ? 'opacity-50 cursor-not-allowed text-(--color-text-tertiary)'
+                    : 'cursor-pointer hover:bg-(--color-bg-secondary)'
+                } ${
+                  isSelected
+                    ? 'text-(--color-accent) font-medium'
+                    : 'text-(--color-text-secondary)'
+                }`}
+                title={isDisabled ? 'Voting still in progress' : undefined}
+              >
+                {SORT_LABELS[mode]}
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

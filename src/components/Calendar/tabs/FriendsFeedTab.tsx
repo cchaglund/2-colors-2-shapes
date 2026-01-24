@@ -17,7 +17,7 @@ export function FriendsFeedTab({
         date={date}
         onDateChange={onDateChange}
         hasSubmittedToday={hasSubmittedToday}
-        showNavigation={false}
+        showNavigation={true}
       />
     </div>
   );

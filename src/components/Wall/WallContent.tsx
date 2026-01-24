@@ -5,6 +5,7 @@ import { WallSortControls } from './WallSortControls';
 import { WallLockedState } from './WallLockedState';
 import { WallEmptyState } from './WallEmptyState';
 import { SubmissionThumbnail } from '../SubmissionThumbnail';
+import { ContentNavigation } from '../Calendar/ContentNavigation';
 import { getTodayDateUTC } from '../../utils/dailyChallenge';
 import { formatDate, getDaysInMonth, getFirstDayOfMonth } from '../../utils/calendarUtils';
 import { supabase } from '../../lib/supabase';
@@ -158,7 +159,18 @@ export function WallContent({
     return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   }, [calendarYear, calendarMonth]);
 
-  // Format date for display
+  // Short date format for grid view navigation
+  const shortDateLabel = useMemo(() => {
+    const d = new Date(date + 'T00:00:00Z');
+    return d.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      timeZone: 'UTC',
+    });
+  }, [date]);
+
+  // Format date for display (used in empty state)
   const formattedDate = useMemo(() => {
     const d = new Date(date + 'T00:00:00Z');
     return d.toLocaleDateString('en-US', {
@@ -190,11 +202,6 @@ export function WallContent({
     }
   };
 
-  // Locked state
-  if (!canViewCurrentDay) {
-    return <WallLockedState isLoggedIn={isLoggedIn} />;
-  }
-
   // Loading state - only for grid view
   if (loading && viewType === 'grid') {
     return (
@@ -219,8 +226,8 @@ export function WallContent({
     );
   }
 
-  // Empty state - only in grid view (calendar always shows)
-  if (submissions.length === 0 && viewType === 'grid') {
+  // Empty state - only in grid view when can view (calendar always shows)
+  if (submissions.length === 0 && viewType === 'grid' && canViewCurrentDay) {
     return (
       <WallEmptyState
         showNavigation={showNavigation}
@@ -237,108 +244,57 @@ export function WallContent({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* View toggle and controls */}
-      <div className="flex flex-col gap-3">
-        {/* View type toggle */}
-        <div className="flex items-center justify-between">
-          <div className="flex rounded-md p-0.5 border border-(--color-border) bg-(--color-bg-tertiary)">
-            <button
-              onClick={() => setViewType('grid')}
-              className={`px-3 py-1.5 rounded text-[13px] font-medium transition-colors ${
-                viewType === 'grid'
-                  ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
-                  : 'bg-transparent text-(--color-text-secondary) border border-transparent'
-              }`}
-            >
-              Grid
-            </button>
-            <button
-              onClick={() => setViewType('calendar')}
-              className={`px-3 py-1.5 rounded text-[13px] font-medium transition-colors ${
-                viewType === 'calendar'
-                  ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
-                  : 'bg-transparent text-(--color-text-secondary) border border-transparent'
-              }`}
-            >
-              Calendar
-            </button>
-          </div>
+      {/* Navigation */}
+      {showNavigation && (
+        <ContentNavigation
+          label={viewType === 'calendar' ? monthYearLabel : shortDateLabel}
+          onPrev={viewType === 'calendar' ? goToPreviousMonth : () => adjacentDates.prev && onDateChange(adjacentDates.prev)}
+          onNext={viewType === 'calendar' ? goToNextMonth : () => adjacentDates.next && onDateChange(adjacentDates.next)}
+          onToday={goToToday}
+          canGoPrev={viewType === 'calendar' ? true : !!adjacentDates.prev}
+          canGoNext={viewType === 'calendar' ? canGoNext : !!adjacentDates.next}
+          showToday={!isToday}
+        />
+      )}
 
-          {/* Sort controls - only show in grid view */}
-          {viewType === 'grid' && (
-            <WallSortControls
-              sortMode={sortMode}
-              onSortModeChange={(mode: SortMode) => setSortMode(mode)}
-              isRankedAvailable={isRankedAvailable}
-            />
-          )}
+      {/* View toggle and sort controls */}
+      <div className="flex items-center justify-between">
+        <div className="flex rounded-md p-0.5 border border-(--color-border) bg-(--color-bg-tertiary)">
+          <button
+            onClick={() => setViewType('grid')}
+            className={`px-3 py-1.5 rounded text-[13px] font-medium transition-colors ${
+              viewType === 'grid'
+                ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
+                : 'bg-transparent text-(--color-text-secondary) border border-transparent'
+            }`}
+          >
+            Grid
+          </button>
+          <button
+            onClick={() => setViewType('calendar')}
+            className={`px-3 py-1.5 rounded text-[13px] font-medium transition-colors ${
+              viewType === 'calendar'
+                ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
+                : 'bg-transparent text-(--color-text-secondary) border border-transparent'
+            }`}
+          >
+            Calendar
+          </button>
         </div>
 
-        {/* Date navigation - only show in grid view */}
-        {showNavigation && viewType === 'grid' && (
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => adjacentDates.prev && onDateChange(adjacentDates.prev)}
-              disabled={!adjacentDates.prev}
-              className="text-[13px] text-(--color-accent) hover:underline disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline"
-            >
-              ← Previous
-            </button>
-            <div className="flex items-center gap-3">
-              <span className="text-[13px] font-medium text-(--color-text-primary)">
-                {formattedDate}
-              </span>
-              {!isToday && (
-                <button
-                  onClick={() => onDateChange(todayDate)}
-                  className="px-2 py-1 text-[12px] font-medium bg-(--color-accent) text-white rounded hover:opacity-90"
-                >
-                  Today
-                </button>
-              )}
-            </div>
-            <button
-              onClick={() => adjacentDates.next && onDateChange(adjacentDates.next)}
-              disabled={!adjacentDates.next}
-              className="text-[13px] text-(--color-accent) hover:underline disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline"
-            >
-              Next →
-            </button>
-          </div>
+        {/* Sort controls - only show in grid view */}
+        {viewType === 'grid' && (
+          <WallSortControls
+            sortMode={sortMode}
+            onSortModeChange={(mode: SortMode) => setSortMode(mode)}
+            isRankedAvailable={isRankedAvailable}
+          />
         )}
       </div>
 
       {/* Calendar view */}
       {viewType === 'calendar' && (
         <div className="flex flex-col gap-4">
-          {/* Calendar navigation */}
-          <div className="flex items-center justify-between">
-            <button
-              onClick={goToPreviousMonth}
-              className="text-[13px] text-(--color-accent) hover:underline"
-            >
-              ← Previous
-            </button>
-            <div className="flex items-center gap-3">
-              <span className="text-[15px] font-semibold text-(--color-text-primary)">
-                {monthYearLabel}
-              </span>
-              <button
-                onClick={goToToday}
-                className="text-[11px] text-(--color-text-secondary) hover:text-(--color-accent) px-2 py-1 border border-(--color-border) rounded"
-              >
-                Today
-              </button>
-            </div>
-            <button
-              onClick={goToNextMonth}
-              disabled={!canGoNext}
-              className="text-[13px] text-(--color-accent) hover:underline disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline"
-            >
-              Next →
-            </button>
-          </div>
-
           {/* Calendar loading state */}
           {calendarLoading ? (
             <div className="flex items-center justify-center py-8">
@@ -427,9 +383,12 @@ export function WallContent({
       )}
 
       {/* Grid view */}
-      {viewType === 'grid' && challenge && (
-        <>
-          {/* Grid of submissions */}
+      {viewType === 'grid' && (
+        !canViewCurrentDay ? (
+          <WallLockedState isLoggedIn={isLoggedIn} />
+        ) : challenge ? (
+          <>
+            {/* Grid of submissions */}
           <div
             className="grid gap-4"
             style={{
@@ -468,7 +427,8 @@ export function WallContent({
               </button>
             </div>
           )}
-        </>
+          </>
+        ) : null
       )}
     </div>
   );

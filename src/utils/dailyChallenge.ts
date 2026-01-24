@@ -9,23 +9,19 @@ const COLOR_CONFIG = {
   // Color space: 'oklch' (perceptually uniform) or 'hsl' (legacy)
   colorSpace: 'oklch' as 'oklch' | 'hsl',
 
-  // Exclude muddy hues (browns/muddy yellows in 30-60° HSL range)
+  // Exclude muddy hues (browns in 30-50° HSL range, allows yellows 50-60°)
   excludeMuddyHues: true,
 
-  // Force one light + one dark color for better contrast variety
-  forceContrast: true,
-
-  // OKLCH lightness ranges (0-1 scale)
+  // OKLCH ranges (0-1 scale)
   oklch: {
-    lightRange: { min: 0.70, max: 0.9 },  // For light colors
-    darkRange: { min: 0.45, max: 0.60 },   // For dark colors - not too dark to keep color
-    chroma: { min: 0.07, max: 0.93 },      // Color intensity
+    lightness: { min: 0.4, max: 0.9 },    // Full range, not too dark
+    chroma: { min: 0.07, max: 0.5 },      // Color intensity
   },
 
   // HSL ranges (legacy fallback)
   hsl: {
     saturation: { min: 50, max: 90 },
-    lightness: { min: 35, max: 70 },
+    lightness: { min: 40, max: 90 },       // Match OKLCH range
   },
 
   // Minimum contrast ratio (WCAG). 2.5 allows more colorful pairs than 3.0
@@ -173,9 +169,9 @@ function generateSafeHue(random: () => number, excludeMuddy: boolean): number {
   if (!excludeMuddy) {
     return Math.floor(random() * 360);
   }
-  // Skip the 30-60° range by generating in 0-330° and shifting if needed
-  const hue = Math.floor(random() * 330);
-  return hue >= 30 ? hue + 30 : hue;
+  // Skip the 30-50° range (muddy browns), allows yellows at 50-60°
+  const hue = Math.floor(random() * 340);
+  return hue >= 30 ? hue + 20 : hue;
 }
 
 // =============================================================================
@@ -190,6 +186,32 @@ function parseHSL(hsl: string): { h: number; s: number; l: number } {
     s: parseInt(match[2]),
     l: parseInt(match[3]),
   };
+}
+
+// Check if a color is too similar to any color in the avoid list
+function isColorTooSimilar(color: string, colorsToAvoid: string[]): boolean {
+  if (colorsToAvoid.length === 0) return false;
+
+  const c = parseHSL(color);
+  const minHueDiff = 40;   // Hues must differ by at least 40°
+  const minLightDiff = 20; // Or lightness must differ by at least 20%
+
+  for (const avoid of colorsToAvoid) {
+    const a = parseHSL(avoid);
+
+    // Calculate hue difference (accounting for wraparound)
+    let hueDiff = Math.abs(c.h - a.h);
+    if (hueDiff > 180) hueDiff = 360 - hueDiff;
+
+    // Calculate lightness difference
+    const lightDiff = Math.abs(c.l - a.l);
+
+    // Too similar if BOTH hue AND lightness are close
+    if (hueDiff < minHueDiff && lightDiff < minLightDiff) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function hslToRgb(h: number, s: number, l: number): { r: number; g: number; b: number } {
@@ -234,45 +256,26 @@ function getContrastRatio(color1: string, color2: string): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-function generateColorWithOKLCH(
-  random: () => number,
-  hue: number,
-  lightnessHint: 'light' | 'dark'
-): string {
+function generateColorWithOKLCH(random: () => number, hue: number): string {
   const { oklch } = COLOR_CONFIG;
-  let l: number;
-
-  if (lightnessHint === 'light') {
-    l = oklch.lightRange.min + random() * (oklch.lightRange.max - oklch.lightRange.min);
-  } else {
-    l = oklch.darkRange.min + random() * (oklch.darkRange.max - oklch.darkRange.min);
-  }
-
+  const l = oklch.lightness.min + random() * (oklch.lightness.max - oklch.lightness.min);
   const c = oklch.chroma.min + random() * (oklch.chroma.max - oklch.chroma.min);
   const hsl = oklchToHsl({ l, c, h: hue });
   return `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
 }
 
-function generateColorWithHSL(
-  random: () => number,
-  hue: number,
-  lightnessHint: 'light' | 'dark'
-): string {
+function generateColorWithHSL(random: () => number, hue: number): string {
   const { hsl } = COLOR_CONFIG;
   const saturation = hsl.saturation.min + Math.floor(random() * (hsl.saturation.max - hsl.saturation.min));
-  let lightness: number;
-
-  if (lightnessHint === 'light') {
-    lightness = 55 + Math.floor(random() * 20); // 55-75%
-  } else {
-    lightness = 25 + Math.floor(random() * 20); // 25-45%
-  }
-
+  const lightness = hsl.lightness.min + Math.floor(random() * (hsl.lightness.max - hsl.lightness.min));
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
-function generateDistinctColors(random: () => number): [string, string] {
-  const { colorSpace, excludeMuddyHues, forceContrast, minContrastRatio } = COLOR_CONFIG;
+export function generateDistinctColors(
+  random: () => number,
+  colorsToAvoid: string[] = []
+): [string, string] {
+  const { colorSpace, excludeMuddyHues, minContrastRatio } = COLOR_CONFIG;
   const minHueDiff = 30;
 
   for (let i = 0; i < 100; i++) {
@@ -280,58 +283,40 @@ function generateDistinctColors(random: () => number): [string, string] {
     const hue1 = generateSafeHue(random, excludeMuddyHues);
     const hue2 = generateSafeHue(random, excludeMuddyHues);
 
-    // Check hue difference
+    // Check hue difference between the pair
     let hueDiff = Math.abs(hue1 - hue2);
     if (hueDiff > 180) hueDiff = 360 - hueDiff;
     if (hueDiff < minHueDiff) continue;
 
-    // Determine lightness assignment
-    let lightness1: 'light' | 'dark';
-    let lightness2: 'light' | 'dark';
-
-    if (forceContrast) {
-      // Randomly decide which color is light vs dark
-      if (random() > 0.5) {
-        lightness1 = 'light';
-        lightness2 = 'dark';
-      } else {
-        lightness1 = 'dark';
-        lightness2 = 'light';
-      }
-    } else {
-      lightness1 = random() > 0.5 ? 'light' : 'dark';
-      lightness2 = random() > 0.5 ? 'light' : 'dark';
-    }
-
     // Generate colors based on color space
-    let color1: string;
-    let color2: string;
-
-    if (colorSpace === 'oklch') {
-      color1 = generateColorWithOKLCH(random, hue1, lightness1);
-      color2 = generateColorWithOKLCH(random, hue2, lightness2);
-    } else {
-      color1 = generateColorWithHSL(random, hue1, lightness1);
-      color2 = generateColorWithHSL(random, hue2, lightness2);
-    }
+    const color1 = colorSpace === 'oklch'
+      ? generateColorWithOKLCH(random, hue1)
+      : generateColorWithHSL(random, hue1);
+    const color2 = colorSpace === 'oklch'
+      ? generateColorWithOKLCH(random, hue2)
+      : generateColorWithHSL(random, hue2);
 
     // Check WCAG contrast ratio
     if (getContrastRatio(color1, color2) < minContrastRatio) continue;
 
+    // Check similarity to colors to avoid (e.g., previous day's colors)
+    if (isColorTooSimilar(color1, colorsToAvoid) || isColorTooSimilar(color2, colorsToAvoid)) {
+      continue;
+    }
+
     return [color1, color2];
   }
 
-  // Fallback: generate complementary colors with forced contrast
+  // Fallback: generate complementary hues (180° apart)
+  // Note: fallback doesn't check colorsToAvoid to prevent infinite loops
   const hue = generateSafeHue(random, excludeMuddyHues);
-  if (colorSpace === 'oklch') {
-    return [
-      generateColorWithOKLCH(random, hue, 'light'),
-      generateColorWithOKLCH(random, (hue + 180) % 360, 'dark'),
-    ];
-  } else {
-    const sat = 60 + Math.floor(random() * 30);
-    return [`hsl(${hue}, ${sat}%, 65%)`, `hsl(${(hue + 180) % 360}, ${sat}%, 35%)`];
-  }
+  const color1 = colorSpace === 'oklch'
+    ? generateColorWithOKLCH(random, hue)
+    : generateColorWithHSL(random, hue);
+  const color2 = colorSpace === 'oklch'
+    ? generateColorWithOKLCH(random, (hue + 180) % 360)
+    : generateColorWithHSL(random, (hue + 180) % 360);
+  return [color1, color2];
 }
 
 const ALL_SHAPES: ShapeType[] = [
@@ -389,6 +374,13 @@ export function getTwoDaysAgoDateUTC(): string {
     .toISOString().split('T')[0];
 }
 
+// Get previous date from a date string (YYYY-MM-DD)
+function getPreviousDate(dateStr: string): string {
+  const date = new Date(dateStr + 'T12:00:00Z');
+  date.setUTCDate(date.getUTCDate() - 1);
+  return date.toISOString().split('T')[0];
+}
+
 // =============================================================================
 // Challenge Generation (client-side fallback only)
 // The server generates the actual challenges - this is used when offline
@@ -400,12 +392,20 @@ export function generateDailyChallenge(dateStr: string): DailyChallenge {
   const cached = challengeCache.get(dateStr);
   if (cached) return cached;
 
+  // Get previous day's colors to avoid similar colors on consecutive days
+  const prevDateStr = getPreviousDate(dateStr);
+  const prevChallenge = challengeCache.get(prevDateStr);
+  // If previous day not cached, generate it first (without recursion issues since it will have its own prev)
+  const colorsToAvoid = prevChallenge
+    ? prevChallenge.colors
+    : generateDailyChallengeColors(prevDateStr, []);
+
   const seed = dateToSeed(dateStr);
   const random = seededRandom(seed);
 
   const challenge: DailyChallenge = {
     date: dateStr,
-    colors: generateDistinctColors(random),
+    colors: generateDistinctColors(random, colorsToAvoid),
     shapes: [
       createShapeData(generateShapes(random)[0]),
       createShapeData(generateShapes(random)[1]),
@@ -415,7 +415,7 @@ export function generateDailyChallenge(dateStr: string): DailyChallenge {
 
   // Re-generate shapes with fresh random to match server behavior
   const random2 = seededRandom(seed);
-  generateDistinctColors(random2); // consume same random calls as colors
+  generateDistinctColors(random2, colorsToAvoid); // consume same random calls as colors
   const shapes = generateShapes(random2);
   challenge.shapes = [createShapeData(shapes[0]), createShapeData(shapes[1])];
 
@@ -423,6 +423,31 @@ export function generateDailyChallenge(dateStr: string): DailyChallenge {
   return challenge;
 }
 
+// Helper to generate just colors for a date (used when we need prev day colors but don't want full recursion)
+function generateDailyChallengeColors(dateStr: string, colorsToAvoid: string[]): [string, string] {
+  const seed = dateToSeed(dateStr);
+  const random = seededRandom(seed);
+  return generateDistinctColors(random, colorsToAvoid);
+}
+
 export function getTodayChallenge(): DailyChallenge {
   return generateDailyChallenge(getTodayDateUTC());
+}
+
+// =============================================================================
+// Exports for ColorTester (uses production color generation)
+// =============================================================================
+
+// Create a simple random function wrapper around Math.random
+export function createMathRandom(): () => number {
+  return () => Math.random();
+}
+
+// Export utilities needed by ColorTester
+export function parseHSLColor(hsl: string): { h: number; s: number; l: number } {
+  return parseHSL(hsl);
+}
+
+export function getColorContrastRatio(color1: string, color2: string): number {
+  return getContrastRatio(color1, color2);
 }
