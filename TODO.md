@@ -1,13 +1,22 @@
-<!-- - show the actual shapes in the single submission view, not just the name of them. -->
-<!-- - in the single submission view there should be buttons to go to next/previous submission without going back to the list. -->
-- can see wall of the day's submissions - but only after you've submitted something yourself. 
-- shapes outside the canvas - you should still see them, but unless they're in the canvas box they won't be saved of course. But this would allow you to build "components" off-canvas and then bring them in when needed.
+# To-Do List
+
 - buy domain and set up hosting
 - do logo
+- select multiple shapes by dragging a box around them with the mouse
+- should be able to comment on submissions from the "single submission page".
+- search for artist by email
+
+# Bugs
+
+- bug: why did i only see julia's submission on the wall of the day? where were the others?
+- and why can't i see my friends submissions for the current day? i see them for previous days, but not today. and i don't see all of my friends' submissions, but i know they have submitted.
+- dark mode bug: on some pages it wasn't changing to dark mode properly
 - bug: när man flyttar en grupp under en annan så hamnar inte alla element under den andra gruppen. Det är som att varje element i gruppen har sin egen z-index.
 - bug: när man roterar en hel drös med shapes så verkar de rotera lite olika mängder
-- select multiple shapes by dragging a box around them with the mouse
-- should be able to like submissions from the "single submission page". - and comment on them too.
+- when you're dragging a shape, history is being saved. it should only save history when you drop the shape.
+- make it so that you don't open a new tab when you click on a single submission. especially since when you click "back to app" it takes you to the canvas, and the place you were originally is actually in another tab.
+- calendar for wall and friends doesn't have the same ui as the "my submissions"/winners tab. there each day has a border around it, and the date is in the top corner.
+- wall and friends calendar view suck: you just see a tiny number indicating submissions. how to improve? show tiny thumbnails? some amalgamation? or at least swap the number and date?
 
 - if i got a trophy for a challenge's submission I should get a congratulations message/modal when I load/log in for that day (today I see the challenge's winners, but it's possible to miss that I won, I have to check the list to see if I won. It should be more obvious).
 - test a bunch of manipulations (scaling, rotating, moving around) to see if the outline updates correctly in all cases.
