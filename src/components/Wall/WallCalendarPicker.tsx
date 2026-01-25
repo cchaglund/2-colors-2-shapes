@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { getTodayDateUTC } from '../../utils/dailyChallenge';
-import { fetchChallengesBatch, getChallengeSync } from '../../hooks/useDailyChallenge';
+import { fetchChallengesBatch } from '../../hooks/useDailyChallenge';
 import type { DailyChallenge } from '../../types';
 import {
   DAYS_OF_WEEK,
@@ -230,7 +230,7 @@ export function WallCalendarPicker({
             const isToday = dateStr === todayStr;
             const isSelected = dateStr === selectedDate;
             const isFuture = dateStr > todayStr;
-            const challenge = challenges.get(dateStr) || getChallengeSync(dateStr);
+            const challenge = challenges.get(dateStr);
 
             return (
               <button

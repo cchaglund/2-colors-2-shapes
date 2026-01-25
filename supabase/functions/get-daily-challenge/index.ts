@@ -1,9 +1,48 @@
+// =============================================================================
+// Daily Challenge Edge Function
+// =============================================================================
+// This is the SOURCE OF TRUTH for color generation.
+// The client-side code in src/utils/dailyChallenge.ts is only an offline fallback.
+//
+// After updating color generation logic here, you MUST deploy:
+//   supabase functions deploy get-daily-challenge
+//
+// The ColorTester (?colors) calls this API - changes won't appear until deployed.
+// =============================================================================
+
 import { serve } from 'std/http/server.ts';
 import { createClient } from '@supabase/supabase-js';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+// =============================================================================
+// COLOR GENERATION CONFIG - Edit these to change color behavior
+// =============================================================================
+
+const COLOR_CONFIG = {
+  // Color space: 'oklch' (perceptually uniform) or 'hsl' (legacy)
+  colorSpace: 'oklch' as 'oklch' | 'hsl',
+
+  // Exclude muddy hues (browns in 30-50° HSL range, allows yellows 50-60°)
+  excludeMuddyHues: true,
+
+  // OKLCH ranges (0-1 scale)
+  oklch: {
+    lightness: { min: 0.4, max: 0.9 },    // Full range, not too dark
+    chroma: { min: 0.07, max: 0.5 },      // Color intensity
+  },
+
+  // HSL ranges (legacy fallback)
+  hsl: {
+    saturation: { min: 50, max: 90 },
+    lightness: { min: 40, max: 90 },
+  },
+
+  // Minimum contrast ratio (WCAG). 2.5 allows more colorful pairs than 3.0
+  minContrastRatio: 2.5,
 };
 
 // =============================================================================
@@ -329,6 +368,92 @@ function createShapeData(type: ShapeType): ShapeData {
 }
 
 // =============================================================================
+// OKLCH Color Space Conversion
+// =============================================================================
+
+interface OKLCH {
+  l: number; // 0-1 (lightness)
+  c: number; // 0-0.4 (chroma/saturation)
+  h: number; // 0-360 (hue)
+}
+
+function oklchToRgb(oklch: OKLCH): { r: number; g: number; b: number } {
+  const { l, c, h } = oklch;
+  const hRad = (h * Math.PI) / 180;
+  const a = c * Math.cos(hRad);
+  const b = c * Math.sin(hRad);
+
+  // OKLab to linear RGB
+  const l_ = l + 0.3963377774 * a + 0.2158037573 * b;
+  const m_ = l - 0.1055613458 * a - 0.0638541728 * b;
+  const s_ = l - 0.0894841775 * a - 1.291485548 * b;
+
+  const l3 = l_ * l_ * l_;
+  const m3 = m_ * m_ * m_;
+  const s3 = s_ * s_ * s_;
+
+  const rLinear = 4.0767416621 * l3 - 3.3077115913 * m3 + 0.2309699292 * s3;
+  const gLinear = -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3;
+  const bLinear = -0.0041960863 * l3 - 0.7034186147 * m3 + 1.707614701 * s3;
+
+  // Linear to sRGB
+  const toSrgb = (x: number) => {
+    const clamped = Math.max(0, Math.min(1, x));
+    return clamped <= 0.0031308
+      ? clamped * 12.92
+      : 1.055 * Math.pow(clamped, 1 / 2.4) - 0.055;
+  };
+
+  return {
+    r: Math.round(toSrgb(rLinear) * 255),
+    g: Math.round(toSrgb(gLinear) * 255),
+    b: Math.round(toSrgb(bLinear) * 255),
+  };
+}
+
+function oklchToHsl(oklch: OKLCH): { h: number; s: number; l: number } {
+  const rgb = oklchToRgb(oklch);
+  const r = rgb.r / 255;
+  const g = rgb.g / 255;
+  const b = rgb.b / 255;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  let h = 0;
+  let s = 0;
+
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+
+  return {
+    h: Math.round(h * 360),
+    s: Math.round(s * 100),
+    l: Math.round(l * 100),
+  };
+}
+
+// =============================================================================
+// Muddy Hue Exclusion
+// =============================================================================
+
+function generateSafeHue(random: () => number, excludeMuddy: boolean): number {
+  if (!excludeMuddy) {
+    return Math.floor(random() * 360);
+  }
+  // Skip the 30-50° range (muddy browns), allows yellows at 50-60°
+  const hue = Math.floor(random() * 340);
+  return hue >= 30 ? hue + 20 : hue;
+}
+
+// =============================================================================
 // Random Generation Utilities
 // =============================================================================
 
@@ -351,10 +476,18 @@ function dateToSeed(dateStr: string): number {
   return Math.abs(hash);
 }
 
-function generateColor(random: () => number): string {
-  const hue = Math.floor(random() * 360);
-  const saturation = 50 + Math.floor(random() * 40);
-  const lightness = 35 + Math.floor(random() * 35);
+function generateColorWithOKLCH(random: () => number, hue: number): string {
+  const { oklch } = COLOR_CONFIG;
+  const l = oklch.lightness.min + random() * (oklch.lightness.max - oklch.lightness.min);
+  const c = oklch.chroma.min + random() * (oklch.chroma.max - oklch.chroma.min);
+  const hsl = oklchToHsl({ l, c, h: hue });
+  return `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+}
+
+function generateColorWithHSL(random: () => number, hue: number): string {
+  const { hsl } = COLOR_CONFIG;
+  const saturation = hsl.saturation.min + Math.floor(random() * (hsl.saturation.max - hsl.saturation.min));
+  const lightness = hsl.lightness.min + Math.floor(random() * (hsl.lightness.max - hsl.lightness.min));
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
@@ -424,36 +557,78 @@ function colorDistance(color1: string, color2: string): number {
   );
 }
 
-function generateDistinctColors(random: () => number): [string, string] {
-  const minDistance = 80;
-  const minContrastRatio = 3.0; // WCAG AA for large graphical objects
-  const minHueDiff = 30; // Ensure colors look distinctly different
+// Check if a color is too similar to any color in the avoid list
+function isColorTooSimilar(color: string, colorsToAvoid: string[]): boolean {
+  if (colorsToAvoid.length === 0) return false;
+
+  const c = parseHSL(color);
+  const minHueDiff = 40;   // Hues must differ by at least 40°
+  const minLightDiff = 20; // Or lightness must differ by at least 20%
+
+  for (const avoid of colorsToAvoid) {
+    const a = parseHSL(avoid);
+
+    // Calculate hue difference (accounting for wraparound)
+    let hueDiff = Math.abs(c.h - a.h);
+    if (hueDiff > 180) hueDiff = 360 - hueDiff;
+
+    // Calculate lightness difference
+    const lightDiff = Math.abs(c.l - a.l);
+
+    // Too similar if BOTH hue AND lightness are close
+    if (hueDiff < minHueDiff && lightDiff < minLightDiff) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function generateDistinctColors(
+  random: () => number,
+  colorsToAvoid: string[] = []
+): [string, string] {
+  const { colorSpace, excludeMuddyHues, minContrastRatio } = COLOR_CONFIG;
+  const minHueDiff = 30;
 
   for (let i = 0; i < 100; i++) {
-    const color1 = generateColor(random);
-    const color2 = generateColor(random);
+    // Generate two distinct hues
+    const hue1 = generateSafeHue(random, excludeMuddyHues);
+    const hue2 = generateSafeHue(random, excludeMuddyHues);
 
-    // Check perceptual distance
-    if (colorDistance(color1, color2) < minDistance) continue;
+    // Check hue difference between the pair
+    let hueDiff = Math.abs(hue1 - hue2);
+    if (hueDiff > 180) hueDiff = 360 - hueDiff;
+    if (hueDiff < minHueDiff) continue;
+
+    // Generate colors based on color space
+    const color1 = colorSpace === 'oklch'
+      ? generateColorWithOKLCH(random, hue1)
+      : generateColorWithHSL(random, hue1);
+    const color2 = colorSpace === 'oklch'
+      ? generateColorWithOKLCH(random, hue2)
+      : generateColorWithHSL(random, hue2);
 
     // Check WCAG contrast ratio
     if (getContrastRatio(color1, color2) < minContrastRatio) continue;
 
-    // Check hue difference to avoid colors that look too similar
-    const c1 = parseHSL(color1);
-    const c2 = parseHSL(color2);
-    let hueDiff = Math.abs(c1.h - c2.h);
-    if (hueDiff > 180) hueDiff = 360 - hueDiff;
-    if (hueDiff < minHueDiff) continue;
+    // Check similarity to colors to avoid (e.g., previous day's colors)
+    if (isColorTooSimilar(color1, colorsToAvoid) || isColorTooSimilar(color2, colorsToAvoid)) {
+      continue;
+    }
 
     return [color1, color2];
   }
 
-  // Fallback: generate complementary colors with good contrast
-  const hue = Math.floor(random() * 360);
-  const sat = 60 + Math.floor(random() * 30);
-  // Use significantly different lightness values to ensure contrast
-  return [`hsl(${hue}, ${sat}%, 35%)`, `hsl(${(hue + 180) % 360}, ${sat}%, 65%)`];
+  // Fallback: generate complementary hues (180° apart)
+  // Note: fallback doesn't check colorsToAvoid to prevent infinite loops
+  const hue = generateSafeHue(random, excludeMuddyHues);
+  const color1 = colorSpace === 'oklch'
+    ? generateColorWithOKLCH(random, hue)
+    : generateColorWithHSL(random, hue);
+  const color2 = colorSpace === 'oklch'
+    ? generateColorWithOKLCH(random, (hue + 180) % 360)
+    : generateColorWithHSL(random, (hue + 180) % 360);
+  return [color1, color2];
 }
 
 function generateShapes(random: () => number): [ShapeType, ShapeType] {
@@ -511,9 +686,12 @@ function generateChallengeWithSmartRandomness(
   const baseSeed = dateToSeed(dateStr);
   const word = getWordForDate(dateStr);
 
+  // Collect previous colors to avoid similar consecutive days
+  const colorsToAvoid = previousChallenges.flatMap(c => c.colors);
+
   for (let attempt = 0; attempt < 50; attempt++) {
     const random = seededRandom(baseSeed + attempt * 1000003);
-    const colors = generateDistinctColors(random);
+    const colors = generateDistinctColors(random, colorsToAvoid);
     const shapes = generateShapes(random);
 
     if (!isTooSimilarToAny({ shapes, colors }, previousChallenges)) {
@@ -528,7 +706,7 @@ function generateChallengeWithSmartRandomness(
 
   // Fallback - use first attempt
   const random = seededRandom(baseSeed);
-  const colors = generateDistinctColors(random);
+  const colors = generateDistinctColors(random, colorsToAvoid);
   const shapes = generateShapes(random);
   return {
     date: dateStr,
@@ -683,6 +861,17 @@ async function fetchExistingChallenges(
 interface ChallengeRequest {
   date?: string;
   dates?: string[];
+  test?: boolean;              // For ColorTester: generate random colors
+  previousColors?: string[];   // For ColorTester: colors to avoid (simulates consecutive days)
+}
+
+interface TestColorResponse {
+  colors: [string, string];
+  metadata: {
+    contrastRatio: number;
+    hueDiff: number;
+    distance: number;
+  };
 }
 
 serve(async (req: Request) => {
@@ -703,8 +892,36 @@ serve(async (req: Request) => {
       const url = new URL(req.url);
       const date = url.searchParams.get('date');
       const dates = url.searchParams.get('dates');
+      const test = url.searchParams.get('test');
       if (date) requestData.date = date;
       if (dates) requestData.dates = dates.split(',');
+      if (test === 'true') requestData.test = true;
+    }
+
+    // Test mode for ColorTester - generates random colors (not date-seeded)
+    if (requestData.test) {
+      const random = () => Math.random();
+      const colorsToAvoid = requestData.previousColors || [];
+      const colors = generateDistinctColors(random, colorsToAvoid);
+
+      // Calculate metadata for display
+      const c1 = parseHSL(colors[0]);
+      const c2 = parseHSL(colors[1]);
+      let hueDiff = Math.abs(c1.h - c2.h);
+      if (hueDiff > 180) hueDiff = 360 - hueDiff;
+
+      const response: TestColorResponse = {
+        colors,
+        metadata: {
+          contrastRatio: getContrastRatio(colors[0], colors[1]),
+          hueDiff,
+          distance: colorDistance(colors[0], colors[1]),
+        },
+      };
+
+      return new Response(JSON.stringify(response), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Batch request

@@ -5,7 +5,7 @@ import { useSubmissions } from '../hooks/useSubmissions';
 import { FollowButton } from './FollowButton';
 import { SubmissionThumbnail } from './SubmissionThumbnail';
 import { getTodayDateUTC } from '../utils/dailyChallenge';
-import { fetchChallengesBatch, getChallengeSync } from '../hooks/useDailyChallenge';
+import { fetchChallengesBatch } from '../hooks/useDailyChallenge';
 import { canViewCurrentDay } from '../utils/privacyRules';
 import {
   DAYS_OF_WEEK,
@@ -274,7 +274,7 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
               const isToday = dateStr === todayDate;
               const isFuture = dateStr > todayDate;
               const submission = submissionsByDate.get(dateStr);
-              const challenge = challenges.get(dateStr) || getChallengeSync(dateStr);
+              const challenge = challenges.get(dateStr);
 
               // Check privacy: can viewer see this day's content?
               const canViewThisDay = canViewCurrentDay(dateStr, todayDate, hasSubmittedToday);
@@ -302,7 +302,7 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
                       <div className="text-[9px] text-center text-(--color-text-tertiary) px-1">
                         Save your art to see
                       </div>
-                    ) : submission ? (
+                    ) : submission && challenge ? (
                       // Has public submission - show thumbnail
                       <SubmissionThumbnail
                         shapes={submission.shapes}

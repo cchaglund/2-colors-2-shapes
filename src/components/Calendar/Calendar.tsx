@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useSubmissions, type Submission } from '../../hooks/useSubmissions';
 import { getTodayDateUTC, getTwoDaysAgoDateUTC } from '../../utils/dailyChallenge';
-import { fetchChallengesBatch, getChallengeSync } from '../../hooks/useDailyChallenge';
+import { fetchChallengesBatch } from '../../hooks/useDailyChallenge';
 import { supabase } from '../../lib/supabase';
 import type { Shape, DailyChallenge } from '../../types';
 import { formatDate, getDaysInMonth, getFirstDayOfMonth } from '../../utils/calendarUtils';
@@ -322,7 +322,7 @@ export function Calendar({ onClose }: CalendarProps) {
                 const dateStr = formatDate(currentYear, currentMonth, day);
                 const isToday = dateStr === todayStr;
                 const isFuture = dateStr > todayStr;
-                const challenge = challenges.get(dateStr) || getChallengeSync(dateStr);
+                const challenge = challenges.get(dateStr);
                 const submission = submissionsByDate.get(dateStr);
                 const ranking = submission ? rankings.get(submission.id) : undefined;
                 const dayWinners = winnersByDate.get(dateStr);

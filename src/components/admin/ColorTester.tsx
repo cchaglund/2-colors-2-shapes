@@ -1,42 +1,70 @@
 import { useState, useCallback, useRef } from 'react';
-import {
-  generateDistinctColors,
-  createMathRandom,
-  parseHSLColor,
-  getColorContrastRatio,
-} from '../../utils/dailyChallenge';
+import { supabase } from '../../lib/supabase';
 
-// Calculate perceptual distance between two colors
-function colorDistance(color1: string, color2: string): number {
-  const c1 = parseHSLColor(color1);
-  const c2 = parseHSLColor(color2);
+// =============================================================================
+// ColorTester - Tests the PRODUCTION color generation algorithm
+// =============================================================================
+// This component calls the server edge function to generate colors.
+// It does NOT use local/client-side color generation.
+//
+// If you update color generation in supabase/functions/get-daily-challenge/,
+// you MUST deploy before changes appear here:
+//   supabase functions deploy get-daily-challenge
+// =============================================================================
 
-  let hueDiff = Math.abs(c1.h - c2.h);
-  if (hueDiff > 180) hueDiff = 360 - hueDiff;
+interface ColorMetadata {
+  contrastRatio: number;
+  hueDiff: number;
+  distance: number;
+}
 
-  return Math.sqrt(
-    Math.pow(hueDiff * 2, 2) +
-    Math.pow((c1.l - c2.l) * 1.5, 2) +
-    Math.pow((c1.s - c2.s) * 0.5, 2)
-  );
+interface TestColorResponse {
+  colors: [string, string];
+  metadata: ColorMetadata;
 }
 
 export function ColorTester() {
   const [colors, setColors] = useState<[string, string] | null>(null);
+  const [metadata, setMetadata] = useState<ColorMetadata | null>(null);
   const [history, setHistory] = useState<[string, string][]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   // Track "previous day" colors to test consecutive day avoidance
   const previousColorsRef = useRef<string[]>([]);
 
-  const handleGenerate = useCallback(() => {
-    // Use production color generation with previous colors to avoid
-    const random = createMathRandom();
-    const newColors = generateDistinctColors(random, previousColorsRef.current);
+  const handleGenerate = useCallback(async () => {
+    setLoading(true);
+    setError(null);
 
-    setColors(newColors);
-    setHistory((prev) => [newColors, ...prev]);
+    try {
+      const { data, error: fetchError } = await supabase.functions.invoke(
+        'get-daily-challenge',
+        {
+          body: {
+            test: true,
+            previousColors: previousColorsRef.current,
+          },
+        }
+      );
 
-    // Update "previous" colors for next generation (simulates day-to-day)
-    previousColorsRef.current = [...newColors];
+      if (fetchError) {
+        throw new Error(fetchError.message || 'Failed to generate colors');
+      }
+
+      const response = data as TestColorResponse;
+      setColors(response.colors);
+      setMetadata(response.metadata);
+      setHistory((prev) => [response.colors, ...prev]);
+
+      // Update "previous" colors for next generation (simulates day-to-day)
+      previousColorsRef.current = [...response.colors];
+    } catch (err) {
+      console.error('Failed to generate colors:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   const handleClearHistory = useCallback(() => {
@@ -44,30 +72,26 @@ export function ColorTester() {
     previousColorsRef.current = [];
   }, []);
 
-  const contrastRatio = colors ? getColorContrastRatio(colors[0], colors[1]) : null;
-  const distance = colors ? colorDistance(colors[0], colors[1]) : null;
-  const hueDiff = colors
-    ? (() => {
-        const c1 = parseHSLColor(colors[0]);
-        const c2 = parseHSLColor(colors[1]);
-        let diff = Math.abs(c1.h - c2.h);
-        if (diff > 180) diff = 360 - diff;
-        return diff;
-      })()
-    : null;
-
   return (
     <div className="min-h-screen p-8 flex flex-col items-center bg-(--color-bg-primary)">
       <div className="max-w-lg w-full">
         <header className="mb-8 text-center">
           <h1 className="text-3xl font-bold mb-2 text-(--color-text-primary)">Color Tester</h1>
           <p className="text-sm text-(--color-text-secondary)">
-            Tests the <strong>production</strong> color generation algorithm. Each click simulates
-            a new day, avoiding colors too similar to the previous day.
+            Tests the <strong>production server</strong> color generation algorithm. Each click
+            simulates a new day, avoiding colors too similar to the previous day.
           </p>
         </header>
 
         <div className="flex flex-col items-center gap-6">
+          {/* Server Notice */}
+          <div className="w-full p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
+            <p className="text-xs text-amber-600 dark:text-amber-400">
+              <strong>Note:</strong> This calls the deployed edge function. After updating color
+              generation code, run <code className="bg-black/10 px-1 rounded">supabase functions deploy get-daily-challenge</code> for changes to appear here.
+            </p>
+          </div>
+
           {/* Production Settings Info */}
           <div className="w-full p-4 rounded-lg bg-(--color-bg-secondary)">
             <h3 className="text-sm font-semibold mb-2 text-(--color-text-primary)">
@@ -86,19 +110,29 @@ export function ColorTester() {
           <div className="flex gap-4">
             <button
               onClick={handleGenerate}
-              className="px-6 py-3 rounded-lg font-medium text-lg cursor-pointer transition-opacity bg-(--color-text-primary) text-(--color-bg-primary) hover:opacity-80"
+              disabled={loading}
+              className="px-6 py-3 rounded-lg font-medium text-lg cursor-pointer transition-opacity bg-(--color-text-primary) text-(--color-bg-primary) hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Generate Colors
+              {loading ? 'Generating...' : 'Generate Colors'}
             </button>
             {history.length > 0 && (
               <button
                 onClick={handleClearHistory}
-                className="px-4 py-3 rounded-lg font-medium text-sm cursor-pointer transition-opacity bg-(--color-bg-tertiary) text-(--color-text-secondary) hover:opacity-80"
+                disabled={loading}
+                className="px-4 py-3 rounded-lg font-medium text-sm cursor-pointer transition-opacity bg-(--color-bg-tertiary) text-(--color-text-secondary) hover:opacity-80 disabled:opacity-50"
               >
                 Clear History
               </button>
             )}
           </div>
+
+          {error && (
+            <div className="w-full p-3 rounded-lg bg-red-500/10 border border-red-500/30">
+              <p className="text-sm text-red-600 dark:text-red-400">
+                <strong>Error:</strong> {error}
+              </p>
+            </div>
+          )}
 
           <div className="relative w-64 h-48 flex items-center justify-center">
             {colors ? (
@@ -127,7 +161,7 @@ export function ColorTester() {
             )}
           </div>
 
-          {colors && (
+          {colors && metadata && (
             <div className="w-full p-4 rounded-lg bg-(--color-bg-secondary)">
               <h3 className="text-sm font-semibold mb-3 text-(--color-text-primary)">
                 Color Details
@@ -149,16 +183,16 @@ export function ColorTester() {
                 </div>
                 <hr className="border-(--color-border) my-3" />
                 <div>
-                  <strong>Contrast Ratio:</strong> {contrastRatio?.toFixed(2)}:1
-                  {contrastRatio && contrastRatio >= 2.5 && (
+                  <strong>Contrast Ratio:</strong> {metadata.contrastRatio.toFixed(2)}:1
+                  {metadata.contrastRatio >= 2.5 && (
                     <span className="ml-2 text-green-500">(passes min 2.5)</span>
                   )}
                 </div>
                 <div>
-                  <strong>Perceptual Distance:</strong> {distance?.toFixed(1)}
+                  <strong>Perceptual Distance:</strong> {metadata.distance.toFixed(1)}
                 </div>
                 <div>
-                  <strong>Hue Difference:</strong> {hueDiff?.toFixed(0)}°
+                  <strong>Hue Difference:</strong> {metadata.hueDiff.toFixed(0)}°
                 </div>
               </div>
             </div>

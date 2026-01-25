@@ -420,6 +420,20 @@ With that in place:
 - To run it once run `./ralph-once.sh`
 - To run the AFK Ralph mode run `./ralph-afk.sh`, where the first argument is the number of loops/tasks to do, e.g. `./ralph-afk.sh 10` to do 10 tasks in a row.
 
+
+## Color Generation
+
+Color generation runs **SERVER-SIDE ONLY** in `supabase/functions/get-daily-challenge/index.ts`.
+
+After updating color generation code, you **MUST** deploy:
+```bash
+supabase functions deploy get-daily-challenge
+```
+
+- **ColorTester** (`?colors`) calls the server API - changes won't appear until deployed
+- Client-side code in `src/utils/dailyChallenge.ts` is an offline fallback only
+- The server is the source of truth; client code should be kept in sync for offline consistency
+
 ## License
 
 MIT

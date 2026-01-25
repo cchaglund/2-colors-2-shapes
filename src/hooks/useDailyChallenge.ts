@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { DailyChallenge } from '../types';
-import { generateDailyChallenge as generateLocal } from '../utils/dailyChallenge';
 import { supabase } from '../lib/supabase';
 
 // =============================================================================
 // Persistent Cache for Challenge Data
-// Historical challenge data never changes, so we can safely persist it
+// =============================================================================
+// Historical challenge data never changes, so we can safely persist it.
+// Challenge generation is SERVER-SIDE ONLY - no local fallback.
 // =============================================================================
 
 const CACHE_KEY = 'challenge-cache';
@@ -90,10 +91,6 @@ loadCacheFromStorage();
 // Hook and Utilities
 // =============================================================================
 
-interface UseDailyChallengeOptions {
-  fallbackToLocal?: boolean;
-}
-
 interface UseDailyChallengeReturn {
   challenge: DailyChallenge | null;
   loading: boolean;
@@ -101,12 +98,7 @@ interface UseDailyChallengeReturn {
   refetch: () => Promise<void>;
 }
 
-export function useDailyChallenge(
-  date: string,
-  options: UseDailyChallengeOptions = {}
-): UseDailyChallengeReturn {
-  const { fallbackToLocal = true } = options;
-
+export function useDailyChallenge(date: string): UseDailyChallengeReturn {
   const [challenge, setChallenge] = useState<DailyChallenge | null>(() => {
     // Check cache first for instant display
     return challengeCache.get(date) || null;
@@ -151,7 +143,6 @@ export function useDailyChallenge(
     abortControllerRef.current = new AbortController();
 
     const fetchPromise = (async (): Promise<DailyChallenge> => {
-      // throw new Error('Fetch aborted'); // add this if you want to be able to have custom shapes. Used in conjunction with `function generateShapes(random: () => number): [ShapeType, ShapeType] {` in dailyChallenge.ts
       const { data, error: fetchError } = await supabase.functions.invoke(
         'get-daily-challenge',
         {
@@ -183,18 +174,12 @@ export function useDailyChallenge(
     } catch (err) {
       console.error('Failed to fetch challenge:', err);
       setError(err instanceof Error ? err : new Error('Unknown error'));
-
-      // Fallback to local generation
-      if (fallbackToLocal) {
-        const local = generateLocal(date);
-        cacheChallenge(local);
-        setChallenge(local);
-      }
+      // No fallback - server is the only source of truth
     } finally {
       pendingRequests.delete(date);
       setLoading(false);
     }
-  }, [date, fallbackToLocal]);
+  }, [date]);
 
   useEffect(() => {
     fetchChallenge();
@@ -223,33 +208,23 @@ export async function fetchChallengesBatch(
     return new Map(dates.map((d) => [d, challengeCache.get(d)!]));
   }
 
-  try {
-    const { data, error } = await supabase.functions.invoke('get-daily-challenge', {
-      body: { dates: uncachedDates },
-    });
+  const { data, error } = await supabase.functions.invoke('get-daily-challenge', {
+    body: { dates: uncachedDates },
+  });
 
-    if (error) {
-      throw new Error(error.message || 'Failed to fetch challenges');
-    }
+  if (error) {
+    throw new Error(error.message || 'Failed to fetch challenges');
+  }
 
-    // Cache all fetched challenges (with persistence)
-    for (const challenge of data.challenges) {
-      const c: DailyChallenge = {
-        date: challenge.date,
-        colors: challenge.colors,
-        shapes: challenge.shapes,
-        word: challenge.word,
-      };
-      cacheChallenge(c);
-    }
-  } catch (err) {
-    console.error('Failed to batch fetch challenges:', err);
-    // Fallback: generate locally for uncached dates
-    for (const date of uncachedDates) {
-      if (!challengeCache.has(date)) {
-        cacheChallenge(generateLocal(date));
-      }
-    }
+  // Cache all fetched challenges (with persistence)
+  for (const challenge of data.challenges) {
+    const c: DailyChallenge = {
+      date: challenge.date,
+      colors: challenge.colors,
+      shapes: challenge.shapes,
+      word: challenge.word,
+    };
+    cacheChallenge(c);
   }
 
   // Return all requested dates from cache
@@ -257,13 +232,9 @@ export async function fetchChallengesBatch(
 }
 
 // Simple sync getter for components that need immediate access
-// Uses cache if available, otherwise local generation
-export function getChallengeSync(date: string): DailyChallenge {
-  if (challengeCache.has(date)) {
-    return challengeCache.get(date)!;
-  }
-  // Generate locally but don't persist - let async fetch get the real one
-  return generateLocal(date);
+// Returns cached challenge or null if not cached
+export function getChallengeSync(date: string): DailyChallenge | null {
+  return challengeCache.get(date) || null;
 }
 
 // Prefetch a challenge (useful for preloading)
