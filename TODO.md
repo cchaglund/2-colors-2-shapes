@@ -7,10 +7,6 @@
 - search for artist by email
 
 # Bugs
-
-- bug: why did i only see julia's submission on the wall of the day? where were the others?
-- and why can't i see my friends submissions for the current day? i see them for previous days, but not today. and i don't see all of my friends' submissions, but i know they have submitted.
-- dark mode bug: on some pages it wasn't changing to dark mode properly
 - bug: när man flyttar en grupp under en annan så hamnar inte alla element under den andra gruppen. Det är som att varje element i gruppen har sin egen z-index.
 - bug: när man roterar en hel drös med shapes så verkar de rotera lite olika mängder
 - when you're dragging a shape, history is being saved. it should only save history when you drop the shape.
@@ -25,11 +21,8 @@
 - make sure voting works properly
 - moving shapes with arrow buttons seems to be jumping too much, should be 1px per press
 - when holding two fingers on trackpad and moving them you should pan the canvas (right now it's just scrolling the page)
-- should we have more colors...? allows background to be any color? Allow bg to be either one of the two colors or black or white?
-- when i log out and click log in again, I'm not able to select between my google accounts, it just logs in with the last one I used.
 - forms for submitting feedback, reporting bugs, requesting features
 - when you select two shapes the bounding box surrounding them is larger than it should be (at least if one of the shapes has been flipped)
-- the bounding boxes can be made thinner, they look too thick currently
 
 What you need to provide
 1. OG image → Save as /public/og-image.png

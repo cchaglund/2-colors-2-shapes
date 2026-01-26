@@ -9,14 +9,11 @@ Turn off the lights when you leave:
 - if you've started a dev server, stop it before you consider yourself finished.
 - If you've started an MCP server, stop it before you go (e.g. Chrome dev tools or playwright), killing it if necessary.
 
+Write DRY code - if you find yourself creating the same code multiple times, create a reusable function/component/module instead. If you find code that's essentially duplicated, refactor it into a reusable function/component/module. Having duplicate code is almost always a mistake.
+
 ## Supabase - REMOTE ONLY
 
-This project uses the REMOTE Supabase database, NOT local.
-- NEVER run `supabase start` - it downloads 690MB of Docker images unnecessarily
-- NEVER use `--local` flag with supabase commands
-- To understand schema: read `supabase/migrations/*.sql` files
-- To run migrations: use `supabase db push` (pushes to remote)
-- Edge functions: `supabase functions deploy` (deploys to remote)
+This project uses the REMOTE Supabase database, NOT local. If you need to interact with the Supabase database, see supabase-info.md for instructions.
 
 ## Plan Mode
 
@@ -25,31 +22,5 @@ This project uses the REMOTE Supabase database, NOT local.
 
 ## Agent Browser/Visual Testing
 
-The agent can log in, allowing them to see and test many of the features (which are hidden behind a login). The account has admin privileges (`is_admin: true`), letting them also e.g. view the admin dashboard.
+When testing things using the browser, it helps for you to be logged in. Read how in agent-login.md.
 
-**Credentials:** 
-See `TEST_USER_EMAIL` and `TEST_USER_PASSWORD` in `.env.local`
-
-**Login from browser:**
-- Browser console: `import('./lib/supabase').then(m => m.testLogin(email, password))`
-
-**Login from Node.js script:**
-```js
-const { testLogin } = await import('./src/lib/supabase.ts');
-await testLogin('agent@test.local', 'vbe2HJG7tfu*qvq0jrt');
-```
-
-**Login from React component:**
-```js
-const { signInWithEmail } = useAuth();
-await signInWithEmail('agent@test.local', 'vbe2HJG7tfu*qvq0jrt');
-```
-
-## Visual Demo Pages (`src/test/`)
-
-⚠️ **These are NOT automated tests.** They are visual demo pages (like Storybook) for manually viewing component states with mock data.
-
-- `?test=voting` - Voting components demo
-- `?test=social` - Social features demo (Wall, Follows, Friends)
-
-**Prefer testing real components** by logging in with the test account above and interacting with the actual app. The demo pages use mock data and some have standalone reimplementations that may not reflect actual component behavior.
