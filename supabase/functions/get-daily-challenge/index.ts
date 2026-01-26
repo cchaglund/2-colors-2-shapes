@@ -764,8 +764,11 @@ function rowToPreviousChallenge(row: ChallengeRow): PreviousChallenge {
 // Main Logic
 // =============================================================================
 
+// deno-lint-ignore no-explicit-any
+type SupabaseClient = ReturnType<typeof createClient<any>>;
+
 async function fetchOrCreateChallenge(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseClient,
   date: string
 ): Promise<DailyChallenge> {
   const today = getTodayDate();
@@ -838,7 +841,7 @@ async function fetchOrCreateChallenge(
 // Read-only batch fetch - does NOT create missing challenges
 // Used by Calendar to show historical data
 async function fetchExistingChallenges(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseClient,
   dates: string[]
 ): Promise<DailyChallenge[]> {
   if (dates.length === 0) {
