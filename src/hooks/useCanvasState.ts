@@ -405,6 +405,19 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
     [setCanvasState]
   );
 
+  // Helper to ensure all shapes have unique, sequential zIndices
+  // This prevents bugs from duplicate zIndices after group operations
+  const normalizeZIndices = (shapes: Shape[]): Shape[] => {
+    // Sort by zIndex, then by id for stable ordering of duplicates
+    const sorted = [...shapes].sort(
+      (a, b) => a.zIndex - b.zIndex || a.id.localeCompare(b.id)
+    );
+    return shapes.map((shape) => ({
+      ...shape,
+      zIndex: sorted.findIndex((s) => s.id === shape.id),
+    }));
+  };
+
   const moveLayer = useCallback(
     (id: string, direction: 'up' | 'down' | 'top' | 'bottom') => {
       setCanvasState((prev) => {
@@ -634,28 +647,39 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
             });
           }
         } else if (direction === 'top' && currentIndex > 0) {
-          // Move to very top
-          const topZ = Math.max(...prev.shapes.map((s) => s.zIndex));
-          const zDiff = topZ - groupMaxZ;
-          newShapes = prev.shapes.map((s) => {
-            if (s.groupId === groupId) {
-              return { ...s, zIndex: s.zIndex + zDiff + 1 };
-            }
-            return s;
-          });
+          // Move to very top: reorder so group shapes have highest zIndices
+          const groupShapes = prev.shapes
+            .filter((s) => s.groupId === groupId)
+            .sort((a, b) => a.zIndex - b.zIndex);
+          const otherShapes = prev.shapes
+            .filter((s) => s.groupId !== groupId)
+            .sort((a, b) => a.zIndex - b.zIndex);
+          // Reassign zIndices: others get 0..n-1, group gets n..n+m-1
+          const reordered = [...otherShapes, ...groupShapes];
+          newShapes = prev.shapes.map((shape) => ({
+            ...shape,
+            zIndex: reordered.findIndex((s) => s.id === shape.id),
+          }));
         } else if (direction === 'bottom' && currentIndex < topLevelItems.length - 1) {
-          // Move to very bottom
-          const bottomZ = Math.min(...prev.shapes.map((s) => s.zIndex));
-          const zDiff = groupMinZ - bottomZ;
-          newShapes = prev.shapes.map((s) => {
-            if (s.groupId === groupId) {
-              return { ...s, zIndex: s.zIndex - zDiff - 1 };
-            }
-            return s;
-          });
+          // Move to very bottom: reorder so group shapes have lowest zIndices
+          const groupShapes = prev.shapes
+            .filter((s) => s.groupId === groupId)
+            .sort((a, b) => a.zIndex - b.zIndex);
+          const otherShapes = prev.shapes
+            .filter((s) => s.groupId !== groupId)
+            .sort((a, b) => a.zIndex - b.zIndex);
+          // Reassign zIndices: group gets 0..m-1, others get m..m+n-1
+          const reordered = [...groupShapes, ...otherShapes];
+          newShapes = prev.shapes.map((shape) => ({
+            ...shape,
+            zIndex: reordered.findIndex((s) => s.id === shape.id),
+          }));
         } else {
           return prev;
         }
+
+        // Normalize to ensure unique, sequential zIndices
+        newShapes = normalizeZIndices(newShapes);
 
         return { ...prev, shapes: newShapes };
       });
@@ -899,9 +923,30 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
         };
 
         // Update shapes to belong to this group
-        const newShapes = prev.shapes.map((s) =>
+        let newShapes = prev.shapes.map((s) =>
           shapeIds.includes(s.id) ? { ...s, groupId: newGroup.id } : s
         );
+
+        // Consolidate group's zIndices at the topmost selected position
+        const groupShapes = newShapes
+          .filter((s) => s.groupId === newGroup.id)
+          .sort((a, b) => a.zIndex - b.zIndex);
+        const otherShapes = newShapes
+          .filter((s) => s.groupId !== newGroup.id)
+          .sort((a, b) => a.zIndex - b.zIndex);
+
+        // Find the max zIndex among selected shapes (topmost selected)
+        const maxSelectedZIndex = Math.max(...groupShapes.map((s) => s.zIndex));
+
+        // Reorder: shapes below topmost selected, then group, then shapes above
+        const shapesBelow = otherShapes.filter((s) => s.zIndex < maxSelectedZIndex);
+        const shapesAbove = otherShapes.filter((s) => s.zIndex > maxSelectedZIndex);
+
+        const reordered = [...shapesBelow, ...groupShapes, ...shapesAbove];
+        newShapes = newShapes.map((shape) => ({
+          ...shape,
+          zIndex: reordered.findIndex((s) => s.id === shape.id),
+        }));
 
         return {
           ...prev,
@@ -948,9 +993,33 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
         }
 
         // Remove group membership from specified shapes
-        const newShapes = prev.shapes.map((s) =>
+        let newShapes = prev.shapes.map((s) =>
           shapeIds.includes(s.id) ? { ...s, groupId: undefined } : s
         );
+
+        // Consolidate ungrouped shapes' zIndices so they stay together at the group's position
+        const ungroupedShapeIds = new Set(shapeIds);
+        const ungroupedShapes = newShapes
+          .filter((s) => ungroupedShapeIds.has(s.id))
+          .sort((a, b) => a.zIndex - b.zIndex);
+        const otherShapes = newShapes
+          .filter((s) => !ungroupedShapeIds.has(s.id))
+          .sort((a, b) => a.zIndex - b.zIndex);
+
+        // Find where ungrouped shapes should be inserted (at their max zIndex position)
+        const maxUngroupedZ = Math.max(...ungroupedShapes.map((s) => s.zIndex));
+        const insertIndex = otherShapes.filter((s) => s.zIndex <= maxUngroupedZ).length;
+
+        // Rebuild array: shapes below, ungrouped shapes, shapes above
+        const reordered = [
+          ...otherShapes.slice(0, insertIndex),
+          ...ungroupedShapes,
+          ...otherShapes.slice(insertIndex),
+        ];
+        newShapes = newShapes.map((shape) => ({
+          ...shape,
+          zIndex: reordered.findIndex((s) => s.id === shape.id),
+        }));
 
         // Check which groups would be empty after ungrouping
         const groupsToRemove = new Set<string>();
