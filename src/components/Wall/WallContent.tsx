@@ -332,47 +332,47 @@ export function WallContent({
                       onClick={() => !isFuture && !isCurrentDayLocked && handleDayClick(day)}
                       disabled={isFuture || isCurrentDayLocked}
                       className={`
-                        relative aspect-square rounded-lg p-1 transition-colors
+                        aspect-square rounded-md p-1.5 transition-all border border-(--color-border-light)
                         ${isFuture || isCurrentDayLocked
                           ? 'opacity-40 cursor-not-allowed'
-                          : 'hover:bg-(--color-bg-secondary) cursor-pointer'
+                          : 'hover:border-(--color-accent) cursor-pointer'
                         }
-                        ${isDayToday ? 'ring-2 ring-(--color-accent)' : ''}
+                        ${isDayToday ? 'ring-2 ring-(--color-accent) ring-offset-1' : ''}
                       `}
                     >
-                      {/* Day number */}
-                      <span className={`
-                        text-[12px]
-                        ${isDayToday ? 'text-(--color-accent) font-semibold' : 'text-(--color-text-secondary)'}
-                      `}>
-                        {day}
-                      </span>
-
-                      {/* Submission count badge */}
-                      {submissionCount > 0 && !isFuture && !isCurrentDayLocked && (
-                        <span className="absolute top-1 right-1 bg-(--color-accent) text-white text-[10px] font-medium rounded-full min-w-4.5 h-4.5 flex items-center justify-center">
-                          {submissionCount}
+                      <div className="flex flex-col h-full">
+                        <span className={`
+                          text-[11px] font-medium tabular-nums text-left
+                          ${isDayToday ? 'text-(--color-accent)' : 'text-(--color-text-secondary)'}
+                        `}>
+                          {day}
                         </span>
-                      )}
+                        <div className="flex-1 flex items-center justify-center">
+                          {/* Submission count badge */}
+                          {submissionCount > 0 && !isFuture && !isCurrentDayLocked && (
+                            <span className="bg-(--color-accent) text-white text-[10px] font-medium rounded-full min-w-4.5 h-4.5 flex items-center justify-center">
+                              {submissionCount}
+                            </span>
+                          )}
 
-                      {/* Lock icon for current day when not submitted */}
-                      {isCurrentDayLocked && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="var(--color-text-tertiary)"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                          </svg>
+                          {/* Lock icon for current day when not submitted */}
+                          {isCurrentDayLocked && (
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="var(--color-text-tertiary)"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                            </svg>
+                          )}
                         </div>
-                      )}
+                      </div>
                     </button>
                   );
                 })}
