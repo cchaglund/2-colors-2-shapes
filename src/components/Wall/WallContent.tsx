@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useWallOfTheDay, type SortMode } from '../../hooks/useWallOfTheDay';
-import { useDailyChallenge } from '../../hooks/useDailyChallenge';
+import { useDailyChallenge, fetchChallengesBatch, getChallengeSync } from '../../hooks/useDailyChallenge';
+import type { DailyChallenge } from '../../types';
 import { WallSortControls } from './WallSortControls';
 import { WallLockedState } from './WallLockedState';
 import { WallEmptyState } from './WallEmptyState';
@@ -8,6 +9,7 @@ import { SubmissionThumbnail } from '../SubmissionThumbnail';
 import { ContentNavigation } from '../Calendar/ContentNavigation';
 import { getTodayDateUTC } from '../../utils/dailyChallenge';
 import { formatDate, getDaysInMonth, getFirstDayOfMonth } from '../../utils/calendarUtils';
+import { getDarkerLighterColors } from '../../utils/colorUtils';
 import { supabase } from '../../lib/supabase';
 
 type ViewType = 'grid' | 'calendar';
@@ -37,6 +39,7 @@ export function WallContent({
   const [viewType, setViewType] = useState<ViewType>('grid');
   const [submissionCounts, setSubmissionCounts] = useState<SubmissionCountByDate>({});
   const [calendarLoading, setCalendarLoading] = useState(false);
+  const [challengesMap, setChallengesMap] = useState<Map<string, DailyChallenge>>(new Map());
 
   const {
     submissions,
@@ -99,6 +102,30 @@ export function WallContent({
       fetchSubmissionCounts();
     }
   }, [viewType, fetchSubmissionCounts]);
+
+  // Fetch challenges for calendar view (for badge colors)
+  useEffect(() => {
+    if (viewType === 'calendar') {
+      const daysInMonth = getDaysInMonth(calendarYear, calendarMonth);
+      const dates: string[] = [];
+      for (let day = 1; day <= daysInMonth; day++) {
+        dates.push(formatDate(calendarYear, calendarMonth, day));
+      }
+
+      // Immediately populate from global cache (synchronous) to avoid flash
+      const cachedMap = new Map<string, DailyChallenge>();
+      dates.forEach(date => {
+        const cached = getChallengeSync(date);
+        if (cached) cachedMap.set(date, cached);
+      });
+      if (cachedMap.size > 0) {
+        setChallengesMap(cachedMap);
+      }
+
+      // Then fetch any uncached dates (fetchChallengesBatch handles this efficiently)
+      fetchChallengesBatch(dates).then(setChallengesMap);
+    }
+  }, [viewType, calendarYear, calendarMonth]);
 
   // Calendar grid data
   const calendarDays = useMemo(() => {
@@ -348,12 +375,20 @@ export function WallContent({
                           {day}
                         </span>
                         <div className="flex-1 flex items-center justify-center">
-                          {/* Submission count badge */}
-                          {submissionCount > 0 && !isFuture && !isCurrentDayLocked && (
-                            <span className="bg-(--color-accent) text-white text-[10px] font-medium rounded-full min-w-4.5 h-4.5 flex items-center justify-center">
-                              {submissionCount}
-                            </span>
-                          )}
+                          {/* Submission count badge - only show when colors loaded */}
+                          {submissionCount > 0 && !isFuture && !isCurrentDayLocked && (() => {
+                            const dayChallenge = challengesMap.get(dateStr);
+                            if (!dayChallenge) return null;
+                            const { darker, lighter } = getDarkerLighterColors(dayChallenge.colors);
+                            return (
+                              <span
+                                className="text-[21px] font-semibold rounded-full min-w-10 h-10 flex items-center justify-center"
+                                style={{ backgroundColor: darker, color: lighter }}
+                              >
+                                {submissionCount}
+                              </span>
+                            );
+                          })()}
 
                           {/* Lock icon for current day when not submitted */}
                           {isCurrentDayLocked && (
