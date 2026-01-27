@@ -5,8 +5,9 @@ import type { DragState } from '../types/canvas';
 interface UseShapeDragOptions {
   shapes: Shape[];
   getSVGPoint: (clientX: number, clientY: number) => { x: number; y: number };
-  onUpdateShape: (id: string, updates: Partial<Shape>) => void;
-  onUpdateShapes: (updates: Map<string, Partial<Shape>>) => void;
+  onUpdateShape: (id: string, updates: Partial<Shape>, addToHistory?: boolean) => void;
+  onUpdateShapes: (updates: Map<string, Partial<Shape>>, addToHistory?: boolean) => void;
+  onCommitToHistory: () => void;
 }
 
 /**
@@ -17,6 +18,7 @@ export function useShapeDrag({
   getSVGPoint,
   onUpdateShape,
   onUpdateShapes,
+  onCommitToHistory,
 }: UseShapeDragOptions) {
   const [dragState, setDragState] = useState<DragState | null>(null);
 
@@ -41,13 +43,13 @@ export function useShapeDrag({
               y: startPos.y + dy,
             });
           });
-          onUpdateShapes(updates);
+          onUpdateShapes(updates, false);
         } else {
           // Single shape move
           onUpdateShape(dragState.shapeId, {
             x: dragState.startShapeX + dx,
             y: dragState.startShapeY + dy,
-          });
+          }, false);
         }
       } else if (dragState.mode === 'resize') {
         // Pure screen-space resize logic
@@ -107,7 +109,7 @@ export function useShapeDrag({
 
             updates.set(id, { x: newX, y: newY, size: newSize });
           });
-          onUpdateShapes(updates);
+          onUpdateShapes(updates, false);
         } else {
           // Single shape resize
           const newSize = Math.max(20, dragState.startSize + sizeDelta);
@@ -125,7 +127,7 @@ export function useShapeDrag({
             size: newSize,
             x: newX,
             y: newY,
-          });
+          }, false);
         }
       } else if (dragState.mode === 'rotate') {
         // Multi-select rotate
@@ -178,7 +180,7 @@ export function useShapeDrag({
               rotation: startData.rotation + shapeRotationDelta,
             });
           });
-          onUpdateShapes(updates);
+          onUpdateShapes(updates, false);
         } else {
           // Single shape rotate
           const draggedShape = shapes.find((s) => s.id === dragState.shapeId);
@@ -204,12 +206,15 @@ export function useShapeDrag({
             newRotation = Math.round(newRotation / 15) * 15;
           }
 
-          onUpdateShape(dragState.shapeId, { rotation: newRotation });
+          onUpdateShape(dragState.shapeId, { rotation: newRotation }, false);
         }
       }
     };
 
     const handleMouseUp = () => {
+      if (dragState) {
+        onCommitToHistory();
+      }
       setDragState(null);
     };
 
@@ -232,12 +237,12 @@ export function useShapeDrag({
               y: startPos.y + dy,
             });
           });
-          onUpdateShapes(updates);
+          onUpdateShapes(updates, false);
         } else {
           onUpdateShape(dragState.shapeId, {
             x: dragState.startShapeX + dx,
             y: dragState.startShapeY + dy,
-          });
+          }, false);
         }
       } else if (dragState.mode === 'resize') {
         const centerX = dragState.startShapeX + dragState.startSize / 2;
@@ -273,7 +278,7 @@ export function useShapeDrag({
             const newSize = Math.max(20, startData.size * scale);
             updates.set(id, { x: newX, y: newY, size: newSize });
           });
-          onUpdateShapes(updates);
+          onUpdateShapes(updates, false);
         } else {
           const newSize = Math.max(20, dragState.startSize + sizeDelta);
           const ratio = newSize / dragState.startSize;
@@ -281,7 +286,7 @@ export function useShapeDrag({
           const newCenterY = anchorY + (centerY - anchorY) * ratio;
           const newX = newCenterX - newSize / 2;
           const newY = newCenterY - newSize / 2;
-          onUpdateShape(dragState.shapeId, { size: newSize, x: newX, y: newY });
+          onUpdateShape(dragState.shapeId, { size: newSize, x: newX, y: newY }, false);
         }
       } else if (dragState.mode === 'rotate') {
         if (dragState.startShapeData && dragState.startBounds) {
@@ -322,7 +327,7 @@ export function useShapeDrag({
               rotation: startData.rotation + shapeRotationDelta,
             });
           });
-          onUpdateShapes(updates);
+          onUpdateShapes(updates, false);
         } else {
           const draggedShape = shapes.find((s) => s.id === dragState.shapeId);
           if (!draggedShape) return;
@@ -339,12 +344,15 @@ export function useShapeDrag({
           const angleDelta = ((currentAngle - startAngle) * 180) / Math.PI * rotationMult;
           const newRotation = dragState.startRotation + angleDelta;
 
-          onUpdateShape(dragState.shapeId, { rotation: newRotation });
+          onUpdateShape(dragState.shapeId, { rotation: newRotation }, false);
         }
       }
     };
 
     const handleTouchEnd = () => {
+      if (dragState) {
+        onCommitToHistory();
+      }
       setDragState(null);
     };
 
@@ -361,7 +369,7 @@ export function useShapeDrag({
       window.removeEventListener('touchend', handleTouchEnd);
       window.removeEventListener('touchcancel', handleTouchEnd);
     };
-  }, [dragState, shapes, getSVGPoint, onUpdateShape, onUpdateShapes]);
+  }, [dragState, shapes, getSVGPoint, onUpdateShape, onUpdateShapes, onCommitToHistory]);
 
   return { dragState, setDragState };
 }

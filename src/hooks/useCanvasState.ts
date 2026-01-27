@@ -278,28 +278,48 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
   );
 
   const updateShape = useCallback(
-    (id: string, updates: Partial<Shape>) => {
+    (id: string, updates: Partial<Shape>, addToHistory = true) => {
       setCanvasState((prev) => ({
         ...prev,
         shapes: prev.shapes.map((s) => (s.id === id ? { ...s, ...updates } : s)),
-      }));
+      }), addToHistory);
     },
     [setCanvasState]
   );
 
   // Update multiple shapes at once (for group transformations)
   const updateShapes = useCallback(
-    (updates: Map<string, Partial<Shape>>) => {
+    (updates: Map<string, Partial<Shape>>, addToHistory = true) => {
       setCanvasState((prev) => ({
         ...prev,
         shapes: prev.shapes.map((s) => {
           const shapeUpdates = updates.get(s.id);
           return shapeUpdates ? { ...s, ...shapeUpdates } : s;
         }),
-      }));
+      }), addToHistory);
     },
     [setCanvasState]
   );
+
+  // Commit current state to history (used after drag operations complete)
+  const commitToHistory = useCallback(() => {
+    setHistoryIndex((currentIndex) => {
+      // Remove any future history if we're not at the end
+      historyRef.current = historyRef.current.slice(0, currentIndex + 1);
+      // Add current state
+      historyRef.current.push(canvasState);
+      // Limit history size
+      if (historyRef.current.length > MAX_HISTORY) {
+        historyRef.current = historyRef.current.slice(1);
+        setHistoryLength(historyRef.current.length);
+        return currentIndex;
+      } else {
+        setHistoryLength(historyRef.current.length);
+        return currentIndex + 1;
+      }
+    });
+    lastHistoryTimeRef.current = Date.now();
+  }, [canvasState]);
 
   const deleteShape = useCallback(
     (id: string) => {
@@ -1199,6 +1219,7 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
     redo,
     canUndo,
     canRedo,
+    commitToHistory,
     // Group management
     createGroup,
     deleteGroup,

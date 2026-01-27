@@ -131,6 +131,7 @@ function App() {
     redo,
     canUndo,
     canRedo,
+    commitToHistory,
     createGroup,
     deleteGroup,
     ungroupShapes,
@@ -362,6 +363,7 @@ function App() {
             onSelectShape={selectShape}
             onUpdateShape={updateShape}
             onUpdateShapes={updateShapes}
+            onCommitToHistory={commitToHistory}
             onDuplicateShapes={duplicateShapes}
             onDeleteSelectedShapes={deleteSelectedShapes}
             onUndo={undo}

@@ -30,8 +30,9 @@ interface CanvasProps {
   showGrid?: boolean;
   showOffCanvas?: boolean;
   onSelectShape: (id: string | null, options?: { toggle?: boolean; range?: boolean; orderedIds?: string[] }) => void;
-  onUpdateShape: (id: string, updates: Partial<Shape>) => void;
-  onUpdateShapes: (updates: Map<string, Partial<Shape>>) => void;
+  onUpdateShape: (id: string, updates: Partial<Shape>, addToHistory?: boolean) => void;
+  onUpdateShapes: (updates: Map<string, Partial<Shape>>, addToHistory?: boolean) => void;
+  onCommitToHistory: () => void;
   onDuplicateShapes: (ids: string[]) => void;
   onDeleteSelectedShapes: () => void;
   onUndo: () => void;
@@ -57,6 +58,7 @@ export function Canvas({
   onSelectShape,
   onUpdateShape,
   onUpdateShapes,
+  onCommitToHistory,
   onDuplicateShapes,
   onDeleteSelectedShapes,
   onUndo,
@@ -110,6 +112,7 @@ export function Canvas({
     getSVGPoint,
     onUpdateShape,
     onUpdateShapes,
+    onCommitToHistory,
   });
 
   const {
