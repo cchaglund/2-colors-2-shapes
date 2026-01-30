@@ -7,7 +7,7 @@ if [ -z "$1" ]; then
 fi
 
 for ((i=1; i<=$1; i++)); do
-  result=$(claude --permission-mode acceptEdits -p "@RALPH.md @PRD.json @progress.txt")
+  result=$(docker sandbox run claude --dangerously-skip-permissions --print -- "@RALPH.md @PRD.json @progress.txt")
 
   echo "$result"
 

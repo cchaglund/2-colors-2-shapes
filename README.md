@@ -123,6 +123,16 @@ npm run dev
 npm run build
 ```
 
+### Docker Dev Mode
+
+The reason we even have this is because we want to run agents safely. This allows us to run the Ralph loop (ralph-afk.sh), which runs Claude without requiring persmissions for everything. But to do this safely we want to isolate the AI from the host machine, so we use [Docker sandboxes](https://docs.docker.com/ai/sandboxes/). This works well, but the environment inside is isolated from out own (except for file syncing), so we can't view the dev server running in the agent's sandbox directly on our host machine. And because the environment inside the sandbox is Linux ARM64 (and our Mac is Darwin ARM64), we can't just run the dev server directly on our host either, because the node_modules which the agent has installed conflict with ours. As such, to view the dev server on our host, we could either remove and reinstall the node_modules every time we switch between running locally and in the sandbox (annoying), or we can run the dev server itself in a Docker container with the same architecture as the sandbox (Linux ARM64). This way, the dev server runs in an environment compatible with the node_modules installed by the agent inside the sandbox, and we can still view it on our host machine:
+
+```bash
+npm run dev:docker
+```
+
+See [AI.md](AI.md) for details.
+
 ## Deployment
 
 This project is hosted on Netlify. **Automatic builds are disabled** to conserve credits.

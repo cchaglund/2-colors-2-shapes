@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:docker": "docker build -t 2c2s-dev -f Dockerfile.dev . && docker run -it --rm -p 5173:5173 -v $(pwd):/app 2c2s-dev",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
