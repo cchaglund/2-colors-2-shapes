@@ -3,7 +3,9 @@ To agents - this is not for you, stop reading here.
 https://docs.docker.com/ai/sandboxes/ 
 
 To init, run this in your project:
-`docker sandbox run claude`
+`docker sandbox run claude .`
+
+
 
 It will create a linux VM with claude installed. All files in the current directory will be available inside the VM.
 You will need to authenticate with claude once (make sure you copy the URL properly, it's a bit finicky).
@@ -14,13 +16,30 @@ To add an MCP tool, you'll have to ask claude to install it for you, e.g.:
 Then you'll have to stop (regular ctrl-c) and restart the sandbox for it to take effect. You can check by simply asking claude: `❯ can you list the installed mcp tools?`
 
 Chrome, and therefore regular playwright, isn't supported on ARM64 linux. You can ask it to use firefox instead:
-```❯ can you configure the playwright mcp to use firefox instead of chrome? This should be done in "~/.claude.json" and when you're done the config should look a little like this:
+```bash
+❯ can you configure the playwright mcp to use firefox instead of chrome? This should be done in "~/.claude.json" and when you're done the config should look a little like this:
 `"args": [
      "@playwright/mcp@latest",
      "--browser",
      "firefox"
 ],`
 ```
+
+Currently there seems to be a bug in the latest docker desktop/sandbox, where Claude is hardcoded to use API usage billing. Basically, you start the container and see that Claude is configured for "API Usage Billing". Nothing that I've configured. You try to run /login, and after you authenticate, it says you're successfully logged in but still says "API Usage Billing". And if you try to chat with Claude it throws an API error. The problem is that the ~/.claude/settings.json file has `"apiKeyHelper": "echo proxy-managed"` hardcoded in it, which is forcing Claude into api-key mode. From inside the sandbox (`docker sandbox exec -it [name of sandbox] bash`), edit the settings file by running:
+
+```bash
+# Edit the file
+cat > ~/.claude/settings.json << 'EOF'
+{
+  "themeId": 1,
+  "alwaysThinkingEnabled": true,
+  "defaultMode": "bypassPermissions",
+  "bypassPermissionsModeAccepted": true
+}
+EOF
+```
+
+Note: if you update docker desktop, your VMs will be deleted and you'll have to re-run the above commands.
 
 Ask the agent to install any packages you need using apt, yum, etc.
 
