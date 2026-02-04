@@ -1,12 +1,12 @@
 # Main instructions
 
-1. Read the PRD and progress file (if it doesn't exist, create it).
-2. Decide which task to work on next. This should be the one YOU decide has the highest priority - not necessarily the first in the list.
-3. Check any feedback loops, such as types and tests.
-4. Mark the task as done in PRD.json by setting `"passes": true`.
-5. Append your progress and any notes to the progress.txt file. Use this to leave a note for whomever comes after you.
-6. Make a git commit of that feature.
-
+1. If you are on the main/master branch, create a new branch for the feature you are implementing. Name it something relevant to the feature. If you are not on main/master, assume you are already on the correct branch.
+2. Read the PRD.json and progress.txt file (if the latter doesn't exist, create it).
+3. Decide which task to work on next. This should be the one YOU decide has the highest priority - not necessarily the first in the list.
+4. Check any feedback loops, such as types and tests.
+5. Mark the task as done in PRD.json by setting `"passes": true`.
+6. Append your progress and any notes to the progress.txt file. Use this to leave a note for whomever comes after you.
+7. Make a git commit of that feature.
 Only do a single task, and then stop. You're done.
 
 If, while implementing the feature, you notice that all work in the PRD is complete, output <promise>COMPLETE</promise>.

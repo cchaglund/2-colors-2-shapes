@@ -428,24 +428,6 @@ supabase functions deploy get-daily-challenge
 - Client-side code in `src/utils/dailyChallenge.ts` is an offline fallback only
 - The server is the source of truth; client code should be kept in sync for offline consistency
 
-## Humans section (agents should ignore this section)
-
-### Ralph Wiggum technique
-
-This project uses the "Ralph" technique for AI-assisted development. 
-
-To create a PRD.md, run claude with the create-prd skill. It will help you convert your feature requirements into structured PRD items: `/create-prd @feature-request.md`
-
-Then with a separate agent, criticise the plan with the critique-plan skill: `/critique-plan @feature-request.md @PRD.json`
-
-Then use the good-cop skill to sensibly address the valid concerns raised in the critique and update the plan accordingly: `/good-cop @feature-request.md @PRD.json @CRITIQUE.md`
-
-Finally, use the ralph agent to implement the plan.
-
-With that in place:
-- To run it once run `./ralph-once.sh`
-- To run the AFK Ralph mode run `./ralph-afk.sh`, where the first argument is the number of loops/tasks to do, e.g. `./ralph-afk.sh 10` to do 10 tasks in a row.
-
 
 ## License
 

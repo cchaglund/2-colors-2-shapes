@@ -2,7 +2,7 @@
 
 - select multiple shapes by dragging a box around them with the mouse
 - make it so that you don't open a new tab when you click on a single submission. especially since when you click "back to app" it takes you to the canvas, and the place you were originally is actually in another tab.
-- if i got a trophy for a challenge's submission I should get a congratulations message/modal when I load/log in for that day (today I see the challenge's winners, but it's possible to miss that I won, I have to check the list to see if I won. It should be more obvious).
+- if i got a trophy for a challenge's submission I should get a congratulations message/modal when I load/log in for that day (today I see the challenge's winners, but it's possible to miss that I won, I have to check the list to see if I won. It should be more obvious). should also have confetti animation or something.
 - forms for submitting feedback, reporting bugs, requesting features
 - buy domain and set up hosting
 - do logo

@@ -2,13 +2,45 @@ To agents - this is not for you, stop reading here.
 
 https://docs.docker.com/ai/sandboxes/ 
 
-To init, run this in your project:
+To init/run, run this in your project:
 `docker sandbox run claude .`
 
-
-
 It will create a linux VM with claude installed. All files in the current directory will be available inside the VM.
-You will need to authenticate with claude once (make sure you copy the URL properly, it's a bit finicky).
+
+You will need docker desktop 4.50+ installed.
+
+
+## Login
+
+Currently there seems to be a bug in the latest docker desktop/sandbox, where Claude is hardcoded to use API usage billing. Basically, you start the container and see that Claude is configured for "API Usage Billing". Nothing that I've configured. You try to run /login, and after you authenticate, it says you're successfully logged in but still says "API Usage Billing". And if you try to chat with Claude it throws an API error. The problem is that the ~/.claude/settings.json file has `"apiKeyHelper": "echo proxy-managed"` hardcoded in it, which is forcing Claude into api-key mode. 
+
+To fix this, you have to manually edit the settings file inside the sandbox VM.
+
+Connect to the VM:
+```bash
+# Name of VM is usually "claude-[folder name]", e.g. "claude-fragment-maker")
+docker sandbox exec -it claude-fragment-maker bash
+```
+
+Then edit the settings file by running:
+
+```bash
+# Edit the file
+cat > ~/.claude/settings.json << 'EOF'
+{
+  "themeId": 1,
+  "alwaysThinkingEnabled": true,
+  "defaultMode": "bypassPermissions",
+  "bypassPermissionsModeAccepted": true
+}
+EOF
+```
+
+Then run `exit` to leave the VM, and restart the sandbox: `docker sandbox run claude .`
+
+You will need to authenticate now (only once per VM). Make sure you copy the URL properly, it could be a bit finicky.
+
+## MCPs
 
 To add an MCP tool, you'll have to ask claude to install it for you, e.g.: 
 ```❯ can you add the playwright mcp? i know it'll only become available in the next session. this is the command: `claude mcp add playwright npx @playwright/mcp@latest````
@@ -25,19 +57,7 @@ Chrome, and therefore regular playwright, isn't supported on ARM64 linux. You ca
 ],`
 ```
 
-Currently there seems to be a bug in the latest docker desktop/sandbox, where Claude is hardcoded to use API usage billing. Basically, you start the container and see that Claude is configured for "API Usage Billing". Nothing that I've configured. You try to run /login, and after you authenticate, it says you're successfully logged in but still says "API Usage Billing". And if you try to chat with Claude it throws an API error. The problem is that the ~/.claude/settings.json file has `"apiKeyHelper": "echo proxy-managed"` hardcoded in it, which is forcing Claude into api-key mode. From inside the sandbox (`docker sandbox exec -it [name of sandbox] bash`), edit the settings file by running:
 
-```bash
-# Edit the file
-cat > ~/.claude/settings.json << 'EOF'
-{
-  "themeId": 1,
-  "alwaysThinkingEnabled": true,
-  "defaultMode": "bypassPermissions",
-  "bypassPermissionsModeAccepted": true
-}
-EOF
-```
 
 Note: if you update docker desktop, your VMs will be deleted and you'll have to re-run the above commands.
 
