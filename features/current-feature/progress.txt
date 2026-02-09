@@ -21,3 +21,9 @@
 - Follows exact same modal patterns as WinnerAnnouncementModal (overlay, card, focus trap, Escape, aria)
 - Files: src/components/modals/CongratulatoryModal.tsx
 - All feedback loops pass (typecheck, 102 tests, lint)
+
+## PRD-004 — Styling & Accessibility
+- Already fully implemented in PRD-003: overlay, card, focus trap, Escape, aria attrs, aria-labelledby, auto-focus all match WinnerAnnouncementModal exactly
+- Verified line-by-line against WinnerAnnouncementModal — identical patterns
+- No code changes needed, just marking as passing
+- All feedback loops pass (typecheck, 102 tests, lint)

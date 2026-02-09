@@ -54,7 +54,7 @@
       "aria-labelledby points to the heading element",
       "Dismiss button auto-focused on mount via ref"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "PRD-005",
