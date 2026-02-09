@@ -99,9 +99,6 @@ The same date always generates the same colors, shapes, and word (seed-based ran
   - Votes per day chart
   - Access restricted to users with admin role
 
-### Planned
-- [ ] Procedurally generated shapes (advanced mode)
-- [ ] Public gallery of submissions
 
 ## Tech Stack
 
@@ -131,7 +128,7 @@ The reason we even have this is because we want to run agents safely. This allow
 npm run dev:docker
 ```
 
-See [AI.md](AI.md) for details.
+See [AI/docker-sandbox.md](AI/docker-sandbox.md) for details.
 
 ## Deployment
 

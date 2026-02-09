@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { getTwoDaysAgoDateUTC } from '../utils/dailyChallenge';
 import type { RankingEntry, Shape } from '../types';
@@ -25,7 +25,9 @@ interface UseWinnerAnnouncementReturn {
   topThree: RankingEntry[];
   challengeDate: string;
   loading: boolean;
+  userPlacement: RankingEntry | null;
   dismiss: () => Promise<void>;
+  persistSeen: () => Promise<void>;
   checkAnnouncement: () => Promise<void>;
 }
 
@@ -142,6 +144,30 @@ export function useWinnerAnnouncement(userId: string | undefined): UseWinnerAnno
     setLoading(false);
   }, [userId, challengeDate]);
 
+  const userPlacement = useMemo(() => {
+    if (!userId) return null;
+    return topThree.find((entry) => entry.user_id === userId) ?? null;
+  }, [userId, topThree]);
+
+  const persistSeen = useCallback(async () => {
+    if (!userId) return;
+
+    try {
+      await supabase.from('user_voting_status').upsert(
+        {
+          user_id: userId,
+          challenge_date: challengeDate,
+          seen_winner_announcement: true,
+        },
+        {
+          onConflict: 'user_id,challenge_date',
+        }
+      );
+    } catch (error) {
+      console.error('Error persisting seen status:', error);
+    }
+  }, [userId, challengeDate]);
+
   const dismiss = useCallback(async () => {
     if (!userId) return;
 
@@ -174,7 +200,9 @@ export function useWinnerAnnouncement(userId: string | undefined): UseWinnerAnno
     topThree,
     challengeDate,
     loading,
+    userPlacement,
     dismiss,
+    persistSeen,
     checkAnnouncement,
   };
 }

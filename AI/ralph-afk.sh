@@ -19,10 +19,36 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-for ((i=1; i<=$1; i++)); do
-  result=$(docker sandbox run "$SANDBOX_NAME" -- -p "@AI/RALPH.md @features/current-feature/PRD.json @features/current-feature/progress.txt")
+# Ensure zombie reaper is running in the sandbox (prevents zombie accumulation)
+# This runs synchronously - waits for completion before continuing
+echo "Ensuring zombie reaper is running..."
+docker sandbox exec "$SANDBOX_NAME" bash -c '
+  if ! pgrep -f zombie-reaper.py > /dev/null 2>&1; then
+    if [ -f /usr/local/bin/zombie-reaper.py ]; then
+      nohup python3 /usr/local/bin/zombie-reaper.py > /tmp/zombie-reaper.log 2>&1 &
+      echo "Started zombie reaper"
+    else
+      echo "Warning: zombie-reaper.py not found - zombies may accumulate"
+    fi
+  else
+    echo "Zombie reaper already running"
+  fi
+'
 
-  echo "$result"
+for ((i=1; i<=$1; i++)); do
+  LOG_FILE="/tmp/claude-run-$$.log"
+  docker sandbox run "$SANDBOX_NAME" -- -p --verbose --output-format stream-json "@AI/RALPH.md @features/current-feature/PRD.json @features/current-feature/progress.txt (fyi: you're not able to run builds in this vm you're in, but you can probably run the dev server)" 2>&1 | tee "$LOG_FILE"
+  result=$(cat "$LOG_FILE")
+
+  # Kill any orphaned processes to prevent zombie accumulation
+  docker sandbox exec "$SANDBOX_NAME" bash -c '
+    pkill -9 node 2>/dev/null
+    pkill -9 vite 2>/dev/null
+    pkill -9 esbuild 2>/dev/null
+    pkill -9 npm 2>/dev/null
+    pkill -9 playwright 2>/dev/null
+  ' 2>/dev/null || true
+  sleep 2
 
   if [[ "$result" == *"<promise>COMPLETE</promise>"* ]]; then
     echo "PRD complete after $i iterations."

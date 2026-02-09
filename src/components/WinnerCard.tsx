@@ -21,17 +21,16 @@ export function WinnerCard({
   // Page uses different thumbnail sizes than modal
   const thumbnailSize = (size === 'lg' ? 240 : size === 'md' ? 180 : 150)
 
-  const borderColor = entry.rank === 1
-    ? 'border-[#FFD700]'
+  const bgColor = entry.rank === 1
+    ? 'bg-[#FFD700]'
     : entry.rank === 2
-      ? 'border-[#D1D5DC]'
+      ? 'bg-[#D1D5DC]'
       : entry.rank === 3
-        ? 'border-[#CE8946]'
+        ? 'bg-[#CE8946]'
         : undefined;
 
   const getBorderStyle = () => {
-      const borderWidth = 'border-4';
-      return `${borderWidth} ${borderColor} rounded-xl p-2 shadow-lg`;
+      return `${bgColor} rounded-xl p-2 shadow-lg`;
   };
 
   return (
