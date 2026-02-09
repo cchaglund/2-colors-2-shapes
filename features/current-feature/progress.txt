@@ -57,3 +57,12 @@
 - No new mock data — reuses existing MOCK_TOP_THREE entries
 - Files: src/test/VotingTestPage.tsx
 - All feedback loops pass (typecheck, 102 tests, lint)
+
+## PRD-008 — Edge Cases
+- All 6 edge cases already handled by prior PRDs, no code changes needed
+- Ties: rank value is shared across tied entries → HEADINGS map returns correct text for any rank 1/2/3
+- Persist: congrats onDismiss calls persistSeen() → upserts seen_winner_announcement=true → refresh returns early
+- No placement: userPlacement=null when user not in topThree → CongratulatoryModal not rendered
+- Logged out: userId undefined → userPlacement=null, showWinnerAnnouncement=false → nothing renders
+- Files: features/current-feature/PRD.json (marked passes:true)
+- All feedback loops pass (typecheck, 102 tests, lint)

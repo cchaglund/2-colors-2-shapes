@@ -115,6 +115,6 @@
       "If user is not in top 3, no CongratulatoryModal is rendered",
       "If user is logged out, no CongratulatoryModal is rendered"
     ],
-    "passes": false
+    "passes": true
   }
 ]
