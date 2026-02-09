@@ -18,8 +18,8 @@ To fix this, you have to manually edit the settings file inside the sandbox VM.
 
 Connect to the VM:
 ```bash
-# Name of VM is usually "claude-[folder name]", e.g. "claude-fragment-maker")
-docker sandbox exec -it claude-fragment-maker bash
+# Name of VM is usually "claude-[folder name]", e.g. "claude-my-project")
+docker sandbox exec -it claude-my-project bash
 ```
 
 Then edit the settings file by running:
@@ -39,6 +39,71 @@ EOF
 Then run `exit` to leave the VM, and restart the sandbox: `docker sandbox run claude .`
 
 You will need to authenticate now (only once per VM). Make sure you copy the URL properly, it could be a bit finicky.
+
+## Zombie Reaper (Required)
+
+### Why This Is Needed
+
+The sandbox VM uses `sleep infinity` as PID 1 instead of a proper init system like `tini` or `systemd`. In normal Linux systems, when a parent process dies, its orphaned children are adopted by PID 1, which is responsible for reaping them (cleaning up their process table entries) when they exit.
+
+Without a proper init system:
+- Orphaned child processes (from builds, test runners, dev servers, etc.) never get reaped
+- They accumulate as zombie processes (`<defunct>` in process listings)
+- Over many Claude sessions, this causes severe VM degradation
+- Eventually native binaries (esbuild, vite, node-gyp, etc.) start crashing with "Illegal instruction" or "Bus error"
+
+The solution is a Python daemon that uses Linux's `PR_SET_CHILD_SUBREAPER` capability to mark itself as a subreaper. This makes orphaned processes get reparented to the daemon instead of PID 1, and the daemon properly reaps them when they exit.
+
+**Install this in every new VM to prevent zombie accumulation.**
+
+---
+
+**Copy-paste this to the agent:**
+
+```
+This Docker Sandbox VM uses `sleep infinity` as PID 1 instead of a proper init system. This means orphaned child processes (from builds, servers, etc.) never get reaped and become zombies. Over many sessions, this degrades the VM until native binaries start crashing.
+
+The fix is to install a "subreaper" daemon - a background process that uses Linux's prctl(PR_SET_CHILD_SUBREAPER) to adopt orphaned processes and reap them when they die. This prevents zombie accumulation.
+
+Run these commands to install the zombie reaper:
+
+sudo tee /usr/local/bin/zombie-reaper.py << 'PYEOF'
+#!/usr/bin/env python3
+"""Zombie reaper - marks itself as subreaper and reaps orphaned children"""
+import os, signal, ctypes, time
+libc = ctypes.CDLL("libc.so.6", use_errno=True)
+if libc.prctl(36, 1, 0, 0, 0) != 0:
+    print(f"Failed to set subreaper"); exit(1)
+print(f"Zombie reaper running as PID {os.getpid()}")
+def reap(signum, frame):
+    while True:
+        try:
+            pid, _ = os.waitpid(-1, os.WNOHANG)
+            if pid == 0: break
+            print(f"Reaped zombie PID {pid}")
+        except ChildProcessError: break
+signal.signal(signal.SIGCHLD, reap)
+while True: time.sleep(60)
+PYEOF
+
+sudo chmod +x /usr/local/bin/zombie-reaper.py
+
+sudo tee /etc/profile.d/zombie-reaper.sh << 'SHEOF'
+if ! pgrep -f zombie-reaper.py > /dev/null; then
+    nohup python3 /usr/local/bin/zombie-reaper.py > /tmp/zombie-reaper.log 2>&1 &
+fi
+SHEOF
+
+nohup python3 /usr/local/bin/zombie-reaper.py > /tmp/zombie-reaper.log 2>&1 &
+
+# Verify it's running
+sleep 1
+if pgrep -f zombie-reaper.py > /dev/null; then
+    echo "✓ Zombie reaper installed and running"
+else
+    echo "✗ Failed to start zombie reaper"
+fi
+```
 
 ## MCPs
 
@@ -88,6 +153,25 @@ Inside the shell, you can inspect the environment, manually install packages, or
 ```
 
 # PROBLEMS WITH THE SANDBOX
+
+## Zombie Process Accumulation
+
+The sandbox VM uses `sleep infinity` as PID 1 instead of a proper init system (like `tini`) this means orphaned child processes never get reaped and become zombies. If you run many Claude sessions (especially with a script that loops), zombies accumulate and can eventually degrade the VM to the point where native binaries (esbuild, vite, etc.) start crashing with "Illegal instruction" or "Bus error".
+
+**To check zombie count:**
+```bash
+# Exec in
+docker sandbox exec -it <sandbox-name> bash
+
+# Check zombie count
+ps aux | grep -c defunct
+```
+
+**Fix:** Install the zombie reaper (see "Zombie Reaper" section in initial setup above).
+
+**Note:** The reaper only prevents NEW zombies. Existing zombies are stuck until the VM is recreated. If native binaries are crashing, you may need to `docker sandbox rm <name>` and start fresh.
+
+## ARM64 Linux Binary Incompatibility
 
 The sandbox VM runs ARM64 Linux. When the agent installs npm packages, they're Linux ARM64 binaries. Your Mac also runs ARM64 but with Darwin (macOS), so the native binaries are incompatible.
 
