@@ -1,0 +1,120 @@
+[
+  {
+    "id": "PRD-001",
+    "category": "Dependency",
+    "description": "Install canvas-confetti library for fullscreen confetti effect",
+    "steps_to_verify": [
+      "canvas-confetti appears in package.json dependencies",
+      "npm install completes without errors",
+      "import canvas-confetti works in a .tsx file without type errors"
+    ],
+    "passes": false
+  },
+  {
+    "id": "PRD-002",
+    "category": "Hook Modification",
+    "description": "Add userPlacement and persistSeen to useWinnerAnnouncement hook. After building the entries array, check if the logged-in userId matches any top 3 entry. Return userPlacement: RankingEntry | null. Also expose persistSeen(): Promise<void> which upserts seen_winner_announcement=true to DB without changing shouldShow state (so the winner modal can still render after congrats is dismissed).",
+    "steps_to_verify": [
+      "useWinnerAnnouncement return type includes userPlacement: RankingEntry | null",
+      "useWinnerAnnouncement return type includes persistSeen: () => Promise<void>",
+      "When userId matches a top-3 entry, userPlacement returns that entry with correct rank, submission_id, shapes, and background_color_index",
+      "When userId does not match any top-3 entry, userPlacement is null",
+      "When userId is undefined (logged out), userPlacement is null",
+      "Tie case: if user has rank 1 in a tie, userPlacement still returns their entry with rank 1",
+      "persistSeen() upserts seen_winner_announcement=true to user_voting_status without setting shouldShow to false"
+    ],
+    "passes": false
+  },
+  {
+    "id": "PRD-003",
+    "category": "New Component",
+    "description": "Create CongratulatoryModal component at src/components/modals/CongratulatoryModal.tsx. Props: userEntry: RankingEntry, challengeDate: string, onDismiss: () => void. Fetches DailyChallenge internally via useDailyChallenge(challengeDate) — same pattern as WinnerAnnouncementModal. Shows loading spinner while challenge data loads. Displays rank-specific heading/subtext, user's submission via WinnerCard component, and a 'Yay!' dismiss button.",
+    "steps_to_verify": [
+      "Component props are: userEntry: RankingEntry, challengeDate: string, onDismiss: () => void",
+      "Component calls useDailyChallenge(challengeDate) internally to fetch challenge data",
+      "Component shows loading spinner while challenge data is loading",
+      "Component renders correct heading per rank: 1st='You won!', 2nd='2nd Place!', 3rd='3rd Place!'",
+      "Component renders correct subtext per rank: 1st='1st place — Congratulations!', 2nd/3rd='Congratulations!'",
+      "User's submission is displayed using the WinnerCard component with the userEntry and fetched challenge",
+      "Dismiss button reads 'Yay!'",
+      "Clicking 'Yay!' calls onDismiss"
+    ],
+    "passes": false
+  },
+  {
+    "id": "PRD-004",
+    "category": "Styling & Accessibility",
+    "description": "CongratulatoryModal matches existing modal patterns: same overlay, card styling, CSS variable theming, z-50, focus trap, Escape key dismiss, role=dialog, aria-modal=true.",
+    "steps_to_verify": [
+      "Overlay uses: fixed inset-0 bg-(--color-modal-overlay) flex items-center justify-center z-50",
+      "Card uses bg-(--color-bg-primary), border, rounded-lg, same padding pattern as WinnerAnnouncementModal",
+      "Focus trap implemented: Tab/Shift+Tab cycle within modal, focusable elements queried",
+      "Escape key dismisses modal",
+      "role='dialog' and aria-modal='true' are set on the modal container",
+      "aria-labelledby points to the heading element",
+      "Dismiss button auto-focused on mount via ref"
+    ],
+    "passes": false
+  },
+  {
+    "id": "PRD-005",
+    "category": "Confetti",
+    "description": "Fullscreen confetti fires on CongratulatoryModal mount using canvas-confetti with continuous bursts on ~300ms interval, runs for 6 seconds then auto-stops. Stops immediately when user dismisses. Calls .reset() on cleanup to remove the injected canvas element. Skips confetti entirely when prefers-reduced-motion: reduce is active.",
+    "steps_to_verify": [
+      "Confetti starts when CongratulatoryModal mounts (continuous bursts on interval)",
+      "Confetti auto-stops after 6 seconds if user hasn't dismissed",
+      "Confetti stops immediately when user clicks 'Yay!'",
+      ".reset() called on confetti instance during cleanup — no canvas element left in DOM",
+      "Confetti cleanup runs on component unmount (no memory leaks)",
+      "Confetti is skipped entirely when window.matchMedia('(prefers-reduced-motion: reduce)').matches is true"
+    ],
+    "passes": false
+  },
+  {
+    "id": "PRD-006",
+    "category": "App Integration",
+    "description": "Update App.tsx to show CongratulatoryModal before WinnerAnnouncementModal when user placed top 3. Destructure userPlacement and persistSeen from hook. Add local state: congratsDismissed, winnerDismissed. Flow: if shouldShow && !loading, then: if userPlacement && !congratsDismissed -> show CongratulatoryModal; else if !winnerDismissed -> show WinnerAnnouncementModal. Congrats onDismiss calls persistSeen() + sets congratsDismissed=true. Winner onDismiss calls dismiss() as before.",
+    "steps_to_verify": [
+      "userPlacement and persistSeen destructured from useWinnerAnnouncement in App.tsx",
+      "Local state congratsDismissed and winnerDismissed added",
+      "When user placed top 3: CongratulatoryModal shown first, WinnerAnnouncementModal hidden",
+      "CongratulatoryModal onDismiss calls persistSeen() and sets congratsDismissed=true",
+      "After dismissing CongratulatoryModal: WinnerAnnouncementModal appears (shouldShow still true)",
+      "After dismissing WinnerAnnouncementModal: both modals gone via dismiss()",
+      "When user did NOT place top 3: only WinnerAnnouncementModal shown (unchanged behavior)",
+      "On page refresh after congrats dismissed: seen_winner_announcement=true in DB, shouldShow=false, neither modal reappears"
+    ],
+    "passes": false
+  },
+  {
+    "id": "PRD-007",
+    "category": "Test Scenarios",
+    "description": "Add three new test scenarios to VotingTestPage.tsx: congrats-1st, congrats-2nd, congrats-3rd. Each renders CongratulatoryModal with the corresponding MOCK_TOP_THREE entry. Include show/hide toggle button matching existing winner modal test pattern.",
+    "steps_to_verify": [
+      "congrats-1st scenario added to TestScenario type union",
+      "congrats-2nd scenario added to TestScenario type union",
+      "congrats-3rd scenario added to TestScenario type union",
+      "Each scenario renders CongratulatoryModal with correct mock entry (rank 1, 2, or 3 from MOCK_TOP_THREE)",
+      "Each scenario passes challengeDate from MOCK_CHALLENGE.date",
+      "Each scenario has a show/hide button toggle matching the winner-normal pattern",
+      "Scenarios appear in the scenario selector/list in VotingTestPage",
+      "No new mock data created — reuses existing MOCK_TOP_THREE entries",
+      "All three scenarios render without errors"
+    ],
+    "passes": false
+  },
+  {
+    "id": "PRD-008",
+    "category": "Edge Cases",
+    "description": "Handle edge cases: ties (user is one of multiple 1st-place winners — still show 'You won!'), persistence (congrats dismiss persists seen_winner_announcement immediately — refresh after congrats dismiss skips both modals), no placement (unchanged behavior), single submission (DB enforces one per user per day via upsert constraint).",
+    "steps_to_verify": [
+      "If user ties for 1st place, CongratulatoryModal shows 'You won!' heading",
+      "If user ties for 2nd place, CongratulatoryModal shows '2nd Place!' heading",
+      "Congrats dismiss persists seen_winner_announcement=true to DB immediately",
+      "Page refresh after congrats dismiss: shouldShow=false, neither modal reappears",
+      "If user is not in top 3, no CongratulatoryModal is rendered",
+      "If user is logged out, no CongratulatoryModal is rendered"
+    ],
+    "passes": false
+  }
+]
