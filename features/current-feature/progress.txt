@@ -1,0 +1,12 @@
+## PRD-001 — canvas-confetti dependency
+- Installed canvas-confetti + @types/canvas-confetti
+- Typecheck passes, import works
+- Files: package.json, package-lock.json
+
+## PRD-002 — useWinnerAnnouncement hook: userPlacement + persistSeen
+- Added useMemo-based userPlacement: finds user's entry in topThree by userId match
+- Added persistSeen(): same upsert as dismiss() but does NOT setShouldShow(false)
+- Key decision: userPlacement is a memo derived from topThree + userId, not separate state. Simpler, auto-updates if topThree changes.
+- Tie handling: .find() returns first match — works for ties since all tied entries share the same rank value
+- Files: src/hooks/useWinnerAnnouncement.ts
+- All feedback loops pass (typecheck, 102 tests, lint)
