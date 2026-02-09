@@ -48,3 +48,12 @@
 - Refresh after congrats: seen_winner_announcement=true in DB → shouldShow=false → neither modal
 - Files: src/App.tsx
 - All feedback loops pass (typecheck, 102 tests, lint)
+
+## PRD-007 — Test Scenarios for CongratulatoryModal
+- Added congrats-1st, congrats-2nd, congrats-3rd to TestScenario union + SCENARIOS config
+- Each renders CongratulatoryModal with MOCK_TOP_THREE[0/1/2], challengeDate from MOCK_CHALLENGE
+- Consolidated three cases via entryIndex lookup — DRY, matches show/hide toggle pattern
+- Added "Congratulatory" sidebar section after "Winner Announcement"
+- No new mock data — reuses existing MOCK_TOP_THREE entries
+- Files: src/test/VotingTestPage.tsx
+- All feedback loops pass (typecheck, 102 tests, lint)

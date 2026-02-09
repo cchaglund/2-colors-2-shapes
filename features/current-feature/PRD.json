@@ -101,7 +101,7 @@
       "No new mock data created — reuses existing MOCK_TOP_THREE entries",
       "All three scenarios render without errors"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "PRD-008",

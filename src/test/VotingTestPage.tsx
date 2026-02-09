@@ -26,6 +26,7 @@ import {
 import { calculateRequiredVotes, calculateTotalPairs } from '../utils/votingRules';
 import type { RankingEntry } from '../types';
 import { WinnerAnnouncementModal } from '../components/modals/WinnerAnnouncementModal';
+import { CongratulatoryModal } from '../components/modals/CongratulatoryModal';
 
 type TestScenario =
   | 'voting-ui'
@@ -38,7 +39,10 @@ type TestScenario =
   | 'voting-bootstrap-one'
   | 'winner-normal'
   | 'winner-tied'
-  | 'winner-three-way';
+  | 'winner-three-way'
+  | 'congrats-1st'
+  | 'congrats-2nd'
+  | 'congrats-3rd';
 
 interface ScenarioConfig {
   name: string;
@@ -89,6 +93,18 @@ const SCENARIOS: Record<TestScenario, ScenarioConfig> = {
   'winner-three-way': {
     name: 'Winner - Three-Way Tie',
     description: 'Winner announcement with three-way tie',
+  },
+  'congrats-1st': {
+    name: 'Congrats - 1st',
+    description: 'Congratulatory modal for 1st place winner',
+  },
+  'congrats-2nd': {
+    name: 'Congrats - 2nd',
+    description: 'Congratulatory modal for 2nd place',
+  },
+  'congrats-3rd': {
+    name: 'Congrats - 3rd',
+    description: 'Congratulatory modal for 3rd place',
   },
 };
 
@@ -467,6 +483,28 @@ export function VotingTestPage() {
           </div>
         );
 
+      case 'congrats-1st':
+      case 'congrats-2nd':
+      case 'congrats-3rd': {
+        const entryIndex = activeScenario === 'congrats-1st' ? 0 : activeScenario === 'congrats-2nd' ? 1 : 2;
+        return showModal ? (
+          <CongratulatoryModal
+            userEntry={MOCK_TOP_THREE[entryIndex]}
+            challengeDate={MOCK_CHALLENGE.date}
+            onDismiss={() => setShowModal(false)}
+          />
+        ) : (
+          <div className="text-center">
+            <button
+              onClick={() => setShowModal(true)}
+              className="px-6 py-3 bg-(--color-accent) text-white rounded-lg font-medium hover:bg-(--color-accent-hover)"
+            >
+              Show Congrats Modal
+            </button>
+          </div>
+        );
+      }
+
       default:
         return (
           <div className="text-center text-(--color-text-secondary)">
@@ -518,6 +556,28 @@ export function VotingTestPage() {
           </h3>
           {(
             ['winner-normal', 'winner-tied', 'winner-three-way'] as TestScenario[]
+          ).map((scenario) => (
+            <button
+              key={scenario}
+              onClick={() => {
+                setActiveScenario(scenario);
+                setShowModal(false);
+              }}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                activeScenario === scenario
+                  ? 'bg-(--color-accent) text-white'
+                  : 'text-(--color-text-primary) hover:bg-(--color-bg-secondary)'
+              }`}
+            >
+              {SCENARIOS[scenario].name}
+            </button>
+          ))}
+
+          <h3 className="text-xs font-semibold text-(--color-text-secondary) uppercase tracking-wide mt-6 mb-2">
+            Congratulatory
+          </h3>
+          {(
+            ['congrats-1st', 'congrats-2nd', 'congrats-3rd'] as TestScenario[]
           ).map((scenario) => (
             <button
               key={scenario}
