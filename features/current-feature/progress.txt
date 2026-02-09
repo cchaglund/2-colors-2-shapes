@@ -10,3 +10,14 @@
 - Tie handling: .find() returns first match — works for ties since all tied entries share the same rank value
 - Files: src/hooks/useWinnerAnnouncement.ts
 - All feedback loops pass (typecheck, 102 tests, lint)
+
+## PRD-003 — CongratulatoryModal component
+- Created src/components/modals/CongratulatoryModal.tsx
+- Props: userEntry (RankingEntry), challengeDate (string), onDismiss callback
+- Fetches challenge internally via useDailyChallenge(challengeDate), shows spinner while loading
+- Rank-specific heading/subtext: 1st="You won!"/"1st place — Congratulations!", 2nd="2nd Place!"/"Congratulations!", 3rd="3rd Place!"/"Congratulations!"
+- Renders user submission via WinnerCard with size="lg"
+- Dismiss button reads "Yay!", calls onDismiss
+- Follows exact same modal patterns as WinnerAnnouncementModal (overlay, card, focus trap, Escape, aria)
+- Files: src/components/modals/CongratulatoryModal.tsx
+- All feedback loops pass (typecheck, 102 tests, lint)

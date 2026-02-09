@@ -39,7 +39,7 @@
       "Dismiss button reads 'Yay!'",
       "Clicking 'Yay!' calls onDismiss"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "PRD-004",
