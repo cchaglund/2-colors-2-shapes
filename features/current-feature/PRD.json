@@ -68,7 +68,7 @@
       "Confetti cleanup runs on component unmount (no memory leaks)",
       "Confetti is skipped entirely when window.matchMedia('(prefers-reduced-motion: reduce)').matches is true"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "PRD-006",

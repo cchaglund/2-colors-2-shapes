@@ -27,3 +27,13 @@
 - Verified line-by-line against WinnerAnnouncementModal — identical patterns
 - No code changes needed, just marking as passing
 - All feedback loops pass (typecheck, 102 tests, lint)
+
+## PRD-005 — Confetti
+- Added confetti effect to CongratulatoryModal using canvas-confetti
+- confetti.create() with resize:true — fires 30-particle bursts every 300ms from random origins
+- Auto-stops after 6s (clearInterval in setTimeout); stops immediately on dismiss via stopConfetti()
+- Cleanup: instance.reset() removes injected canvas on unmount + on dismiss
+- Skips entirely when prefers-reduced-motion: reduce via window.matchMedia check
+- handleDismiss wraps stopConfetti + onDismiss, used by button + Escape key
+- Files: src/components/modals/CongratulatoryModal.tsx
+- All feedback loops pass (typecheck, 102 tests, lint)

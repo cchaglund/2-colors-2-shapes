@@ -1,7 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
+import confetti from 'canvas-confetti';
 import type { RankingEntry } from '../../types';
 import { useDailyChallenge } from '../../hooks/useDailyChallenge';
 import { WinnerCard } from '../WinnerCard';
+
+const CONFETTI_DURATION_MS = 6_000;
+const CONFETTI_INTERVAL_MS = 300;
 
 interface CongratulatoryModalProps {
   userEntry: RankingEntry;
@@ -30,6 +34,49 @@ export function CongratulatoryModal({
   const buttonRef = useRef<HTMLButtonElement>(null);
   const { challenge, loading: challengeLoading } = useDailyChallenge(challengeDate);
 
+  // Confetti refs and dismiss handler
+  const confettiInstance = useRef<confetti.CreateTypes | null>(null);
+  const stopConfetti = useCallback(() => {
+    confettiInstance.current?.reset();
+    confettiInstance.current = null;
+  }, []);
+
+  const handleDismiss = useCallback(() => {
+    stopConfetti();
+    onDismiss();
+  }, [stopConfetti, onDismiss]);
+
+  // Confetti: continuous bursts for 6s, skip if prefers-reduced-motion
+  useEffect(() => {
+    if (challengeLoading) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const instance = confetti.create(undefined, { resize: true });
+    confettiInstance.current = instance;
+
+    const fireConfetti = () => {
+      instance({
+        particleCount: 30,
+        spread: 70,
+        origin: { x: Math.random(), y: Math.random() * 0.4 },
+        zIndex: 100,
+      });
+    };
+
+    fireConfetti();
+    const interval = setInterval(fireConfetti, CONFETTI_INTERVAL_MS);
+    const timeout = setTimeout(() => {
+      clearInterval(interval);
+    }, CONFETTI_DURATION_MS);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+      instance.reset();
+      confettiInstance.current = null;
+    };
+  }, [challengeLoading]);
+
   // Focus the button when modal opens and trap focus
   useEffect(() => {
     if (!challengeLoading) {
@@ -38,7 +85,7 @@ export function CongratulatoryModal({
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onDismiss();
+        handleDismiss();
       }
       // Trap focus within the modal
       if (e.key === 'Tab' && modalRef.current) {
@@ -60,7 +107,7 @@ export function CongratulatoryModal({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [challengeLoading, onDismiss]);
+  }, [challengeLoading, handleDismiss]);
 
   // Show loading state while challenge is being fetched
   if (challengeLoading || !challenge) {
@@ -111,7 +158,7 @@ export function CongratulatoryModal({
 
         <button
           ref={buttonRef}
-          onClick={onDismiss}
+          onClick={handleDismiss}
           className="w-full px-4 py-2 bg-(--color-accent) text-white text-[13px] rounded-md font-medium hover:bg-(--color-accent-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2"
         >
           Yay!
