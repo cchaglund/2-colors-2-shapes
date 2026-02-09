@@ -84,7 +84,7 @@
       "When user did NOT place top 3: only WinnerAnnouncementModal shown (unchanged behavior)",
       "On page refresh after congrats dismissed: seen_winner_announcement=true in DB, shouldShow=false, neither modal reappears"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "PRD-007",

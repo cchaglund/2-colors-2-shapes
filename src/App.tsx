@@ -55,6 +55,7 @@ import {
   getFriendsFeedView,
 } from './utils/urlParams';
 import { WinnerAnnouncementModal } from './components/modals/WinnerAnnouncementModal';
+import { CongratulatoryModal } from './components/modals/CongratulatoryModal';
 
 function App() {
   // Check URL-based view modes
@@ -96,7 +97,11 @@ function App() {
     challengeDate: winnerChallengeDate,
     dismiss: dismissWinnerAnnouncement,
     loading: winnerLoading,
+    userPlacement,
+    persistSeen,
   } = useWinnerAnnouncement(user?.id);
+  const [congratsDismissed, setCongratsDismissed] = useState(false);
+  const [winnerDismissed, setWinnerDismissed] = useState(false);
 
   // Yesterday's date for voting
   const yesterdayDate = useMemo(() => getYesterdayDateUTC(), []);
@@ -458,16 +463,32 @@ function App() {
         />
       )}
 
-      {/* Winner announcement modal - shows on first visit of the day */}
+      {/* Congratulatory modal (user placed top 3) then winner announcement */}
       {showWinnerAnnouncement && !winnerLoading && (
-        <WinnerAnnouncementModal
-          challengeDate={winnerChallengeDate}
-          topThree={winnerTopThree}
-          onDismiss={dismissWinnerAnnouncement}
-          onViewSubmission={(submissionId: any) => {
-            window.location.href = `?view=submission&id=${submissionId}`;
-          }}
-        />
+        <>
+          {userPlacement && !congratsDismissed ? (
+            <CongratulatoryModal
+              userEntry={userPlacement}
+              challengeDate={winnerChallengeDate}
+              onDismiss={() => {
+                persistSeen();
+                setCongratsDismissed(true);
+              }}
+            />
+          ) : !winnerDismissed ? (
+            <WinnerAnnouncementModal
+              challengeDate={winnerChallengeDate}
+              topThree={winnerTopThree}
+              onDismiss={() => {
+                dismissWinnerAnnouncement();
+                setWinnerDismissed(true);
+              }}
+              onViewSubmission={(submissionId: any) => {
+                window.location.href = `?view=submission&id=${submissionId}`;
+              }}
+            />
+          ) : null}
+        </>
       )}
 
       {/* Voting modal - shows after saving a submission */}

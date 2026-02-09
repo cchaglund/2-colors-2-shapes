@@ -37,3 +37,14 @@
 - handleDismiss wraps stopConfetti + onDismiss, used by button + Escape key
 - Files: src/components/modals/CongratulatoryModal.tsx
 - All feedback loops pass (typecheck, 102 tests, lint)
+
+## PRD-006 — App Integration
+- Destructured userPlacement + persistSeen from useWinnerAnnouncement in App.tsx
+- Added congratsDismissed + winnerDismissed local state
+- Flow: shouldShow && !loading → if userPlacement && !congratsDismissed → CongratulatoryModal; else if !winnerDismissed → WinnerAnnouncementModal
+- Congrats onDismiss: persistSeen() + setCongratsDismissed(true) → winner modal appears next
+- Winner onDismiss: dismissWinnerAnnouncement() + setWinnerDismissed(true) → done
+- Non-top-3 users: no userPlacement → straight to WinnerAnnouncementModal (unchanged)
+- Refresh after congrats: seen_winner_announcement=true in DB → shouldShow=false → neither modal
+- Files: src/App.tsx
+- All feedback loops pass (typecheck, 102 tests, lint)
