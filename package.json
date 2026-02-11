@@ -12,7 +12,8 @@
     "generate:words": "node ./scripts/generate-words.js",
     "typecheck": "tsc -b --noEmit",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "deploy": "rm -rf node_modules && npm install && npm run build && netlify deploy --prod --dir=dist"
   },
   "dependencies": {
     "@floating-ui/react": "0.27.16",
