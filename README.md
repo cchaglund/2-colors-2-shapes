@@ -2,7 +2,10 @@
 
 A daily art challenge app where you create art using only 2 colors and 2 geometric shapes.
 
-https://2-colors-2-shapes.netlify.app/
+https://2colors2shapes.com
+
+- **Domain**: Registered at [Loopia.se](https://loopia.se), using Netlify DNS
+- **Hosting**: [Netlify](https://netlify.com) with automatic SSL via Let's Encrypt
 
 ## Concept
 

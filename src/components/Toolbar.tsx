@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import logoSvg from '../assets/logo.svg';
 import type { DailyChallenge, ShapeType } from '../types';
 import type { ThemeMode } from '../hooks/useThemeState';
 import type { Profile } from '../hooks/useProfile';
@@ -132,7 +133,13 @@ export function Toolbar({
       <div className="flex-1 overflow-y-auto px-4">
         {/* Header with collapse */}
         <div className="flex items-center justify-between py-3 border-b border-(--color-border-light)">
-          <span className="text-[13px] font-medium text-(--color-text-primary)">2 Colors 2 Shapes</span>
+          <span className="flex items-center gap-2 text-[13px] font-medium text-(--color-text-primary)">
+            <img src={logoSvg} alt="" width="28" height="28" />
+            <span className="flex flex-col leading-tight">
+              <span>2 Colors</span>
+              <span>2 Shapes</span>
+            </span>
+          </span>
           <button
             className="w-6 h-6 flex items-center justify-center bg-transparent border-none cursor-pointer rounded transition-colors text-(--color-text-tertiary) hover:text-(--color-text-secondary) hover:bg-(--color-hover)"
             onClick={onToggle}

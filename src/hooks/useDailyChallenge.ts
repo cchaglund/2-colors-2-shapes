@@ -154,10 +154,25 @@ export function useDailyChallenge(date: string): UseDailyChallengeReturn {
         throw new Error(fetchError.message || 'Failed to fetch challenge');
       }
 
+      // DEBUG: Override shapes with equilateral triangle and circle
+      const debugShapes: [import('../types').ChallengeShapeData, import('../types').ChallengeShapeData] = [
+        {
+          type: 'triangle',
+          name: 'Triangle',
+          svg: 'M 50 6.699 L 93.301 81.699 L 6.699 81.699 Z',
+        },
+        {
+          type: 'circle',
+          name: 'Circle',
+          svg: 'M 50 0 A 50 50 0 1 1 50 100 A 50 50 0 1 1 50 0 Z',
+        },
+      ];
+
       const fetchedChallenge: DailyChallenge = {
         date: data.date,
         colors: data.colors,
-        shapes: data.shapes,
+        // shapes: data.shapes,
+        shapes: debugShapes,
         word: data.word,
       };
 

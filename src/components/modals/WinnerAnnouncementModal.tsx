@@ -93,7 +93,7 @@ export function WinnerAnnouncementModal({
     >
       <div
         ref={modalRef}
-        className="bg-(--color-bg-primary) border border-(--color-border) rounded-lg p-6 w-full max-w-lg mx-4"
+        className="bg-(--color-bg-primary) border border-(--color-border) rounded-lg p-6 w-full max-w-140 mx-4"
       >
         <div className="text-center mb-5">
           <h2 id="winner-title" className="text-lg font-semibold text-(--color-text-primary) mb-0.5">
