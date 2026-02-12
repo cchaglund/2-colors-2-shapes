@@ -1,4 +1,4 @@
-export const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+export const DAYS_OF_WEEK = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 export const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -14,5 +14,6 @@ export function getDaysInMonth(year: number, month: number): number {
 }
 
 export function getFirstDayOfMonth(year: number, month: number): number {
-  return new Date(year, month, 1).getDay();
+  // Monday-based: Mon=0, Tue=1, ..., Sun=6
+  return (new Date(year, month, 1).getDay() + 6) % 7;
 }
