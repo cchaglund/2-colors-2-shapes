@@ -319,38 +319,44 @@ export function Calendar({ onClose }: CalendarProps) {
               showToday={!isCurrentMonth}
             />
 
-            <CalendarGrid loading={isLoading} loadingMessage={loadingMessage}>
-              {calendarDays.map((day, index) => {
-                if (day === null) {
-                  return <div key={`empty-${index}`} className="aspect-square" />;
-                }
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12 text-(--color-text-secondary) h-full">
+                {loadingMessage}
+              </div>
+            ) : (
+              <CalendarGrid className="mt-14">
+                {calendarDays.map((day, index) => {
+                  if (day === null) {
+                    return <div key={`empty-${index}`} className="aspect-square" />;
+                  }
 
-                const dateStr = formatDate(currentYear, currentMonth, day);
-                const isToday = dateStr === todayStr;
-                const isFuture = dateStr > todayStr;
-                const challenge = challenges.get(dateStr);
-                const submission = submissionsByDate.get(dateStr);
-                const ranking = submission ? rankings.get(submission.id) : undefined;
-                const dayWinners = winnersByDate.get(dateStr);
+                  const dateStr = formatDate(currentYear, currentMonth, day);
+                  const isToday = dateStr === todayStr;
+                  const isFuture = dateStr > todayStr;
+                  const challenge = challenges.get(dateStr);
+                  const submission = submissionsByDate.get(dateStr);
+                  const ranking = submission ? rankings.get(submission.id) : undefined;
+                  const dayWinners = winnersByDate.get(dateStr);
 
-                return (
-                  <CalendarDayCell
-                    key={dateStr}
-                    day={day}
-                    dateStr={dateStr}
-                    viewMode={effectiveViewMode}
-                    isToday={isToday}
-                    isFuture={isFuture}
-                    challenge={challenge}
-                    submission={submission}
-                    ranking={ranking}
-                    dayWinners={dayWinners}
-                    latestWinnersDate={latestWinnersDate}
-                    onClick={handleDayClick}
-                  />
-                );
-              })}
-            </CalendarGrid>
+                  return (
+                    <CalendarDayCell
+                      key={dateStr}
+                      day={day}
+                      dateStr={dateStr}
+                      viewMode={effectiveViewMode}
+                      isToday={isToday}
+                      isFuture={isFuture}
+                      challenge={challenge}
+                      submission={submission}
+                      ranking={ranking}
+                      dayWinners={dayWinners}
+                      latestWinnersDate={latestWinnersDate}
+                      onClick={handleDayClick}
+                    />
+                  );
+                })}
+              </CalendarGrid>
+            )}
 
             <CalendarStats
               effectiveViewMode={effectiveViewMode}
