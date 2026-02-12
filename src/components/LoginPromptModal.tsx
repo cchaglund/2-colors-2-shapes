@@ -20,11 +20,11 @@ export function LoginPromptModal({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-1000 bg-(--color-modal-overlay)">
-      <div className="p-6 rounded-lg max-w-80 text-center bg-(--color-bg-primary) border border-(--color-border)">
-        <h3 className="m-0 mb-3 text-lg font-semibold text-(--color-text-primary)">
+      <div className="p-6 rounded-lg max-w-84 text-center bg-(--color-bg-primary) border border-(--color-border)">
+        <h3 className="m-0 mb-5 text-lg font-semibold text-(--color-text-primary)">
           {title}
         </h3>
-        <p className="m-0 mb-5 text-[13px] text-(--color-text-secondary)">
+        <p className="m-0 mb-7 text-[15px] text-(--color-text-secondary)">
           {message}
         </p>
         <div className="flex flex-col gap-3">
@@ -50,7 +50,7 @@ export function LoginPromptModal({
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            Login with Google
+            Sign in with Google
           </button>
           <button
             className="px-5 py-2 rounded-md cursor-pointer text-[13px] font-medium transition-colors bg-transparent text-(--color-text-secondary) border border-(--color-border) hover:bg-(--color-hover)"

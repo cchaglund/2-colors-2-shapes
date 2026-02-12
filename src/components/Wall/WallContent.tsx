@@ -1,15 +1,15 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useWallOfTheDay, type SortMode } from '../../hooks/useWallOfTheDay';
-import { useDailyChallenge, fetchChallengesBatch, getChallengeSync } from '../../hooks/useDailyChallenge';
-import type { DailyChallenge } from '../../types';
+import { useDailyChallenge } from '../../hooks/useDailyChallenge';
+import { useCalendarMonth } from '../../hooks/useCalendarMonth';
+import { useCalendarChallenges } from '../../hooks/useCalendarChallenges';
 import { WallSortControls } from './WallSortControls';
 import { WallLockedState } from './WallLockedState';
 import { WallEmptyState } from './WallEmptyState';
 import { SubmissionThumbnail } from '../SubmissionThumbnail';
 import { ContentNavigation } from '../Calendar/ContentNavigation';
-import { getTodayDateUTC } from '../../utils/dailyChallenge';
-import { formatDate, getDaysInMonth, getFirstDayOfMonth } from '../../utils/calendarUtils';
-import { getDarkerLighterColors } from '../../utils/colorUtils';
+import { ContentCalendarGrid } from '../Calendar/ContentCalendarGrid';
+import { formatDate, getDaysInMonth } from '../../utils/calendarUtils';
 import { supabase } from '../../lib/supabase';
 
 type ViewType = 'grid' | 'calendar';
@@ -22,7 +22,6 @@ interface WallContentProps {
   date: string;
   onDateChange: (date: string) => void;
   hasSubmittedToday: boolean;
-  isLoggedIn: boolean;
   showNavigation?: boolean;
   showCalendarButton?: boolean;
   onSubmissionClick?: (submissionId: string) => void;
@@ -32,14 +31,28 @@ export function WallContent({
   date,
   onDateChange,
   hasSubmittedToday,
-  isLoggedIn,
   showNavigation = false,
   onSubmissionClick,
 }: WallContentProps) {
   const [viewType, setViewType] = useState<ViewType>('grid');
   const [submissionCounts, setSubmissionCounts] = useState<SubmissionCountByDate>({});
   const [calendarLoading, setCalendarLoading] = useState(false);
-  const [challengesMap, setChallengesMap] = useState<Map<string, DailyChallenge>>(new Map());
+
+  const {
+    calendarYear,
+    calendarMonth,
+    calendarDays,
+    goToPreviousMonth,
+    goToNextMonth,
+    goToToday,
+    canGoNext,
+    monthYearLabel,
+    shortDateLabel,
+    todayStr: todayDate,
+    isToday,
+  } = useCalendarMonth(date, onDateChange);
+
+  const challengesMap = useCalendarChallenges(calendarYear, calendarMonth, viewType === 'calendar');
 
   const {
     submissions,
@@ -56,16 +69,6 @@ export function WallContent({
 
   // Fetch challenge data for the date to get colors from DB
   const { challenge } = useDailyChallenge(date);
-
-  // Get today's date for "Today" button
-  const todayDate = useMemo(() => getTodayDateUTC(), []);
-  const isToday = date === todayDate;
-
-  // Parse year/month from date for calendar view
-  const [calendarYear, calendarMonth] = useMemo(() => {
-    const d = new Date(date + 'T00:00:00Z');
-    return [d.getUTCFullYear(), d.getUTCMonth()];
-  }, [date]);
 
   // Fetch submission counts for calendar view
   const fetchSubmissionCounts = useCallback(async () => {
@@ -103,100 +106,6 @@ export function WallContent({
     }
   }, [viewType, fetchSubmissionCounts]);
 
-  // Fetch challenges for calendar view (for badge colors)
-  useEffect(() => {
-    if (viewType === 'calendar') {
-      const daysInMonth = getDaysInMonth(calendarYear, calendarMonth);
-      const dates: string[] = [];
-      for (let day = 1; day <= daysInMonth; day++) {
-        dates.push(formatDate(calendarYear, calendarMonth, day));
-      }
-
-      // Immediately populate from global cache (synchronous) to avoid flash
-      const cachedMap = new Map<string, DailyChallenge>();
-      dates.forEach(date => {
-        const cached = getChallengeSync(date);
-        if (cached) cachedMap.set(date, cached);
-      });
-      if (cachedMap.size > 0) {
-        setChallengesMap(cachedMap);
-      }
-
-      // Then fetch any uncached dates (fetchChallengesBatch handles this efficiently)
-      fetchChallengesBatch(dates).then(setChallengesMap);
-    }
-  }, [viewType, calendarYear, calendarMonth]);
-
-  // Calendar grid data
-  const calendarDays = useMemo(() => {
-    const daysInMonth = getDaysInMonth(calendarYear, calendarMonth);
-    const firstDay = getFirstDayOfMonth(calendarYear, calendarMonth);
-    const days: (number | null)[] = [];
-
-    for (let i = 0; i < firstDay; i++) {
-      days.push(null);
-    }
-
-    for (let day = 1; day <= daysInMonth; day++) {
-      days.push(day);
-    }
-
-    return days;
-  }, [calendarYear, calendarMonth]);
-
-  // Calendar navigation
-  const goToPreviousMonth = useCallback(() => {
-    let newMonth = calendarMonth - 1;
-    let newYear = calendarYear;
-    if (newMonth < 0) {
-      newMonth = 11;
-      newYear -= 1;
-    }
-    onDateChange(formatDate(newYear, newMonth, 1));
-  }, [calendarMonth, calendarYear, onDateChange]);
-
-  const goToNextMonth = useCallback(() => {
-    let newMonth = calendarMonth + 1;
-    let newYear = calendarYear;
-    if (newMonth > 11) {
-      newMonth = 0;
-      newYear += 1;
-    }
-    onDateChange(formatDate(newYear, newMonth, 1));
-  }, [calendarMonth, calendarYear, onDateChange]);
-
-  const goToToday = useCallback(() => {
-    onDateChange(todayDate);
-  }, [onDateChange, todayDate]);
-
-  const handleDayClick = useCallback((day: number) => {
-    const dateStr = formatDate(calendarYear, calendarMonth, day);
-    setViewType('grid');
-    onDateChange(dateStr);
-  }, [calendarYear, calendarMonth, onDateChange]);
-
-  const canGoNext = useMemo(() => {
-    const now = new Date();
-    return calendarYear < now.getFullYear() ||
-      (calendarYear === now.getFullYear() && calendarMonth < now.getMonth());
-  }, [calendarYear, calendarMonth]);
-
-  const monthYearLabel = useMemo(() => {
-    const d = new Date(calendarYear, calendarMonth, 1);
-    return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-  }, [calendarYear, calendarMonth]);
-
-  // Short date format for grid view navigation
-  const shortDateLabel = useMemo(() => {
-    const d = new Date(date + 'T00:00:00Z');
-    return d.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      timeZone: 'UTC',
-    });
-  }, [date]);
-
   // Format date for display (used in empty state)
   const formattedDate = useMemo(() => {
     const d = new Date(date + 'T00:00:00Z');
@@ -224,10 +133,15 @@ export function WallContent({
     if (onSubmissionClick) {
       onSubmissionClick(submissionId);
     } else {
-      // Default behavior: navigate to submission detail page
       window.location.href = `/?view=submission&id=${submissionId}`;
     }
   };
+
+  const handleDayClick = useCallback((day: number) => {
+    const dateStr = formatDate(calendarYear, calendarMonth, day);
+    setViewType('grid');
+    onDateChange(dateStr);
+  }, [calendarYear, calendarMonth, onDateChange]);
 
   // Loading state - only for grid view
   if (loading && viewType === 'grid') {
@@ -322,105 +236,24 @@ export function WallContent({
       {/* Calendar view */}
       {viewType === 'calendar' && (
         <div className="flex flex-col gap-4">
-          {/* Calendar loading state */}
-          {calendarLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="w-6 h-6 border-2 border-(--color-border) border-t-(--color-accent) rounded-full animate-spin" />
-            </div>
-          ) : (
-            <>
-              {/* Calendar grid */}
-              <div className="grid grid-cols-7 gap-1">
-                {/* Day headers */}
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                  <div
-                    key={day}
-                    className="text-center text-[11px] font-medium text-(--color-text-tertiary) py-2"
-                  >
-                    {day}
-                  </div>
-                ))}
-
-                {/* Day cells */}
-                {calendarDays.map((day, index) => {
-                  if (day === null) {
-                    return <div key={`empty-${index}`} className="aspect-square" />;
-                  }
-
-                  const dateStr = formatDate(calendarYear, calendarMonth, day);
-                  const isDayToday = dateStr === todayDate;
-                  const isFuture = dateStr > todayDate;
-                  const submissionCount = submissionCounts[dateStr] || 0;
-                  const isCurrentDayLocked = dateStr === todayDate && !hasSubmittedToday;
-
-                  return (
-                    <button
-                      key={dateStr}
-                      onClick={() => !isFuture && !isCurrentDayLocked && handleDayClick(day)}
-                      disabled={isFuture || isCurrentDayLocked}
-                      className={`
-                        aspect-square rounded-md p-1.5 transition-all border border-(--color-border-light)
-                        ${isFuture || isCurrentDayLocked
-                          ? 'opacity-40 cursor-not-allowed'
-                          : 'hover:border-(--color-accent) cursor-pointer'
-                        }
-                        ${isDayToday ? 'ring-2 ring-(--color-accent) ring-offset-1' : ''}
-                      `}
-                    >
-                      <div className="flex flex-col h-full">
-                        <span className={`
-                          text-[11px] font-medium tabular-nums text-left
-                          ${isDayToday ? 'text-(--color-accent)' : 'text-(--color-text-secondary)'}
-                        `}>
-                          {day}
-                        </span>
-                        <div className="flex-1 flex items-center justify-center">
-                          {/* Submission count badge - only show when colors loaded */}
-                          {submissionCount > 0 && !isFuture && !isCurrentDayLocked && (() => {
-                            const dayChallenge = challengesMap.get(dateStr);
-                            if (!dayChallenge) return null;
-                            const { darker, lighter } = getDarkerLighterColors(dayChallenge.colors);
-                            return (
-                              <span
-                                className="text-[21px] font-semibold rounded-full min-w-10 h-10 flex items-center justify-center"
-                                style={{ backgroundColor: darker, color: lighter }}
-                              >
-                                {submissionCount}
-                              </span>
-                            );
-                          })()}
-
-                          {/* Lock icon for current day when not submitted */}
-                          {isCurrentDayLocked && (
-                            <svg
-                              width="16"
-                              height="16"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="var(--color-text-tertiary)"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                            </svg>
-                          )}
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </>
-          )}
+          <ContentCalendarGrid
+            calendarYear={calendarYear}
+            calendarMonth={calendarMonth}
+            calendarDays={calendarDays}
+            todayStr={todayDate}
+            hasSubmittedToday={hasSubmittedToday}
+            loading={calendarLoading}
+            counts={submissionCounts}
+            challengesMap={challengesMap}
+            onDayClick={handleDayClick}
+          />
         </div>
       )}
 
       {/* Grid view */}
       {viewType === 'grid' && (
         !canViewCurrentDay ? (
-          <WallLockedState isLoggedIn={isLoggedIn} />
+          <WallLockedState/>
         ) : challenge ? (
           <>
             {/* Grid of submissions */}

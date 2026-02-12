@@ -9,7 +9,8 @@ import { formatDate, getDaysInMonth, getFirstDayOfMonth } from '../../utils/cale
 import type { CalendarProps, ViewMode, RankingInfo, WinnerEntry } from './types';
 import { CalendarHeader } from './CalendarHeader';
 import { CalendarViewToggle } from './CalendarViewToggle';
-import { CalendarNavigation } from './CalendarNavigation';
+import { ContentNavigation } from './ContentNavigation';
+import { MONTHS } from '../../utils/calendarUtils';
 import { CalendarGrid } from './CalendarGrid';
 import { CalendarDayCell } from './CalendarDayCell';
 import { CalendarStats } from './CalendarStats';
@@ -266,6 +267,12 @@ export function Calendar({ onClose }: CalendarProps) {
       (currentYear === now.getFullYear() && currentMonth < now.getMonth());
   }, [currentYear, currentMonth]);
 
+  // Hide "Today" button when already viewing the current month
+  const isCurrentMonth = useMemo(() => {
+    const now = new Date();
+    return currentYear === now.getFullYear() && currentMonth === now.getMonth();
+  }, [currentYear, currentMonth]);
+
   const isLoading = (effectiveViewMode === 'my-submissions' && loading) ||
     (effectiveViewMode === 'winners' && winnersLoading);
   const loadingMessage = effectiveViewMode === 'my-submissions'
@@ -278,7 +285,7 @@ export function Calendar({ onClose }: CalendarProps) {
       onClick={onClose}
     >
       <div
-        className="border rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-auto bg-(--color-bg-primary) border-(--color-border)"
+        className="flex flex-col border rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] min-h-225 overflow-auto bg-(--color-bg-primary) border-(--color-border)"
         onClick={(e) => e.stopPropagation()}
       >
         <CalendarHeader onClose={onClose} />
@@ -294,7 +301,6 @@ export function Calendar({ onClose }: CalendarProps) {
             date={wallDate}
             onDateChange={setWallDate}
             hasSubmittedToday={hasSubmittedToday}
-            isLoggedIn={!!user}
           />
         ) : effectiveViewMode === 'friends' ? (
           <FriendsFeedTab
@@ -304,13 +310,13 @@ export function Calendar({ onClose }: CalendarProps) {
           />
         ) : (
           <>
-            <CalendarNavigation
-              currentYear={currentYear}
-              currentMonth={currentMonth}
+            <ContentNavigation
+              label={`${MONTHS[currentMonth]} ${currentYear}`}
               canGoNext={canGoNext}
-              onPrevious={goToPreviousMonth}
+              onPrev={goToPreviousMonth}
               onNext={goToNextMonth}
               onToday={goToToday}
+              showToday={!isCurrentMonth}
             />
 
             <CalendarGrid loading={isLoading} loadingMessage={loadingMessage}>

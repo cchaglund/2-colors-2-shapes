@@ -43,7 +43,7 @@ export function AuthButton({ profile, profileLoading = false }: AuthButtonProps)
   return (
     <button
       onClick={signInWithGoogle}
-      className="flex items-center gap-2 px-3 py-2 bg-(--color-bg-primary) border border-(--color-border) rounded-md hover:bg-(--color-hover) transition-colors text-[13px] text-(--color-text-primary) cursor-pointer"
+      className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-(--color-bg-primary) border border-(--color-border) rounded-md hover:bg-(--color-hover) transition-colors text-[13px] text-(--color-text-primary) cursor-pointer"
     >
       <svg className="w-4 h-4" viewBox="0 0 24 24">
         <path

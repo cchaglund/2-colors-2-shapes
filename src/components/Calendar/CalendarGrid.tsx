@@ -9,14 +9,14 @@ interface CalendarGridProps {
 export function CalendarGrid({ loading, loadingMessage, children }: CalendarGridProps) {
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12 text-(--color-text-secondary)">
+      <div className="flex items-center justify-center py-12 text-(--color-text-secondary) h-full">
         {loadingMessage}
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-7 gap-1">
+    <div className="grid grid-cols-7 gap-1 mt-14">
       {/* Day headers */}
       {DAYS_OF_WEEK.map((day) => (
         <div

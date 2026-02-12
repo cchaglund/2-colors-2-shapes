@@ -65,7 +65,6 @@ export function WallOfTheDayPage({ date }: WallOfTheDayPageProps) {
           date={date}
           onDateChange={handleDateChange}
           hasSubmittedToday={hasSubmittedToday}
-          isLoggedIn={!!user}
           showNavigation={true}
         />
       </div>

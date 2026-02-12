@@ -1,8 +1,5 @@
-interface WallLockedStateProps {
-  isLoggedIn: boolean;
-}
 
-export function WallLockedState({ isLoggedIn }: WallLockedStateProps) {
+export function WallLockedState () {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
       <div className="w-12 h-12 rounded-full bg-(--color-bg-tertiary) flex items-center justify-center mb-4">
@@ -21,9 +18,7 @@ export function WallLockedState({ isLoggedIn }: WallLockedStateProps) {
         </svg>
       </div>
       <p className="text-[13px] text-(--color-text-secondary) mb-4">
-        {isLoggedIn
-          ? "Save your art first to see today's submissions"
-          : "Sign in to see today's submissions"}
+        Save your art first, in order to see today's submissions
       </p>
       <a
         href="/"

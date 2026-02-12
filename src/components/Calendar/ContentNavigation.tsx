@@ -18,7 +18,7 @@ export function ContentNavigation({
   showToday = true,
 }: ContentNavigationProps) {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between mt-4">
       <button
         onClick={onPrev}
         disabled={!canGoPrev}

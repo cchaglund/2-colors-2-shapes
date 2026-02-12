@@ -8,7 +8,7 @@ interface SidebarState {
 }
 
 const STORAGE_KEY = 'sidebar-state';
-const DEFAULT_LEFT_WIDTH = 220; // w-55 = 220px
+const DEFAULT_LEFT_WIDTH = 300;
 const DEFAULT_RIGHT_WIDTH = 300; // w-75 = 300px
 const MIN_WIDTH = 150;
 const MAX_WIDTH = 400;

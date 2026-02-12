@@ -8,6 +8,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { AuthButton } from './AuthButton';
 import { LoginPromptModal } from './LoginPromptModal';
 import { type KeyMappings, formatKeyBinding } from '../constants/keyboardActions';
+import { InfoTooltip } from './InfoTooltip';
 
 // Small shape preview component for the toolbar
 function ShapePreviewIcon({ type, size = 18 }: { type: ShapeType; size?: number }) {
@@ -99,7 +100,7 @@ export function Toolbar({
   showOffCanvas,
   onToggleOffCanvas,
 }: ToolbarProps) {
-  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [loginModalVariant, setLoginModalVariant] = useState<'save' | 'submissions' | 'friends' | null>(null);
   const hasSelection = selectedShapeIds.size > 0;
 
   if (!isOpen) {
@@ -156,10 +157,10 @@ export function Toolbar({
           <Label>Account</Label>
           <AuthButton profile={profile} profileLoading={profileLoading} />
 
-          {isLoggedIn && onOpenCalendar && (
+          {onOpenCalendar && (
             <button
               className="w-full mt-2 py-2 px-3 border border-(--color-border) rounded-md cursor-pointer text-[13px] font-medium transition-colors flex items-center justify-center gap-2 bg-transparent text-(--color-text-primary) hover:bg-(--color-hover)"
-              onClick={onOpenCalendar}
+              onClick={isLoggedIn ? onOpenCalendar : () => setLoginModalVariant('submissions')}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -167,14 +168,14 @@ export function Toolbar({
                 <line x1="8" y1="2" x2="8" y2="6" />
                 <line x1="3" y1="10" x2="21" y2="10" />
               </svg>
-              Submissions
+              Gallery
             </button>
           )}
 
-          {isLoggedIn && onOpenFriendsModal && (
+          {onOpenFriendsModal && (
             <button
               className="w-full mt-2 py-2 px-3 border border-(--color-border) rounded-md cursor-pointer text-[13px] font-medium transition-colors flex items-center justify-center gap-2 bg-transparent text-(--color-text-primary) hover:bg-(--color-hover)"
-              onClick={onOpenFriendsModal}
+              onClick={isLoggedIn ? onOpenFriendsModal : () => setLoginModalVariant('friends')}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -189,14 +190,10 @@ export function Toolbar({
 
         {/* Today's Challenge Section */}
         <div className="py-4 border-b border-(--color-border-light)">
-          <div className="flex items-baseline justify-between mb-1">
-            <span className="text-[13px] font-medium text-(--color-text-primary)">Today's Challenge</span>
-            <span className="text-[11px] text-(--color-text-tertiary) tabular-nums">{challenge.date}</span>
-          </div>
 
           {/* Daily Word */}
           <div className="mt-3 mb-4">
-            <Label>Inspiration</Label>
+            <Label>Inspiration<InfoTooltip text="This is just for inspiration, feel free to ignore it" /></Label>
             <p className="m-0 text-base font-medium text-(--color-text-primary) capitalize">"{challenge.word}"</p>
           </div>
 
@@ -314,7 +311,7 @@ export function Toolbar({
           ) : (
             <button
               className="w-full py-2 px-3 text-white border-none rounded-md cursor-pointer text-[13px] font-medium transition-colors bg-(--color-accent) hover:bg-(--color-accent-hover)"
-              onClick={() => setShowLoginModal(true)}
+              onClick={() => setLoginModalVariant('save')}
             >
               Save Creation
             </button>
@@ -331,8 +328,18 @@ export function Toolbar({
           </button>
         </div>
 
-        {showLoginModal && (
-          <LoginPromptModal onClose={() => setShowLoginModal(false)} />
+        {loginModalVariant && (
+          <LoginPromptModal
+            onClose={() => setLoginModalVariant(null)}
+            {...(loginModalVariant === 'submissions' && {
+              title: 'View Gallery',
+              message: "To view others' art, and to save your own, you need to be logged in.",
+            })}
+            {...(loginModalVariant === 'friends' && {
+              title: 'Follow Your Friends',
+              message: 'To follow other users you must first log in.',
+            })}
+          />
         )}
 
         {/* View Section */}

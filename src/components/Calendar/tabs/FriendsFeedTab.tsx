@@ -12,13 +12,11 @@ export function FriendsFeedTab({
   hasSubmittedToday,
 }: FriendsFeedTabProps) {
   return (
-    <div className="mt-4">
-      <FriendsFeedContent
-        date={date}
-        onDateChange={onDateChange}
-        hasSubmittedToday={hasSubmittedToday}
-        showNavigation={true}
-      />
-    </div>
+    <FriendsFeedContent
+      date={date}
+      onDateChange={onDateChange}
+      hasSubmittedToday={hasSubmittedToday}
+      showNavigation={true}
+    />
   );
 }

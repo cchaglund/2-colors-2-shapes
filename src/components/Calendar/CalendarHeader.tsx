@@ -6,7 +6,7 @@ export function CalendarHeader({ onClose }: CalendarHeaderProps) {
   return (
     <div className="flex items-center justify-between mb-4">
       <h2 className="text-lg font-semibold text-(--color-text-primary)">
-        Calendar
+        Gallery
       </h2>
       <button
         onClick={onClose}
