@@ -308,7 +308,7 @@ function App() {
 
   return (
     <div className="flex h-screen">
-      {showWelcome && <WelcomeModal onDismiss={dismissWelcome} />}
+      {showWelcome && <WelcomeModal onDismiss={dismissWelcome} challenge={challenge} />}
       {showOnboarding && <OnboardingModal onComplete={updateNickname} />}
 
       <Toolbar

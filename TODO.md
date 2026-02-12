@@ -6,6 +6,7 @@
 - ~~buy domain and set up hosting~~ ✅ 2colors2shapes.com (Loopia + Netlify DNS)
 - search for artist by email (hm, privacy implications?)
 - should be able to comment on submissions from the "single submission page" (maybe a nightmare?)
+- when you log in you get redirected to the netlify url
 
 # Bugs
 - bug: när man roterar en hel drös med shapes så verkar de rotera lite olika mängder

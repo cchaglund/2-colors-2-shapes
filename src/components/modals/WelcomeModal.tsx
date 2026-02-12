@@ -1,10 +1,25 @@
 import { useEffect, useRef } from 'react';
+import type { DailyChallenge } from '../../types';
+import { getShapeSVGData } from '../../utils/shapeHelpers';
 
 interface WelcomeModalProps {
   onDismiss: () => void;
+  challenge?: DailyChallenge | null;
 }
 
-export function WelcomeModal({ onDismiss }: WelcomeModalProps) {
+function ShapeIcon({ type, size = 24 }: { type: string; size?: number }) {
+  const { element, props, viewBox } = getShapeSVGData(type as never, size);
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${viewBox.width} ${viewBox.height}`}>
+      {element === 'ellipse' && <ellipse {...props} fill="currentColor" />}
+      {element === 'rect' && <rect {...props} fill="currentColor" />}
+      {element === 'polygon' && <polygon {...props} fill="currentColor" />}
+      {element === 'path' && <path {...props} fill="currentColor" />}
+    </svg>
+  );
+}
+
+export function WelcomeModal({ onDismiss, challenge }: WelcomeModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -47,68 +62,67 @@ export function WelcomeModal({ onDismiss }: WelcomeModalProps) {
     >
       <div
         ref={modalRef}
-        className="bg-(--color-bg-primary) border border-(--color-border) rounded-lg p-6 w-full max-w-md mx-4"
+        className="bg-(--color-bg-primary) border border-(--color-border) rounded-lg p-6 w-full max-w-lg mx-4"
       >
         <h2
           id="welcome-title"
-          className="text-lg font-semibold text-(--color-text-primary) mb-4"
+          className="text-xl font-semibold text-(--color-text-primary) mb-5 text-center"
         >
           Welcome to 2 Colors 2 Shapes!
         </h2>
 
-        <div className="space-y-4 text-[13px] text-(--color-text-secondary)">
-          <section>
-            <h3 className="font-medium text-(--color-text-primary) mb-1">
-              Daily Challenges
-            </h3>
-            <p>
-              Each day brings a new creative challenge with 2 colors, 2 shapes,
-              and an optional <strong>daily word</strong> for inspiration.
-              The word is just a suggestion — use it however you like, or ignore it entirely!
+        {challenge && (
+          <div className="flex flex-col items-center gap-3 mt-10 mb-8">
+            <div className="flex items-center gap-3">
+              <div
+                className="w-6 h-6 rounded-full border border-(--color-border)"
+                style={{ backgroundColor: challenge.colors[0] }}
+              />
+              <div
+                className="w-6 h-6 rounded-full border border-(--color-border)"
+                style={{ backgroundColor: challenge.colors[1] }}
+              />
+              <div className="w-px h-5 bg-(--color-border) mx-1" />
+              <span className="text-(--color-text-tertiary)">
+                <ShapeIcon type={challenge.shapes[0].type} size={22} />
+              </span>
+              <span className="text-(--color-text-tertiary)">
+                <ShapeIcon type={challenge.shapes[1].type} size={22} />
+              </span>
+            </div>
+            <p className="text-[13px] italic text-(--color-text-tertiary) capitalize">
+              "{challenge.word}"
             </p>
-          </section>
+          </div>
+        )}
 
-          <section>
-            <h3 className="font-medium text-(--color-text-primary) mb-1">
-              Vote & Compete
-            </h3>
-            <p>
-              Submit your art today, and tomorrow the community votes on it.
-              Winners are announced the day after voting ends.
-              It's optional but fun — see how your work stacks up!
-            </p>
-          </section>
+        <div className="flex items-center gap-4 mb-5">
 
-          <section>
-            <h3 className="font-medium text-(--color-text-primary) mb-1">
-              Create & Customize
-            </h3>
-            <p>
-              Add shapes to your canvas using the toolbar on the left.
-              Resize, rotate, and layer them to bring your vision to life.
-              Click a shape to select it, then transform it however you like.
-            </p>
-          </section>
+          <p className="text-md text-(--color-text-secondary) text-center">
+            Each day brings a new <strong>creative challenge</strong> — make art using today's 2 colors and 2 shapes!
+          </p>
+        </div>
 
-          <section>
-            <h3 className="font-medium text-(--color-text-primary) mb-1">
-              Save & Share
-            </h3>
-            <p>
-              Sign in to save your creations to the gallery and share them with others.
-              Your work is automatically saved locally as you create.
-            </p>
-          </section>
+        <div className='border border-gray-200 my-6 w-[80%] mx-auto'></div>
 
-          <section>
-            <h3 className="font-medium text-(--color-text-primary) mb-1">
-              Browse Past Challenges
-            </h3>
-            <p>
-              Use the calendar to explore previous daily challenges and see what
-              others have created.
-            </p>
-          </section>
+        <div className="flex items-center gap-4 mb-5">
+          <p className="text-[25px]">
+            🎨
+          </p>
+
+          <p className="text-md text-(--color-text-secondary) italic">
+            Use the optional daily word for extra inspiration
+          </p>
+        </div>
+
+        <div className="flex items-center gap-4 mb-5">
+          <p className="text-[25px]">
+            🌎
+          </p>
+
+          <p className="text-md text-(--color-text-secondary) italic">
+            Submit your art and the community votes on their favorites each day
+          </p>
         </div>
 
         <button
@@ -116,7 +130,7 @@ export function WelcomeModal({ onDismiss }: WelcomeModalProps) {
           onClick={onDismiss}
           className="w-full mt-6 px-4 py-2 text-white rounded-md text-[13px] font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 bg-(--color-accent) hover:bg-(--color-accent-hover) cursor-pointer"
         >
-          Got it!
+          Start creating
         </button>
       </div>
     </div>
