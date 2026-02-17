@@ -344,37 +344,38 @@ export function GalleryPage({ tab: initialTab }: GalleryPageProps) {
                 {loadingMessage}
               </div>
             ) : (
-              <CalendarGrid className="mt-14">
-                {calendarDays.map((day, index) => {
-                  if (day === null) {
-                    return <div key={`empty-${index}`} className="aspect-square" />;
-                  }
+              <CalendarGrid
+                className="mt-14"
+                emptySlotCount={calendarDays.findIndex((d) => d !== null)}
+              >
+                {calendarDays
+                  .filter((day): day is number => day !== null)
+                  .map((day) => {
+                    const dateStr = formatDate(currentYear, currentMonth, day);
+                    const isToday = dateStr === todayStr;
+                    const isFuture = dateStr > todayStr;
+                    const challenge = challenges.get(dateStr);
+                    const submission = submissionsByDate.get(dateStr);
+                    const ranking = submission ? rankings.get(submission.id) : undefined;
+                    const dayWinners = winnersByDate.get(dateStr);
 
-                  const dateStr = formatDate(currentYear, currentMonth, day);
-                  const isToday = dateStr === todayStr;
-                  const isFuture = dateStr > todayStr;
-                  const challenge = challenges.get(dateStr);
-                  const submission = submissionsByDate.get(dateStr);
-                  const ranking = submission ? rankings.get(submission.id) : undefined;
-                  const dayWinners = winnersByDate.get(dateStr);
-
-                  return (
-                    <CalendarDayCell
-                      key={dateStr}
-                      day={day}
-                      dateStr={dateStr}
-                      viewMode={effectiveViewMode}
-                      isToday={isToday}
-                      isFuture={isFuture}
-                      challenge={challenge}
-                      submission={submission}
-                      ranking={ranking}
-                      dayWinners={dayWinners}
-                      latestWinnersDate={latestWinnersDate}
-                      href={getDayHref(day)}
-                    />
-                  );
-                })}
+                    return (
+                      <CalendarDayCell
+                        key={dateStr}
+                        day={day}
+                        dateStr={dateStr}
+                        viewMode={effectiveViewMode}
+                        isToday={isToday}
+                        isFuture={isFuture}
+                        challenge={challenge}
+                        submission={submission}
+                        ranking={ranking}
+                        dayWinners={dayWinners}
+                        latestWinnersDate={latestWinnersDate}
+                        href={getDayHref(day)}
+                      />
+                    );
+                  })}
               </CalendarGrid>
             )}
 

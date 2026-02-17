@@ -34,32 +34,32 @@ export function ContentCalendarGrid({
     );
   }
 
+  const emptySlotCount = calendarDays.findIndex((d) => d !== null);
+
   return (
-    <CalendarGrid>
-      {calendarDays.map((day, index) => {
-        if (day === null) {
-          return <div key={`empty-${index}`} className="aspect-square" />;
-        }
+    <CalendarGrid emptySlotCount={emptySlotCount < 0 ? 0 : emptySlotCount}>
+      {calendarDays
+        .filter((day): day is number => day !== null)
+        .map((day) => {
+          const dateStr = formatDate(calendarYear, calendarMonth, day);
+          const isDayToday = dateStr === todayStr;
+          const isFuture = dateStr > todayStr;
+          const count = counts[dateStr] || 0;
+          const isCurrentDayLocked = dateStr === todayStr && !hasSubmittedToday;
 
-        const dateStr = formatDate(calendarYear, calendarMonth, day);
-        const isDayToday = dateStr === todayStr;
-        const isFuture = dateStr > todayStr;
-        const count = counts[dateStr] || 0;
-        const isCurrentDayLocked = dateStr === todayStr && !hasSubmittedToday;
-
-        return (
-          <ContentCalendarDayCell
-            key={dateStr}
-            day={day}
-            isDayToday={isDayToday}
-            isFuture={isFuture}
-            isCurrentDayLocked={isCurrentDayLocked}
-            count={count}
-            challenge={challengesMap.get(dateStr)}
-            onClick={() => !isFuture && !isCurrentDayLocked && onDayClick(day)}
-          />
-        );
-      })}
+          return (
+            <ContentCalendarDayCell
+              key={dateStr}
+              day={day}
+              isDayToday={isDayToday}
+              isFuture={isFuture}
+              isCurrentDayLocked={isCurrentDayLocked}
+              count={count}
+              challenge={challengesMap.get(dateStr)}
+              onClick={() => !isFuture && !isCurrentDayLocked && onDayClick(day)}
+            />
+          );
+        })}
     </CalendarGrid>
   );
 }

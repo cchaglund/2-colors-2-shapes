@@ -19,6 +19,37 @@ interface CalendarDayCellProps {
   latestWinnersDate: string;
   href?: string;
   onClick?: (day: number) => void;
+  canView?: boolean;
+  lockedContent?: React.ReactNode;
+  thumbnailSize?: number;
+  hideEmptyDayIcon?: boolean;
+}
+
+const cellBase = 'block aspect-square border-b border-r border-(--color-border) p-1 relative transition-all overflow-hidden';
+
+function cellClasses(hasContent: boolean, isFuture: boolean, isToday: boolean) {
+  return `
+    ${cellBase}
+    ${hasContent ? 'cursor-pointer hover:ring-1 hover:ring-inset hover:ring-(--color-accent) bg-(--color-bg-tertiary)' : ''}
+    ${isFuture ? 'bg-(--color-bg-secondary) opacity-50' : ''}
+    ${isToday ? 'ring-2 ring-inset ring-(--color-accent)' : ''}
+  `;
+}
+
+function DayNumber({ day, isToday, hasContent }: { day: number; isToday: boolean; hasContent: boolean }) {
+  return (
+    <div
+      className={`absolute top-1 left-1 text-[10px] font-medium tabular-nums ${
+        isToday
+          ? 'text-(--color-accent)'
+          : hasContent
+          ? 'text-(--color-text-primary)'
+          : 'text-(--color-text-tertiary)'
+      }`}
+    >
+      {day}
+    </div>
+  );
 }
 
 export function CalendarDayCell({
@@ -34,60 +65,53 @@ export function CalendarDayCell({
   latestWinnersDate,
   href,
   onClick,
+  canView = true,
+  lockedContent,
+  thumbnailSize,
+  hideEmptyDayIcon,
 }: CalendarDayCellProps) {
   const showWordTooltip = !isFuture && challenge?.word;
 
   if (viewMode === 'my-submissions') {
+    // Locked day (profile privacy check)
+    if (!canView && !isFuture) {
+      const className = `${cellBase} ${isToday ? 'ring-2 ring-inset ring-(--color-accent)' : ''}`;
+      return (
+        <div className={className}>
+          <DayNumber day={day} isToday={isToday} hasContent={false} />
+          <div className="w-full h-full flex items-center justify-center pt-3">
+            {lockedContent}
+          </div>
+        </div>
+      );
+    }
+
     const isClickable = !isFuture && !!submission;
-    const className = `
-      block group aspect-square rounded-md p-1.5 transition-all border overflow-hidden
-      ${submission ? 'cursor-pointer hover:border-(--color-accent) bg-(--color-bg-tertiary) border-(--color-border-light)' : 'bg-(--color-bg-primary) border-(--color-border-light)'}
-      ${isFuture ? 'opacity-30' : ''}
-      ${isToday ? 'ring-2 ring-(--color-accent) ring-offset-1' : ''}
-    `;
+    const className = `group ${cellClasses(!!submission, isFuture, isToday)}`;
+    const size = thumbnailSize ?? 70;
 
     const inner = (
-      <div className="flex flex-col h-full">
-        <div className="flex items-center justify-between">
-          <span
-            className={`text-[11px] font-medium tabular-nums ${
-              isToday
-                ? 'text-(--color-accent)'
-                : submission
-                ? 'text-(--color-text-primary)'
-                : 'text-(--color-text-tertiary)'
-            }`}
-          >
-            {day}
-          </span>
-          {submission && challenge && (
-            <div className="flex w-full px-1 justify-between items-center gap-0.5">
-              <div className="hidden group-hover:block pl-2">
-                <ChallengeShapeIndicators
-                  shapes={challenge.shapes}
-                  size={12}
-                />
-              </div>
-              {ranking !== undefined && ranking <= 3 && (
-                <div className='ml-auto'>
-                  <TrophyBadge
-                    rank={ranking as 1 | 2 | 3}
-                    size="sm"
-                  />
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-        <div className="flex-1 flex items-center justify-center">
+      <>
+        <DayNumber day={day} isToday={isToday} hasContent={!!submission} />
+        {submission && challenge && ranking !== undefined && ranking <= 3 && (
+          <div className="absolute top-0.5 right-0.5">
+            <TrophyBadge rank={ranking as 1 | 2 | 3} size="sm" />
+          </div>
+        )}
+        {submission && challenge && (
+          <div className="absolute top-0.5 left-6 hidden group-hover:block">
+            <ChallengeShapeIndicators shapes={challenge.shapes} size={12} />
+          </div>
+        )}
+        <div className="w-full h-full flex items-center justify-center pt-3">
           {submission && challenge ? (
             <SubmissionThumbnail
               shapes={submission.shapes}
               challenge={challenge}
               backgroundColorIndex={submission.background_color_index}
-              size={70}
+              size={size}
             />
-          ) : !isFuture ? (
+          ) : !isFuture && !hideEmptyDayIcon ? (
             <svg
               className="w-6 h-6 text-(--color-text-tertiary) opacity-40"
               fill="none"
@@ -103,7 +127,7 @@ export function CalendarDayCell({
             </svg>
           ) : null}
         </div>
-      </div>
+      </>
     );
 
     const cellContent = isClickable && href ? (
@@ -123,28 +147,12 @@ export function CalendarDayCell({
   // Winners view
   const hasWinner = dayWinners && dayWinners.length > 0;
   const hasResults = dateStr <= latestWinnersDate;
-
-  const winnersClassName = `
-    block aspect-square rounded-md p-1.5 transition-all border overflow-hidden
-    ${hasWinner ? 'cursor-pointer hover:border-(--color-accent) bg-(--color-bg-tertiary) border-(--color-border-light)' : 'bg-(--color-bg-primary) border-(--color-border-light)'}
-    ${isFuture ? 'opacity-30' : ''}
-    ${isToday ? 'ring-2 ring-(--color-accent) ring-offset-1' : ''}
-  `;
+  const winnersClassName = cellClasses(!!hasWinner, isFuture, isToday);
 
   const winnersInner = (
-    <div className="flex flex-col h-full">
-      <span
-        className={`text-[11px] font-medium tabular-nums ${
-          isToday
-            ? 'text-(--color-accent)'
-            : hasWinner
-            ? 'text-(--color-text-primary)'
-            : 'text-(--color-text-tertiary)'
-        }`}
-      >
-        {day}
-      </span>
-      <div className="flex-1 flex items-center justify-center relative">
+    <>
+      <DayNumber day={day} isToday={isToday} hasContent={!!hasWinner} />
+      <div className="w-full h-full flex items-center justify-center pt-3 relative">
         {hasWinner && challenge ? (
           <>
             <SubmissionThumbnail
@@ -171,7 +179,7 @@ export function CalendarDayCell({
           )
         ) : null}
       </div>
-    </div>
+    </>
   );
 
   const cellContent = hasWinner && href ? (
