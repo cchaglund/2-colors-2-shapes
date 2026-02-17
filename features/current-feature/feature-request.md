@@ -1,82 +1,117 @@
-# Feature: Congratulatory Modal for Top 3 Placement
+# Convert Gallery Modal to Full Page
 
-## Problem
-When users place 1st-3rd in a daily competition, it's easy to miss among the generic winners modal. We want a dedicated celebratory modal shown *before* the winners modal.
+## Context
 
-## User Flow
-1. User opens app / logs in
-2. `useWinnerAnnouncement` hook runs (as today), fetches top 3 for the completed challenge
-3. **NEW:** If logged-in user's ID matches any of the top 3 entries → show `CongratulatoryModal` first, with fullscreen confetti
-4. User clicks "Yay!" → congrats modal closes, confetti stops, `seen_winner_announcement` persisted to DB → regular `WinnerAnnouncementModal` appears as normal
-5. If user is NOT in top 3 → skip straight to winners modal (unchanged)
+Gallery modal has 4 tabs of browsable content but clicking thumbnails ejects users out (new tab or page nav). No way to return to gallery. Browser back/forward don't work. The gallery has outgrown being a modal — it deserves proper page-level navigation.
 
-## Congratulatory Modal Spec
+## Approach
 
-### Content (varies by placement)
-| Rank | Heading | Subtext |
-|------|---------|---------|
-| 1st | "You won!" | "1st place — Congratulations!" |
-| 2nd | "2nd Place!" | "Congratulations!" |
-| 3rd | "3rd Place!" | "Congratulations!" |
+Convert the gallery modal into a full page at `?view=gallery&tab={tab}`. All thumbnail clicks become same-tab navigation. Browser back button naturally returns to the gallery.
 
-- Show the user's winning submission using the existing `WinnerCard` component (includes trophy badge and rank-specific gold/silver/bronze styling)
-- Dismiss button text: **"Yay!"**
+## Changes
 
-### Confetti
-- Use `canvas-confetti` library (~6KB gzipped) for fullscreen confetti
-- Continuous bursts on ~300ms interval, runs for **6 seconds** then auto-stops
-- Also stops immediately when user dismisses modal ("Yay!")
-- Call `.reset()` on the confetti instance during cleanup to remove the injected canvas element
-- Skip confetti entirely when `prefers-reduced-motion: reduce` is active
+### 1. `src/utils/urlParams.ts` — add gallery view parser
 
-### Styling & Accessibility
-- Match existing modal patterns: same overlay (`fixed inset-0 bg-(--color-modal-overlay)`), card styling, CSS variable theming, `z-50`
-- Focus trap + Escape key dismiss (same as `WinnerAnnouncementModal`)
-- `role="dialog"` + `aria-modal="true"`
+Add `getGalleryView()` returning `{ tab?: string }` or `null` for `?view=gallery&tab=...`.
 
-## Key Code Touchpoints
+### 2. `src/components/GalleryPage.tsx` — NEW page component
 
-### `src/hooks/useWinnerAnnouncement.ts`
-- After building the `entries` array (line ~124-133), check if `userId` is in the top 3
-- Expose new return values:
-  - `userPlacement: RankingEntry | null` (the user's entry if they placed, else null)
-  - `persistSeen: () => Promise<void>` — persists `seen_winner_announcement` to DB **without** changing `shouldShow` state (used by congrats modal dismiss so the winner modal can still render)
+Extract `Calendar.tsx` content into a full-page component (no modal wrapper).
 
-### `src/App.tsx` (lines ~92-98, ~462-471)
-- Destructure new `userPlacement` and `persistSeen` from the hook
-- Add local state: `congratsDismissed`, `winnerDismissed`
-- Render logic:
-  ```
-  if (shouldShow && !loading) {
-    if (userPlacement && !congratsDismissed) → show CongratulatoryModal
-    else if (!winnerDismissed) → show WinnerAnnouncementModal
-  }
-  ```
-- Congrats `onDismiss`: call `persistSeen()` + set `congratsDismissed = true`
-- Winner `onDismiss`: call `dismiss()` as before
+Structure:
 
-### New file: `src/components/modals/CongratulatoryModal.tsx`
-- Props: `userEntry: RankingEntry`, `challengeDate: string`, `onDismiss: () => void`
-- Fetches `DailyChallenge` internally via `useDailyChallenge(challengeDate)` (same pattern as `WinnerAnnouncementModal`)
-- Shows loading spinner while challenge data loads
-- Renders heading/subtext based on `userEntry.rank`
-- Renders submission using `WinnerCard`
-- Fires confetti on mount, cleans up on unmount/dismiss
-- **Same component** used in both the real app and the test view (DRY)
+- "Back to app" link (same pattern as other pages)
+- `CalendarViewToggle` (existing tabs component)
+- Tab content: calendar grid for my-submissions/winners, `WallContent`/`FriendsFeedContent` for wall/friends
+- `CalendarStats` footer
 
-### `src/test/VotingTestPage.tsx` — Add test scenarios
-Add new scenarios to the `?test=voting` view, following existing patterns:
-- `congrats-1st` — Congratulatory modal for 1st place
-- `congrats-2nd` — Congratulatory modal for 2nd place
-- `congrats-3rd` — Congratulatory modal for 3rd place
+Key differences from `Calendar.tsx`:
 
-Each scenario renders the **same `CongratulatoryModal` component** with mock data from `mockData.ts`. Use existing `MOCK_TOP_THREE` entries, picking the appropriate rank entry as the `userEntry` prop. Add a show/hide button toggle matching the pattern used for the winner modal scenarios.
+- No fixed overlay, no click-to-close, no escape-to-close
+- Page layout instead of modal
+- `tab` prop from URL determines initial active tab; subsequent tab switches managed via React state + `history.replaceState()` (no full page reload)
+- Thumbnail links use `<a href>` tags (not onClick + window.location.href) so Ctrl/Cmd+click opens in new tab for power users
+- My Submissions day click: navigate to `?view=submission&date=...` (same tab, not `window.open`)
+- Winners day click: navigate to `?view=winners-day&date=...` (same tab, shows all ranked submissions)
+- Do NOT pass `onSubmissionClick` to WallContent/FriendsFeedContent — their default behavior (`window.location.href`) already does the right thing
 
-### `src/test/mockData.ts`
-No new mock data needed — reuse existing `MOCK_TOP_THREE` entries (rank 1, 2, 3 already exist).
+Reuses existing sub-components:
 
-## Edge Cases
-- **Tie for 1st:** User could be one of multiple 1st-place winners. Still show congrats with "You won!" heading.
-- **Already seen:** Congrats dismiss persists `seen_winner_announcement` to DB immediately. On refresh, the hook sees `seen_winner_announcement = true` and sets `shouldShow = false` — neither modal reappears. This means a refresh between congrats and winner dismiss skips the winner modal, which is acceptable.
-- **No placement:** If user isn't in top 3, completely unchanged behavior.
-- **Single submission:** DB enforces one submission per user per day via `upsert` with `onConflict: 'user_id,challenge_date'`, so a user can only appear once in the top 3.
+- `CalendarViewToggle.tsx` — tabs
+- `ContentNavigation.tsx` — month nav
+- `CalendarGrid.tsx` — grid layout
+- `CalendarDayCell.tsx` — day cells
+- `CalendarStats.tsx` — stats footer
+- `WallContent.tsx` — wall tab (already has `onSubmissionClick` prop)
+- `FriendsFeedContent.tsx` — friends tab (already has `onSubmissionClick` prop)
+
+### 3. `src/App.tsx` — wire up gallery page
+
+- Add `galleryView` detection via `getGalleryView()`
+- Render `<GalleryPage>` wrapped in `<FollowsProvider>` in the standalone pages section (doesn't need challenge data). Friends tab needs follow data.
+- Remove `showCalendar` state and Calendar modal rendering
+- Remove `Calendar` import and old `FollowsProvider` wrapper for it
+
+### 4. `src/components/Toolbar.tsx` — Gallery button navigates
+
+- Change from `onClick={onOpenCalendar}` to `window.location.href = '/?view=gallery'`
+- Remove login gate — gallery has public tabs (winners, wall); page handles auth per tab
+- Remove `onOpenCalendar` prop
+
+### 5. Delete `src/components/Calendar/Calendar.tsx`
+
+Modal version replaced by `GalleryPage`. Sub-components in `Calendar/` folder stay.
+
+### 6. `src/components/UserProfilePage.tsx` — fix new-tab nav
+
+Line 112: change `window.open(url, '_blank')` to `window.location.href = url`
+
+### 7. `src/components/WinnersDayPage.tsx` — fix new-tab nav
+
+Lines 30-37: change `window.open(url, '_blank')` to `window.location.href = url` (same inconsistency as UserProfilePage)
+
+### 8. Clean up Toolbar props
+
+- Remove `onOpenCalendar` from Toolbar interface
+- Remove from `App.tsx` Toolbar usage
+
+## Navigation Flow (after changes)
+
+```
+Canvas (/) → click "Gallery" → /?view=gallery&tab=my-submissions
+  → click submission thumbnail → /?view=submission&id=xxx
+  → browser Back → returns to /?view=gallery&tab=my-submissions
+  → "Back to app" link → /
+```
+
+## Files
+
+| File | Action |
+|------|--------|
+| `src/components/GalleryPage.tsx` | NEW |
+| `src/utils/urlParams.ts` | Add `getGalleryView()` |
+| `src/App.tsx` | Add gallery route, remove modal state |
+| `src/components/Toolbar.tsx` | Gallery button navigates, remove `onOpenCalendar` prop |
+| `src/components/Calendar/Calendar.tsx` | DELETE |
+| `src/components/UserProfilePage.tsx` | Same-tab navigation |
+| `src/components/WinnersDayPage.tsx` | Same-tab navigation |
+
+## Verification
+
+- Gallery button → opens gallery page (not modal)
+- All 4 tabs work, switching tabs works
+- Click thumbnail in any tab → navigates to submission in same tab
+- Browser back → returns to gallery at correct tab
+- "Back to app" from gallery → returns to canvas
+- Direct URL `?view=gallery&tab=wall` → opens gallery at wall tab
+- Profile page → click submission → same tab (not new tab)
+- Non-logged-in user can access gallery (winners/wall tabs work, my-submissions/friends tabs disabled with tooltip — same as current CalendarViewToggle behavior)
+- WinnersDayPage → click submission → same tab (not new tab)
+
+## Decisions
+
+- Tab switching updates URL (`?view=gallery&tab=friends`) via `history.replaceState` for shareability — no full page reload
+- Winners tab: clicking a winner cell navigates to WinnersDayPage (same-tab) to show all ranked submissions
+- Thumbnail links are `<a>` tags so Ctrl/Cmd+click opens in new tab (preserves power-user multi-browsing workflow)
+- Auth-required tabs (my-submissions, friends): keep existing disabled-tab-with-tooltip behavior for logged-out users
+- GalleryPage does NOT pass `onSubmissionClick` to WallContent/FriendsFeedContent — default behavior is correct
