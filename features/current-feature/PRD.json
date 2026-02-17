@@ -135,7 +135,7 @@
       "On UserProfilePage, click a submission thumbnail → navigates in same tab (not a new tab)",
       "URL changes to ?view=submission&date=...&user=..."
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "GALLERY-013",

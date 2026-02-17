@@ -109,7 +109,7 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
     url.searchParams.set('view', 'submission');
     url.searchParams.set('date', dateStr);
     url.searchParams.set('user', userId);
-    window.open(url.toString(), '_blank');
+    window.location.href = url.toString();
   }, [userId]);
 
   // Error state (network errors, etc.)

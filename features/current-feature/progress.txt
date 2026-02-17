@@ -67,3 +67,10 @@
 - Files changed: Calendar/Calendar.tsx (deleted), Calendar/index.ts, App.tsx
 - Typecheck: pass. Tests: 102/102 pass. Lint: pre-existing error only.
 - Remaining: GALLERY-005 (back button), GALLERY-012/013 (same-tab nav in other pages)
+
+## GALLERY-012 - UserProfilePage same-tab navigation
+- Changed window.open(url, '_blank') to window.location.href in handleSubmissionClick
+- One-line change in UserProfilePage.tsx line 112
+- Files changed: src/components/UserProfilePage.tsx
+- Typecheck: pass. Tests: 102/102 pass. Lint: pre-existing error only.
+- Remaining: GALLERY-005 (back button), GALLERY-013 (WinnersDayPage same-tab nav)
