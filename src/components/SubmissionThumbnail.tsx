@@ -9,6 +9,7 @@ interface SubmissionThumbnailProps {
   showNickname?: boolean;
   nickname?: string;
   onClick?: () => void;
+  href?: string;
   likeCount?: number;
   showLikeCount?: boolean;
 }
@@ -23,6 +24,7 @@ export function SubmissionThumbnail({
   showNickname = false,
   nickname,
   onClick,
+  href,
   likeCount,
   showLikeCount = false,
 }: SubmissionThumbnailProps) {
@@ -86,7 +88,7 @@ export function SubmissionThumbnail({
     </div>
   );
 
-  if (!showNickname && !onClick) {
+  if (!showNickname && !onClick && !href) {
     return svg;
   }
 
@@ -100,6 +102,17 @@ export function SubmissionThumbnail({
       )}
     </div>
   );
+
+  if (href) {
+    return (
+      <a
+        href={href}
+        className="cursor-pointer hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+      >
+        {content}
+      </a>
+    );
+  }
 
   if (onClick) {
     return (

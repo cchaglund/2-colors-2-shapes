@@ -47,7 +47,7 @@
       "Friends tab: click a thumbnail → navigates to ?view=submission&id=... in same tab",
       "No new tabs are opened from any gallery interaction"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "GALLERY-005",

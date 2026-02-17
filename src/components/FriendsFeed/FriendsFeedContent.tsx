@@ -81,14 +81,8 @@ export function FriendsFeedContent({
     });
   };
 
-  // Handle thumbnail click
-  const handleThumbnailClick = (submissionId: string) => {
-    if (onSubmissionClick) {
-      onSubmissionClick(submissionId);
-    } else {
-      window.location.href = `/?view=submission&id=${submissionId}`;
-    }
-  };
+  const getSubmissionHref = (submissionId: string) =>
+    `/?view=submission&id=${submissionId}`;
 
   // Fetch friends counts for calendar view
   const fetchFriendsCounts = useCallback(async () => {
@@ -391,7 +385,8 @@ export function FriendsFeedContent({
                       size={140}
                       showNickname={true}
                       nickname={submission.nickname}
-                      onClick={() => handleThumbnailClick(submission.id)}
+                      href={onSubmissionClick ? undefined : getSubmissionHref(submission.id)}
+                      onClick={onSubmissionClick ? () => onSubmissionClick(submission.id) : undefined}
                     />
                   </div>
                 ))}

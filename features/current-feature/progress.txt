@@ -44,3 +44,14 @@
 - showCalendar state + Calendar modal still in App.tsx — dead code, GALLERY-010 will clean up
 - Typecheck: pass. Tests: 102/102 pass. Lint: pre-existing error only.
 - Next: GALLERY-010 (delete Calendar.tsx modal), GALLERY-004 (thumbnail <a> links), GALLERY-012/013 (same-tab nav)
+
+## GALLERY-004 - Thumbnail clicks use <a href> for same-tab navigation
+- All clickable elements now use <a href> instead of onClick + window.location.href
+- SubmissionThumbnail: added `href` prop; renders <a> when href provided, <button> when onClick, plain div otherwise
+- CalendarDayCell: added `href` prop (onClick now optional); clickable cells render <a> when href given
+- GalleryPage: replaced handleDayClick callback with getDayHref; passes href to CalendarDayCell
+- WallContent/FriendsFeedContent: replaced handleThumbnailClick with getSubmissionHref; passes href to SubmissionThumbnail (falls back to onClick when onSubmissionClick prop is provided by other callers)
+- Ctrl/Cmd+click now works correctly to open in new tab on all gallery navigation
+- Files changed: SubmissionThumbnail.tsx, CalendarDayCell.tsx, GalleryPage.tsx, WallContent.tsx, FriendsFeedContent.tsx
+- Typecheck: pass. Tests: 102/102 pass. Lint: pre-existing error only.
+- Next: GALLERY-005 (back button), GALLERY-010 (cleanup), GALLERY-012/013 (same-tab nav in other pages)

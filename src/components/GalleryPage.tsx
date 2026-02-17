@@ -237,20 +237,21 @@ export function GalleryPage({ tab: initialTab }: GalleryPageProps) {
     setCurrentMonth(now.getMonth());
   }, []);
 
-  const handleDayClick = useCallback((day: number) => {
+  const getDayHref = useCallback((day: number): string | undefined => {
     const dateStr = formatDate(currentYear, currentMonth, day);
 
     if (effectiveViewMode === 'my-submissions') {
       const submission = submissionsByDate.get(dateStr);
       if (submission) {
-        window.location.href = `?view=submission&date=${dateStr}`;
+        return `/?view=submission&date=${dateStr}`;
       }
     } else {
       const dayWinners = winnersByDate.get(dateStr);
       if (dayWinners && dayWinners.length > 0) {
-        window.location.href = `?view=winners-day&date=${dateStr}`;
+        return `/?view=winners-day&date=${dateStr}`;
       }
     }
+    return undefined;
   }, [currentYear, currentMonth, effectiveViewMode, submissionsByDate, winnersByDate]);
 
   const canGoNext = useMemo(() => {
@@ -361,7 +362,7 @@ export function GalleryPage({ tab: initialTab }: GalleryPageProps) {
                       ranking={ranking}
                       dayWinners={dayWinners}
                       latestWinnersDate={latestWinnersDate}
-                      onClick={handleDayClick}
+                      href={getDayHref(day)}
                     />
                   );
                 })}
