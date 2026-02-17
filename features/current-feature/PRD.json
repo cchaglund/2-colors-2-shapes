@@ -114,7 +114,7 @@
       "Sub-components (CalendarGrid, CalendarDayCell, CalendarViewToggle, etc.) still exist in Calendar/ folder",
       "No remaining imports of Calendar.tsx anywhere in the codebase"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "GALLERY-011",

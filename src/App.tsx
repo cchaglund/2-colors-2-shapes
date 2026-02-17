@@ -8,7 +8,6 @@ import { ShapeExplorer } from './components/admin/ShapeExplorer';
 import { ColorTester } from './components/admin/ColorTester';
 import { OnboardingModal } from './components/modals/OnboardingModal';
 import { WelcomeModal } from './components/modals/WelcomeModal';
-import { Calendar } from './components/Calendar';
 import { GalleryPage } from './components/GalleryPage';
 import { SubmissionDetailPage } from './components/SubmissionDetailPage';
 import { WinnersDayPage } from './components/WinnersDayPage';
@@ -74,7 +73,6 @@ function App() {
   const showColorTester = useMemo(() => isColorTesterEnabled(), []);
 
   // Modal states
-  const [showCalendar, setShowCalendar] = useState(false);
   const [showKeyboardSettings, setShowKeyboardSettings] = useState(false);
   const [showVotingModal, setShowVotingModal] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -448,12 +446,6 @@ function App() {
 
       {showResetConfirm && (
         <ResetConfirmModal onConfirm={confirmReset} onCancel={cancelReset} />
-      )}
-
-      {showCalendar && (
-        <FollowsProvider>
-          <Calendar onClose={() => setShowCalendar(false)} />
-        </FollowsProvider>
       )}
 
       {showKeyboardSettings && (

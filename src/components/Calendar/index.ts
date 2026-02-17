@@ -1,2 +1,1 @@
-export { Calendar } from './Calendar';
-export type { CalendarProps, ViewMode, WinnerEntry, RankingInfo } from './types';
+export type { ViewMode, WinnerEntry, RankingInfo } from './types';

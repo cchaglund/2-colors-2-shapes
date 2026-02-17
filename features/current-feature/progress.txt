@@ -55,3 +55,15 @@
 - Files changed: SubmissionThumbnail.tsx, CalendarDayCell.tsx, GalleryPage.tsx, WallContent.tsx, FriendsFeedContent.tsx
 - Typecheck: pass. Tests: 102/102 pass. Lint: pre-existing error only.
 - Next: GALLERY-005 (back button), GALLERY-010 (cleanup), GALLERY-012/013 (same-tab nav in other pages)
+
+## GALLERY-010 - Delete Calendar.tsx modal + clean up App.tsx
+- Deleted src/components/Calendar/Calendar.tsx
+- Removed Calendar import from App.tsx
+- Removed showCalendar state from App.tsx
+- Removed Calendar modal rendering + FollowsProvider wrapper from App.tsx
+- Updated Calendar/index.ts: removed Calendar + CalendarProps exports (dead code)
+- All sub-components (CalendarGrid, CalendarDayCell, CalendarViewToggle, etc.) remain in Calendar/ folder
+- CalendarHeader.tsx is now dead code (modal-only close button) but kept per PRD scope
+- Files changed: Calendar/Calendar.tsx (deleted), Calendar/index.ts, App.tsx
+- Typecheck: pass. Tests: 102/102 pass. Lint: pre-existing error only.
+- Remaining: GALLERY-005 (back button), GALLERY-012/013 (same-tab nav in other pages)
