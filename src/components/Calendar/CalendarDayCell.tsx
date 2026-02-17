@@ -40,7 +40,7 @@ export function CalendarDayCell({
   if (viewMode === 'my-submissions') {
     const isClickable = !isFuture && !!submission;
     const className = `
-      group aspect-square rounded-md p-1.5 transition-all border
+      block group aspect-square rounded-md p-1.5 transition-all border overflow-hidden
       ${submission ? 'cursor-pointer hover:border-(--color-accent) bg-(--color-bg-tertiary) border-(--color-border-light)' : 'bg-(--color-bg-primary) border-(--color-border-light)'}
       ${isFuture ? 'opacity-30' : ''}
       ${isToday ? 'ring-2 ring-(--color-accent) ring-offset-1' : ''}
@@ -125,7 +125,7 @@ export function CalendarDayCell({
   const hasResults = dateStr <= latestWinnersDate;
 
   const winnersClassName = `
-    aspect-square rounded-md p-1.5 transition-all border
+    block aspect-square rounded-md p-1.5 transition-all border overflow-hidden
     ${hasWinner ? 'cursor-pointer hover:border-(--color-accent) bg-(--color-bg-tertiary) border-(--color-border-light)' : 'bg-(--color-bg-primary) border-(--color-border-light)'}
     ${isFuture ? 'opacity-30' : ''}
     ${isToday ? 'ring-2 ring-(--color-accent) ring-offset-1' : ''}
