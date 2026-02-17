@@ -26,3 +26,21 @@
 - Files changed: src/App.tsx
 - Typecheck: pass. Tests: 102/102 pass. Lint: pre-existing error only.
 - Next: GALLERY-003 (tab nav partially done in GALLERY-002), GALLERY-008 (toolbar nav), GALLERY-010/011 (cleanup)
+
+## GALLERY-003, GALLERY-006, GALLERY-009 - Already implemented
+- All three were fully implemented in GALLERY-002's GalleryPage.tsx
+- GALLERY-003: tab from URL → initial state, internal state mgmt, replaceState on switch — all done
+- GALLERY-006: back-to-app <a href="/"> link present in page header
+- GALLERY-009: effectiveViewMode defaults winners when !user; CalendarViewToggle disables my-submissions/friends when !user
+- No code changes needed, just marked as passing
+
+## GALLERY-008 + GALLERY-011 - Toolbar gallery nav + remove onOpenCalendar
+- Gallery button in Toolbar changed from <button onClick> to <a href="/?view=gallery">
+- Removed login gate — gallery accessible to all users, no LoginPromptModal for 'submissions' variant
+- Removed onOpenCalendar prop from ToolbarProps interface and destructuring
+- Removed onOpenCalendar prop from App.tsx Toolbar usage
+- Cleaned up loginModalVariant type: removed 'submissions' variant
+- Files changed: src/components/Toolbar.tsx, src/App.tsx, features/current-feature/PRD.json
+- showCalendar state + Calendar modal still in App.tsx — dead code, GALLERY-010 will clean up
+- Typecheck: pass. Tests: 102/102 pass. Lint: pre-existing error only.
+- Next: GALLERY-010 (delete Calendar.tsx modal), GALLERY-004 (thumbnail <a> links), GALLERY-012/013 (same-tab nav)

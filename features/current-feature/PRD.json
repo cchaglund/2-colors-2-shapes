@@ -34,7 +34,7 @@
       "Navigate to /?view=gallery (no tab) — defaults to my-submissions if logged in, winners if not",
       "Click a different tab — URL updates to reflect the new tab without full page reload"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "GALLERY-004",
@@ -67,7 +67,7 @@
       "Click 'Back to app' link on GalleryPage → navigates to / (canvas view)",
       "Link follows the same pattern as other standalone pages"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "GALLERY-007",
@@ -88,7 +88,7 @@
       "Gallery button works when logged out — no login prompt",
       "onOpenCalendar prop is removed from Toolbar interface"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "GALLERY-009",
@@ -101,7 +101,7 @@
       "Logged out: my-submissions tab button is disabled (opacity-50, tooltip explains login required)",
       "Logged out: friends tab button is disabled (opacity-50, tooltip explains login required)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "GALLERY-010",
@@ -125,7 +125,7 @@
       "App.tsx does not pass onOpenCalendar to Toolbar",
       "No TypeScript errors related to removed prop"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "GALLERY-012",

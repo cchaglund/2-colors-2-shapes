@@ -340,7 +340,6 @@ function App() {
         isSaving={saving}
         saveStatus={saveStatus}
         hasSubmittedToday={hasSubmittedToday}
-        onOpenCalendar={() => setShowCalendar(true)}
         onOpenFriendsModal={() => setShowFriendsModal(true)}
         keyMappings={keyMappings}
         onOpenKeyboardSettings={() => setShowKeyboardSettings(true)}

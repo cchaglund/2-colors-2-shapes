@@ -52,8 +52,6 @@ interface ToolbarProps {
   isSaving?: boolean;
   saveStatus?: 'idle' | 'saved' | 'error';
   hasSubmittedToday?: boolean;
-  // Calendar
-  onOpenCalendar?: () => void;
   // Friends modal
   onOpenFriendsModal?: () => void;
   // Keyboard settings
@@ -89,7 +87,6 @@ export function Toolbar({
   isSaving,
   saveStatus,
   hasSubmittedToday,
-  onOpenCalendar,
   onOpenFriendsModal,
   keyMappings,
   onOpenKeyboardSettings,
@@ -100,7 +97,7 @@ export function Toolbar({
   showOffCanvas,
   onToggleOffCanvas,
 }: ToolbarProps) {
-  const [loginModalVariant, setLoginModalVariant] = useState<'save' | 'submissions' | 'friends' | null>(null);
+  const [loginModalVariant, setLoginModalVariant] = useState<'save' | 'friends' | null>(null);
   const hasSelection = selectedShapeIds.size > 0;
 
   if (!isOpen) {
@@ -157,20 +154,18 @@ export function Toolbar({
           <Label>Account</Label>
           <AuthButton profile={profile} profileLoading={profileLoading} />
 
-          {onOpenCalendar && (
-            <button
-              className="w-full mt-2 py-2 px-3 border border-(--color-border) rounded-md cursor-pointer text-[13px] font-medium transition-colors flex items-center justify-center gap-2 bg-transparent text-(--color-text-primary) hover:bg-(--color-hover)"
-              onClick={isLoggedIn ? onOpenCalendar : () => setLoginModalVariant('submissions')}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                <line x1="16" y1="2" x2="16" y2="6" />
-                <line x1="8" y1="2" x2="8" y2="6" />
-                <line x1="3" y1="10" x2="21" y2="10" />
-              </svg>
-              Gallery
-            </button>
-          )}
+          <a
+            href="/?view=gallery"
+            className="w-full mt-2 py-2 px-3 border border-(--color-border) rounded-md cursor-pointer text-[13px] font-medium transition-colors flex items-center justify-center gap-2 bg-transparent text-(--color-text-primary) hover:bg-(--color-hover) no-underline"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            Gallery
+          </a>
 
           {onOpenFriendsModal && (
             <button
@@ -331,10 +326,6 @@ export function Toolbar({
         {loginModalVariant && (
           <LoginPromptModal
             onClose={() => setLoginModalVariant(null)}
-            {...(loginModalVariant === 'submissions' && {
-              title: 'View Gallery',
-              message: "To view others' art, and to save your own, you need to be logged in.",
-            })}
             {...(loginModalVariant === 'friends' && {
               title: 'Follow Your Friends',
               message: 'To follow other users you must first log in.',
