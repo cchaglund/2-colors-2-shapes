@@ -8,14 +8,11 @@ interface ChallengeDetailsCardProps {
 export function ChallengeDetailsCard({ challenge }: ChallengeDetailsCardProps) {
   return (
     <div className="border rounded-lg p-4 bg-(--color-bg-primary) border-(--color-border)">
-      <h2 className="text-[13px] font-semibold mb-3 text-(--color-text-primary)">
-        Challenge Details
-      </h2>
 
       {/* Daily Word */}
       <div className="mb-4">
         <span className="text-[11px] text-(--color-text-tertiary) uppercase tracking-wide">Inspiration</span>
-        <p className="mt-1 text-[14px] font-medium text-(--color-text-primary)">
+        <p className="mt-1 text-[14px] font-medium text-(--color-text-primary) capitalize">
           "{challenge.word}"
         </p>
       </div>
