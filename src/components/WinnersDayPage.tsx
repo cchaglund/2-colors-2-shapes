@@ -33,7 +33,7 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
     url.searchParams.delete('date');
     url.searchParams.set('view', 'submission');
     url.searchParams.set('id', submissionId);
-    window.open(url.toString(), '_blank');
+    window.location.href = url.toString();
   };
 
   // Group entries by rank

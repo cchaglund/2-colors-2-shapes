@@ -145,7 +145,7 @@
       "On WinnersDayPage, click 'View' on a submission → navigates in same tab (not a new tab)",
       "Browser back from submission returns to WinnersDayPage"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "GALLERY-014",

@@ -74,3 +74,10 @@
 - Files changed: src/components/UserProfilePage.tsx
 - Typecheck: pass. Tests: 102/102 pass. Lint: pre-existing error only.
 - Remaining: GALLERY-005 (back button), GALLERY-013 (WinnersDayPage same-tab nav)
+
+## GALLERY-013 - WinnersDayPage same-tab navigation
+- Changed window.open(url, '_blank') to window.location.href in handleViewSubmission
+- One-line change in WinnersDayPage.tsx line 36, same pattern as GALLERY-012
+- Files changed: src/components/WinnersDayPage.tsx
+- Typecheck: pass. Tests: 102/102 pass. Lint: pre-existing error only.
+- Remaining: GALLERY-005 (back button) — last item
