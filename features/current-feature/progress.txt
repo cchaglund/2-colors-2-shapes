@@ -1,68 +1,7 @@
-## PRD-001 — canvas-confetti dependency
-- Installed canvas-confetti + @types/canvas-confetti
-- Typecheck passes, import works
-- Files: package.json, package-lock.json
-
-## PRD-002 — useWinnerAnnouncement hook: userPlacement + persistSeen
-- Added useMemo-based userPlacement: finds user's entry in topThree by userId match
-- Added persistSeen(): same upsert as dismiss() but does NOT setShouldShow(false)
-- Key decision: userPlacement is a memo derived from topThree + userId, not separate state. Simpler, auto-updates if topThree changes.
-- Tie handling: .find() returns first match — works for ties since all tied entries share the same rank value
-- Files: src/hooks/useWinnerAnnouncement.ts
-- All feedback loops pass (typecheck, 102 tests, lint)
-
-## PRD-003 — CongratulatoryModal component
-- Created src/components/modals/CongratulatoryModal.tsx
-- Props: userEntry (RankingEntry), challengeDate (string), onDismiss callback
-- Fetches challenge internally via useDailyChallenge(challengeDate), shows spinner while loading
-- Rank-specific heading/subtext: 1st="You won!"/"1st place — Congratulations!", 2nd="2nd Place!"/"Congratulations!", 3rd="3rd Place!"/"Congratulations!"
-- Renders user submission via WinnerCard with size="lg"
-- Dismiss button reads "Yay!", calls onDismiss
-- Follows exact same modal patterns as WinnerAnnouncementModal (overlay, card, focus trap, Escape, aria)
-- Files: src/components/modals/CongratulatoryModal.tsx
-- All feedback loops pass (typecheck, 102 tests, lint)
-
-## PRD-004 — Styling & Accessibility
-- Already fully implemented in PRD-003: overlay, card, focus trap, Escape, aria attrs, aria-labelledby, auto-focus all match WinnerAnnouncementModal exactly
-- Verified line-by-line against WinnerAnnouncementModal — identical patterns
-- No code changes needed, just marking as passing
-- All feedback loops pass (typecheck, 102 tests, lint)
-
-## PRD-005 — Confetti
-- Added confetti effect to CongratulatoryModal using canvas-confetti
-- confetti.create() with resize:true — fires 30-particle bursts every 300ms from random origins
-- Auto-stops after 6s (clearInterval in setTimeout); stops immediately on dismiss via stopConfetti()
-- Cleanup: instance.reset() removes injected canvas on unmount + on dismiss
-- Skips entirely when prefers-reduced-motion: reduce via window.matchMedia check
-- handleDismiss wraps stopConfetti + onDismiss, used by button + Escape key
-- Files: src/components/modals/CongratulatoryModal.tsx
-- All feedback loops pass (typecheck, 102 tests, lint)
-
-## PRD-006 — App Integration
-- Destructured userPlacement + persistSeen from useWinnerAnnouncement in App.tsx
-- Added congratsDismissed + winnerDismissed local state
-- Flow: shouldShow && !loading → if userPlacement && !congratsDismissed → CongratulatoryModal; else if !winnerDismissed → WinnerAnnouncementModal
-- Congrats onDismiss: persistSeen() + setCongratsDismissed(true) → winner modal appears next
-- Winner onDismiss: dismissWinnerAnnouncement() + setWinnerDismissed(true) → done
-- Non-top-3 users: no userPlacement → straight to WinnerAnnouncementModal (unchanged)
-- Refresh after congrats: seen_winner_announcement=true in DB → shouldShow=false → neither modal
-- Files: src/App.tsx
-- All feedback loops pass (typecheck, 102 tests, lint)
-
-## PRD-007 — Test Scenarios for CongratulatoryModal
-- Added congrats-1st, congrats-2nd, congrats-3rd to TestScenario union + SCENARIOS config
-- Each renders CongratulatoryModal with MOCK_TOP_THREE[0/1/2], challengeDate from MOCK_CHALLENGE
-- Consolidated three cases via entryIndex lookup — DRY, matches show/hide toggle pattern
-- Added "Congratulatory" sidebar section after "Winner Announcement"
-- No new mock data — reuses existing MOCK_TOP_THREE entries
-- Files: src/test/VotingTestPage.tsx
-- All feedback loops pass (typecheck, 102 tests, lint)
-
-## PRD-008 — Edge Cases
-- All 6 edge cases already handled by prior PRDs, no code changes needed
-- Ties: rank value is shared across tied entries → HEADINGS map returns correct text for any rank 1/2/3
-- Persist: congrats onDismiss calls persistSeen() → upserts seen_winner_announcement=true → refresh returns early
-- No placement: userPlacement=null when user not in topThree → CongratulatoryModal not rendered
-- Logged out: userId undefined → userPlacement=null, showWinnerAnnouncement=false → nothing renders
-- Files: features/current-feature/PRD.json (marked passes:true)
-- All feedback loops pass (typecheck, 102 tests, lint)
+## GALLERY-001 - getGalleryView() URL parser
+- Added getGalleryView() to src/utils/urlParams.ts
+- Returns { tab?: string } when ?view=gallery, null otherwise
+- Follows same pattern as getProfileView(), getWinnersDayView() etc.
+- Files changed: src/utils/urlParams.ts
+- Pre-existing lint error in useCalendarChallenges.ts (unrelated)
+- Next: GALLERY-002 (page component) or GALLERY-007 (App.tsx routing) — both depend on this

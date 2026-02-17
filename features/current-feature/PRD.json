@@ -1,120 +1,160 @@
 [
   {
-    "id": "PRD-001",
-    "category": "Dependency",
-    "description": "Install canvas-confetti library for fullscreen confetti effect",
+    "id": "GALLERY-001",
+    "category": "URL Routing",
+    "description": "Add getGalleryView() parser to urlParams.ts that reads ?view=gallery&tab={tab} and returns { tab?: string } or null",
     "steps_to_verify": [
-      "canvas-confetti appears in package.json dependencies",
-      "npm install completes without errors",
-      "import canvas-confetti works in a .tsx file without type errors"
+      "Navigate to /?view=gallery — getGalleryView() returns { tab: undefined }",
+      "Navigate to /?view=gallery&tab=wall — getGalleryView() returns { tab: 'wall' }",
+      "Navigate to /?view=submission&id=x — getGalleryView() returns null",
+      "Navigate to / with no params — getGalleryView() returns null"
     ],
     "passes": true
   },
   {
-    "id": "PRD-002",
-    "category": "Hook Modification",
-    "description": "Add userPlacement and persistSeen to useWinnerAnnouncement hook. After building the entries array, check if the logged-in userId matches any top 3 entry. Return userPlacement: RankingEntry | null. Also expose persistSeen(): Promise<void> which upserts seen_winner_announcement=true to DB without changing shouldShow state (so the winner modal can still render after congrats is dismissed).",
+    "id": "GALLERY-002",
+    "category": "Page Component",
+    "description": "Create GalleryPage.tsx as a full-page component (no modal overlay) with: back-to-app link, CalendarViewToggle tabs, tab content (calendar grid for my-submissions/winners, WallContent/FriendsFeedContent for wall/friends), and CalendarStats footer",
     "steps_to_verify": [
-      "useWinnerAnnouncement return type includes userPlacement: RankingEntry | null",
-      "useWinnerAnnouncement return type includes persistSeen: () => Promise<void>",
-      "When userId matches a top-3 entry, userPlacement returns that entry with correct rank, submission_id, shapes, and background_color_index",
-      "When userId does not match any top-3 entry, userPlacement is null",
-      "When userId is undefined (logged out), userPlacement is null",
-      "Tie case: if user has rank 1 in a tie, userPlacement still returns their entry with rank 1",
-      "persistSeen() upserts seen_winner_announcement=true to user_voting_status without setting shouldShow to false"
+      "GalleryPage renders as a full page — no fixed overlay, no backdrop, no click-to-close, no escape-to-close",
+      "All 4 tabs render: my-submissions, winners, wall, friends",
+      "CalendarViewToggle switches between tabs",
+      "CalendarStats footer is visible",
+      "Back-to-app link is present and follows existing page pattern"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "PRD-003",
-    "category": "New Component",
-    "description": "Create CongratulatoryModal component at src/components/modals/CongratulatoryModal.tsx. Props: userEntry: RankingEntry, challengeDate: string, onDismiss: () => void. Fetches DailyChallenge internally via useDailyChallenge(challengeDate) — same pattern as WinnerAnnouncementModal. Shows loading spinner while challenge data loads. Displays rank-specific heading/subtext, user's submission via WinnerCard component, and a 'Yay!' dismiss button.",
+    "id": "GALLERY-003",
+    "category": "Navigation",
+    "description": "Tab prop from URL determines initial active tab. Tab state managed internally via React state. Switching tabs updates the URL via history.replaceState() (no full page reload). Tab switching does NOT go through App.tsx — GalleryPage owns its own tab state.",
     "steps_to_verify": [
-      "Component props are: userEntry: RankingEntry, challengeDate: string, onDismiss: () => void",
-      "Component calls useDailyChallenge(challengeDate) internally to fetch challenge data",
-      "Component shows loading spinner while challenge data is loading",
-      "Component renders correct heading per rank: 1st='You won!', 2nd='2nd Place!', 3rd='3rd Place!'",
-      "Component renders correct subtext per rank: 1st='1st place — Congratulations!', 2nd/3rd='Congratulations!'",
-      "User's submission is displayed using the WinnerCard component with the userEntry and fetched challenge",
-      "Dismiss button reads 'Yay!'",
-      "Clicking 'Yay!' calls onDismiss"
+      "Navigate to /?view=gallery&tab=wall — wall tab is active on load",
+      "Navigate to /?view=gallery&tab=friends — friends tab is active on load",
+      "Navigate to /?view=gallery (no tab) — defaults to my-submissions if logged in, winners if not",
+      "Click a different tab — URL updates to reflect the new tab without full page reload"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "PRD-004",
-    "category": "Styling & Accessibility",
-    "description": "CongratulatoryModal matches existing modal patterns: same overlay, card styling, CSS variable theming, z-50, focus trap, Escape key dismiss, role=dialog, aria-modal=true.",
+    "id": "GALLERY-004",
+    "category": "Navigation",
+    "description": "Thumbnail clicks in all tabs navigate in the same tab (not new tab). Use <a href> tags (not onClick + window.location.href) so Ctrl/Cmd+click opens in new tab. My Submissions day click → ?view=submission&date=..., Winners day click → ?view=winners-day&date=..., Wall/Friends thumbnail click → ?view=submission&id=... Do NOT pass onSubmissionClick to WallContent/FriendsFeedContent — their default window.location.href behavior is correct.",
     "steps_to_verify": [
-      "Overlay uses: fixed inset-0 bg-(--color-modal-overlay) flex items-center justify-center z-50",
-      "Card uses bg-(--color-bg-primary), border, rounded-lg, same padding pattern as WinnerAnnouncementModal",
-      "Focus trap implemented: Tab/Shift+Tab cycle within modal, focusable elements queried",
-      "Escape key dismisses modal",
-      "role='dialog' and aria-modal='true' are set on the modal container",
-      "aria-labelledby points to the heading element",
-      "Dismiss button auto-focused on mount via ref"
+      "My Submissions tab: click a day cell → navigates to ?view=submission&date=... in same tab",
+      "Winners tab: click a day cell → navigates to ?view=winners-day&date=... in same tab",
+      "Wall tab: click a thumbnail → navigates to ?view=submission&id=... in same tab",
+      "Friends tab: click a thumbnail → navigates to ?view=submission&id=... in same tab",
+      "No new tabs are opened from any gallery interaction"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "PRD-005",
-    "category": "Confetti",
-    "description": "Fullscreen confetti fires on CongratulatoryModal mount using canvas-confetti with continuous bursts on ~300ms interval, runs for 6 seconds then auto-stops. Stops immediately when user dismisses. Calls .reset() on cleanup to remove the injected canvas element. Skips confetti entirely when prefers-reduced-motion: reduce is active.",
+    "id": "GALLERY-005",
+    "category": "Navigation",
+    "description": "Browser back button returns to gallery at the correct tab after navigating to a submission or winners-day page from the gallery",
     "steps_to_verify": [
-      "Confetti starts when CongratulatoryModal mounts (continuous bursts on interval)",
-      "Confetti auto-stops after 6 seconds if user hasn't dismissed",
-      "Confetti stops immediately when user clicks 'Yay!'",
-      ".reset() called on confetti instance during cleanup — no canvas element left in DOM",
-      "Confetti cleanup runs on component unmount (no memory leaks)",
-      "Confetti is skipped entirely when window.matchMedia('(prefers-reduced-motion: reduce)').matches is true"
+      "From gallery wall tab, click thumbnail → submission page loads → press browser back → returns to gallery with wall tab active",
+      "From gallery winners tab, click day → winners-day page loads → press browser back → returns to gallery with winners tab active"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "PRD-006",
-    "category": "App Integration",
-    "description": "Update App.tsx to show CongratulatoryModal before WinnerAnnouncementModal when user placed top 3. Destructure userPlacement and persistSeen from hook. Add local state: congratsDismissed, winnerDismissed. Flow: if shouldShow && !loading, then: if userPlacement && !congratsDismissed -> show CongratulatoryModal; else if !winnerDismissed -> show WinnerAnnouncementModal. Congrats onDismiss calls persistSeen() + sets congratsDismissed=true. Winner onDismiss calls dismiss() as before.",
+    "id": "GALLERY-006",
+    "category": "Navigation",
+    "description": "Back-to-app link from GalleryPage navigates back to the canvas (root /)",
     "steps_to_verify": [
-      "userPlacement and persistSeen destructured from useWinnerAnnouncement in App.tsx",
-      "Local state congratsDismissed and winnerDismissed added",
-      "When user placed top 3: CongratulatoryModal shown first, WinnerAnnouncementModal hidden",
-      "CongratulatoryModal onDismiss calls persistSeen() and sets congratsDismissed=true",
-      "After dismissing CongratulatoryModal: WinnerAnnouncementModal appears (shouldShow still true)",
-      "After dismissing WinnerAnnouncementModal: both modals gone via dismiss()",
-      "When user did NOT place top 3: only WinnerAnnouncementModal shown (unchanged behavior)",
-      "On page refresh after congrats dismissed: seen_winner_announcement=true in DB, shouldShow=false, neither modal reappears"
+      "Click 'Back to app' link on GalleryPage → navigates to / (canvas view)",
+      "Link follows the same pattern as other standalone pages"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "PRD-007",
-    "category": "Test Scenarios",
-    "description": "Add three new test scenarios to VotingTestPage.tsx: congrats-1st, congrats-2nd, congrats-3rd. Each renders CongratulatoryModal with the corresponding MOCK_TOP_THREE entry. Include show/hide toggle button matching existing winner modal test pattern.",
+    "id": "GALLERY-007",
+    "category": "App Routing",
+    "description": "App.tsx detects galleryView via getGalleryView() and renders GalleryPage in the standalone pages section. GalleryPage does not require challenge data to render.",
     "steps_to_verify": [
-      "congrats-1st scenario added to TestScenario type union",
-      "congrats-2nd scenario added to TestScenario type union",
-      "congrats-3rd scenario added to TestScenario type union",
-      "Each scenario renders CongratulatoryModal with correct mock entry (rank 1, 2, or 3 from MOCK_TOP_THREE)",
-      "Each scenario passes challengeDate from MOCK_CHALLENGE.date",
-      "Each scenario has a show/hide button toggle matching the winner-normal pattern",
-      "Scenarios appear in the scenario selector/list in VotingTestPage",
-      "No new mock data created — reuses existing MOCK_TOP_THREE entries",
-      "All three scenarios render without errors"
+      "Navigate to /?view=gallery — GalleryPage renders (not the canvas)",
+      "GalleryPage renders before challenge data loads (placed in early return section of App.tsx)"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "PRD-008",
-    "category": "Edge Cases",
-    "description": "Handle edge cases: ties (user is one of multiple 1st-place winners — still show 'You won!'), persistence (congrats dismiss persists seen_winner_announcement immediately — refresh after congrats dismiss skips both modals), no placement (unchanged behavior), single submission (DB enforces one per user per day via upsert constraint).",
+    "id": "GALLERY-008",
+    "category": "Toolbar",
+    "description": "Gallery button in Toolbar navigates to /?view=gallery instead of opening a modal. Remove login gate — gallery is accessible to all users.",
     "steps_to_verify": [
-      "If user ties for 1st place, CongratulatoryModal shows 'You won!' heading",
-      "If user ties for 2nd place, CongratulatoryModal shows '2nd Place!' heading",
-      "Congrats dismiss persists seen_winner_announcement=true to DB immediately",
-      "Page refresh after congrats dismiss: shouldShow=false, neither modal reappears",
-      "If user is not in top 3, no CongratulatoryModal is rendered",
-      "If user is logged out, no CongratulatoryModal is rendered"
+      "Click Gallery button in toolbar → navigates to /?view=gallery (no modal appears)",
+      "Gallery button works when logged out — no login prompt",
+      "onOpenCalendar prop is removed from Toolbar interface"
     ],
-    "passes": true
+    "passes": false
+  },
+  {
+    "id": "GALLERY-009",
+    "category": "Auth",
+    "description": "Non-logged-in users can access gallery. Winners and wall tabs work without auth. My-submissions and friends tabs are disabled with opacity + tooltip (existing CalendarViewToggle behavior preserved). Default tab for logged-out users is 'winners'.",
+    "steps_to_verify": [
+      "Logged out: navigate to /?view=gallery — page loads, defaults to winners tab",
+      "Logged out: winners tab shows winner data",
+      "Logged out: wall tab shows wall content",
+      "Logged out: my-submissions tab button is disabled (opacity-50, tooltip explains login required)",
+      "Logged out: friends tab button is disabled (opacity-50, tooltip explains login required)"
+    ],
+    "passes": false
+  },
+  {
+    "id": "GALLERY-010",
+    "category": "Cleanup",
+    "description": "Delete Calendar.tsx modal component. Remove showCalendar state and Calendar modal rendering from App.tsx. Remove Calendar import and its FollowsProvider wrapper. Sub-components in Calendar/ folder remain.",
+    "steps_to_verify": [
+      "src/components/Calendar/Calendar.tsx no longer exists",
+      "App.tsx has no showCalendar state",
+      "App.tsx has no Calendar modal rendering or FollowsProvider wrapper for it",
+      "Sub-components (CalendarGrid, CalendarDayCell, CalendarViewToggle, etc.) still exist in Calendar/ folder",
+      "No remaining imports of Calendar.tsx anywhere in the codebase"
+    ],
+    "passes": false
+  },
+  {
+    "id": "GALLERY-011",
+    "category": "Cleanup",
+    "description": "Remove onOpenCalendar prop from Toolbar interface and from App.tsx Toolbar usage",
+    "steps_to_verify": [
+      "Toolbar interface has no onOpenCalendar prop",
+      "App.tsx does not pass onOpenCalendar to Toolbar",
+      "No TypeScript errors related to removed prop"
+    ],
+    "passes": false
+  },
+  {
+    "id": "GALLERY-012",
+    "category": "Navigation",
+    "description": "UserProfilePage submission click uses same-tab navigation (window.location.href) instead of new tab (window.open)",
+    "steps_to_verify": [
+      "On UserProfilePage, click a submission thumbnail → navigates in same tab (not a new tab)",
+      "URL changes to ?view=submission&date=...&user=..."
+    ],
+    "passes": false
+  },
+  {
+    "id": "GALLERY-013",
+    "category": "Navigation",
+    "description": "WinnersDayPage submission click (handleViewSubmission, lines 30-37) uses same-tab navigation (window.location.href) instead of new tab (window.open). Same fix as GALLERY-012 for consistency.",
+    "steps_to_verify": [
+      "On WinnersDayPage, click 'View' on a submission → navigates in same tab (not a new tab)",
+      "Browser back from submission returns to WinnersDayPage"
+    ],
+    "passes": false
+  },
+  {
+    "id": "GALLERY-014",
+    "category": "App Routing",
+    "description": "GalleryPage is wrapped in <FollowsProvider> in App.tsx (same pattern as UserProfilePage, FriendsFeedPage, SubmissionDetailPage). Required because FriendsFeedContent in the Friends tab needs follow data.",
+    "steps_to_verify": [
+      "Friends tab in gallery loads and displays friend submissions (follow data available)",
+      "GalleryPage is wrapped in FollowsProvider in App.tsx"
+    ],
+    "passes": false
   }
 ]

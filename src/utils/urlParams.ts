@@ -106,6 +106,16 @@ export function getWallOfTheDayView(): { view: 'wall-of-the-day'; date: string }
   return null;
 }
 
+// Check if gallery view is requested
+export function getGalleryView(): { tab?: string } | null {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('view') === 'gallery') {
+    const tab = urlParams.get('tab') || undefined;
+    return { tab };
+  }
+  return null;
+}
+
 // Check if friends-feed view is requested
 export function getFriendsFeedView(): { view: 'friends-feed'; date: string } | null {
   // Import getTodayDateUTC inline to avoid circular dependency
