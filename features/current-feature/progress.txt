@@ -17,3 +17,12 @@
 - Files changed: src/components/GalleryPage.tsx (new)
 - Pre-existing lint error in useCalendarChallenges.ts still present (unrelated)
 - Next: GALLERY-007 (wire into App.tsx routing) then GALLERY-003 (tab nav already partly done here)
+
+## GALLERY-007 + GALLERY-014 - App.tsx routing + FollowsProvider
+- Imported getGalleryView and GalleryPage in App.tsx
+- Added galleryView useMemo check alongside other URL view parsers
+- Renders GalleryPage in "standalone pages that don't need challenge data" section (before loading spinner)
+- Wrapped in FollowsProvider (same pattern as UserProfilePage, FriendsFeedPage) — satisfies GALLERY-014
+- Files changed: src/App.tsx
+- Typecheck: pass. Tests: 102/102 pass. Lint: pre-existing error only.
+- Next: GALLERY-003 (tab nav partially done in GALLERY-002), GALLERY-008 (toolbar nav), GALLERY-010/011 (cleanup)

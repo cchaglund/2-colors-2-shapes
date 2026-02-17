@@ -9,6 +9,7 @@ import { ColorTester } from './components/admin/ColorTester';
 import { OnboardingModal } from './components/modals/OnboardingModal';
 import { WelcomeModal } from './components/modals/WelcomeModal';
 import { Calendar } from './components/Calendar';
+import { GalleryPage } from './components/GalleryPage';
 import { SubmissionDetailPage } from './components/SubmissionDetailPage';
 import { WinnersDayPage } from './components/WinnersDayPage';
 import { WallOfTheDayPage } from './components/WallOfTheDay/WallOfTheDayPage';
@@ -53,6 +54,7 @@ import {
   getWallOfTheDayView,
   getProfileView,
   getFriendsFeedView,
+  getGalleryView,
 } from './utils/urlParams';
 import { WinnerAnnouncementModal } from './components/modals/WinnerAnnouncementModal';
 import { CongratulatoryModal } from './components/modals/CongratulatoryModal';
@@ -67,6 +69,7 @@ function App() {
   const wallOfTheDayView = useMemo(() => getWallOfTheDayView(), []);
   const profileView = useMemo(() => getProfileView(), []);
   const friendsFeedView = useMemo(() => getFriendsFeedView(), []);
+  const galleryView = useMemo(() => getGalleryView(), []);
   const showDashboard = useMemo(() => isDashboardEnabled(), []);
   const showColorTester = useMemo(() => isColorTesterEnabled(), []);
 
@@ -278,6 +281,7 @@ function App() {
   if (showColorTester) return <ColorTester />;
 
   // Standalone pages that don't need challenge data
+  if (galleryView) return <FollowsProvider><GalleryPage tab={galleryView.tab} /></FollowsProvider>;
   if (wallOfTheDayView) return <WallOfTheDayPage date={wallOfTheDayView.date} />;
   if (profileView) return <FollowsProvider><UserProfilePage userId={profileView.userId} /></FollowsProvider>;
   if (friendsFeedView) return <FollowsProvider><FriendsFeedPage date={friendsFeedView.date} /></FollowsProvider>;
