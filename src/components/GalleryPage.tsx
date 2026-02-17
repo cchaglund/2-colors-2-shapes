@@ -44,6 +44,15 @@ export function GalleryPage({ tab: initialTab }: GalleryPageProps) {
   const todayStr = useMemo(() => getTodayDateUTC(), []);
   const latestWinnersDate = useMemo(() => getTwoDaysAgoDateUTC(), []);
 
+  // Keep URL in sync with active tab (so browser back always restores correct tab)
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get('tab') !== effectiveViewMode) {
+      url.searchParams.set('tab', effectiveViewMode);
+      history.replaceState(null, '', url.toString());
+    }
+  }, [effectiveViewMode]);
+
   // Update URL when tab changes (without full page reload)
   const handleSetViewMode = useCallback((mode: ViewMode) => {
     setViewMode(mode);

@@ -57,7 +57,7 @@
       "From gallery wall tab, click thumbnail → submission page loads → press browser back → returns to gallery with wall tab active",
       "From gallery winners tab, click day → winners-day page loads → press browser back → returns to gallery with winners tab active"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "GALLERY-006",

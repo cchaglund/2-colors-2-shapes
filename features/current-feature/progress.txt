@@ -81,3 +81,12 @@
 - Files changed: src/components/WinnersDayPage.tsx
 - Typecheck: pass. Tests: 102/102 pass. Lint: pre-existing error only.
 - Remaining: GALLERY-005 (back button) — last item
+
+## GALLERY-005 - Browser back button returns to correct gallery tab
+- Added useEffect to sync effectiveViewMode into URL via replaceState on mount/tab change
+- Previously, URL only updated on explicit tab click (handleSetViewMode); default tab wasn't reflected in URL
+- Now: even if user lands on default tab and immediately clicks a day cell, the URL has the tab param → back works
+- All gallery navigation uses <a href> (full page loads), so back button triggers fresh page load with correct URL
+- Files changed: src/components/GalleryPage.tsx
+- Typecheck: pass. Tests: 102/102 pass. Lint: pre-existing error only.
+- ALL PRD ITEMS COMPLETE
