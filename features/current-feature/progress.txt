@@ -5,3 +5,15 @@
 - Files changed: src/utils/urlParams.ts
 - Pre-existing lint error in useCalendarChallenges.ts (unrelated)
 - Next: GALLERY-002 (page component) or GALLERY-007 (App.tsx routing) — both depend on this
+
+## GALLERY-002 - GalleryPage.tsx full-page component
+- Created src/components/GalleryPage.tsx as standalone page (not modal)
+- Follows existing page pattern: min-h-screen, max-w-4xl, back-to-app link, title
+- Moved all data-fetching/state logic from Calendar.tsx (submissions, rankings, winners, challenges, month nav)
+- Tab state owned internally; initial tab from URL prop; defaults to my-submissions (logged in) or winners (logged out)
+- Tab switching updates URL via history.replaceState() — no full page reload
+- Day clicks use same-tab navigation (window.location.href) not window.open
+- Reuses all Calendar sub-components: CalendarViewToggle, ContentNavigation, CalendarGrid, CalendarDayCell, CalendarStats, WallTab, FriendsFeedTab
+- Files changed: src/components/GalleryPage.tsx (new)
+- Pre-existing lint error in useCalendarChallenges.ts still present (unrelated)
+- Next: GALLERY-007 (wire into App.tsx routing) then GALLERY-003 (tab nav already partly done here)

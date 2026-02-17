@@ -22,7 +22,7 @@
       "CalendarStats footer is visible",
       "Back-to-app link is present and follows existing page pattern"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "GALLERY-003",
