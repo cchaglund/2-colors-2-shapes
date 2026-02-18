@@ -246,3 +246,15 @@
 - Files changed: none (verification only, PRD updated)
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-027/028/029 (verify group/mirror/selection ops post-decomposition)
+
+## REFACTOR-027 — Verify group operations post-decomposition
+- Code-level verification (visual testing blocked by sandbox firewall — no Supabase access)
+- createGroup: useShapeOperations:645-700, generates group ID, assigns groupId to shapes, normalizes z-indices
+- deleteGroup: useShapeOperations:702-714, clears groupId from shapes, removes group from groups array
+- ungroupShapes: useShapeOperations:716-765, removes groupId, cleans up empty groups, preserves z-order
+- renameGroup: useShapeOperations:767-777, updates group name
+- moveGroup: useShapeOperations:328-471, handles up/down/top/bottom including group-vs-group swaps
+- All ops wired: useShapeOperations → useCanvasState orchestrator → App.tsx → LayerPanel → GroupHeader
+- Public API unchanged — no consumer changes needed
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-028 (verify mirror/flip ops) or REFACTOR-029 (verify selection)

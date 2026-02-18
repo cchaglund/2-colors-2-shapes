@@ -340,7 +340,7 @@
       "Can move grouped shapes together",
       "Can delete a group"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-028",
