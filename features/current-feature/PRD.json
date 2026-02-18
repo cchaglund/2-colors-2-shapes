@@ -430,7 +430,7 @@
       "All routes still resolve correctly (canvas, gallery, voting, calendar, etc.)",
       "Browser back/forward navigation still works"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-035",

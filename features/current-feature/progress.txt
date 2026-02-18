@@ -306,3 +306,16 @@
 - Files changed: src/hooks/useAppModals.ts (new), src/App.tsx (refactored)
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-034 (route/view resolution extraction from App.tsx)
+
+## REFACTOR-034 — Extract route/view resolution from App.tsx
+- Created src/hooks/useAppRoute.ts: resolves URL params into discriminated union `AppRoute` type
+- Route types: explorer, voting-test, social-test, dashboard, color-tester, gallery, wall-of-the-day, profile (standalone), winners-day, submission-by-id, submission-by-date, canvas (challenge-dependent)
+- Exported `isStandaloneRoute()` type guard to separate routes needing challenge data from those that don't
+- Replaced 10 individual `useMemo(() => urlParamFn(), [])` calls with single `useAppRoute()` call
+- Extracted canvas editor (hooks, handlers, JSX) into src/components/CanvasEditorPage.tsx (452 lines)
+- App.tsx reduced from 519 to 61 lines — thin router that resolves route, loads challenge, and renders appropriate page
+- CanvasEditorPage accepts `challenge: DailyChallenge` + `todayDate: string` props; owns all canvas-specific state/hooks
+- Removed direct urlParams imports from App.tsx
+- Files changed: src/hooks/useAppRoute.ts (new), src/components/CanvasEditorPage.tsx (new), src/App.tsx (rewritten)
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-035 (verify all modals still open/close after decomposition)
