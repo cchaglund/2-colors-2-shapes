@@ -1,0 +1,8 @@
+## REFACTOR-001 — Create shared <SVGShape> component
+- Created src/components/SVGShape.tsx
+- Props: type, size, x, y, rotation, flipX, flipY, color, style (optional)
+- Handles all 4 SVG element types: ellipse, rect, polygon, path
+- Transform logic identical to ShapeElement/SubmissionThumbnail/SubmissionCanvas
+- Typecheck: pass. Tests: 102 pass. Lint: clean (pre-existing error in useCalendarChallenges.ts unrelated).
+- Note: npm install requires sandbox workaround (see installing-packages.md)
+- Next: REFACTOR-002/003/004 to replace inline rendering with <SVGShape> in consumers

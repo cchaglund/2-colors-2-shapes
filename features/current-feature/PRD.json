@@ -10,7 +10,7 @@
       "Component handles all 4 element types: ellipse, rect, polygon, path",
       "Component computes transform string from shape position/rotation/scale"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-002",
