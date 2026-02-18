@@ -135,3 +135,13 @@
 - Files changed: src/components/modals/FriendsModal.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-017 (KeyboardSettingsModal)
+
+## REFACTOR-017 — Refactor KeyboardSettingsModal to use shared Modal
+- Replaced outer backdrop div (`fixed inset-0 bg-(--color-modal-overlay)`) + content box with shared `<Modal>`
+- Used `className="!p-0 max-h-[80vh] overflow-hidden flex flex-col"` to preserve custom header/content/footer layout
+- Set `closeOnEscape={false}` — component has custom 3-level escape logic (cancel listening > dismiss conflicts > close)
+- Conflict resolution dialog also uses shared `<Modal>` with `zIndex="z-60"`, `closeOnEscape={false}`, `closeOnBackdropClick={false}`
+- Removed `useRef` import (Modal handles its own ref)
+- Files changed: src/components/KeyboardSettingsModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-018 (ResetConfirmModal)

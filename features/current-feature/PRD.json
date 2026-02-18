@@ -208,7 +208,7 @@
       "No inline backdrop/box markup in KeyboardSettingsModal.tsx",
       "Keyboard settings modal displays and closes correctly"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-018",

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   type KeyMappings,
   type KeyboardActionId,
@@ -9,6 +9,7 @@ import {
   bindingFromEvent,
   findConflicts,
 } from '../constants/keyboardActions';
+import { Modal } from './Modal';
 
 interface KeyboardSettingsModalProps {
   mappings: KeyMappings;
@@ -35,9 +36,8 @@ export function KeyboardSettingsModal({
     binding: KeyBinding;
     conflicts: KeyboardActionId[];
   } | null>(null);
-  const modalRef = useRef<HTMLDivElement>(null);
-
-  // Handle escape key to close modal or cancel listening
+  // Custom escape: cancel listening > dismiss conflicts > close modal
+  // Modal's built-in escape is disabled since we need this priority logic.
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -133,16 +133,12 @@ export function KeyboardSettingsModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 flex items-center justify-center z-50 bg-(--color-modal-overlay)"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
-      <div
-        ref={modalRef}
-        className="rounded-lg max-w-lg w-full max-h-[80vh] overflow-hidden flex flex-col bg-(--color-bg-primary) border border-(--color-border)"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="keyboard-settings-title"
+    <>
+      <Modal
+        onClose={onClose}
+        closeOnEscape={false}
+        ariaLabelledBy="keyboard-settings-title"
+        className="!p-0 max-h-[80vh] overflow-hidden flex flex-col"
       >
         {/* Header */}
         <div className="p-4 border-b flex items-center justify-between border-(--color-border)">
@@ -243,44 +239,49 @@ export function KeyboardSettingsModal({
             </button>
           </div>
         </div>
-      </div>
+      </Modal>
 
       {/* Conflict Resolution Dialog */}
       {pendingConflicts && (
-        <div className="fixed inset-0 flex items-center justify-center z-60 bg-black/50">
-          <div className="p-6 rounded-lg max-w-sm text-center bg-(--color-bg-primary) border border-(--color-border)">
-            <h3 className="m-0 mb-3 text-lg font-semibold text-(--color-text-primary)">
-              Shortcut Conflict
-            </h3>
-            <p className="m-0 mb-4 text-[13px] text-(--color-text-secondary)">
-              <span className="font-mono font-medium">
-                {formatKeyBinding(pendingConflicts.binding)}
-              </span>{' '}
-              is already used by{' '}
-              <span className="font-medium">
-                {pendingConflicts.conflicts
-                  .map((id) => KEYBOARD_ACTIONS_MAP.get(id)?.label)
-                  .join(', ')}
-              </span>
-              . Replace it?
-            </p>
-            <div className="flex gap-3 justify-center">
-              <button
-                onClick={() => handleResolveConflict(false)}
-                className="px-4 py-2 rounded-md cursor-pointer text-[13px] font-medium transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary) border border-(--color-border) hover:bg-(--color-hover)"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleResolveConflict(true)}
-                className="px-4 py-2 rounded-md cursor-pointer text-[13px] font-medium bg-(--color-accent) text-white hover:bg-(--color-accent-hover) transition-colors"
-              >
-                Replace
-              </button>
-            </div>
+        <Modal
+          onClose={() => setPendingConflicts(null)}
+          size="max-w-sm"
+          className="text-center"
+          zIndex="z-60"
+          closeOnEscape={false}
+          closeOnBackdropClick={false}
+        >
+          <h3 className="m-0 mb-3 text-lg font-semibold text-(--color-text-primary)">
+            Shortcut Conflict
+          </h3>
+          <p className="m-0 mb-4 text-[13px] text-(--color-text-secondary)">
+            <span className="font-mono font-medium">
+              {formatKeyBinding(pendingConflicts.binding)}
+            </span>{' '}
+            is already used by{' '}
+            <span className="font-medium">
+              {pendingConflicts.conflicts
+                .map((id) => KEYBOARD_ACTIONS_MAP.get(id)?.label)
+                .join(', ')}
+            </span>
+            . Replace it?
+          </p>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={() => handleResolveConflict(false)}
+              className="px-4 py-2 rounded-md cursor-pointer text-[13px] font-medium transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary) border border-(--color-border) hover:bg-(--color-hover)"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => handleResolveConflict(true)}
+              className="px-4 py-2 rounded-md cursor-pointer text-[13px] font-medium bg-(--color-accent) text-white hover:bg-(--color-accent-hover) transition-colors"
+            >
+              Replace
+            </button>
           </div>
-        </div>
+        </Modal>
       )}
-    </div>
+    </>
   );
 }
