@@ -1,27 +1,14 @@
 import { useState } from 'react';
 import logoSvg from '../assets/logo.svg';
-import type { DailyChallenge, ShapeType } from '../types';
+import type { DailyChallenge } from '../types';
 import type { ThemeMode } from '../hooks/useThemeState';
 import type { Profile } from '../hooks/useProfile';
-import { getShapeSVGData } from '../utils/shapeHelpers';
 import { ThemeToggle } from './ThemeToggle';
+import { ShapeIcon } from './ShapeIcon';
 import { AuthButton } from './AuthButton';
 import { LoginPromptModal } from './LoginPromptModal';
 import { type KeyMappings, formatKeyBinding } from '../constants/keyboardActions';
 import { InfoTooltip } from './InfoTooltip';
-
-// Small shape preview component for the toolbar
-function ShapePreviewIcon({ type, size = 18 }: { type: ShapeType; size?: number }) {
-  const { element, props } = getShapeSVGData(type, size);
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      {element === 'ellipse' && <ellipse {...props} fill="currentColor" />}
-      {element === 'rect' && <rect {...props} fill="currentColor" />}
-      {element === 'polygon' && <polygon {...props} fill="currentColor" />}
-      {element === 'path' && <path {...props} fill="currentColor" />}
-    </svg>
-  );
-}
 
 // Section label - consistent typography
 function Label({ children }: { children: React.ReactNode }) {
@@ -264,7 +251,7 @@ export function Toolbar({
               <div key={shapeData.type} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-(--color-text-tertiary)">
-                    <ShapePreviewIcon type={shapeData.type} size={16} />
+                    <ShapeIcon type={shapeData.type} size={16} />
                   </span>
                   <span className="text-[13px] text-(--color-text-primary)">{shapeData.name}</span>
                 </div>

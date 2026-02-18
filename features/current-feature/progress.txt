@@ -39,3 +39,11 @@
 - Files changed: src/components/ShapeIcon.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-006/007 to replace local icons in Toolbar/WelcomeModal
+
+## REFACTOR-006 — Refactor Toolbar.tsx to use shared ShapeIcon
+- Removed local ShapePreviewIcon function (lines 14-24)
+- Replaced with import of shared ShapeIcon from ./ShapeIcon
+- Removed unused getShapeSVGData and ShapeType imports
+- Files changed: src/components/Toolbar.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-007 (WelcomeModal ShapeIcon) or REFACTOR-008 (RANK_COLORS)
