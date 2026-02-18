@@ -164,3 +164,14 @@
 - Files changed: src/components/voting/VotingModal.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-020 (CongratulatoryModal)
+
+## REFACTOR-020 — Refactor CongratulatoryModal to use shared Modal
+- Replaced both render paths (loading + main) with shared `<Modal>`
+- Loading state: `closeOnBackdropClick={false}` (no accidental dismiss while loading)
+- Main state: default close behavior (escape + backdrop click), `ariaLabelledBy="congrats-title"`
+- Removed `modalRef`, `buttonRef`, manual escape handler, focus trap (~30 lines) — delegated to shared Modal
+- Confetti logic unchanged (useRef + useEffect for canvas-confetti)
+- File reduced from 169 to 119 lines
+- Files changed: src/components/modals/CongratulatoryModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-021 (WinnerAnnouncementModal)

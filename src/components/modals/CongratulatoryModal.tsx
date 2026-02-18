@@ -3,6 +3,7 @@ import confetti from 'canvas-confetti';
 import type { RankingEntry } from '../../types';
 import { useDailyChallenge } from '../../hooks/useDailyChallenge';
 import { WinnerCard } from '../WinnerCard';
+import { Modal } from '../Modal';
 
 const CONFETTI_DURATION_MS = 6_000;
 const CONFETTI_INTERVAL_MS = 300;
@@ -30,8 +31,6 @@ export function CongratulatoryModal({
   challengeDate,
   onDismiss,
 }: CongratulatoryModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
   const { challenge, loading: challengeLoading } = useDailyChallenge(challengeDate);
 
   // Confetti refs and dismiss handler
@@ -77,53 +76,15 @@ export function CongratulatoryModal({
     };
   }, [challengeLoading]);
 
-  // Focus the button when modal opens and trap focus
-  useEffect(() => {
-    if (!challengeLoading) {
-      buttonRef.current?.focus();
-    }
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        handleDismiss();
-      }
-      // Trap focus within the modal
-      if (e.key === 'Tab' && modalRef.current) {
-        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        if (e.shiftKey && document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement?.focus();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement?.focus();
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [challengeLoading, handleDismiss]);
-
   // Show loading state while challenge is being fetched
   if (challengeLoading || !challenge) {
     return (
-      <div
-        className="fixed inset-0 bg-(--color-modal-overlay) flex items-center justify-center z-50"
-        role="dialog"
-        aria-modal="true"
-      >
-        <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-lg p-6">
-          <div className="text-center">
-            <div className="inline-block w-6 h-6 border-2 border-(--color-text-tertiary) border-t-transparent rounded-full animate-spin mb-3" />
-            <p className="text-[13px] text-(--color-text-secondary)">Loading...</p>
-          </div>
+      <Modal onClose={handleDismiss} closeOnBackdropClick={false}>
+        <div className="text-center">
+          <div className="inline-block w-6 h-6 border-2 border-(--color-text-tertiary) border-t-transparent rounded-full animate-spin mb-3" />
+          <p className="text-[13px] text-(--color-text-secondary)">Loading...</p>
         </div>
-      </div>
+      </Modal>
     );
   }
 
@@ -131,39 +92,28 @@ export function CongratulatoryModal({
   const subtext = SUBTEXTS[userEntry.rank] ?? 'Congratulations!';
 
   return (
-    <div
-      className="fixed inset-0 bg-(--color-modal-overlay) flex items-center justify-center z-50"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="congrats-title"
-    >
-      <div
-        ref={modalRef}
-        className="bg-(--color-bg-primary) border border-(--color-border) rounded-lg p-6 w-full max-w-lg mx-4"
-      >
-        <div className="text-center mb-5">
-          <h2 id="congrats-title" className="text-lg font-semibold text-(--color-text-primary) mb-0.5">
-            {heading}
-          </h2>
-          <p className="text-[13px] text-(--color-text-secondary)">{subtext}</p>
-        </div>
-
-        <div className="flex justify-center mb-5">
-          <WinnerCard
-            entry={userEntry}
-            challenge={challenge}
-            size="lg"
-          />
-        </div>
-
-        <button
-          ref={buttonRef}
-          onClick={handleDismiss}
-          className="w-full px-4 py-2 bg-(--color-accent) text-white text-[13px] rounded-md font-medium hover:bg-(--color-accent-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2"
-        >
-          Yay!
-        </button>
+    <Modal onClose={handleDismiss} ariaLabelledBy="congrats-title">
+      <div className="text-center mb-5">
+        <h2 id="congrats-title" className="text-lg font-semibold text-(--color-text-primary) mb-0.5">
+          {heading}
+        </h2>
+        <p className="text-[13px] text-(--color-text-secondary)">{subtext}</p>
       </div>
-    </div>
+
+      <div className="flex justify-center mb-5">
+        <WinnerCard
+          entry={userEntry}
+          challenge={challenge}
+          size="lg"
+        />
+      </div>
+
+      <button
+        onClick={handleDismiss}
+        className="w-full px-4 py-2 bg-(--color-accent) text-white text-[13px] rounded-md font-medium hover:bg-(--color-accent-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2"
+      >
+        Yay!
+      </button>
+    </Modal>
   );
 }

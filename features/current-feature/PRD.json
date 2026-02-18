@@ -245,7 +245,7 @@
       "No inline backdrop/box markup in CongratulatoryModal.tsx",
       "Congratulatory modal displays correctly"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-021",
