@@ -258,3 +258,27 @@
 - Public API unchanged — no consumer changes needed
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-028 (verify mirror/flip ops) or REFACTOR-029 (verify selection)
+
+## REFACTOR-028 — Verify mirror/flip operations post-decomposition
+- Code-level verification (visual testing blocked by sandbox firewall — no Supabase access)
+- mirrorHorizontal: useShapeOperations:559-598, single shape toggles flipX, multi-shape reflects across bounding box center + toggles flipX
+- mirrorVertical: useShapeOperations:601-641, single shape toggles flipY, multi-shape reflects across center Y + toggles flipY
+- Both ops call setCanvasState(updater) → orchestrator pushes to history → undo/redo works
+- Wiring: useShapeOperations → useCanvasState → App.tsx → useShapeActions (button clicks) + useCanvasKeyboardShortcuts (key bindings)
+- ActionToolbar receives handleMirrorHorizontal/handleMirrorVertical (selection-wrapped)
+- Keyboard shortcuts receive raw mirrorHorizontal/mirrorVertical, pass selected shape IDs
+- Public API unchanged — no consumer changes needed
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-029 (verify selection management) or REFACTOR-030 (shapeHelpers split)
+
+## REFACTOR-029 — Verify selection management post-decomposition
+- Code-level verification (visual testing blocked by sandbox firewall — no Supabase access)
+- selectShape: useShapeOperations:188-238, handles single select (new Set([id])), toggle/multi-select (Cmd/Ctrl+click), range select (Shift+click), deselect (id=null → empty Set)
+- selectGroup: useShapeOperations:813-842, selects all shapes in group with toggle support
+- All selection ops pass addToHistory=false — selection is ephemeral UI state, no undo/redo entries
+- Deselection: 3-level — canvas background rect onMouseDown, SVG handleCanvasMouseDown, <main> onClick; stopPropagation prevents double-firing
+- Selection persistence: updateShape/updateShapes/moveLayer/mirror ops use {...prev, shapes: ...} spread, preserving selectedShapeIds untouched; shape IDs stable across mutations
+- Wiring intact: useShapeOperations → useCanvasState (destructured + re-exported) → App.tsx → Canvas (onSelectShape) + LayerPanel (onSelectShape, onSelectGroup)
+- Public API unchanged — no consumer changes needed
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-030 (shapeHelpers split into src/utils/shapes/)

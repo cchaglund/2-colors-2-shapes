@@ -352,7 +352,7 @@
       "Can mirror shapes vertically",
       "Mirror operations integrate with undo/redo"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-029",
@@ -365,7 +365,7 @@
       "Selection state persists correctly during shape operations",
       "Deselection works on click-away"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-030",
