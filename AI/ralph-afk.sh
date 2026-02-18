@@ -50,7 +50,8 @@ for ((i=1; i<=$1; i++)); do
   ' 2>/dev/null || true
   sleep 2
 
-  if [[ "$result" == *"<promise>COMPLETE</promise>"* ]]; then
+  final_result=$(grep '"type":"result"' "$LOG_FILE" | tail -1 | jq -r '.result // ""' 2>/dev/null)
+  if [[ "$final_result" == *"<promise>COMPLETE</promise>"* ]]; then
     echo "PRD complete after $i iterations."
     exit 0
   fi

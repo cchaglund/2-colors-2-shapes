@@ -1,12 +1,18 @@
+# Installing npm packages - very important!
+
+If you have to run `npm install`, or you're installing a new package, read installing-packages.md. 
+
+
 # Main instructions
 
 1. If you are on the main/master branch, create a new branch for the feature you are implementing. Name it something relevant to the feature. If you are not on main/master, assume you are already on the correct branch.
 2. Read the PRD.json and progress.txt file (if the latter doesn't exist, create it).
 3. Decide which task to work on next. This should be the one YOU decide has the highest priority - not necessarily the first in the list.
-4. Check any feedback loops, such as types and tests.
-5. Mark the task as done in PRD.json by setting `"passes": true`.
-6. Append your progress and any notes to the progress.txt file. Use this to leave a note for whomever comes after you.
-7. Make a git commit of that feature.
+4. Phases: if the items have phases, items in the same phase are intended to be worked on before moving to the next phase, but you can choose the order that makes the most sense, and you can skip around between phases if you think it makes sense. But the phases are there for a reason, so try to follow them as best you can.
+5. Check any feedback loops, such as types and tests.
+6. Mark the task as done in PRD.json by setting `"passes": true`.
+7. Append your progress and any notes to the progress.txt file. Use this to leave a note for whomever comes after you.
+8. Make a git commit of that feature.
 Only do a single task, and then stop. You're done.
 
 If, while implementing the feature, you notice that all work in the PRD is complete, output <promise>COMPLETE</promise>.
