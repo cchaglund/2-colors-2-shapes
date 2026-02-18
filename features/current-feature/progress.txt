@@ -23,3 +23,10 @@
 - Files changed: src/components/SubmissionThumbnail.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-004 for SubmissionCanvas
+
+## REFACTOR-004 — Refactor SubmissionCanvas.tsx to use SVGShape
+- Replaced getShapeSVGData import + inline transform/conditional rendering with SVGShape
+- Shape map block reduced from 17 lines to 12 lines
+- Files changed: src/components/submission/SubmissionCanvas.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-005 (ShapeIcon) or REFACTOR-008 (RANK_COLORS) — phase 1 remaining items

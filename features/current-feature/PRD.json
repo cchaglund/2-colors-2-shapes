@@ -46,7 +46,7 @@
       "No inline ellipse/rect/polygon/path conditional rendering remains in SubmissionCanvas.tsx",
       "Submission detail view renders shapes identically to before"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-005",
