@@ -417,7 +417,7 @@
       "Hook exposes toggle/open/close functions for each modal",
       "App.tsx imports and uses useAppModals instead of individual useState calls"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-034",

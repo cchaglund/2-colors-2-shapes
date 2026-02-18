@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef } from 'react';
+import { useMemo, useCallback, useRef } from 'react';
 import { Canvas } from './components/Canvas';
 import { Toolbar } from './components/Toolbar';
 import { LayerPanel } from './components/LayerPanel';
@@ -35,6 +35,7 @@ import { useKeyboardSettings } from './hooks/useKeyboardSettings';
 import { useWinnerAnnouncement } from './hooks/useWinnerAnnouncement';
 import { useShapeActions } from './hooks/useShapeActions';
 import { useBackgroundPanning } from './hooks/useBackgroundPanning';
+import { useAppModals } from './hooks/useAppModals';
 import { useSaveSubmission } from './hooks/useSaveSubmission';
 import { useSubmissionSync } from './hooks/useSubmissionSync';
 import { invalidateWallCache } from './hooks/useWallOfTheDay';
@@ -70,10 +71,24 @@ function App() {
   const showColorTester = useMemo(() => isColorTesterEnabled(), []);
 
   // Modal states
-  const [showKeyboardSettings, setShowKeyboardSettings] = useState(false);
-  const [showVotingModal, setShowVotingModal] = useState(false);
-  const [showResetConfirm, setShowResetConfirm] = useState(false);
-  const [showFriendsModal, setShowFriendsModal] = useState(false);
+  const {
+    showKeyboardSettings,
+    showVotingModal,
+    showResetConfirm,
+    showFriendsModal,
+    congratsDismissed,
+    winnerDismissed,
+    openKeyboardSettings,
+    closeKeyboardSettings,
+    openVotingModal,
+    closeVotingModal,
+    openResetConfirm,
+    closeResetConfirm,
+    openFriendsModal,
+    closeFriendsModal,
+    dismissCongrats,
+    dismissWinner,
+  } = useAppModals();
   const { isOpen: showWelcome, dismiss: dismissWelcome } = useWelcomeModal();
 
   // Refs
@@ -98,8 +113,6 @@ function App() {
     userPlacement,
     persistSeen,
   } = useWinnerAnnouncement(user?.id);
-  const [congratsDismissed, setCongratsDismissed] = useState(false);
-  const [winnerDismissed, setWinnerDismissed] = useState(false);
 
   // Yesterday's date for voting
   const yesterdayDate = useMemo(() => getYesterdayDateUTC(), []);
@@ -222,7 +235,7 @@ function App() {
       if (challenge) {
         invalidateWallCache(challenge.date);
       }
-      setShowVotingModal(true);
+      openVotingModal();
     },
   });
 
@@ -236,12 +249,12 @@ function App() {
   }, [viewport.zoom, setZoom]);
 
   // Reset handlers
-  const handleReset = () => setShowResetConfirm(true);
+  const handleReset = () => openResetConfirm();
   const confirmReset = () => {
     resetCanvas();
-    setShowResetConfirm(false);
+    closeResetConfirm();
   };
-  const cancelReset = () => setShowResetConfirm(false);
+  const cancelReset = () => closeResetConfirm();
 
   // Handler for opting into ranking without voting (bootstrap case: < 2 other submissions)
   const handleOptInToRanking = useCallback(async () => {
@@ -334,9 +347,9 @@ function App() {
         isSaving={saving}
         saveStatus={saveStatus}
         hasSubmittedToday={hasSubmittedToday}
-        onOpenFriendsModal={() => setShowFriendsModal(true)}
+        onOpenFriendsModal={openFriendsModal}
         keyMappings={keyMappings}
-        onOpenKeyboardSettings={() => setShowKeyboardSettings(true)}
+        onOpenKeyboardSettings={openKeyboardSettings}
         profile={profile}
         profileLoading={profileLoading}
         showGrid={showGrid}
@@ -449,7 +462,7 @@ function App() {
           mappings={keyMappings}
           onUpdateBinding={updateBinding}
           onResetAll={resetAllBindings}
-          onClose={() => setShowKeyboardSettings(false)}
+          onClose={closeKeyboardSettings}
           syncing={keyboardSyncing}
         />
       )}
@@ -463,7 +476,7 @@ function App() {
               challengeDate={winnerChallengeDate}
               onDismiss={() => {
                 persistSeen();
-                setCongratsDismissed(true);
+                dismissCongrats();
               }}
             />
           ) : !winnerDismissed ? (
@@ -472,7 +485,7 @@ function App() {
               topThree={winnerTopThree}
               onDismiss={() => {
                 dismissWinnerAnnouncement();
-                setWinnerDismissed(true);
+                dismissWinner();
               }}
               onViewSubmission={(submissionId: any) => {
                 window.location.href = `?view=submission&id=${submissionId}`;
@@ -487,8 +500,8 @@ function App() {
         <VotingModal
           userId={user.id}
           challengeDate={yesterdayDate}
-          onComplete={() => setShowVotingModal(false)}
-          onSkipVoting={() => setShowVotingModal(false)}
+          onComplete={closeVotingModal}
+          onSkipVoting={closeVotingModal}
           onOptInToRanking={handleOptInToRanking}
         />
       )}
@@ -496,7 +509,7 @@ function App() {
       {/* Friends modal */}
       {showFriendsModal && (
         <FollowsProvider>
-          <FriendsModal onClose={() => setShowFriendsModal(false)} />
+          <FriendsModal onClose={closeFriendsModal} />
         </FollowsProvider>
       )}
     </div>

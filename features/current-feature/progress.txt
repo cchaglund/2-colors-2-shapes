@@ -294,3 +294,15 @@
 - Files changed: 4 new (shapes/polygons.ts, paths.ts, utils.ts, index.ts), 8 edited (import paths), 1 deleted (shapeHelpers.ts)
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-033 (useAppModals hook extraction from App.tsx)
+
+## REFACTOR-033 — Extract useAppModals hook from App.tsx
+- Created src/hooks/useAppModals.ts
+- Hook manages 6 modal states: showKeyboardSettings, showVotingModal, showResetConfirm, showFriendsModal, congratsDismissed, winnerDismissed
+- Exposes open/close/dismiss callbacks for each (useCallback-wrapped for stable references)
+- App.tsx: replaced 6 individual useState calls with single useAppModals() destructure
+- App.tsx: replaced all inline `() => setState(...)` callbacks with named functions from hook (openFriendsModal, closeVotingModal, etc.)
+- Removed `useState` import from App.tsx (no longer needed)
+- Note: useWelcomeModal already its own hook — left as-is
+- Files changed: src/hooks/useAppModals.ts (new), src/App.tsx (refactored)
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-034 (route/view resolution extraction from App.tsx)
