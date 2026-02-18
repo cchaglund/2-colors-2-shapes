@@ -326,7 +326,7 @@
       "All existing consumers of useCanvasState continue to work without API changes",
       "Atomic operations (group create/delete, duplicate-with-select) are correctly wrapped"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-027",

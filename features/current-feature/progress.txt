@@ -235,3 +235,14 @@
 - Files changed: src/hooks/useShapeOperations.ts (new), src/hooks/useCanvasState.ts (refactored)
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-026 (useCanvasState thin orchestrator verification)
+
+## REFACTOR-026 — Verify useCanvasState is a thin orchestrator
+- useCanvasState.ts already completed during REFACTOR-023/024/025 incremental extraction
+- File is 153 lines (target was <300), composes useCanvasHistory + useCanvasStorage + useShapeOperations
+- No inline undo/redo stack logic, no localStorage persistence, no shape CRUD operations remain
+- Orchestrator owns canvasState via useState, wraps setCanvasState with history push, delegates all ops
+- Atomic ops (group create/delete, duplicate-with-select) handled correctly via setCanvasState wrapper
+- Single consumer (App.tsx) unchanged — public API identical
+- Files changed: none (verification only, PRD updated)
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-027/028/029 (verify group/mirror/selection ops post-decomposition)
