@@ -55,3 +55,10 @@
 - Files changed: src/components/modals/WelcomeModal.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-008 (RANK_COLORS constant) then REFACTOR-009/010/011 consumers
+
+## REFACTOR-008 — Create RANK_COLORS constant
+- Created src/constants/rankColors.ts exporting RANK_COLORS: Record<1|2|3, string>
+- Gold=#FFD700, Silver=#D1D5DC, Bronze=#CE8946
+- Files changed: src/constants/rankColors.ts
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-009/010/011 to replace hardcoded hex values in TrophyBadge/WinnerCard/CalendarCell

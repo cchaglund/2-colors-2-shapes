@@ -95,7 +95,7 @@
       "Exports RANK_COLORS with keys 1, 2, 3 mapping to hex values",
       "Gold=#FFD700, Silver=#D1D5DC, Bronze=#CE8946"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-009",
