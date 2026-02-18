@@ -186,3 +186,13 @@
 - Files changed: src/components/modals/WinnerAnnouncementModal.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-022 (LoginPromptModal)
+
+## REFACTOR-022 — Refactor LoginPromptModal to use shared Modal
+- Replaced inline `fixed inset-0 bg-(--color-modal-overlay)` backdrop + content box with shared `<Modal>`
+- Preserved `z-1000` via zIndex prop, `max-w-84` via size prop, `text-center` via className
+- Added `ariaLabelledBy="login-prompt-title"` with matching id on h3
+- No manual escape/focus trap to remove — component was simple; gains accessibility features from shared Modal
+- File reduced from 65 to 67 lines (added Modal import + aria props)
+- Files changed: src/components/LoginPromptModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Phase 2 complete. Next: Phase 3 (REFACTOR-023, useCanvasHistory extraction)
