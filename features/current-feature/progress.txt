@@ -175,3 +175,14 @@
 - Files changed: src/components/modals/CongratulatoryModal.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-021 (WinnerAnnouncementModal)
+
+## REFACTOR-021 — Refactor WinnerAnnouncementModal to use shared Modal
+- Replaced both render paths (loading + main) with shared `<Modal>`
+- Loading state: `closeOnBackdropClick={false}` (no accidental dismiss while loading)
+- Main state: default close behavior (escape + backdrop click), `ariaLabelledBy="winner-title"`, `size="max-w-140"`
+- Removed `modalRef`, `buttonRef`, manual escape handler, focus trap (~25 lines) — delegated to shared Modal
+- Removed `useEffect` and `useRef` imports (no longer needed)
+- File reduced from 161 to 107 lines
+- Files changed: src/components/modals/WinnerAnnouncementModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-022 (LoginPromptModal)
