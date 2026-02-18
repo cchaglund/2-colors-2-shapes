@@ -12,7 +12,7 @@ export function CalendarViewToggle({
   onSetViewMode,
 }: CalendarViewToggleProps) {
   return (
-    <div className="flex rounded-md p-0.5 mb-4 border border-(--color-border) bg-(--color-bg-tertiary)">
+    <div className="flex rounded-md p-0.5 mb-7 border border-(--color-border) bg-(--color-bg-tertiary)">
       <button
         onClick={() => onSetViewMode('my-submissions')}
         disabled={!user}

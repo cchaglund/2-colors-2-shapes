@@ -18,60 +18,61 @@ export function ContentNavigation({
   showToday = true,
 }: ContentNavigationProps) {
   return (
-    <div className="flex items-center justify-between mt-4">
-      <button
-        onClick={onPrev}
-        disabled={!canGoPrev}
-        className="p-2 rounded-md cursor-pointer transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary) disabled:opacity-30 disabled:cursor-not-allowed"
-        aria-label="Previous"
-      >
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+      <div className="flex items-center justify-between gap-2">
+        <button
+          onClick={onPrev}
+          disabled={!canGoPrev}
+          className="p-2 rounded-md cursor-pointer transition-colors hover:bg-(--color-bg-secondary) text-(--color-text-primary) disabled:opacity-30 disabled:cursor-not-allowed"
+          aria-label="Previous"
         >
-          <polyline points="15 18 9 12 15 6" />
-        </svg>
-      </button>
-
-      <div className="flex items-center gap-3">
-        <span className="text-[15px] font-medium text-(--color-text-primary)">
-          {label}
-        </span>
-        {showToday && (
-          <button
-            onClick={onToday}
-            className="px-3 py-1 rounded-md cursor-pointer text-[12px] transition-colors bg-(--color-bg-tertiary) text-(--color-text-secondary) hover:text-(--color-text-primary)"
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            Today
-          </button>
-        )}
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
+
+        <div className='relative'>
+          <span className="text-lg font-semibold min-w-40 text-center text-(--color-text-primary)">
+            {label}
+          </span>
+          {showToday && (
+            <button
+              onClick={onToday}
+              className="absolute -right-19 -top-0.5 px-3 py-1 text-sm rounded-md cursor-pointer border border-(--color-border) transition-colors hover:bg-(--color-bg-secondary) text-(--color-text-secondary)"
+            >
+              Today
+            </button>
+          )}
+        </div>
+
+        <button
+          onClick={onNext}
+          disabled={!canGoNext}
+          className="p-2 rounded-md cursor-pointer transition-colors hover:bg-(--color-bg-secondary) text-(--color-text-primary) disabled:opacity-30 disabled:cursor-not-allowed"
+          aria-label="Next"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </button>
       </div>
 
-      <button
-        onClick={onNext}
-        disabled={!canGoNext}
-        className="p-2 rounded-md cursor-pointer transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary) disabled:opacity-30 disabled:cursor-not-allowed"
-        aria-label="Next"
-      >
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <polyline points="9 18 15 12 9 6" />
-        </svg>
-      </button>
-    </div>
   );
 }

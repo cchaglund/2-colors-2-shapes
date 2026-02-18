@@ -3,6 +3,7 @@ import { useRanking } from '../hooks/useRanking';
 import { useDailyChallenge } from '../hooks/useDailyChallenge';
 import { WinnerCard } from './WinnerCard';
 import { getShapeSVGData } from '../utils/shapeHelpers';
+import { BackToCanvasLink } from './BackToCanvasLink';
 
 interface WinnersDayPageProps {
   date: string;
@@ -67,24 +68,7 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
-            <a
-              href="/"
-              className="inline-flex items-center gap-1 text-sm hover:underline text-(--color-text-secondary)"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-              Back to app
-            </a>
+            <BackToCanvasLink />
             {/* Navigation buttons */}
             <div className="flex items-center gap-2">
               <button

@@ -13,7 +13,6 @@ import { SubmissionDetailPage } from './components/SubmissionDetailPage';
 import { WinnersDayPage } from './components/WinnersDayPage';
 import { WallOfTheDayPage } from './components/WallOfTheDay/WallOfTheDayPage';
 import { UserProfilePage } from './components/UserProfilePage';
-import { FriendsFeedPage } from './components/FriendsFeed/FriendsFeedPage';
 import { FollowsProvider } from './contexts/FollowsContext';
 import { KeyboardSettingsModal } from './components/KeyboardSettingsModal';
 import { FriendsModal } from './components/modals/FriendsModal';
@@ -52,7 +51,6 @@ import {
   getWinnersDayView,
   getWallOfTheDayView,
   getProfileView,
-  getFriendsFeedView,
   getGalleryView,
 } from './utils/urlParams';
 import { WinnerAnnouncementModal } from './components/modals/WinnerAnnouncementModal';
@@ -67,7 +65,6 @@ function App() {
   const showSocialTest = useMemo(() => isSocialTestEnabled(), []);
   const wallOfTheDayView = useMemo(() => getWallOfTheDayView(), []);
   const profileView = useMemo(() => getProfileView(), []);
-  const friendsFeedView = useMemo(() => getFriendsFeedView(), []);
   const galleryView = useMemo(() => getGalleryView(), []);
   const showDashboard = useMemo(() => isDashboardEnabled(), []);
   const showColorTester = useMemo(() => isColorTesterEnabled(), []);
@@ -282,7 +279,6 @@ function App() {
   if (galleryView) return <FollowsProvider><GalleryPage tab={galleryView.tab} /></FollowsProvider>;
   if (wallOfTheDayView) return <WallOfTheDayPage date={wallOfTheDayView.date} />;
   if (profileView) return <FollowsProvider><UserProfilePage userId={profileView.userId} /></FollowsProvider>;
-  if (friendsFeedView) return <FollowsProvider><FriendsFeedPage date={friendsFeedView.date} /></FollowsProvider>;
 
   // Show loading spinner while challenge is loading
   if (challengeLoading || !challenge) {

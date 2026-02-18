@@ -6,6 +6,8 @@ interface SubmissionThumbnailProps {
   challenge: DailyChallenge;
   backgroundColorIndex: number | null;
   size?: number;
+  /** When true, SVG fills its container (100% width/height) instead of using fixed size */
+  fill?: boolean;
   showNickname?: boolean;
   nickname?: string;
   onClick?: () => void;
@@ -21,6 +23,7 @@ export function SubmissionThumbnail({
   challenge,
   backgroundColorIndex,
   size = 100,
+  fill = false,
   showNickname = false,
   nickname,
   onClick,
@@ -40,10 +43,10 @@ export function SubmissionThumbnail({
   const svg = (
     <div className="relative">
       <svg
-        width={size}
-        height={size}
+        width={fill ? '100%' : size}
+        height={fill ? '100%' : size}
         viewBox={`0 0 ${CANVAS_SIZE} ${CANVAS_SIZE}`}
-        className="rounded-sm"
+        className={fill ? '' : 'rounded-sm'}
       >
         <rect
           x={0}

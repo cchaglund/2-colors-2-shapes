@@ -27,6 +27,7 @@ import { calculateRequiredVotes, calculateTotalPairs } from '../utils/votingRule
 import type { RankingEntry } from '../types';
 import { WinnerAnnouncementModal } from '../components/modals/WinnerAnnouncementModal';
 import { CongratulatoryModal } from '../components/modals/CongratulatoryModal';
+import { BackToCanvasLink } from '../components/BackToCanvasLink';
 
 type TestScenario =
   | 'voting-ui'
@@ -598,12 +599,7 @@ export function VotingTestPage() {
         </div>
 
         <div className="mt-8 pt-4 border-t border-(--color-border)">
-          <a
-            href="/"
-            className="text-sm text-blue-500 hover:text-blue-600 transition-colors"
-          >
-            ← Back to App
-          </a>
+          <BackToCanvasLink />
         </div>
       </div>
 

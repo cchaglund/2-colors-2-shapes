@@ -14,7 +14,9 @@ import {
 } from '../utils/calendarUtils';
 import { CalendarGrid } from './Calendar/CalendarGrid';
 import { CalendarDayCell } from './Calendar/CalendarDayCell';
+import { ContentNavigation } from './Calendar/ContentNavigation';
 import type { DailyChallenge } from '../types';
+import { BackToCanvasLink } from './BackToCanvasLink';
 
 interface UserProfilePageProps {
   userId: string;
@@ -109,9 +111,7 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
         <div className="text-center">
           <p className="text-(--color-text-secondary) mb-4">Something went wrong</p>
           <p className="text-sm text-(--color-text-tertiary) mb-4">{error}</p>
-          <a href="/" className="text-(--color-accent) hover:underline">
-            ← Back to app
-          </a>
+          <BackToCanvasLink/>
         </div>
       </div>
     );
@@ -123,9 +123,7 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
       <div className="min-h-screen flex items-center justify-center bg-(--color-bg-primary)">
         <div className="text-center">
           <p className="text-(--color-text-secondary) mb-4">User not found</p>
-          <a href="/" className="text-(--color-accent) hover:underline">
-            ← Back to app
-          </a>
+          <BackToCanvasLink/>
         </div>
       </div>
     );
@@ -179,59 +177,14 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
         </div>
 
         {/* Calendar Navigation */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={goToPreviousMonth}
-              className="p-2 rounded-md hover:bg-(--color-bg-secondary) text-(--color-text-primary)"
-              title="Previous month"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-            </button>
-            <span className="text-lg font-semibold min-w-[160px] text-center text-(--color-text-primary)">
-              {MONTHS[currentMonth]} {currentYear}
-            </span>
-            <button
-              onClick={goToNextMonth}
-              disabled={!canGoNext}
-              className={`p-2 rounded-md ${
-                canGoNext
-                  ? 'hover:bg-(--color-bg-secondary) text-(--color-text-primary)'
-                  : 'opacity-30 cursor-not-allowed text-(--color-text-tertiary)'
-              }`}
-              title="Next month"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </button>
-          </div>
-          <button
-            onClick={goToToday}
-            className="px-3 py-1 text-sm rounded-md border border-(--color-border) hover:bg-(--color-bg-secondary) text-(--color-text-secondary)"
-          >
-            Today
-          </button>
+        <div className="mb-4">
+          <ContentNavigation
+            label={`${MONTHS[currentMonth]} ${currentYear}`}
+            onPrev={goToPreviousMonth}
+            onNext={goToNextMonth}
+            onToday={goToToday}
+            canGoNext={canGoNext}
+          />
         </div>
 
         {/* Calendar Grid */}
@@ -265,7 +218,6 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
                       Save your art to see
                     </div>
                   }
-                  thumbnailSize={60}
                   hideEmptyDayIcon
                   href={submission && canViewThisDay ? `/?view=submission&date=${dateStr}&user=${userId}` : undefined}
                 />

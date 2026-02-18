@@ -14,6 +14,7 @@ import { CalendarDayCell } from './Calendar/CalendarDayCell';
 import { CalendarStats } from './Calendar/CalendarStats';
 import { WallTab } from './Calendar/tabs/WallTab';
 import { FriendsFeedTab } from './Calendar/tabs/FriendsFeedTab';
+import { BackToCanvasLink } from './BackToCanvasLink';
 
 interface GalleryPageProps {
   tab?: string;
@@ -282,27 +283,10 @@ export function GalleryPage({ tab: initialTab }: GalleryPageProps) {
 
   return (
     <div className="min-h-screen p-4 md:p-8 bg-(--color-bg-primary)">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto h-[90vh] flex flex-col">
         {/* Header */}
         <div className="mb-6">
-          <a
-            href="/"
-            className="inline-flex items-center gap-1 text-sm hover:underline text-(--color-text-secondary) mb-4"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-            Back to app
-          </a>
+          <BackToCanvasLink/>
           <h1 className="text-2xl font-bold mb-2 text-(--color-text-primary)">
             Gallery
           </h1>
@@ -345,7 +329,7 @@ export function GalleryPage({ tab: initialTab }: GalleryPageProps) {
               </div>
             ) : (
               <CalendarGrid
-                className="mt-14"
+                className="mt-7"
                 emptySlotCount={calendarDays.findIndex((d) => d !== null)}
               >
                 {calendarDays
