@@ -59,7 +59,7 @@
       "Component uses getShapeSVGData() and renders correct element type",
       "Component supports viewBox from getShapeSVGData"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-006",

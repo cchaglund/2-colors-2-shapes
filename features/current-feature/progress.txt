@@ -30,3 +30,12 @@
 - Files changed: src/components/submission/SubmissionCanvas.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-005 (ShapeIcon) or REFACTOR-008 (RANK_COLORS) — phase 1 remaining items
+
+## REFACTOR-005 — Create shared ShapeIcon component
+- Created src/components/ShapeIcon.tsx
+- Props: type (ShapeType), size (optional, default 24)
+- Uses getShapeSVGData() viewBox dimensions for correct aspect ratios
+- Renders with fill="currentColor" for inheriting parent text color
+- Files changed: src/components/ShapeIcon.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-006/007 to replace local icons in Toolbar/WelcomeModal
