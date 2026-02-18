@@ -154,3 +154,13 @@
 - Files changed: src/components/ResetConfirmModal.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-019 (VotingModal)
+
+## REFACTOR-019 — Refactor VotingModal to use shared Modal
+- Replaced inline `fixed inset-0 bg-black/50` backdrop + `ref={modalRef}` wrapper with shared `<Modal>`
+- Modal content box styled as transparent (`!p-0 !border-0 !bg-transparent !rounded-none`) — child components (VotingPairView, VotingConfirmation, etc.) own their own card styling
+- Context-dependent close: `handleClose` switches between `onComplete` (confirmation/opt-in screens) and `onSkipVoting` (voting screen) — passed as `onClose` to Modal
+- Removed manual focus trap and escape key handler (30+ lines) — delegated to shared Modal
+- Removed `useRef` import (no longer needed)
+- Files changed: src/components/voting/VotingModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-020 (CongratulatoryModal)

@@ -233,7 +233,7 @@
       "No inline backdrop/box markup in VotingModal.tsx",
       "Voting modal displays and voting interaction works"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-020",

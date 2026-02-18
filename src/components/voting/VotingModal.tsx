@@ -1,8 +1,8 @@
-import { useEffect, useRef, useMemo } from 'react';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useVoting } from '../../hooks/useVoting';
 import { useDailyChallenge } from '../../hooks/useDailyChallenge';
 import { getTodayDateUTC } from '../../utils/dailyChallenge';
+import { Modal } from '../Modal';
 import { VotingPairView } from './VotingPairView';
 import { VotingConfirmation } from './VotingConfirmation';
 import { VotingOptInPrompt } from './VotingOptInPrompt';
@@ -22,7 +22,6 @@ export function VotingModal({
   onSkipVoting,
   onOptInToRanking,
 }: VotingModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null);
   // Track if user dismissed confirmation to continue voting
   const [dismissedConfirmation, setDismissedConfirmation] = useState(false);
   // Track confirmation state after opt-in prompt: 'entered' | 'skipped' | null
@@ -60,37 +59,8 @@ export function VotingModal({
   // Derive showConfirmation from state instead of using an effect
   const showConfirmation = hasEnteredRanking && !dismissedConfirmation;
 
-  // Focus trap and keyboard handling
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        if (showConfirmation || optInConfirmation) {
-          onComplete();
-        } else {
-          onSkipVoting();
-        }
-      }
-      // Trap focus within the modal
-      if (e.key === 'Tab' && modalRef.current) {
-        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        if (e.shiftKey && document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement?.focus();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement?.focus();
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [showConfirmation, optInConfirmation, onComplete, onSkipVoting]);
+  // Close action depends on modal state: confirmation/opt-in screens → onComplete, voting → onSkipVoting
+  const handleClose = showConfirmation || optInConfirmation ? onComplete : onSkipVoting;
 
   const handleVote = async (winnerId: string) => {
     await vote(winnerId);
@@ -188,15 +158,13 @@ export function VotingModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="voting-title"
+    <Modal
+      onClose={handleClose}
+      size="max-w-3xl"
+      className="!p-0 !border-0 !bg-transparent !rounded-none"
+      ariaLabelledBy="voting-title"
     >
-      <div ref={modalRef} className="mx-4">
-        {renderContent()}
-      </div>
-    </div>
+      {renderContent()}
+    </Modal>
   );
 }
