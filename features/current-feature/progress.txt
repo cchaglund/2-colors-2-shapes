@@ -210,3 +210,15 @@
 - Files changed: src/hooks/useCanvasHistory.ts (new), src/hooks/useCanvasState.ts (refactored)
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-024 (useCanvasStorage extraction)
+
+## REFACTOR-024 — Extract useCanvasStorage hook
+- Created src/hooks/useCanvasStorage.ts
+- Exports: `getInitialCanvasState()` (pure fn, reads localStorage, returns CanvasState for useState init), `initialCanvasState` (empty default), `useCanvasStorage(canvasState, userId)` hook
+- Hook manages: debounced save (300ms) on canvasState changes via useEffect + setTimeout, `saveCanvasStateNow()` for immediate save bypassing debounce
+- `getInitialCanvasState()` checks localStorage date matches today, handles groups migration, clears stale data
+- Orchestrator uses `saveCanvasStateNow` in `loadCanvasState` for server submission sync (no debounce delay)
+- Removed from useCanvasState: STORAGE_KEY, StoredData interface, loadFromStorage, saveToStorage, initialCanvasState, userIdRef, save useEffect (~40 lines)
+- Added to useCanvasState: 2 import lines + 1 hook call line
+- Files changed: src/hooks/useCanvasStorage.ts (new), src/hooks/useCanvasState.ts (refactored)
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-025 (useShapeOperations extraction)

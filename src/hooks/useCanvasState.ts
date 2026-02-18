@@ -1,74 +1,14 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import type { Shape, ShapeGroup, CanvasState, DailyChallenge } from '../types';
 import { generateId } from '../utils/shapeHelpers';
-import { getTodayDateUTC } from '../utils/dailyChallenge';
 import { useCanvasHistory } from './useCanvasHistory';
-
-const STORAGE_KEY = '2colors2shapes_canvas';
-
-interface StoredData {
-  date: string;
-  userId?: string; // Track which user owns this localStorage data
-  canvas: CanvasState;
-}
-
-function loadFromStorage(): StoredData | null {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-  } catch (e) {
-    console.error('Failed to load from localStorage:', e);
-  }
-  return null;
-}
-
-function saveToStorage(data: StoredData): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (e) {
-    console.error('Failed to save to localStorage:', e);
-  }
-}
-
-const initialCanvasState: CanvasState = {
-  shapes: [],
-  groups: [],
-  backgroundColorIndex: null,
-  selectedShapeIds: new Set<string>(),
-};
+import { useCanvasStorage, getInitialCanvasState, initialCanvasState } from './useCanvasStorage';
 
 export function useCanvasState(challenge: DailyChallenge | null, userId: string | undefined) {
-  // Track the current userId in a ref so we can use it in the save effect
-  const userIdRef = useRef(userId);
-  useEffect(() => {
-    userIdRef.current = userId;
-  }, [userId]);
+  const [canvasState, setCanvasStateInternal] = useState<CanvasState>(getInitialCanvasState);
 
-  const [canvasState, setCanvasStateInternal] = useState<CanvasState>(() => {
-    const stored = loadFromStorage();
-    // Only restore if it's the same day (user check happens in App.tsx sync effect)
-    if (stored && stored.date === getTodayDateUTC()) {
-      // Handle migration from old selectedShapeId format
-      const canvas = stored.canvas;
-      // Support old format with selectedShapeId
-      if ('selectedShapeId' in canvas && (canvas as { selectedShapeId?: string | null }).selectedShapeId) {
-        // Old format migration - not used anymore but kept for compatibility
-      }
-      return {
-        shapes: canvas.shapes,
-        groups: canvas.groups || [], // Support migration from old format without groups
-        backgroundColorIndex: canvas.backgroundColorIndex,
-        selectedShapeIds: new Set<string>(), // Clear selection on load
-      };
-    }
-    // Clear stale localStorage data from previous days
-    if (stored) {
-      localStorage.removeItem(STORAGE_KEY);
-    }
-    return initialCanvasState;
-  });
+  // Storage persistence (debounced save + immediate save helper)
+  const { saveCanvasStateNow } = useCanvasStorage(canvasState, userId);
 
   // History management (extracted hook)
   const {
@@ -100,15 +40,6 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
     },
     [pushHistory]
   );
-
-  // Persist to localStorage on changes
-  useEffect(() => {
-    saveToStorage({
-      date: getTodayDateUTC(),
-      userId: userIdRef.current,
-      canvas: canvasState,
-    });
-  }, [canvasState]);
 
   const undo = useCallback(() => {
     const restored = historyUndo();
@@ -1129,14 +1060,10 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
 
       setCanvasStateInternal(newState);
 
-      // Also save to localStorage immediately
-      saveToStorage({
-        date: getTodayDateUTC(),
-        userId: userIdRef.current,
-        canvas: newState,
-      });
+      // Save to localStorage immediately (bypass debounce)
+      saveCanvasStateNow(shapes, groups, backgroundColorIndex);
     },
-    [resetHistory]
+    [resetHistory, saveCanvasStateNow]
   );
 
   return {

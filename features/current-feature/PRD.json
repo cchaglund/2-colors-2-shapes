@@ -298,7 +298,7 @@
       "Hook handles loading canvas state from server submissions",
       "Canvas state persists across page refreshes"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-025",
