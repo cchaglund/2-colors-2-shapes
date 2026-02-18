@@ -221,7 +221,7 @@
       "Clicking outside does NOT close ResetConfirmModal",
       "Reset confirm modal displays and confirm/cancel buttons work"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-019",

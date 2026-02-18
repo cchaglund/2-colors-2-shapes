@@ -145,3 +145,12 @@
 - Files changed: src/components/KeyboardSettingsModal.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-018 (ResetConfirmModal)
+
+## REFACTOR-018 — Refactor ResetConfirmModal to use shared Modal
+- Replaced inline `fixed inset-0` backdrop + content box with shared `<Modal>`
+- Destructive confirmation: `closeOnEscape={false}`, `closeOnBackdropClick={false}`
+- Preserved `z-1000` via zIndex prop, `max-w-100` via size prop, `text-center` via className
+- Added `ariaLabelledBy="reset-confirm-title"` with matching id on h3
+- Files changed: src/components/ResetConfirmModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-019 (VotingModal)
