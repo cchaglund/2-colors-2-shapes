@@ -62,3 +62,10 @@
 - Files changed: src/constants/rankColors.ts
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-009/010/011 to replace hardcoded hex values in TrophyBadge/WinnerCard/CalendarCell
+
+## REFACTOR-009 — Refactor TrophyBadge.tsx to use RANK_COLORS
+- Replaced ternary chain `rank === 1 ? "#FFD700" : rank === 2 ? "#D1D5DC" : "#CE8946"` with `RANK_COLORS[rank]`
+- Added import of RANK_COLORS from constants
+- Files changed: src/components/TrophyBadge.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-010 (WinnerCard) and REFACTOR-011 (CalendarCell)
