@@ -490,7 +490,7 @@
       "Each modal's root container has a data-testid matching its name (e.g. data-testid='friends-modal')",
       "Pattern is consistent across all modals"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-040",

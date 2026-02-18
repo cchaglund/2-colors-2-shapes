@@ -9,7 +9,7 @@ interface WelcomeModalProps {
 
 export function WelcomeModal({ onDismiss, challenge }: WelcomeModalProps) {
   return (
-    <Modal onClose={onDismiss} ariaLabelledBy="welcome-title">
+    <Modal onClose={onDismiss} ariaLabelledBy="welcome-title" dataTestId="welcome-modal">
       <h2
         id="welcome-title"
         className="text-xl font-semibold text-(--color-text-primary) mb-5 text-center"

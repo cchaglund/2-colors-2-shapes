@@ -26,6 +26,7 @@ export function LoginPromptModal({
       className="text-center"
       zIndex="z-1000"
       ariaLabelledBy="login-prompt-title"
+      dataTestId="login-prompt-modal"
     >
       <h3
         id="login-prompt-title"

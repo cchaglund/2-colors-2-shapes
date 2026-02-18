@@ -52,6 +52,7 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
       closeOnEscape={false}
       closeOnBackdropClick={false}
       ariaLabelledBy="onboarding-title"
+      dataTestId="onboarding-modal"
     >
       <h2 id="onboarding-title" className="text-lg font-semibold text-(--color-text-primary) mb-2">
         Welcome!

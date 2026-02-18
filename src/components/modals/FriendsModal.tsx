@@ -23,7 +23,7 @@ export function FriendsModal({ onClose }: FriendsModalProps) {
   // Not logged in state
   if (!user) {
     return (
-      <Modal onClose={onClose} ariaLabelledBy="friends-modal-title">
+      <Modal onClose={onClose} ariaLabelledBy="friends-modal-title" dataTestId="friends-modal">
         <div className="flex items-center justify-between mb-4">
           <h2
             id="friends-modal-title"
@@ -52,6 +52,7 @@ export function FriendsModal({ onClose }: FriendsModalProps) {
     <Modal
       onClose={onClose}
       ariaLabelledBy="friends-modal-title"
+      dataTestId="friends-modal"
       className="!p-0 max-h-[80vh] flex flex-col"
     >
       {/* Header */}

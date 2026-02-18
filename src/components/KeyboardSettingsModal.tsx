@@ -138,6 +138,7 @@ export function KeyboardSettingsModal({
         onClose={onClose}
         closeOnEscape={false}
         ariaLabelledBy="keyboard-settings-title"
+        dataTestId="keyboard-settings-modal"
         className="!p-0 max-h-[80vh] overflow-hidden flex flex-col"
       >
         {/* Header */}
@@ -250,6 +251,7 @@ export function KeyboardSettingsModal({
           zIndex="z-60"
           closeOnEscape={false}
           closeOnBackdropClick={false}
+          dataTestId="keyboard-conflict-modal"
         >
           <h3 className="m-0 mb-3 text-lg font-semibold text-(--color-text-primary)">
             Shortcut Conflict

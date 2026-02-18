@@ -163,6 +163,7 @@ export function VotingModal({
       size="max-w-3xl"
       className="!p-0 !border-0 !bg-transparent !rounded-none"
       ariaLabelledBy="voting-title"
+      dataTestId="voting-modal"
     >
       {renderContent()}
     </Modal>

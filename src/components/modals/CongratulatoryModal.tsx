@@ -79,7 +79,7 @@ export function CongratulatoryModal({
   // Show loading state while challenge is being fetched
   if (challengeLoading || !challenge) {
     return (
-      <Modal onClose={handleDismiss} closeOnBackdropClick={false}>
+      <Modal onClose={handleDismiss} closeOnBackdropClick={false} dataTestId="congratulatory-modal">
         <div className="text-center">
           <div className="inline-block w-6 h-6 border-2 border-(--color-text-tertiary) border-t-transparent rounded-full animate-spin mb-3" />
           <p className="text-[13px] text-(--color-text-secondary)">Loading...</p>
@@ -92,7 +92,7 @@ export function CongratulatoryModal({
   const subtext = SUBTEXTS[userEntry.rank] ?? 'Congratulations!';
 
   return (
-    <Modal onClose={handleDismiss} ariaLabelledBy="congrats-title">
+    <Modal onClose={handleDismiss} ariaLabelledBy="congrats-title" dataTestId="congratulatory-modal">
       <div className="text-center mb-5">
         <h2 id="congrats-title" className="text-lg font-semibold text-(--color-text-primary) mb-0.5">
           {heading}

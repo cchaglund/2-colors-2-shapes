@@ -15,6 +15,8 @@ interface ModalProps {
   ariaLabelledBy?: string;
   /** z-index class. Default: "z-50" */
   zIndex?: string;
+  /** data-testid for the modal root element */
+  dataTestId?: string;
 }
 
 export function Modal({
@@ -26,6 +28,7 @@ export function Modal({
   closeOnBackdropClick = true,
   ariaLabelledBy,
   zIndex = 'z-50',
+  dataTestId,
 }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -82,6 +85,7 @@ export function Modal({
       role="dialog"
       aria-modal="true"
       aria-labelledby={ariaLabelledBy}
+      data-testid={dataTestId}
     >
       <div
         ref={modalRef}

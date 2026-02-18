@@ -355,3 +355,13 @@
 - Files changed: CalendarCell.tsx, CalendarDayCell.tsx, ContentCalendarDayCell.tsx, ContentCalendarGrid.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-039 (standardize data-testid on all modal containers)
+
+## REFACTOR-039 — Standardize data-testid on all modal containers
+- Added `dataTestId` prop to shared Modal component (src/components/Modal.tsx), rendered as `data-testid` on root backdrop div
+- 10 modal components updated (13 `<Modal>` usages total, some modals have loading/main states):
+  - onboarding-modal, welcome-modal, friends-modal, congratulatory-modal, winner-announcement-modal
+  - keyboard-settings-modal, keyboard-conflict-modal, reset-confirm-modal, voting-modal, login-prompt-modal
+- Pattern consistent: kebab-case matching component name, e.g. FriendsModal → `data-testid="friends-modal"`
+- Files changed: Modal.tsx, OnboardingModal.tsx, WelcomeModal.tsx, FriendsModal.tsx, CongratulatoryModal.tsx, WinnerAnnouncementModal.tsx, KeyboardSettingsModal.tsx, ResetConfirmModal.tsx, VotingModal.tsx, LoginPromptModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-040 (ESLint no-console rule)

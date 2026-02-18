@@ -15,6 +15,7 @@ export function ResetConfirmModal({ onConfirm, onCancel }: ResetConfirmModalProp
       closeOnBackdropClick={false}
       zIndex="z-1000"
       ariaLabelledBy="reset-confirm-title"
+      dataTestId="reset-confirm-modal"
     >
       <h3
         id="reset-confirm-title"
