@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback, type RefObject } from 'react';
-
-const CANVAS_SIZE = 800;
+import { CANVAS_SIZE } from '../types/canvas';
 
 interface UseBackgroundPanningOptions {
   mainRef: RefObject<HTMLElement | null>;

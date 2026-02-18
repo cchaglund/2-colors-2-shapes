@@ -1,6 +1,5 @@
 import { useCallback, type RefObject } from 'react';
-
-const CANVAS_SIZE = 800;
+import { CANVAS_SIZE } from '../types/canvas';
 
 /**
  * Hook for submission export actions (download SVG/PNG, copy share link)

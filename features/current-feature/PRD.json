@@ -144,7 +144,7 @@
       "SubmissionCanvas.tsx imports CANVAS_SIZE from shared location",
       "No duplicate CANVAS_SIZE definition exists"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-013",

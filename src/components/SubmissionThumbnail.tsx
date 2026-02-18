@@ -1,4 +1,5 @@
 import type { Shape, DailyChallenge } from '../types';
+import { CANVAS_SIZE } from '../types/canvas';
 import { SVGShape } from './SVGShape';
 
 interface SubmissionThumbnailProps {
@@ -15,8 +16,6 @@ interface SubmissionThumbnailProps {
   likeCount?: number;
   showLikeCount?: boolean;
 }
-
-const CANVAS_SIZE = 800;
 
 export function SubmissionThumbnail({
   shapes,

@@ -84,3 +84,11 @@
 - Files changed: src/components/Calendar/CalendarCell.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-012 (CANVAS_SIZE constant) — last Phase 1 item
+
+## REFACTOR-012 — Deduplicate CANVAS_SIZE constant
+- CANVAS_SIZE=800 already exported from src/types/canvas.ts; removed 4 local duplicates
+- Replaced local `const CANVAS_SIZE = 800` with import in: SubmissionCanvas.tsx, SubmissionThumbnail.tsx, useExportActions.ts, useBackgroundPanning.ts
+- PRD said "two files" but found 4 duplicates total (SubmissionCanvas, SubmissionThumbnail, useExportActions, useBackgroundPanning)
+- Files changed: src/components/submission/SubmissionCanvas.tsx, src/components/SubmissionThumbnail.tsx, src/hooks/useExportActions.ts, src/hooks/useBackgroundPanning.ts
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Phase 1 complete. Next: Phase 2 (REFACTOR-013, shared Modal wrapper)
