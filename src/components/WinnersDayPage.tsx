@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRanking } from '../hooks/useRanking';
 import { useDailyChallenge } from '../hooks/useDailyChallenge';
 import { WinnerCard } from './WinnerCard';
-import { getShapeSVGData } from '../utils/shapeHelpers';
+import { getShapeSVGData } from '../utils/shapes';
 import { BackToCanvasLink } from './BackToCanvasLink';
 
 interface WinnersDayPageProps {

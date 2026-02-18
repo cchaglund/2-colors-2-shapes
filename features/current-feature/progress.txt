@@ -282,3 +282,15 @@
 - Public API unchanged — no consumer changes needed
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-030 (shapeHelpers split into src/utils/shapes/)
+
+## REFACTOR-030/031/032 — Split shapeHelpers.ts into src/utils/shapes/
+- Created src/utils/shapes/ directory with 4 files:
+  - polygons.ts: 14 polygon point generators (getPolygonPoints, getStarPoints, getRightTrianglePoints, getIsoscelesTrianglePoints, getDiamondPoints, getTrapezoidPoints, getParallelogramPoints, getKitePoints, getCrossPoints, getArrowPoints, getShardPoints, getWedgePoints, getSplinterPoints, getChunkPoints)
+  - paths.ts: 21 path/bezier generators (getSemicirclePath, getQuarterCirclePath, getBladePath, getLensPath, getArchPath, getDropPath, getFanPath, getHookPath, getWavePath, getCrescentPath, getPillPath, getFangPath, getClawPath, getFinPath, getThornPath, getSlantPath, getNotchPath, getSpikePath, getBulgePath, getScoopPath, getRidgePath)
+  - utils.ts: SHAPE_ASPECT_RATIOS, getShapeSVGData (imports from polygons/paths), generateId, SHAPE_NAMES
+  - index.ts: barrel re-exporting all from polygons, paths, utils
+- Updated 8 consumer imports: ChallengeDetailsCard, WinnersDayPage, TransformHandles, ChallengeShapeIndicators, ShapeIcon, ShapeExplorer, SVGShape, useShapeOperations
+- Deleted original src/utils/shapeHelpers.ts — zero remaining references
+- Files changed: 4 new (shapes/polygons.ts, paths.ts, utils.ts, index.ts), 8 edited (import paths), 1 deleted (shapeHelpers.ts)
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-033 (useAppModals hook extraction from App.tsx)

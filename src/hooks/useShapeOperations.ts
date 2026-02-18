@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import type { Shape, ShapeGroup, CanvasState, DailyChallenge } from '../types';
-import { generateId } from '../utils/shapeHelpers';
+import { generateId } from '../utils/shapes';
 
 type SetCanvasState = (
   updater: CanvasState | ((prev: CanvasState) => CanvasState),

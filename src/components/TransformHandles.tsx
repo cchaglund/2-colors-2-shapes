@@ -1,5 +1,5 @@
 import type { Shape } from '../types';
-import { getShapeSVGData } from '../utils/shapeHelpers';
+import { getShapeSVGData } from '../utils/shapes';
 
 interface TransformHandlesProps {
   shape: Shape;

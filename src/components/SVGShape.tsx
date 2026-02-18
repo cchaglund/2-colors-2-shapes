@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { ShapeType } from '../types';
-import { getShapeSVGData } from '../utils/shapeHelpers';
+import { getShapeSVGData } from '../utils/shapes';
 
 interface SVGShapeProps {
   type: ShapeType;

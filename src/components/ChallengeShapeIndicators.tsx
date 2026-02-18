@@ -1,5 +1,5 @@
 import type { ChallengeShapeData, ShapeType } from '../types';
-import { getShapeSVGData } from '../utils/shapeHelpers';
+import { getShapeSVGData } from '../utils/shapes';
 
 interface ChallengeShapeIndicatorsProps {
   shapes: [ChallengeShapeData, ChallengeShapeData];

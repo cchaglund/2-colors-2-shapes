@@ -1,5 +1,5 @@
 import type { DailyChallenge } from '../../types';
-import { getShapeSVGData } from '../../utils/shapeHelpers';
+import { getShapeSVGData } from '../../utils/shapes';
 
 interface ChallengeDetailsCardProps {
   challenge: DailyChallenge;

@@ -379,7 +379,7 @@
       "Utility functions (getShapeSVGData, generateId, SHAPE_NAMES, SHAPE_ASPECT_RATIOS) are in index.ts or utils.ts",
       "Each file exports its functions"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-031",
@@ -392,7 +392,7 @@
       "Existing imports of shapeHelpers throughout the codebase are updated to use the new path",
       "No import errors across the codebase"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-032",
@@ -404,7 +404,7 @@
       "No file in the codebase imports directly from the old shapeHelpers.ts path (unless it's a barrel)",
       "All shape generation works correctly (canvas, thumbnails, icons)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-033",
