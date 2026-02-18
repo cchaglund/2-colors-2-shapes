@@ -1,117 +1,153 @@
-# Convert Gallery Modal to Full Page
+# Codebase Review: Refactoring Recommendations
 
-## Context
+> **Type:** Opportunistic cleanup (not blocking feature work)
+> **Approach:** Phased — each phase is independently shippable
+>
+> **Deferred to separate efforts:**
+> - Naming renames (#7) — git blame churn not worth it right now
+> - Service layer migration (#10) — high risk with realtime subscriptions, needs its own design
+> - Hook return convention (#13) — premature; not all hooks are data-fetching hooks
 
-Gallery modal has 4 tabs of browsable content but clicking thumbnails ejects users out (new tab or page nav). No way to return to gallery. Browser back/forward don't work. The gallery has outgrown being a modal — it deserves proper page-level navigation.
+## 1. CRITICAL: Duplicated Shape Rendering (3 files)
 
-## Approach
+Identical SVG shape-rendering logic copy-pasted across:
+- `src/components/ShapeElement.tsx` (lines 14-38)
+- `src/components/SubmissionThumbnail.tsx` (lines 58-74)
+- `src/components/submission/SubmissionCanvas.tsx` (lines 41-57)
 
-Convert the gallery modal into a full page at `?view=gallery&tab={tab}`. All thumbnail clicks become same-tab navigation. Browser back button naturally returns to the gallery.
+All three compute the same transform string, call `getShapeSVGData()`, and render the same 4-way element conditional (`ellipse`/`rect`/`polygon`/`path`).
 
-## Changes
+**Fix:** Extract a shared `<SVGShape shape={shape} color={color} />` component that all three import.
 
-### 1. `src/utils/urlParams.ts` — add gallery view parser
+---
 
-Add `getGalleryView()` returning `{ tab?: string }` or `null` for `?view=gallery&tab=...`.
+## 2. CRITICAL: Duplicated ShapeIcon Component (2 files)
 
-### 2. `src/components/GalleryPage.tsx` — NEW page component
+Near-identical mini shape preview components:
+- `src/components/Toolbar.tsx:14-24` — `ShapePreviewIcon`
+- `src/components/modals/WelcomeModal.tsx:10-20` — `ShapeIcon`
 
-Extract `Calendar.tsx` content into a full-page component (no modal wrapper).
+Both call `getShapeSVGData()` and render the same 4-way conditional with `fill="currentColor"`.
 
-Structure:
+**Fix:** Create one shared `<ShapeIcon>` component (e.g. `src/components/ShapeIcon.tsx`).
 
-- "Back to app" link (same pattern as other pages)
-- `CalendarViewToggle` (existing tabs component)
-- Tab content: calendar grid for my-submissions/winners, `WallContent`/`FriendsFeedContent` for wall/friends
-- `CalendarStats` footer
+---
 
-Key differences from `Calendar.tsx`:
+## 3. HIGH: Trophy/Rank Colors Hardcoded in 3 Places
 
-- No fixed overlay, no click-to-close, no escape-to-close
-- Page layout instead of modal
-- `tab` prop from URL determines initial active tab; subsequent tab switches managed via React state + `history.replaceState()` (no full page reload)
-- Thumbnail links use `<a href>` tags (not onClick + window.location.href) so Ctrl/Cmd+click opens in new tab for power users
-- My Submissions day click: navigate to `?view=submission&date=...` (same tab, not `window.open`)
-- Winners day click: navigate to `?view=winners-day&date=...` (same tab, shows all ranked submissions)
-- Do NOT pass `onSubmissionClick` to WallContent/FriendsFeedContent — their default behavior (`window.location.href`) already does the right thing
+Gold/Silver/Bronze hex values (`#FFD700`, `#D1D5DC`, `#CE8946`) duplicated in:
+- `src/components/TrophyBadge.tsx:14`
+- `src/components/WinnerCard.tsx:24-30`
+- `src/components/Calendar/CalendarCell.tsx:21-25`
 
-Reuses existing sub-components:
+**Fix:** Create `src/constants/rankColors.ts` exporting a single `RANK_COLORS` map; import everywhere.
 
-- `CalendarViewToggle.tsx` — tabs
-- `ContentNavigation.tsx` — month nav
-- `CalendarGrid.tsx` — grid layout
-- `CalendarDayCell.tsx` — day cells
-- `CalendarStats.tsx` — stats footer
-- `WallContent.tsx` — wall tab (already has `onSubmissionClick` prop)
-- `FriendsFeedContent.tsx` — friends tab (already has `onSubmissionClick` prop)
+---
 
-### 3. `src/App.tsx` — wire up gallery page
+## 4. HIGH: `useCanvasState.ts` is 1235 Lines
 
-- Add `galleryView` detection via `getGalleryView()`
-- Render `<GalleryPage>` wrapped in `<FollowsProvider>` in the standalone pages section (doesn't need challenge data). Friends tab needs follow data.
-- Remove `showCalendar` state and Calendar modal rendering
-- Remove `Calendar` import and old `FollowsProvider` wrapper for it
+This single hook manages canvas shapes, groups, undo/redo history, localStorage persistence, selection, z-index, and more. It's the largest file in the codebase by far.
 
-### 4. `src/components/Toolbar.tsx` — Gallery button navigates
+**Fix:** Split into focused hooks:
+- `useCanvasHistory.ts` — undo/redo stack
+- `useCanvasStorage.ts` — localStorage load/save/user-tracking
+- `useShapeOperations.ts` — add/remove/update/duplicate/reorder shapes
+- `useCanvasState.ts` — orchestrator that composes the above
 
-- Change from `onClick={onOpenCalendar}` to `window.location.href = '/?view=gallery'`
-- Remove login gate — gallery has public tabs (winners, wall); page handles auth per tab
-- Remove `onOpenCalendar` prop
+---
 
-### 5. Delete `src/components/Calendar/Calendar.tsx`
+## 5. HIGH: `shapeHelpers.ts` is 717 Lines
 
-Modal version replaced by `GalleryPage`. Sub-components in `Calendar/` folder stay.
+~35 shape-generation functions in one flat file.
 
-### 6. `src/components/UserProfilePage.tsx` — fix new-tab nav
+**Fix:** Create `src/utils/shapes/` directory with files grouped by category (e.g. `polygon.ts`, `bezier.ts`, `abstract.ts`) and a barrel `index.ts`.
 
-Line 112: change `window.open(url, '_blank')` to `window.location.href = url`
+---
 
-### 7. `src/components/WinnersDayPage.tsx` — fix new-tab nav
+## 6. HIGH: `App.tsx` is a God Component (506 lines, 6 useState + 15+ custom hooks)
 
-Lines 30-37: change `window.open(url, '_blank')` to `window.location.href = url` (same inconsistency as UserProfilePage)
+Mixes routing, modal state, canvas state orchestration, sidebar state, auth, submissions, and more. Uses 6 useState hooks and 15+ custom hooks. Any state change risks re-rendering everything.
 
-### 8. Clean up Toolbar props
+**Fix:**
+- Extract modal state into `useAppModals()` hook
+- Extract route/view resolution into `useAppRouting()` hook
+- Consider grouping related state (canvas, viewport, sidebar) into compound hooks
 
-- Remove `onOpenCalendar` from Toolbar interface
-- Remove from `App.tsx` Toolbar usage
+---
 
-## Navigation Flow (after changes)
+## 7. ~~MEDIUM: Naming Inconsistencies~~ → DEFERRED
 
-```
-Canvas (/) → click "Gallery" → /?view=gallery&tab=my-submissions
-  → click submission thumbnail → /?view=submission&id=xxx
-  → browser Back → returns to /?view=gallery&tab=my-submissions
-  → "Back to app" link → /
-```
+*Moved to separate feature: `deferred-naming-renames`. Git blame churn and merge conflict risk outweigh cosmetic benefit for now.*
 
-## Files
+---
 
-| File | Action |
-|------|--------|
-| `src/components/GalleryPage.tsx` | NEW |
-| `src/utils/urlParams.ts` | Add `getGalleryView()` |
-| `src/App.tsx` | Add gallery route, remove modal state |
-| `src/components/Toolbar.tsx` | Gallery button navigates, remove `onOpenCalendar` prop |
-| `src/components/Calendar/Calendar.tsx` | DELETE |
-| `src/components/UserProfilePage.tsx` | Same-tab navigation |
-| `src/components/WinnersDayPage.tsx` | Same-tab navigation |
+## 8. MEDIUM: No Shared Modal Wrapper
 
-## Verification
+Multiple modals (`OnboardingModal`, `WelcomeModal`, `FriendsModal`, `KeyboardSettingsModal`, `ResetConfirmModal`, `VotingModal`, etc.) each independently implement:
+- `fixed inset-0 bg-black/50 flex items-center justify-center z-50` backdrop
+- `bg-(--color-bg-primary) border border-(--color-border) rounded-lg p-6` inner box
+- Focus trapping, escape-to-close, click-outside-to-close
 
-- Gallery button → opens gallery page (not modal)
-- All 4 tabs work, switching tabs works
-- Click thumbnail in any tab → navigates to submission in same tab
-- Browser back → returns to gallery at correct tab
-- "Back to app" from gallery → returns to canvas
-- Direct URL `?view=gallery&tab=wall` → opens gallery at wall tab
-- Profile page → click submission → same tab (not new tab)
-- Non-logged-in user can access gallery (winners/wall tabs work, my-submissions/friends tabs disabled with tooltip — same as current CalendarViewToggle behavior)
-- WinnersDayPage → click submission → same tab (not new tab)
+**Fix:** Create a shared `<Modal>` wrapper with header/body/footer slots. Individual modals become just the content.
 
-## Decisions
+---
 
-- Tab switching updates URL (`?view=gallery&tab=friends`) via `history.replaceState` for shareability — no full page reload
-- Winners tab: clicking a winner cell navigates to WinnersDayPage (same-tab) to show all ranked submissions
-- Thumbnail links are `<a>` tags so Ctrl/Cmd+click opens in new tab (preserves power-user multi-browsing workflow)
-- Auth-required tabs (my-submissions, friends): keep existing disabled-tab-with-tooltip behavior for logged-out users
-- GalleryPage does NOT pass `onSubmissionClick` to WallContent/FriendsFeedContent — default behavior is correct
+## 9. MEDIUM: Components Missing DOM Identifiers
+
+Many components lack meaningful `id` or `className` attributes for DevTools/testing. Specifically:
+- `SubmissionThumbnail` — no id or class on the SVG
+- `FriendRow` — no data-testid
+- Calendar cells — no test identifiers
+- Modal containers — inconsistent id usage
+
+**Fix:** Add `className="[component-name]"` or `id` to root elements of unique components. Use `data-testid` for key interactive elements.
+
+---
+
+## 10. ~~MEDIUM: Supabase Queries Scattered in Hooks~~ → DEFERRED
+
+*Moved to separate feature: `deferred-service-layer`. Realtime subscriptions, cross-domain queries, and complex dynamic filters make this high-risk. Needs its own design doc.*
+
+---
+
+## 11. LOW: 67 `console.log/error/warn` Statements
+
+Many are debug leftovers. In production, these add noise.
+
+**Fix:** Add ESLint `no-console` rule (warn level, allow `console.error`). Autofix existing violations. One pass, not manual file-by-file audit.
+
+---
+
+## 12. LOW: Duplicated `CANVAS_SIZE = 800` Constant
+
+Defined in both:
+- `src/components/SubmissionThumbnail.tsx:19`
+- `src/components/submission/SubmissionCanvas.tsx:5`
+
+**Fix:** Export from a single constant file or from the canvas types.
+
+---
+
+## 13. ~~LOW: Inconsistent Hook Return Patterns~~ → DROPPED
+
+*Not all hooks are data-fetching hooks. Forcing a uniform return shape on action hooks, state hooks, and data hooks creates awkward wrappers. Dropped from scope.*
+
+---
+
+## Summary
+
+| # | Severity | Issue | Status |
+|---|----------|-------|--------|
+| 1 | CRITICAL | Shape rendering duplicated in 3 files | Phase 1 |
+| 2 | CRITICAL | ShapeIcon duplicated in 2 files | Phase 1 |
+| 3 | HIGH | Trophy colors hardcoded in 3 places | Phase 1 |
+| 4 | HIGH | useCanvasState.ts — 1235 lines, needs split | Phase 3 |
+| 5 | HIGH | shapeHelpers.ts — 717 lines, needs modularization | Phase 3 |
+| 6 | HIGH | App.tsx — god component, 6 useState + 15+ hooks | Phase 3 |
+| 7 | MEDIUM | Naming inconsistencies | **Deferred** |
+| 8 | MEDIUM | No shared Modal wrapper | Phase 2 |
+| 9 | MEDIUM | Components missing DOM identifiers | Phase 4 |
+| 10 | MEDIUM | Supabase queries scattered, no service layer | **Deferred** |
+| 11 | LOW | 67 console statements | Phase 4 |
+| 12 | LOW | CANVAS_SIZE constant duplicated | Phase 1 |
+| 13 | LOW | Inconsistent hook return patterns | **Dropped** |

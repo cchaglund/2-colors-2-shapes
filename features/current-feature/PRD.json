@@ -1,160 +1,532 @@
 [
   {
-    "id": "GALLERY-001",
-    "category": "URL Routing",
-    "description": "Add getGalleryView() parser to urlParams.ts that reads ?view=gallery&tab={tab} and returns { tab?: string } or null",
-    "steps_to_verify": [
-      "Navigate to /?view=gallery — getGalleryView() returns { tab: undefined }",
-      "Navigate to /?view=gallery&tab=wall — getGalleryView() returns { tab: 'wall' }",
-      "Navigate to /?view=submission&id=x — getGalleryView() returns null",
-      "Navigate to / with no params — getGalleryView() returns null"
+    "id": "REFACTOR-001",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Create shared <SVGShape> component that renders an SVG shape element (ellipse/rect/polygon/path) given shape data, color, and transform props",
+    "stepsToVerify": [
+      "File src/components/SVGShape.tsx exists",
+      "Component accepts shape data, color, and transform props",
+      "Component handles all 4 element types: ellipse, rect, polygon, path",
+      "Component computes transform string from shape position/rotation/scale"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "GALLERY-002",
-    "category": "Page Component",
-    "description": "Create GalleryPage.tsx as a full-page component (no modal overlay) with: back-to-app link, CalendarViewToggle tabs, tab content (calendar grid for my-submissions/winners, WallContent/FriendsFeedContent for wall/friends), and CalendarStats footer",
-    "steps_to_verify": [
-      "GalleryPage renders as a full page — no fixed overlay, no backdrop, no click-to-close, no escape-to-close",
-      "All 4 tabs render: my-submissions, winners, wall, friends",
-      "CalendarViewToggle switches between tabs",
-      "CalendarStats footer is visible",
-      "Back-to-app link is present and follows existing page pattern"
+    "id": "REFACTOR-002",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Refactor ShapeElement.tsx to use shared <SVGShape> instead of inline SVG rendering logic",
+    "stepsToVerify": [
+      "ShapeElement.tsx imports and uses <SVGShape>",
+      "No inline ellipse/rect/polygon/path conditional rendering remains in ShapeElement.tsx",
+      "Canvas editor renders shapes identically to before (visual regression check)"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "GALLERY-003",
-    "category": "Navigation",
-    "description": "Tab prop from URL determines initial active tab. Tab state managed internally via React state. Switching tabs updates the URL via history.replaceState() (no full page reload). Tab switching does NOT go through App.tsx — GalleryPage owns its own tab state.",
-    "steps_to_verify": [
-      "Navigate to /?view=gallery&tab=wall — wall tab is active on load",
-      "Navigate to /?view=gallery&tab=friends — friends tab is active on load",
-      "Navigate to /?view=gallery (no tab) — defaults to my-submissions if logged in, winners if not",
-      "Click a different tab — URL updates to reflect the new tab without full page reload"
+    "id": "REFACTOR-003",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Refactor SubmissionThumbnail.tsx to use shared <SVGShape> instead of inline SVG rendering logic",
+    "stepsToVerify": [
+      "SubmissionThumbnail.tsx imports and uses <SVGShape>",
+      "No inline ellipse/rect/polygon/path conditional rendering remains in SubmissionThumbnail.tsx",
+      "Submission thumbnails in gallery/voting render identically to before"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "GALLERY-004",
-    "category": "Navigation",
-    "description": "Thumbnail clicks in all tabs navigate in the same tab (not new tab). Use <a href> tags (not onClick + window.location.href) so Ctrl/Cmd+click opens in new tab. My Submissions day click → ?view=submission&date=..., Winners day click → ?view=winners-day&date=..., Wall/Friends thumbnail click → ?view=submission&id=... Do NOT pass onSubmissionClick to WallContent/FriendsFeedContent — their default window.location.href behavior is correct.",
-    "steps_to_verify": [
-      "My Submissions tab: click a day cell → navigates to ?view=submission&date=... in same tab",
-      "Winners tab: click a day cell → navigates to ?view=winners-day&date=... in same tab",
-      "Wall tab: click a thumbnail → navigates to ?view=submission&id=... in same tab",
-      "Friends tab: click a thumbnail → navigates to ?view=submission&id=... in same tab",
-      "No new tabs are opened from any gallery interaction"
+    "id": "REFACTOR-004",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Refactor SubmissionCanvas.tsx to use shared <SVGShape> instead of inline SVG rendering logic",
+    "stepsToVerify": [
+      "SubmissionCanvas.tsx imports and uses <SVGShape>",
+      "No inline ellipse/rect/polygon/path conditional rendering remains in SubmissionCanvas.tsx",
+      "Submission detail view renders shapes identically to before"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "GALLERY-005",
-    "category": "Navigation",
-    "description": "Browser back button returns to gallery at the correct tab after navigating to a submission or winners-day page from the gallery",
-    "steps_to_verify": [
-      "From gallery wall tab, click thumbnail → submission page loads → press browser back → returns to gallery with wall tab active",
-      "From gallery winners tab, click day → winners-day page loads → press browser back → returns to gallery with winners tab active"
+    "id": "REFACTOR-005",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Create shared <ShapeIcon> component that renders a small shape preview SVG with fill='currentColor'",
+    "stepsToVerify": [
+      "File src/components/ShapeIcon.tsx exists",
+      "Component accepts shape type and optional size prop",
+      "Component uses getShapeSVGData() and renders correct element type",
+      "Component supports viewBox from getShapeSVGData"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "GALLERY-006",
-    "category": "Navigation",
-    "description": "Back-to-app link from GalleryPage navigates back to the canvas (root /)",
-    "steps_to_verify": [
-      "Click 'Back to app' link on GalleryPage → navigates to / (canvas view)",
-      "Link follows the same pattern as other standalone pages"
+    "id": "REFACTOR-006",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Refactor Toolbar.tsx to use shared <ShapeIcon> instead of local ShapePreviewIcon",
+    "stepsToVerify": [
+      "Toolbar.tsx imports shared <ShapeIcon>",
+      "Local ShapePreviewIcon function removed from Toolbar.tsx",
+      "Toolbar shape previews render correctly in the canvas editor"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "GALLERY-007",
-    "category": "App Routing",
-    "description": "App.tsx detects galleryView via getGalleryView() and renders GalleryPage in the standalone pages section. GalleryPage does not require challenge data to render.",
-    "steps_to_verify": [
-      "Navigate to /?view=gallery — GalleryPage renders (not the canvas)",
-      "GalleryPage renders before challenge data loads (placed in early return section of App.tsx)"
+    "id": "REFACTOR-007",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Refactor WelcomeModal.tsx to use shared <ShapeIcon> instead of local ShapeIcon",
+    "stepsToVerify": [
+      "WelcomeModal.tsx imports shared <ShapeIcon>",
+      "Local ShapeIcon function removed from WelcomeModal.tsx",
+      "Welcome modal shape icons render correctly"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "GALLERY-008",
-    "category": "Toolbar",
-    "description": "Gallery button in Toolbar navigates to /?view=gallery instead of opening a modal. Remove login gate — gallery is accessible to all users.",
-    "steps_to_verify": [
-      "Click Gallery button in toolbar → navigates to /?view=gallery (no modal appears)",
-      "Gallery button works when logged out — no login prompt",
-      "onOpenCalendar prop is removed from Toolbar interface"
+    "id": "REFACTOR-008",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Create src/constants/rankColors.ts exporting a RANK_COLORS map for gold (#FFD700), silver (#D1D5DC), bronze (#CE8946)",
+    "stepsToVerify": [
+      "File src/constants/rankColors.ts exists",
+      "Exports RANK_COLORS with keys 1, 2, 3 mapping to hex values",
+      "Gold=#FFD700, Silver=#D1D5DC, Bronze=#CE8946"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "GALLERY-009",
-    "category": "Auth",
-    "description": "Non-logged-in users can access gallery. Winners and wall tabs work without auth. My-submissions and friends tabs are disabled with opacity + tooltip (existing CalendarViewToggle behavior preserved). Default tab for logged-out users is 'winners'.",
-    "steps_to_verify": [
-      "Logged out: navigate to /?view=gallery — page loads, defaults to winners tab",
-      "Logged out: winners tab shows winner data",
-      "Logged out: wall tab shows wall content",
-      "Logged out: my-submissions tab button is disabled (opacity-50, tooltip explains login required)",
-      "Logged out: friends tab button is disabled (opacity-50, tooltip explains login required)"
+    "id": "REFACTOR-009",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Refactor TrophyBadge.tsx to use RANK_COLORS instead of hardcoded hex values",
+    "stepsToVerify": [
+      "TrophyBadge.tsx imports RANK_COLORS from constants",
+      "No hardcoded #FFD700, #D1D5DC, or #CE8946 remain in TrophyBadge.tsx",
+      "Trophy badges display correct gold/silver/bronze colors"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "GALLERY-010",
-    "category": "Cleanup",
-    "description": "Delete Calendar.tsx modal component. Remove showCalendar state and Calendar modal rendering from App.tsx. Remove Calendar import and its FollowsProvider wrapper. Sub-components in Calendar/ folder remain.",
-    "steps_to_verify": [
-      "src/components/Calendar/Calendar.tsx no longer exists",
-      "App.tsx has no showCalendar state",
-      "App.tsx has no Calendar modal rendering or FollowsProvider wrapper for it",
-      "Sub-components (CalendarGrid, CalendarDayCell, CalendarViewToggle, etc.) still exist in Calendar/ folder",
-      "No remaining imports of Calendar.tsx anywhere in the codebase"
+    "id": "REFACTOR-010",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Refactor WinnerCard.tsx to use RANK_COLORS instead of hardcoded hex values",
+    "stepsToVerify": [
+      "WinnerCard.tsx imports RANK_COLORS from constants",
+      "No hardcoded #FFD700, #D1D5DC, or #CE8946 remain in WinnerCard.tsx",
+      "Winner cards display correct rank colors"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "GALLERY-011",
-    "category": "Cleanup",
-    "description": "Remove onOpenCalendar prop from Toolbar interface and from App.tsx Toolbar usage",
-    "steps_to_verify": [
-      "Toolbar interface has no onOpenCalendar prop",
-      "App.tsx does not pass onOpenCalendar to Toolbar",
-      "No TypeScript errors related to removed prop"
+    "id": "REFACTOR-011",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Refactor CalendarCell.tsx to use RANK_COLORS instead of hardcoded hex values",
+    "stepsToVerify": [
+      "CalendarCell.tsx imports RANK_COLORS from constants",
+      "No hardcoded #FFD700, #D1D5DC, or #CE8946 remain in CalendarCell.tsx",
+      "Calendar cells display correct rank outline colors"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "GALLERY-012",
-    "category": "Navigation",
-    "description": "UserProfilePage submission click uses same-tab navigation (window.location.href) instead of new tab (window.open)",
-    "steps_to_verify": [
-      "On UserProfilePage, click a submission thumbnail → navigates in same tab (not a new tab)",
-      "URL changes to ?view=submission&date=...&user=..."
+    "id": "REFACTOR-012",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Export CANVAS_SIZE constant from a shared location (e.g. src/constants/canvas.ts) instead of defining it in two files",
+    "stepsToVerify": [
+      "CANVAS_SIZE = 800 exported from a shared constants file",
+      "SubmissionThumbnail.tsx imports CANVAS_SIZE from shared location",
+      "SubmissionCanvas.tsx imports CANVAS_SIZE from shared location",
+      "No duplicate CANVAS_SIZE definition exists"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "GALLERY-013",
-    "category": "Navigation",
-    "description": "WinnersDayPage submission click (handleViewSubmission, lines 30-37) uses same-tab navigation (window.location.href) instead of new tab (window.open). Same fix as GALLERY-012 for consistency.",
-    "steps_to_verify": [
-      "On WinnersDayPage, click 'View' on a submission → navigates in same tab (not a new tab)",
-      "Browser back from submission returns to WinnersDayPage"
+    "id": "REFACTOR-013",
+    "phase": 2,
+    "category": "extraction",
+    "description": "Create shared <Modal> wrapper component with backdrop, content box, escape-to-close, and click-outside-to-close. Must support disabling click-outside-to-close for destructive confirmations (ResetConfirmModal). Accept optional size/className/closable props. Keep it simple — handle the 80% case, don't try to abstract step wizards or animations.",
+    "stepsToVerify": [
+      "File for shared Modal component exists (e.g. src/components/Modal.tsx)",
+      "Component renders fixed backdrop with bg-black/50 or bg-(--color-modal-overlay)",
+      "Component renders content box with standard border, rounded-lg, padding",
+      "Pressing Escape closes the modal (when closable=true, the default)",
+      "Clicking outside the content box closes the modal (when closable=true)",
+      "Component accepts children and optional size/className props",
+      "Component accepts closeOnOutsideClick prop (default true) for destructive modals"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "GALLERY-014",
-    "category": "App Routing",
-    "description": "GalleryPage is wrapped in <FollowsProvider> in App.tsx (same pattern as UserProfilePage, FriendsFeedPage, SubmissionDetailPage). Required because FriendsFeedContent in the Friends tab needs follow data.",
-    "steps_to_verify": [
-      "Friends tab in gallery loads and displays friend submissions (follow data available)",
-      "GalleryPage is wrapped in FollowsProvider in App.tsx"
+    "id": "REFACTOR-014",
+    "phase": 2,
+    "category": "extraction",
+    "description": "Refactor OnboardingModal to use shared <Modal> wrapper",
+    "stepsToVerify": [
+      "OnboardingModal.tsx uses shared <Modal> instead of inline backdrop/box markup",
+      "No 'fixed inset-0' backdrop div in OnboardingModal.tsx",
+      "Onboarding flow works correctly for new users"
     ],
-    "passes": true
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-015",
+    "phase": 2,
+    "category": "extraction",
+    "description": "Refactor WelcomeModal to use shared <Modal> wrapper",
+    "stepsToVerify": [
+      "WelcomeModal.tsx uses shared <Modal>",
+      "No inline backdrop/box markup in WelcomeModal.tsx",
+      "Welcome modal displays and closes correctly"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-016",
+    "phase": 2,
+    "category": "extraction",
+    "description": "Refactor FriendsModal to use shared <Modal> wrapper",
+    "stepsToVerify": [
+      "FriendsModal.tsx uses shared <Modal>",
+      "No inline backdrop/box markup in FriendsModal.tsx",
+      "Friends modal displays, tabs work, search works, close works"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-017",
+    "phase": 2,
+    "category": "extraction",
+    "description": "Refactor KeyboardSettingsModal to use shared <Modal> wrapper",
+    "stepsToVerify": [
+      "KeyboardSettingsModal.tsx uses shared <Modal>",
+      "No inline backdrop/box markup in KeyboardSettingsModal.tsx",
+      "Keyboard settings modal displays and closes correctly"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-018",
+    "phase": 2,
+    "category": "extraction",
+    "description": "Refactor ResetConfirmModal to use shared <Modal> with closeOnOutsideClick=false (destructive confirmation)",
+    "stepsToVerify": [
+      "ResetConfirmModal.tsx uses shared <Modal> with closeOnOutsideClick={false}",
+      "No inline backdrop/box markup in ResetConfirmModal.tsx",
+      "Clicking outside does NOT close ResetConfirmModal",
+      "Reset confirm modal displays and confirm/cancel buttons work"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-019",
+    "phase": 2,
+    "category": "extraction",
+    "description": "Refactor VotingModal to use shared <Modal> wrapper",
+    "stepsToVerify": [
+      "VotingModal.tsx uses shared <Modal>",
+      "No inline backdrop/box markup in VotingModal.tsx",
+      "Voting modal displays and voting interaction works"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-020",
+    "phase": 2,
+    "category": "extraction",
+    "description": "Refactor CongratulatoryModal to use shared <Modal> wrapper",
+    "stepsToVerify": [
+      "CongratulatoryModal.tsx uses shared <Modal>",
+      "No inline backdrop/box markup in CongratulatoryModal.tsx",
+      "Congratulatory modal displays correctly"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-021",
+    "phase": 2,
+    "category": "extraction",
+    "description": "Refactor WinnerAnnouncementModal to use shared <Modal> wrapper",
+    "stepsToVerify": [
+      "WinnerAnnouncementModal.tsx uses shared <Modal>",
+      "No inline backdrop/box markup in WinnerAnnouncementModal.tsx",
+      "Winner announcement modal displays correctly"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-022",
+    "phase": 2,
+    "category": "extraction",
+    "description": "Refactor LoginPromptModal to use shared <Modal> wrapper",
+    "stepsToVerify": [
+      "LoginPromptModal.tsx uses shared <Modal>",
+      "No inline backdrop/box markup in LoginPromptModal.tsx",
+      "Login prompt modal displays and auth flow works"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-023",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Extract useCanvasHistory hook from useCanvasState.ts to manage undo/redo stack, history coalescing, and history navigation. Design: hook receives current shapes/selection as args for pushHistory(); returns undo/redo functions that return restored state. Orchestrator calls pushHistory() from shape operation wrappers. History hook is stateless regarding what's ON the canvas — it only manages the stack.",
+    "stepsToVerify": [
+      "File src/hooks/useCanvasHistory.ts exists",
+      "Hook manages history stack, undo, redo, and history coalescing",
+      "Hook exposes undo(), redo(), pushHistory(), canUndo, canRedo",
+      "pushHistory() accepts shapes + selection snapshot as argument",
+      "undo/redo return the restored state (shapes + selection) rather than mutating external state directly",
+      "Undo/redo works correctly in the canvas editor (multi-step test)"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-024",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Extract useCanvasStorage hook from useCanvasState.ts to manage localStorage persistence and server-side canvas loading. Design: hook receives shapes as dependency for save triggers; exposes loadCanvas() that returns initial state. Does NOT auto-save on every render — uses debounced effect.",
+    "stepsToVerify": [
+      "File src/hooks/useCanvasStorage.ts exists",
+      "Hook handles saving canvas state to localStorage (debounced)",
+      "Hook handles loading canvas state from localStorage on mount",
+      "Hook handles loading canvas state from server submissions",
+      "Canvas state persists across page refreshes"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-025",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Extract useShapeOperations hook from useCanvasState.ts to manage shape CRUD: add, remove, update, duplicate, reorder. Design: hook operates on a shapes state array. Each mutation returns the new shapes array. Does NOT push history — the orchestrator wraps calls with history.pushHistory().",
+    "stepsToVerify": [
+      "File src/hooks/useShapeOperations.ts exists",
+      "Hook exposes addShape, removeShape, updateShape, duplicateShape",
+      "Hook exposes z-index operations (bringToFront, sendToBack, etc.)",
+      "Shape mutations are pure — they don't push history themselves",
+      "All shape operations work correctly in the canvas editor"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-026",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Refactor useCanvasState.ts to be a thin orchestrator composing useCanvasHistory, useCanvasStorage, and useShapeOperations. Design: orchestrator owns the shapes/selection state. It wraps shape operations with history pushes. Atomic operations (e.g. group creation that updates shapes + selection + history) stay in the orchestrator to avoid split-brain state. The orchestrator's public API must remain identical to current useCanvasState — no consumer changes needed.",
+    "stepsToVerify": [
+      "useCanvasState.ts imports and composes the three extracted hooks",
+      "useCanvasState.ts no longer contains undo/redo, localStorage, or shape CRUD logic directly",
+      "useCanvasState.ts is significantly shorter (target: under 300 lines)",
+      "All existing consumers of useCanvasState continue to work without API changes",
+      "Atomic operations (group create/delete, duplicate-with-select) are correctly wrapped"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-027",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Verify group operations (create, delete, ungroup, rename, move) still work after useCanvasState decomposition",
+    "stepsToVerify": [
+      "Can create a group from selected shapes",
+      "Can ungroup a group back to individual shapes",
+      "Can rename a group",
+      "Can move grouped shapes together",
+      "Can delete a group"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-028",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Verify mirror/flip operations still work after useCanvasState decomposition",
+    "stepsToVerify": [
+      "Can mirror shapes horizontally",
+      "Can mirror shapes vertically",
+      "Mirror operations integrate with undo/redo"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-029",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Verify selection management still works after useCanvasState decomposition",
+    "stepsToVerify": [
+      "Can select individual shapes by clicking",
+      "Can multi-select shapes",
+      "Selection state persists correctly during shape operations",
+      "Deselection works on click-away"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-030",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Create src/utils/shapes/ directory with category files splitting shapeHelpers.ts functions by type",
+    "stepsToVerify": [
+      "Directory src/utils/shapes/ exists",
+      "Polygon generators (getPolygonPoints, getStarPoints, triangle variants, diamond, etc.) are in polygon.ts",
+      "Path/bezier generators (semicircle, crescent, wave, hook, etc.) are in paths.ts",
+      "Utility functions (getShapeSVGData, generateId, SHAPE_NAMES, SHAPE_ASPECT_RATIOS) are in index.ts or utils.ts",
+      "Each file exports its functions"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-031",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Create barrel index.ts in src/utils/shapes/ that re-exports all shape functions",
+    "stepsToVerify": [
+      "File src/utils/shapes/index.ts exists",
+      "All previously exported functions from shapeHelpers.ts are re-exported",
+      "Existing imports of shapeHelpers throughout the codebase are updated to use the new path",
+      "No import errors across the codebase"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-032",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Delete or empty the original src/utils/shapeHelpers.ts after migration to src/utils/shapes/",
+    "stepsToVerify": [
+      "Original shapeHelpers.ts either deleted or reduced to a re-export barrel",
+      "No file in the codebase imports directly from the old shapeHelpers.ts path (unless it's a barrel)",
+      "All shape generation works correctly (canvas, thumbnails, icons)"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-033",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Extract useAppModals hook from App.tsx to manage all modal open/close state",
+    "stepsToVerify": [
+      "File src/hooks/useAppModals.ts exists",
+      "Hook manages state for: showKeyboardSettings, showVotingModal, showResetConfirm, showFriendsModal, and any other modal booleans",
+      "Hook exposes toggle/open/close functions for each modal",
+      "App.tsx imports and uses useAppModals instead of individual useState calls"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-034",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Extract route/view resolution logic from App.tsx into a dedicated hook or routing module",
+    "stepsToVerify": [
+      "Route/view resolution logic is no longer inline in App.tsx",
+      "App.tsx is significantly shorter (target: under 250 lines)",
+      "All routes still resolve correctly (canvas, gallery, voting, calendar, etc.)",
+      "Browser back/forward navigation still works"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-035",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Verify all modals still open and close correctly after App.tsx decomposition",
+    "stepsToVerify": [
+      "Keyboard settings modal opens and closes",
+      "Voting modal opens and closes",
+      "Reset confirm modal opens and closes",
+      "Friends modal opens and closes",
+      "Welcome modal opens and closes on first visit",
+      "Onboarding modal works for new users"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-036",
+    "phase": 4,
+    "category": "cleanup",
+    "description": "Add className or data-testid to SubmissionThumbnail SVG root element",
+    "stepsToVerify": [
+      "SubmissionThumbnail's root SVG element has a className='submission-thumbnail' or data-testid",
+      "Can be selected in DevTools using the identifier"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-037",
+    "phase": 4,
+    "category": "cleanup",
+    "description": "Add data-testid to FriendRow component root element",
+    "stepsToVerify": [
+      "FriendRow component has data-testid='friend-row' on its root element",
+      "Can be selected in DevTools or testing framework using the identifier"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-038",
+    "phase": 4,
+    "category": "cleanup",
+    "description": "Add test identifiers to CalendarDayCell and ContentCalendarDayCell root elements",
+    "stepsToVerify": [
+      "CalendarDayCell has data-testid='calendar-day-cell' or similar on root element",
+      "ContentCalendarDayCell has data-testid on root element",
+      "Identifiers include the date for specific targeting (e.g. data-date attribute)"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-039",
+    "phase": 4,
+    "category": "cleanup",
+    "description": "Standardize id/data-testid usage on all modal containers",
+    "stepsToVerify": [
+      "Each modal's root container has a data-testid matching its name (e.g. data-testid='friends-modal')",
+      "Pattern is consistent across all modals"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-040",
+    "phase": 4,
+    "category": "cleanup",
+    "description": "Add ESLint no-console rule (warn level, allow console.error in catch blocks). Autofix to remove debug console.log/warn statements across all files. Keep intentional error logging.",
+    "stepsToVerify": [
+      "ESLint config includes no-console rule at warn level with console.error allowed",
+      "Debug console.log/warn statements removed via autofix",
+      "Intentional console.error in catch blocks retained",
+      "Total console statements reduced significantly (target: under 15 intentional ones)"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-041",
+    "phase": 4,
+    "category": "cleanup",
+    "description": "Final verification: run TypeScript compilation with no errors across the entire codebase",
+    "stepsToVerify": [
+      "npx tsc --noEmit passes with 0 errors",
+      "No import resolution errors",
+      "No type errors introduced by refactoring"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-042",
+    "phase": 4,
+    "category": "cleanup",
+    "description": "Final verification: app builds successfully and runs without runtime errors",
+    "stepsToVerify": [
+      "npm run build succeeds",
+      "App loads in browser without console errors",
+      "Canvas editor, gallery, voting, calendar, and profile pages all functional"
+    ],
+    "passes": false
   }
 ]
