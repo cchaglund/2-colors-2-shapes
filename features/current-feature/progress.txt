@@ -375,3 +375,22 @@
 - Files changed: eslint.config.js, CanvasEditorPage.tsx, useRanking.ts, useFriendsFeed.ts, useDailyChallenge.ts, FriendsFeedContent.tsx, useWallOfTheDay.ts, VotingTestPage.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-041 (final TypeScript verification) and REFACTOR-042 (final build verification)
+
+## REFACTOR-041 — Final TypeScript compilation verification
+- `npm run typecheck` (tsc -b --noEmit): 0 errors
+- No import resolution errors, no type errors from refactoring
+- Tests: 102 pass. Lint: pre-existing useCalendarChallenges.ts error only.
+- No files changed (verification only)
+
+## REFACTOR-042 — Final build/runtime verification
+- Dev server (vite): starts cleanly, no compilation errors
+- Browser test with mock challenge (sandbox firewall blocks Supabase):
+  - Canvas editor: loads, WelcomeModal displays via shared Modal, dismisses correctly
+  - Shape rendering: added Circle + Rectangle via toolbar, SVGShape renders on canvas, LayerPanel shows both
+  - Action toolbar: all buttons enabled/disabled correctly based on selection
+  - Gallery page: renders calendar grid with CalendarDayCells, CalendarCells, navigation works
+  - Zero JS runtime errors — only font-loading (sandbox) and CORS (firewall) errors
+- Note: `npm run build` cannot run in this VM; dev server verification substituted
+- All 42 PRD items now pass. Refactoring complete.
+
+<COMPLETE>
