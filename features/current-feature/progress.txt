@@ -47,3 +47,11 @@
 - Files changed: src/components/Toolbar.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-007 (WelcomeModal ShapeIcon) or REFACTOR-008 (RANK_COLORS)
+
+## REFACTOR-007 — Refactor WelcomeModal.tsx to use shared ShapeIcon
+- Removed local ShapeIcon function (lines 10-20), replaced with import of shared ShapeIcon
+- Removed unused getShapeSVGData import
+- Local version had loose `type: string` typing with `as never` cast; shared version uses proper ShapeType
+- Files changed: src/components/modals/WelcomeModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-008 (RANK_COLORS constant) then REFACTOR-009/010/011 consumers

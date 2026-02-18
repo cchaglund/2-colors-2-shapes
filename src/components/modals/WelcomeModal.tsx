@@ -1,22 +1,10 @@
 import { useEffect, useRef } from 'react';
 import type { DailyChallenge } from '../../types';
-import { getShapeSVGData } from '../../utils/shapeHelpers';
+import { ShapeIcon } from '../ShapeIcon';
 
 interface WelcomeModalProps {
   onDismiss: () => void;
   challenge?: DailyChallenge | null;
-}
-
-function ShapeIcon({ type, size = 24 }: { type: string; size?: number }) {
-  const { element, props, viewBox } = getShapeSVGData(type as never, size);
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${viewBox.width} ${viewBox.height}`}>
-      {element === 'ellipse' && <ellipse {...props} fill="currentColor" />}
-      {element === 'rect' && <rect {...props} fill="currentColor" />}
-      {element === 'polygon' && <polygon {...props} fill="currentColor" />}
-      {element === 'path' && <path {...props} fill="currentColor" />}
-    </svg>
-  );
 }
 
 export function WelcomeModal({ onDismiss, challenge }: WelcomeModalProps) {
