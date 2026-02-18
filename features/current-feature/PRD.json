@@ -160,7 +160,7 @@
       "Component accepts children and optional size/className props",
       "Component accepts closeOnOutsideClick prop (default true) for destructive modals"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-014",

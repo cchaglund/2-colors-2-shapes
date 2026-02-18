@@ -92,3 +92,17 @@
 - Files changed: src/components/submission/SubmissionCanvas.tsx, src/components/SubmissionThumbnail.tsx, src/hooks/useExportActions.ts, src/hooks/useBackgroundPanning.ts
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Phase 1 complete. Next: Phase 2 (REFACTOR-013, shared Modal wrapper)
+
+## REFACTOR-013 — Create shared Modal wrapper component
+- Created src/components/Modal.tsx
+- Props: onClose, children, size (max-w class), className, closeOnEscape (default true), closeOnBackdropClick (default true), ariaLabelledBy, zIndex
+- Backdrop: fixed inset-0, bg-(--color-modal-overlay), flex center, configurable z-index
+- Content box: bg-(--color-bg-primary), border, rounded-lg, p-6, configurable max-w via size prop
+- Escape key closes modal when closeOnEscape=true
+- Backdrop click closes modal when closeOnBackdropClick=true (e.target === e.currentTarget check)
+- Focus trap: Tab/Shift+Tab cycles through focusable elements within modal
+- Auto-focuses first focusable element on mount
+- Accessibility: role="dialog", aria-modal="true", configurable aria-labelledby
+- Files changed: src/components/Modal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-014 through REFACTOR-022 (refactor each modal to use shared Modal)
