@@ -22,7 +22,7 @@
       "No inline ellipse/rect/polygon/path conditional rendering remains in ShapeElement.tsx",
       "Canvas editor renders shapes identically to before (visual regression check)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-003",

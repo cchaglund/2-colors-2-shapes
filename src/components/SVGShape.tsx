@@ -12,6 +12,7 @@ interface SVGShapeProps {
   flipY?: boolean;
   color: string;
   style?: CSSProperties;
+  dataShapeId?: string;
 }
 
 /**
@@ -28,6 +29,7 @@ export function SVGShape({
   flipY,
   color,
   style,
+  dataShapeId,
 }: SVGShapeProps) {
   const { element, props, viewBox } = getShapeSVGData(type, size);
 
@@ -41,7 +43,7 @@ export function SVGShape({
   const fillProps = { fill: color, style };
 
   return (
-    <g transform={transform}>
+    <g transform={transform} data-shape-id={dataShapeId}>
       {element === 'ellipse' && <ellipse {...props} {...fillProps} />}
       {element === 'rect' && <rect {...props} {...fillProps} />}
       {element === 'polygon' && <polygon {...props} {...fillProps} />}

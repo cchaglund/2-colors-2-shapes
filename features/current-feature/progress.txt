@@ -6,3 +6,12 @@
 - Typecheck: pass. Tests: 102 pass. Lint: clean (pre-existing error in useCalendarChallenges.ts unrelated).
 - Note: npm install requires sandbox workaround (see installing-packages.md)
 - Next: REFACTOR-002/003/004 to replace inline rendering with <SVGShape> in consumers
+
+## REFACTOR-002 — Refactor ShapeElement.tsx to use SVGShape
+- Added `dataShapeId` prop to SVGShape for DOM identification (data-shape-id attribute)
+- ShapeElement now delegates entirely to SVGShape, passing shape props + cursor style + dataShapeId
+- Removed getShapeSVGData import and all inline transform/render logic from ShapeElement
+- ShapeElement reduced from 41 to 28 lines
+- Files changed: src/components/SVGShape.tsx, src/components/ShapeElement.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-003/004 for SubmissionThumbnail/SubmissionCanvas
