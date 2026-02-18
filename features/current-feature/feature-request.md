@@ -1,82 +1,153 @@
-# Feature: Congratulatory Modal for Top 3 Placement
+# Codebase Review: Refactoring Recommendations
 
-## Problem
-When users place 1st-3rd in a daily competition, it's easy to miss among the generic winners modal. We want a dedicated celebratory modal shown *before* the winners modal.
+> **Type:** Opportunistic cleanup (not blocking feature work)
+> **Approach:** Phased — each phase is independently shippable
+>
+> **Deferred to separate efforts:**
+> - Naming renames (#7) — git blame churn not worth it right now
+> - Service layer migration (#10) — high risk with realtime subscriptions, needs its own design
+> - Hook return convention (#13) — premature; not all hooks are data-fetching hooks
 
-## User Flow
-1. User opens app / logs in
-2. `useWinnerAnnouncement` hook runs (as today), fetches top 3 for the completed challenge
-3. **NEW:** If logged-in user's ID matches any of the top 3 entries → show `CongratulatoryModal` first, with fullscreen confetti
-4. User clicks "Yay!" → congrats modal closes, confetti stops, `seen_winner_announcement` persisted to DB → regular `WinnerAnnouncementModal` appears as normal
-5. If user is NOT in top 3 → skip straight to winners modal (unchanged)
+## 1. CRITICAL: Duplicated Shape Rendering (3 files)
 
-## Congratulatory Modal Spec
+Identical SVG shape-rendering logic copy-pasted across:
+- `src/components/ShapeElement.tsx` (lines 14-38)
+- `src/components/SubmissionThumbnail.tsx` (lines 58-74)
+- `src/components/submission/SubmissionCanvas.tsx` (lines 41-57)
 
-### Content (varies by placement)
-| Rank | Heading | Subtext |
-|------|---------|---------|
-| 1st | "You won!" | "1st place — Congratulations!" |
-| 2nd | "2nd Place!" | "Congratulations!" |
-| 3rd | "3rd Place!" | "Congratulations!" |
+All three compute the same transform string, call `getShapeSVGData()`, and render the same 4-way element conditional (`ellipse`/`rect`/`polygon`/`path`).
 
-- Show the user's winning submission using the existing `WinnerCard` component (includes trophy badge and rank-specific gold/silver/bronze styling)
-- Dismiss button text: **"Yay!"**
+**Fix:** Extract a shared `<SVGShape shape={shape} color={color} />` component that all three import.
 
-### Confetti
-- Use `canvas-confetti` library (~6KB gzipped) for fullscreen confetti
-- Continuous bursts on ~300ms interval, runs for **6 seconds** then auto-stops
-- Also stops immediately when user dismisses modal ("Yay!")
-- Call `.reset()` on the confetti instance during cleanup to remove the injected canvas element
-- Skip confetti entirely when `prefers-reduced-motion: reduce` is active
+---
 
-### Styling & Accessibility
-- Match existing modal patterns: same overlay (`fixed inset-0 bg-(--color-modal-overlay)`), card styling, CSS variable theming, `z-50`
-- Focus trap + Escape key dismiss (same as `WinnerAnnouncementModal`)
-- `role="dialog"` + `aria-modal="true"`
+## 2. CRITICAL: Duplicated ShapeIcon Component (2 files)
 
-## Key Code Touchpoints
+Near-identical mini shape preview components:
+- `src/components/Toolbar.tsx:14-24` — `ShapePreviewIcon`
+- `src/components/modals/WelcomeModal.tsx:10-20` — `ShapeIcon`
 
-### `src/hooks/useWinnerAnnouncement.ts`
-- After building the `entries` array (line ~124-133), check if `userId` is in the top 3
-- Expose new return values:
-  - `userPlacement: RankingEntry | null` (the user's entry if they placed, else null)
-  - `persistSeen: () => Promise<void>` — persists `seen_winner_announcement` to DB **without** changing `shouldShow` state (used by congrats modal dismiss so the winner modal can still render)
+Both call `getShapeSVGData()` and render the same 4-way conditional with `fill="currentColor"`.
 
-### `src/App.tsx` (lines ~92-98, ~462-471)
-- Destructure new `userPlacement` and `persistSeen` from the hook
-- Add local state: `congratsDismissed`, `winnerDismissed`
-- Render logic:
-  ```
-  if (shouldShow && !loading) {
-    if (userPlacement && !congratsDismissed) → show CongratulatoryModal
-    else if (!winnerDismissed) → show WinnerAnnouncementModal
-  }
-  ```
-- Congrats `onDismiss`: call `persistSeen()` + set `congratsDismissed = true`
-- Winner `onDismiss`: call `dismiss()` as before
+**Fix:** Create one shared `<ShapeIcon>` component (e.g. `src/components/ShapeIcon.tsx`).
 
-### New file: `src/components/modals/CongratulatoryModal.tsx`
-- Props: `userEntry: RankingEntry`, `challengeDate: string`, `onDismiss: () => void`
-- Fetches `DailyChallenge` internally via `useDailyChallenge(challengeDate)` (same pattern as `WinnerAnnouncementModal`)
-- Shows loading spinner while challenge data loads
-- Renders heading/subtext based on `userEntry.rank`
-- Renders submission using `WinnerCard`
-- Fires confetti on mount, cleans up on unmount/dismiss
-- **Same component** used in both the real app and the test view (DRY)
+---
 
-### `src/test/VotingTestPage.tsx` — Add test scenarios
-Add new scenarios to the `?test=voting` view, following existing patterns:
-- `congrats-1st` — Congratulatory modal for 1st place
-- `congrats-2nd` — Congratulatory modal for 2nd place
-- `congrats-3rd` — Congratulatory modal for 3rd place
+## 3. HIGH: Trophy/Rank Colors Hardcoded in 3 Places
 
-Each scenario renders the **same `CongratulatoryModal` component** with mock data from `mockData.ts`. Use existing `MOCK_TOP_THREE` entries, picking the appropriate rank entry as the `userEntry` prop. Add a show/hide button toggle matching the pattern used for the winner modal scenarios.
+Gold/Silver/Bronze hex values (`#FFD700`, `#D1D5DC`, `#CE8946`) duplicated in:
+- `src/components/TrophyBadge.tsx:14`
+- `src/components/WinnerCard.tsx:24-30`
+- `src/components/Calendar/CalendarCell.tsx:21-25`
 
-### `src/test/mockData.ts`
-No new mock data needed — reuse existing `MOCK_TOP_THREE` entries (rank 1, 2, 3 already exist).
+**Fix:** Create `src/constants/rankColors.ts` exporting a single `RANK_COLORS` map; import everywhere.
 
-## Edge Cases
-- **Tie for 1st:** User could be one of multiple 1st-place winners. Still show congrats with "You won!" heading.
-- **Already seen:** Congrats dismiss persists `seen_winner_announcement` to DB immediately. On refresh, the hook sees `seen_winner_announcement = true` and sets `shouldShow = false` — neither modal reappears. This means a refresh between congrats and winner dismiss skips the winner modal, which is acceptable.
-- **No placement:** If user isn't in top 3, completely unchanged behavior.
-- **Single submission:** DB enforces one submission per user per day via `upsert` with `onConflict: 'user_id,challenge_date'`, so a user can only appear once in the top 3.
+---
+
+## 4. HIGH: `useCanvasState.ts` is 1235 Lines
+
+This single hook manages canvas shapes, groups, undo/redo history, localStorage persistence, selection, z-index, and more. It's the largest file in the codebase by far.
+
+**Fix:** Split into focused hooks:
+- `useCanvasHistory.ts` — undo/redo stack
+- `useCanvasStorage.ts` — localStorage load/save/user-tracking
+- `useShapeOperations.ts` — add/remove/update/duplicate/reorder shapes
+- `useCanvasState.ts` — orchestrator that composes the above
+
+---
+
+## 5. HIGH: `shapeHelpers.ts` is 717 Lines
+
+~35 shape-generation functions in one flat file.
+
+**Fix:** Create `src/utils/shapes/` directory with files grouped by category (e.g. `polygon.ts`, `bezier.ts`, `abstract.ts`) and a barrel `index.ts`.
+
+---
+
+## 6. HIGH: `App.tsx` is a God Component (506 lines, 6 useState + 15+ custom hooks)
+
+Mixes routing, modal state, canvas state orchestration, sidebar state, auth, submissions, and more. Uses 6 useState hooks and 15+ custom hooks. Any state change risks re-rendering everything.
+
+**Fix:**
+- Extract modal state into `useAppModals()` hook
+- Extract route/view resolution into `useAppRouting()` hook
+- Consider grouping related state (canvas, viewport, sidebar) into compound hooks
+
+---
+
+## 7. ~~MEDIUM: Naming Inconsistencies~~ → DEFERRED
+
+*Moved to separate feature: `deferred-naming-renames`. Git blame churn and merge conflict risk outweigh cosmetic benefit for now.*
+
+---
+
+## 8. MEDIUM: No Shared Modal Wrapper
+
+Multiple modals (`OnboardingModal`, `WelcomeModal`, `FriendsModal`, `KeyboardSettingsModal`, `ResetConfirmModal`, `VotingModal`, etc.) each independently implement:
+- `fixed inset-0 bg-black/50 flex items-center justify-center z-50` backdrop
+- `bg-(--color-bg-primary) border border-(--color-border) rounded-lg p-6` inner box
+- Focus trapping, escape-to-close, click-outside-to-close
+
+**Fix:** Create a shared `<Modal>` wrapper with header/body/footer slots. Individual modals become just the content.
+
+---
+
+## 9. MEDIUM: Components Missing DOM Identifiers
+
+Many components lack meaningful `id` or `className` attributes for DevTools/testing. Specifically:
+- `SubmissionThumbnail` — no id or class on the SVG
+- `FriendRow` — no data-testid
+- Calendar cells — no test identifiers
+- Modal containers — inconsistent id usage
+
+**Fix:** Add `className="[component-name]"` or `id` to root elements of unique components. Use `data-testid` for key interactive elements.
+
+---
+
+## 10. ~~MEDIUM: Supabase Queries Scattered in Hooks~~ → DEFERRED
+
+*Moved to separate feature: `deferred-service-layer`. Realtime subscriptions, cross-domain queries, and complex dynamic filters make this high-risk. Needs its own design doc.*
+
+---
+
+## 11. LOW: 67 `console.log/error/warn` Statements
+
+Many are debug leftovers. In production, these add noise.
+
+**Fix:** Add ESLint `no-console` rule (warn level, allow `console.error`). Autofix existing violations. One pass, not manual file-by-file audit.
+
+---
+
+## 12. LOW: Duplicated `CANVAS_SIZE = 800` Constant
+
+Defined in both:
+- `src/components/SubmissionThumbnail.tsx:19`
+- `src/components/submission/SubmissionCanvas.tsx:5`
+
+**Fix:** Export from a single constant file or from the canvas types.
+
+---
+
+## 13. ~~LOW: Inconsistent Hook Return Patterns~~ → DROPPED
+
+*Not all hooks are data-fetching hooks. Forcing a uniform return shape on action hooks, state hooks, and data hooks creates awkward wrappers. Dropped from scope.*
+
+---
+
+## Summary
+
+| # | Severity | Issue | Status |
+|---|----------|-------|--------|
+| 1 | CRITICAL | Shape rendering duplicated in 3 files | Phase 1 |
+| 2 | CRITICAL | ShapeIcon duplicated in 2 files | Phase 1 |
+| 3 | HIGH | Trophy colors hardcoded in 3 places | Phase 1 |
+| 4 | HIGH | useCanvasState.ts — 1235 lines, needs split | Phase 3 |
+| 5 | HIGH | shapeHelpers.ts — 717 lines, needs modularization | Phase 3 |
+| 6 | HIGH | App.tsx — god component, 6 useState + 15+ hooks | Phase 3 |
+| 7 | MEDIUM | Naming inconsistencies | **Deferred** |
+| 8 | MEDIUM | No shared Modal wrapper | Phase 2 |
+| 9 | MEDIUM | Components missing DOM identifiers | Phase 4 |
+| 10 | MEDIUM | Supabase queries scattered, no service layer | **Deferred** |
+| 11 | LOW | 67 console statements | Phase 4 |
+| 12 | LOW | CANVAS_SIZE constant duplicated | Phase 1 |
+| 13 | LOW | Inconsistent hook return patterns | **Dropped** |

@@ -1,0 +1,50 @@
+[
+  {
+    "id": "RENAME-001",
+    "category": "naming",
+    "description": "Rename ContentCalendarDayCell.tsx to SubmissionCalendarDayCell.tsx and update component name and all imports",
+    "stepsToVerify": [
+      "File src/components/Calendar/SubmissionCalendarDayCell.tsx exists",
+      "File src/components/Calendar/ContentCalendarDayCell.tsx no longer exists",
+      "Component is named SubmissionCalendarDayCell",
+      "All imports across the codebase updated"
+    ],
+    "passes": false
+  },
+  {
+    "id": "RENAME-002",
+    "category": "naming",
+    "description": "Rename ContentCalendarGrid.tsx to SubmissionCalendarGrid.tsx and update component name and all imports",
+    "stepsToVerify": [
+      "File src/components/Calendar/SubmissionCalendarGrid.tsx exists",
+      "File src/components/Calendar/ContentCalendarGrid.tsx no longer exists",
+      "Component is named SubmissionCalendarGrid",
+      "All imports across the codebase updated"
+    ],
+    "passes": false
+  },
+  {
+    "id": "RENAME-003",
+    "category": "naming",
+    "description": "Rename ContentNavigation.tsx to CalendarMonthNav.tsx and update component name and all imports",
+    "stepsToVerify": [
+      "File src/components/Calendar/CalendarMonthNav.tsx exists",
+      "File src/components/Calendar/ContentNavigation.tsx no longer exists",
+      "Component is named CalendarMonthNav",
+      "All imports across the codebase updated"
+    ],
+    "passes": false
+  },
+  {
+    "id": "RENAME-004",
+    "category": "naming",
+    "description": "Standardize calendar cell prop names: use isToday (not isDayToday), isLocked (not isCurrentDayLocked), isClickable consistently",
+    "stepsToVerify": [
+      "ContentCalendarDayCell (now SubmissionCalendarDayCell) uses isToday instead of isDayToday",
+      "Uses isLocked instead of isCurrentDayLocked",
+      "CalendarDayCell.tsx and SubmissionCalendarDayCell.tsx use the same prop names for equivalent concepts",
+      "All parent components passing these props are updated"
+    ],
+    "passes": false
+  }
+]

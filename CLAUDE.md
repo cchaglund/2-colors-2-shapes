@@ -22,5 +22,8 @@ This project uses the REMOTE Supabase database, NOT local. If you need to intera
 
 ## Agent Browser/Visual Testing
 
-When testing things using the browser, it helps for you to be logged in. Read how in agent-login.md.
+When testing things using the browser, it often helps to be logged in. Read how in agent-login.md.
 
+## Installing npm packages - very important!
+
+If you have to run `npm install`, or you're installing a new package, read installing-packages.md. 

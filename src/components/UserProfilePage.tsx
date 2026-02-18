@@ -3,18 +3,20 @@ import { useUserProfile } from '../hooks/useUserProfile';
 import { useAuth } from '../hooks/useAuth';
 import { useSubmissions } from '../hooks/useSubmissions';
 import { FollowButton } from './FollowButton';
-import { SubmissionThumbnail } from './SubmissionThumbnail';
 import { getTodayDateUTC } from '../utils/dailyChallenge';
 import { fetchChallengesBatch } from '../hooks/useDailyChallenge';
 import { canViewCurrentDay } from '../utils/privacyRules';
 import {
-  DAYS_OF_WEEK,
   MONTHS,
   formatDate,
   getDaysInMonth,
   getFirstDayOfMonth,
 } from '../utils/calendarUtils';
+import { CalendarGrid } from './Calendar/CalendarGrid';
+import { CalendarDayCell } from './Calendar/CalendarDayCell';
+import { ContentNavigation } from './Calendar/ContentNavigation';
 import type { DailyChallenge } from '../types';
+import { BackToCanvasLink } from './BackToCanvasLink';
 
 interface UserProfilePageProps {
   userId: string;
@@ -102,16 +104,6 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
     );
   }, [currentYear, currentMonth]);
 
-  const handleSubmissionClick = useCallback((dateStr: string) => {
-    const url = new URL(window.location.href);
-    url.searchParams.delete('view');
-    url.searchParams.delete('user');
-    url.searchParams.set('view', 'submission');
-    url.searchParams.set('date', dateStr);
-    url.searchParams.set('user', userId);
-    window.open(url.toString(), '_blank');
-  }, [userId]);
-
   // Error state (network errors, etc.)
   if (error && !loading) {
     return (
@@ -119,9 +111,7 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
         <div className="text-center">
           <p className="text-(--color-text-secondary) mb-4">Something went wrong</p>
           <p className="text-sm text-(--color-text-tertiary) mb-4">{error}</p>
-          <a href="/" className="text-(--color-accent) hover:underline">
-            ← Back to app
-          </a>
+          <BackToCanvasLink/>
         </div>
       </div>
     );
@@ -133,9 +123,7 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
       <div className="min-h-screen flex items-center justify-center bg-(--color-bg-primary)">
         <div className="text-center">
           <p className="text-(--color-text-secondary) mb-4">User not found</p>
-          <a href="/" className="text-(--color-accent) hover:underline">
-            ← Back to app
-          </a>
+          <BackToCanvasLink/>
         </div>
       </div>
     );
@@ -189,135 +177,53 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
         </div>
 
         {/* Calendar Navigation */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={goToPreviousMonth}
-              className="p-2 rounded-md hover:bg-(--color-bg-secondary) text-(--color-text-primary)"
-              title="Previous month"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-            </button>
-            <span className="text-lg font-semibold min-w-[160px] text-center text-(--color-text-primary)">
-              {MONTHS[currentMonth]} {currentYear}
-            </span>
-            <button
-              onClick={goToNextMonth}
-              disabled={!canGoNext}
-              className={`p-2 rounded-md ${
-                canGoNext
-                  ? 'hover:bg-(--color-bg-secondary) text-(--color-text-primary)'
-                  : 'opacity-30 cursor-not-allowed text-(--color-text-tertiary)'
-              }`}
-              title="Next month"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </button>
-          </div>
-          <button
-            onClick={goToToday}
-            className="px-3 py-1 text-sm rounded-md border border-(--color-border) hover:bg-(--color-bg-secondary) text-(--color-text-secondary)"
-          >
-            Today
-          </button>
+        <div className="mb-4">
+          <ContentNavigation
+            label={`${MONTHS[currentMonth]} ${currentYear}`}
+            onPrev={goToPreviousMonth}
+            onNext={goToNextMonth}
+            onToday={goToToday}
+            canGoNext={canGoNext}
+          />
         </div>
 
         {/* Calendar Grid */}
-        <div className="border border-(--color-border) rounded-lg overflow-hidden bg-(--color-bg-primary)">
-          {/* Day headers */}
-          <div className="grid grid-cols-7 border-b border-(--color-border)">
-            {DAYS_OF_WEEK.map((day) => (
-              <div
-                key={day}
-                className="p-2 text-center text-xs font-medium text-(--color-text-secondary) bg-(--color-bg-secondary)"
-              >
-                {day}
-              </div>
-            ))}
-          </div>
-
-          {/* Calendar cells */}
-          <div className="grid grid-cols-7">
-            {calendarDays.map((day, index) => {
-              if (day === null) {
-                return (
-                  <div
-                    key={`empty-${index}`}
-                    className="aspect-square border-b border-r border-(--color-border)"
-                  />
-                );
-              }
-
+        <CalendarGrid emptySlotCount={calendarDays.findIndex((d) => d !== null)}>
+          {calendarDays
+            .filter((day): day is number => day !== null)
+            .map((day) => {
               const dateStr = formatDate(currentYear, currentMonth, day);
               const isToday = dateStr === todayDate;
               const isFuture = dateStr > todayDate;
               const submission = submissionsByDate.get(dateStr);
               const challenge = challenges.get(dateStr);
-
-              // Check privacy: can viewer see this day's content?
               const canViewThisDay = canViewCurrentDay(dateStr, todayDate, hasSubmittedToday);
 
               return (
-                <div
+                <CalendarDayCell
                   key={dateStr}
-                  className={`aspect-square border-b border-r border-(--color-border) p-1 relative ${
-                    isFuture ? 'bg-(--color-bg-secondary) opacity-50' : ''
-                  } ${isToday ? 'ring-2 ring-inset ring-(--color-accent)' : ''}`}
-                >
-                  {/* Day number */}
-                  <div
-                    className={`absolute top-1 left-1 text-[10px] font-medium ${
-                      isToday ? 'text-(--color-accent)' : 'text-(--color-text-tertiary)'
-                    }`}
-                  >
-                    {day}
-                  </div>
-
-                  {/* Content area */}
-                  <div className="w-full h-full flex items-center justify-center pt-3">
-                    {isFuture ? null : !canViewThisDay && isToday ? (
-                      // Current day locked - viewer hasn't saved their art yet
-                      <div className="text-[9px] text-center text-(--color-text-tertiary) px-1">
-                        Save your art to see
-                      </div>
-                    ) : submission && challenge ? (
-                      // Has public submission - show thumbnail
-                      <SubmissionThumbnail
-                        shapes={submission.shapes}
-                        challenge={challenge}
-                        backgroundColorIndex={submission.background_color_index}
-                        size={60}
-                        onClick={() => handleSubmissionClick(dateStr)}
-                      />
-                    ) : null}
-                  </div>
-                </div>
+                  day={day}
+                  dateStr={dateStr}
+                  viewMode="my-submissions"
+                  isToday={isToday}
+                  isFuture={isFuture}
+                  challenge={challenge}
+                  submission={canViewThisDay ? submission : undefined}
+                  ranking={undefined}
+                  dayWinners={undefined}
+                  latestWinnersDate=""
+                  canView={canViewThisDay}
+                  lockedContent={
+                    <div className="text-[9px] text-center text-(--color-text-tertiary) px-1">
+                      Save your art to see
+                    </div>
+                  }
+                  hideEmptyDayIcon
+                  href={submission && canViewThisDay ? `/?view=submission&date=${dateStr}&user=${userId}` : undefined}
+                />
               );
             })}
-          </div>
-        </div>
+        </CalendarGrid>
 
         {/* Stats */}
         <div className="mt-4 text-sm text-(--color-text-secondary) text-center">

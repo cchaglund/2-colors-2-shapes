@@ -26,6 +26,7 @@ import {
   MOCK_WALL_SUBMISSIONS,
   SCENARIOS,
 } from './mockData';
+import { BackToCanvasLink } from '../components/BackToCanvasLink';
 
 // ============================================================================
 // Test Scenario Types
@@ -647,12 +648,7 @@ export function SocialTestPage() {
           >
             🔄 Reset State
           </button>
-          <a
-            href="/"
-            className="block text-sm text-blue-500 hover:text-blue-600 transition-colors"
-          >
-            ← Back to App
-          </a>
+          <BackToCanvasLink />
         </div>
       </div>
 

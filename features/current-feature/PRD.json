@@ -1,120 +1,532 @@
 [
   {
-    "id": "PRD-001",
-    "category": "Dependency",
-    "description": "Install canvas-confetti library for fullscreen confetti effect",
-    "steps_to_verify": [
-      "canvas-confetti appears in package.json dependencies",
-      "npm install completes without errors",
-      "import canvas-confetti works in a .tsx file without type errors"
+    "id": "REFACTOR-001",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Create shared <SVGShape> component that renders an SVG shape element (ellipse/rect/polygon/path) given shape data, color, and transform props",
+    "stepsToVerify": [
+      "File src/components/SVGShape.tsx exists",
+      "Component accepts shape data, color, and transform props",
+      "Component handles all 4 element types: ellipse, rect, polygon, path",
+      "Component computes transform string from shape position/rotation/scale"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "PRD-002",
-    "category": "Hook Modification",
-    "description": "Add userPlacement and persistSeen to useWinnerAnnouncement hook. After building the entries array, check if the logged-in userId matches any top 3 entry. Return userPlacement: RankingEntry | null. Also expose persistSeen(): Promise<void> which upserts seen_winner_announcement=true to DB without changing shouldShow state (so the winner modal can still render after congrats is dismissed).",
-    "steps_to_verify": [
-      "useWinnerAnnouncement return type includes userPlacement: RankingEntry | null",
-      "useWinnerAnnouncement return type includes persistSeen: () => Promise<void>",
-      "When userId matches a top-3 entry, userPlacement returns that entry with correct rank, submission_id, shapes, and background_color_index",
-      "When userId does not match any top-3 entry, userPlacement is null",
-      "When userId is undefined (logged out), userPlacement is null",
-      "Tie case: if user has rank 1 in a tie, userPlacement still returns their entry with rank 1",
-      "persistSeen() upserts seen_winner_announcement=true to user_voting_status without setting shouldShow to false"
+    "id": "REFACTOR-002",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Refactor ShapeElement.tsx to use shared <SVGShape> instead of inline SVG rendering logic",
+    "stepsToVerify": [
+      "ShapeElement.tsx imports and uses <SVGShape>",
+      "No inline ellipse/rect/polygon/path conditional rendering remains in ShapeElement.tsx",
+      "Canvas editor renders shapes identically to before (visual regression check)"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "PRD-003",
-    "category": "New Component",
-    "description": "Create CongratulatoryModal component at src/components/modals/CongratulatoryModal.tsx. Props: userEntry: RankingEntry, challengeDate: string, onDismiss: () => void. Fetches DailyChallenge internally via useDailyChallenge(challengeDate) — same pattern as WinnerAnnouncementModal. Shows loading spinner while challenge data loads. Displays rank-specific heading/subtext, user's submission via WinnerCard component, and a 'Yay!' dismiss button.",
-    "steps_to_verify": [
-      "Component props are: userEntry: RankingEntry, challengeDate: string, onDismiss: () => void",
-      "Component calls useDailyChallenge(challengeDate) internally to fetch challenge data",
-      "Component shows loading spinner while challenge data is loading",
-      "Component renders correct heading per rank: 1st='You won!', 2nd='2nd Place!', 3rd='3rd Place!'",
-      "Component renders correct subtext per rank: 1st='1st place — Congratulations!', 2nd/3rd='Congratulations!'",
-      "User's submission is displayed using the WinnerCard component with the userEntry and fetched challenge",
-      "Dismiss button reads 'Yay!'",
-      "Clicking 'Yay!' calls onDismiss"
+    "id": "REFACTOR-003",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Refactor SubmissionThumbnail.tsx to use shared <SVGShape> instead of inline SVG rendering logic",
+    "stepsToVerify": [
+      "SubmissionThumbnail.tsx imports and uses <SVGShape>",
+      "No inline ellipse/rect/polygon/path conditional rendering remains in SubmissionThumbnail.tsx",
+      "Submission thumbnails in gallery/voting render identically to before"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "PRD-004",
-    "category": "Styling & Accessibility",
-    "description": "CongratulatoryModal matches existing modal patterns: same overlay, card styling, CSS variable theming, z-50, focus trap, Escape key dismiss, role=dialog, aria-modal=true.",
-    "steps_to_verify": [
-      "Overlay uses: fixed inset-0 bg-(--color-modal-overlay) flex items-center justify-center z-50",
-      "Card uses bg-(--color-bg-primary), border, rounded-lg, same padding pattern as WinnerAnnouncementModal",
-      "Focus trap implemented: Tab/Shift+Tab cycle within modal, focusable elements queried",
-      "Escape key dismisses modal",
-      "role='dialog' and aria-modal='true' are set on the modal container",
-      "aria-labelledby points to the heading element",
-      "Dismiss button auto-focused on mount via ref"
+    "id": "REFACTOR-004",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Refactor SubmissionCanvas.tsx to use shared <SVGShape> instead of inline SVG rendering logic",
+    "stepsToVerify": [
+      "SubmissionCanvas.tsx imports and uses <SVGShape>",
+      "No inline ellipse/rect/polygon/path conditional rendering remains in SubmissionCanvas.tsx",
+      "Submission detail view renders shapes identically to before"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "PRD-005",
-    "category": "Confetti",
-    "description": "Fullscreen confetti fires on CongratulatoryModal mount using canvas-confetti with continuous bursts on ~300ms interval, runs for 6 seconds then auto-stops. Stops immediately when user dismisses. Calls .reset() on cleanup to remove the injected canvas element. Skips confetti entirely when prefers-reduced-motion: reduce is active.",
-    "steps_to_verify": [
-      "Confetti starts when CongratulatoryModal mounts (continuous bursts on interval)",
-      "Confetti auto-stops after 6 seconds if user hasn't dismissed",
-      "Confetti stops immediately when user clicks 'Yay!'",
-      ".reset() called on confetti instance during cleanup — no canvas element left in DOM",
-      "Confetti cleanup runs on component unmount (no memory leaks)",
-      "Confetti is skipped entirely when window.matchMedia('(prefers-reduced-motion: reduce)').matches is true"
+    "id": "REFACTOR-005",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Create shared <ShapeIcon> component that renders a small shape preview SVG with fill='currentColor'",
+    "stepsToVerify": [
+      "File src/components/ShapeIcon.tsx exists",
+      "Component accepts shape type and optional size prop",
+      "Component uses getShapeSVGData() and renders correct element type",
+      "Component supports viewBox from getShapeSVGData"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "PRD-006",
-    "category": "App Integration",
-    "description": "Update App.tsx to show CongratulatoryModal before WinnerAnnouncementModal when user placed top 3. Destructure userPlacement and persistSeen from hook. Add local state: congratsDismissed, winnerDismissed. Flow: if shouldShow && !loading, then: if userPlacement && !congratsDismissed -> show CongratulatoryModal; else if !winnerDismissed -> show WinnerAnnouncementModal. Congrats onDismiss calls persistSeen() + sets congratsDismissed=true. Winner onDismiss calls dismiss() as before.",
-    "steps_to_verify": [
-      "userPlacement and persistSeen destructured from useWinnerAnnouncement in App.tsx",
-      "Local state congratsDismissed and winnerDismissed added",
-      "When user placed top 3: CongratulatoryModal shown first, WinnerAnnouncementModal hidden",
-      "CongratulatoryModal onDismiss calls persistSeen() and sets congratsDismissed=true",
-      "After dismissing CongratulatoryModal: WinnerAnnouncementModal appears (shouldShow still true)",
-      "After dismissing WinnerAnnouncementModal: both modals gone via dismiss()",
-      "When user did NOT place top 3: only WinnerAnnouncementModal shown (unchanged behavior)",
-      "On page refresh after congrats dismissed: seen_winner_announcement=true in DB, shouldShow=false, neither modal reappears"
+    "id": "REFACTOR-006",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Refactor Toolbar.tsx to use shared <ShapeIcon> instead of local ShapePreviewIcon",
+    "stepsToVerify": [
+      "Toolbar.tsx imports shared <ShapeIcon>",
+      "Local ShapePreviewIcon function removed from Toolbar.tsx",
+      "Toolbar shape previews render correctly in the canvas editor"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "PRD-007",
-    "category": "Test Scenarios",
-    "description": "Add three new test scenarios to VotingTestPage.tsx: congrats-1st, congrats-2nd, congrats-3rd. Each renders CongratulatoryModal with the corresponding MOCK_TOP_THREE entry. Include show/hide toggle button matching existing winner modal test pattern.",
-    "steps_to_verify": [
-      "congrats-1st scenario added to TestScenario type union",
-      "congrats-2nd scenario added to TestScenario type union",
-      "congrats-3rd scenario added to TestScenario type union",
-      "Each scenario renders CongratulatoryModal with correct mock entry (rank 1, 2, or 3 from MOCK_TOP_THREE)",
-      "Each scenario passes challengeDate from MOCK_CHALLENGE.date",
-      "Each scenario has a show/hide button toggle matching the winner-normal pattern",
-      "Scenarios appear in the scenario selector/list in VotingTestPage",
-      "No new mock data created — reuses existing MOCK_TOP_THREE entries",
-      "All three scenarios render without errors"
+    "id": "REFACTOR-007",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Refactor WelcomeModal.tsx to use shared <ShapeIcon> instead of local ShapeIcon",
+    "stepsToVerify": [
+      "WelcomeModal.tsx imports shared <ShapeIcon>",
+      "Local ShapeIcon function removed from WelcomeModal.tsx",
+      "Welcome modal shape icons render correctly"
     ],
-    "passes": true
+    "passes": false
   },
   {
-    "id": "PRD-008",
-    "category": "Edge Cases",
-    "description": "Handle edge cases: ties (user is one of multiple 1st-place winners — still show 'You won!'), persistence (congrats dismiss persists seen_winner_announcement immediately — refresh after congrats dismiss skips both modals), no placement (unchanged behavior), single submission (DB enforces one per user per day via upsert constraint).",
-    "steps_to_verify": [
-      "If user ties for 1st place, CongratulatoryModal shows 'You won!' heading",
-      "If user ties for 2nd place, CongratulatoryModal shows '2nd Place!' heading",
-      "Congrats dismiss persists seen_winner_announcement=true to DB immediately",
-      "Page refresh after congrats dismiss: shouldShow=false, neither modal reappears",
-      "If user is not in top 3, no CongratulatoryModal is rendered",
-      "If user is logged out, no CongratulatoryModal is rendered"
+    "id": "REFACTOR-008",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Create src/constants/rankColors.ts exporting a RANK_COLORS map for gold (#FFD700), silver (#D1D5DC), bronze (#CE8946)",
+    "stepsToVerify": [
+      "File src/constants/rankColors.ts exists",
+      "Exports RANK_COLORS with keys 1, 2, 3 mapping to hex values",
+      "Gold=#FFD700, Silver=#D1D5DC, Bronze=#CE8946"
     ],
-    "passes": true
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-009",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Refactor TrophyBadge.tsx to use RANK_COLORS instead of hardcoded hex values",
+    "stepsToVerify": [
+      "TrophyBadge.tsx imports RANK_COLORS from constants",
+      "No hardcoded #FFD700, #D1D5DC, or #CE8946 remain in TrophyBadge.tsx",
+      "Trophy badges display correct gold/silver/bronze colors"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-010",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Refactor WinnerCard.tsx to use RANK_COLORS instead of hardcoded hex values",
+    "stepsToVerify": [
+      "WinnerCard.tsx imports RANK_COLORS from constants",
+      "No hardcoded #FFD700, #D1D5DC, or #CE8946 remain in WinnerCard.tsx",
+      "Winner cards display correct rank colors"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-011",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Refactor CalendarCell.tsx to use RANK_COLORS instead of hardcoded hex values",
+    "stepsToVerify": [
+      "CalendarCell.tsx imports RANK_COLORS from constants",
+      "No hardcoded #FFD700, #D1D5DC, or #CE8946 remain in CalendarCell.tsx",
+      "Calendar cells display correct rank outline colors"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-012",
+    "phase": 1,
+    "category": "extraction",
+    "description": "Export CANVAS_SIZE constant from a shared location (e.g. src/constants/canvas.ts) instead of defining it in two files",
+    "stepsToVerify": [
+      "CANVAS_SIZE = 800 exported from a shared constants file",
+      "SubmissionThumbnail.tsx imports CANVAS_SIZE from shared location",
+      "SubmissionCanvas.tsx imports CANVAS_SIZE from shared location",
+      "No duplicate CANVAS_SIZE definition exists"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-013",
+    "phase": 2,
+    "category": "extraction",
+    "description": "Create shared <Modal> wrapper component with backdrop, content box, escape-to-close, and click-outside-to-close. Must support disabling click-outside-to-close for destructive confirmations (ResetConfirmModal). Accept optional size/className/closable props. Keep it simple — handle the 80% case, don't try to abstract step wizards or animations.",
+    "stepsToVerify": [
+      "File for shared Modal component exists (e.g. src/components/Modal.tsx)",
+      "Component renders fixed backdrop with bg-black/50 or bg-(--color-modal-overlay)",
+      "Component renders content box with standard border, rounded-lg, padding",
+      "Pressing Escape closes the modal (when closable=true, the default)",
+      "Clicking outside the content box closes the modal (when closable=true)",
+      "Component accepts children and optional size/className props",
+      "Component accepts closeOnOutsideClick prop (default true) for destructive modals"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-014",
+    "phase": 2,
+    "category": "extraction",
+    "description": "Refactor OnboardingModal to use shared <Modal> wrapper",
+    "stepsToVerify": [
+      "OnboardingModal.tsx uses shared <Modal> instead of inline backdrop/box markup",
+      "No 'fixed inset-0' backdrop div in OnboardingModal.tsx",
+      "Onboarding flow works correctly for new users"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-015",
+    "phase": 2,
+    "category": "extraction",
+    "description": "Refactor WelcomeModal to use shared <Modal> wrapper",
+    "stepsToVerify": [
+      "WelcomeModal.tsx uses shared <Modal>",
+      "No inline backdrop/box markup in WelcomeModal.tsx",
+      "Welcome modal displays and closes correctly"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-016",
+    "phase": 2,
+    "category": "extraction",
+    "description": "Refactor FriendsModal to use shared <Modal> wrapper",
+    "stepsToVerify": [
+      "FriendsModal.tsx uses shared <Modal>",
+      "No inline backdrop/box markup in FriendsModal.tsx",
+      "Friends modal displays, tabs work, search works, close works"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-017",
+    "phase": 2,
+    "category": "extraction",
+    "description": "Refactor KeyboardSettingsModal to use shared <Modal> wrapper",
+    "stepsToVerify": [
+      "KeyboardSettingsModal.tsx uses shared <Modal>",
+      "No inline backdrop/box markup in KeyboardSettingsModal.tsx",
+      "Keyboard settings modal displays and closes correctly"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-018",
+    "phase": 2,
+    "category": "extraction",
+    "description": "Refactor ResetConfirmModal to use shared <Modal> with closeOnOutsideClick=false (destructive confirmation)",
+    "stepsToVerify": [
+      "ResetConfirmModal.tsx uses shared <Modal> with closeOnOutsideClick={false}",
+      "No inline backdrop/box markup in ResetConfirmModal.tsx",
+      "Clicking outside does NOT close ResetConfirmModal",
+      "Reset confirm modal displays and confirm/cancel buttons work"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-019",
+    "phase": 2,
+    "category": "extraction",
+    "description": "Refactor VotingModal to use shared <Modal> wrapper",
+    "stepsToVerify": [
+      "VotingModal.tsx uses shared <Modal>",
+      "No inline backdrop/box markup in VotingModal.tsx",
+      "Voting modal displays and voting interaction works"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-020",
+    "phase": 2,
+    "category": "extraction",
+    "description": "Refactor CongratulatoryModal to use shared <Modal> wrapper",
+    "stepsToVerify": [
+      "CongratulatoryModal.tsx uses shared <Modal>",
+      "No inline backdrop/box markup in CongratulatoryModal.tsx",
+      "Congratulatory modal displays correctly"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-021",
+    "phase": 2,
+    "category": "extraction",
+    "description": "Refactor WinnerAnnouncementModal to use shared <Modal> wrapper",
+    "stepsToVerify": [
+      "WinnerAnnouncementModal.tsx uses shared <Modal>",
+      "No inline backdrop/box markup in WinnerAnnouncementModal.tsx",
+      "Winner announcement modal displays correctly"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-022",
+    "phase": 2,
+    "category": "extraction",
+    "description": "Refactor LoginPromptModal to use shared <Modal> wrapper",
+    "stepsToVerify": [
+      "LoginPromptModal.tsx uses shared <Modal>",
+      "No inline backdrop/box markup in LoginPromptModal.tsx",
+      "Login prompt modal displays and auth flow works"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-023",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Extract useCanvasHistory hook from useCanvasState.ts to manage undo/redo stack, history coalescing, and history navigation. Design: hook receives current shapes/selection as args for pushHistory(); returns undo/redo functions that return restored state. Orchestrator calls pushHistory() from shape operation wrappers. History hook is stateless regarding what's ON the canvas — it only manages the stack.",
+    "stepsToVerify": [
+      "File src/hooks/useCanvasHistory.ts exists",
+      "Hook manages history stack, undo, redo, and history coalescing",
+      "Hook exposes undo(), redo(), pushHistory(), canUndo, canRedo",
+      "pushHistory() accepts shapes + selection snapshot as argument",
+      "undo/redo return the restored state (shapes + selection) rather than mutating external state directly",
+      "Undo/redo works correctly in the canvas editor (multi-step test)"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-024",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Extract useCanvasStorage hook from useCanvasState.ts to manage localStorage persistence and server-side canvas loading. Design: hook receives shapes as dependency for save triggers; exposes loadCanvas() that returns initial state. Does NOT auto-save on every render — uses debounced effect.",
+    "stepsToVerify": [
+      "File src/hooks/useCanvasStorage.ts exists",
+      "Hook handles saving canvas state to localStorage (debounced)",
+      "Hook handles loading canvas state from localStorage on mount",
+      "Hook handles loading canvas state from server submissions",
+      "Canvas state persists across page refreshes"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-025",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Extract useShapeOperations hook from useCanvasState.ts to manage shape CRUD: add, remove, update, duplicate, reorder. Design: hook operates on a shapes state array. Each mutation returns the new shapes array. Does NOT push history — the orchestrator wraps calls with history.pushHistory().",
+    "stepsToVerify": [
+      "File src/hooks/useShapeOperations.ts exists",
+      "Hook exposes addShape, removeShape, updateShape, duplicateShape",
+      "Hook exposes z-index operations (bringToFront, sendToBack, etc.)",
+      "Shape mutations are pure — they don't push history themselves",
+      "All shape operations work correctly in the canvas editor"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-026",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Refactor useCanvasState.ts to be a thin orchestrator composing useCanvasHistory, useCanvasStorage, and useShapeOperations. Design: orchestrator owns the shapes/selection state. It wraps shape operations with history pushes. Atomic operations (e.g. group creation that updates shapes + selection + history) stay in the orchestrator to avoid split-brain state. The orchestrator's public API must remain identical to current useCanvasState — no consumer changes needed.",
+    "stepsToVerify": [
+      "useCanvasState.ts imports and composes the three extracted hooks",
+      "useCanvasState.ts no longer contains undo/redo, localStorage, or shape CRUD logic directly",
+      "useCanvasState.ts is significantly shorter (target: under 300 lines)",
+      "All existing consumers of useCanvasState continue to work without API changes",
+      "Atomic operations (group create/delete, duplicate-with-select) are correctly wrapped"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-027",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Verify group operations (create, delete, ungroup, rename, move) still work after useCanvasState decomposition",
+    "stepsToVerify": [
+      "Can create a group from selected shapes",
+      "Can ungroup a group back to individual shapes",
+      "Can rename a group",
+      "Can move grouped shapes together",
+      "Can delete a group"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-028",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Verify mirror/flip operations still work after useCanvasState decomposition",
+    "stepsToVerify": [
+      "Can mirror shapes horizontally",
+      "Can mirror shapes vertically",
+      "Mirror operations integrate with undo/redo"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-029",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Verify selection management still works after useCanvasState decomposition",
+    "stepsToVerify": [
+      "Can select individual shapes by clicking",
+      "Can multi-select shapes",
+      "Selection state persists correctly during shape operations",
+      "Deselection works on click-away"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-030",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Create src/utils/shapes/ directory with category files splitting shapeHelpers.ts functions by type",
+    "stepsToVerify": [
+      "Directory src/utils/shapes/ exists",
+      "Polygon generators (getPolygonPoints, getStarPoints, triangle variants, diamond, etc.) are in polygon.ts",
+      "Path/bezier generators (semicircle, crescent, wave, hook, etc.) are in paths.ts",
+      "Utility functions (getShapeSVGData, generateId, SHAPE_NAMES, SHAPE_ASPECT_RATIOS) are in index.ts or utils.ts",
+      "Each file exports its functions"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-031",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Create barrel index.ts in src/utils/shapes/ that re-exports all shape functions",
+    "stepsToVerify": [
+      "File src/utils/shapes/index.ts exists",
+      "All previously exported functions from shapeHelpers.ts are re-exported",
+      "Existing imports of shapeHelpers throughout the codebase are updated to use the new path",
+      "No import errors across the codebase"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-032",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Delete or empty the original src/utils/shapeHelpers.ts after migration to src/utils/shapes/",
+    "stepsToVerify": [
+      "Original shapeHelpers.ts either deleted or reduced to a re-export barrel",
+      "No file in the codebase imports directly from the old shapeHelpers.ts path (unless it's a barrel)",
+      "All shape generation works correctly (canvas, thumbnails, icons)"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-033",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Extract useAppModals hook from App.tsx to manage all modal open/close state",
+    "stepsToVerify": [
+      "File src/hooks/useAppModals.ts exists",
+      "Hook manages state for: showKeyboardSettings, showVotingModal, showResetConfirm, showFriendsModal, and any other modal booleans",
+      "Hook exposes toggle/open/close functions for each modal",
+      "App.tsx imports and uses useAppModals instead of individual useState calls"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-034",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Extract route/view resolution logic from App.tsx into a dedicated hook or routing module",
+    "stepsToVerify": [
+      "Route/view resolution logic is no longer inline in App.tsx",
+      "App.tsx is significantly shorter (target: under 250 lines)",
+      "All routes still resolve correctly (canvas, gallery, voting, calendar, etc.)",
+      "Browser back/forward navigation still works"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-035",
+    "phase": 3,
+    "category": "decomposition",
+    "description": "Verify all modals still open and close correctly after App.tsx decomposition",
+    "stepsToVerify": [
+      "Keyboard settings modal opens and closes",
+      "Voting modal opens and closes",
+      "Reset confirm modal opens and closes",
+      "Friends modal opens and closes",
+      "Welcome modal opens and closes on first visit",
+      "Onboarding modal works for new users"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-036",
+    "phase": 4,
+    "category": "cleanup",
+    "description": "Add className or data-testid to SubmissionThumbnail SVG root element",
+    "stepsToVerify": [
+      "SubmissionThumbnail's root SVG element has a className='submission-thumbnail' or data-testid",
+      "Can be selected in DevTools using the identifier"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-037",
+    "phase": 4,
+    "category": "cleanup",
+    "description": "Add data-testid to FriendRow component root element",
+    "stepsToVerify": [
+      "FriendRow component has data-testid='friend-row' on its root element",
+      "Can be selected in DevTools or testing framework using the identifier"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-038",
+    "phase": 4,
+    "category": "cleanup",
+    "description": "Add test identifiers to CalendarDayCell and ContentCalendarDayCell root elements",
+    "stepsToVerify": [
+      "CalendarDayCell has data-testid='calendar-day-cell' or similar on root element",
+      "ContentCalendarDayCell has data-testid on root element",
+      "Identifiers include the date for specific targeting (e.g. data-date attribute)"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-039",
+    "phase": 4,
+    "category": "cleanup",
+    "description": "Standardize id/data-testid usage on all modal containers",
+    "stepsToVerify": [
+      "Each modal's root container has a data-testid matching its name (e.g. data-testid='friends-modal')",
+      "Pattern is consistent across all modals"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-040",
+    "phase": 4,
+    "category": "cleanup",
+    "description": "Add ESLint no-console rule (warn level, allow console.error in catch blocks). Autofix to remove debug console.log/warn statements across all files. Keep intentional error logging.",
+    "stepsToVerify": [
+      "ESLint config includes no-console rule at warn level with console.error allowed",
+      "Debug console.log/warn statements removed via autofix",
+      "Intentional console.error in catch blocks retained",
+      "Total console statements reduced significantly (target: under 15 intentional ones)"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-041",
+    "phase": 4,
+    "category": "cleanup",
+    "description": "Final verification: run TypeScript compilation with no errors across the entire codebase",
+    "stepsToVerify": [
+      "npx tsc --noEmit passes with 0 errors",
+      "No import resolution errors",
+      "No type errors introduced by refactoring"
+    ],
+    "passes": false
+  },
+  {
+    "id": "REFACTOR-042",
+    "phase": 4,
+    "category": "cleanup",
+    "description": "Final verification: app builds successfully and runs without runtime errors",
+    "stepsToVerify": [
+      "npm run build succeeds",
+      "App loads in browser without console errors",
+      "Canvas editor, gallery, voting, calendar, and profile pages all functional"
+    ],
+    "passes": false
   }
 ]

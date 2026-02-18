@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import cn from "classnames";
 import {
   useFloating,
   useHover,
@@ -12,9 +13,10 @@ import {
 interface TooltipProps {
   text: string;
   children: ReactNode;
+  capitalize?: boolean;
 }
 
-export function Tooltip({ text, children }: TooltipProps) {
+export function Tooltip({ text, children, capitalize }: TooltipProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const { refs, floatingStyles, context } = useFloating({
@@ -48,7 +50,10 @@ export function Tooltip({ text, children }: TooltipProps) {
             ref={setFloating}
             style={floatingStyles}
             {...getFloatingProps()}
-            className="max-w-xs px-2.5 py-1.5 text-[11px] text-white bg-neutral-800 rounded-md z-50"
+            className={cn(
+              "max-w-xs px-2.5 py-1.5 text-[11px] text-white bg-neutral-800 rounded-md z-50",
+              { "capitalize": capitalize }
+            )}
           >
             {text}
           </div>

@@ -8,12 +8,11 @@ import { ShapeExplorer } from './components/admin/ShapeExplorer';
 import { ColorTester } from './components/admin/ColorTester';
 import { OnboardingModal } from './components/modals/OnboardingModal';
 import { WelcomeModal } from './components/modals/WelcomeModal';
-import { Calendar } from './components/Calendar';
+import { GalleryPage } from './components/GalleryPage';
 import { SubmissionDetailPage } from './components/SubmissionDetailPage';
 import { WinnersDayPage } from './components/WinnersDayPage';
 import { WallOfTheDayPage } from './components/WallOfTheDay/WallOfTheDayPage';
 import { UserProfilePage } from './components/UserProfilePage';
-import { FriendsFeedPage } from './components/FriendsFeed/FriendsFeedPage';
 import { FollowsProvider } from './contexts/FollowsContext';
 import { KeyboardSettingsModal } from './components/KeyboardSettingsModal';
 import { FriendsModal } from './components/modals/FriendsModal';
@@ -52,7 +51,7 @@ import {
   getWinnersDayView,
   getWallOfTheDayView,
   getProfileView,
-  getFriendsFeedView,
+  getGalleryView,
 } from './utils/urlParams';
 import { WinnerAnnouncementModal } from './components/modals/WinnerAnnouncementModal';
 import { CongratulatoryModal } from './components/modals/CongratulatoryModal';
@@ -66,12 +65,11 @@ function App() {
   const showSocialTest = useMemo(() => isSocialTestEnabled(), []);
   const wallOfTheDayView = useMemo(() => getWallOfTheDayView(), []);
   const profileView = useMemo(() => getProfileView(), []);
-  const friendsFeedView = useMemo(() => getFriendsFeedView(), []);
+  const galleryView = useMemo(() => getGalleryView(), []);
   const showDashboard = useMemo(() => isDashboardEnabled(), []);
   const showColorTester = useMemo(() => isColorTesterEnabled(), []);
 
   // Modal states
-  const [showCalendar, setShowCalendar] = useState(false);
   const [showKeyboardSettings, setShowKeyboardSettings] = useState(false);
   const [showVotingModal, setShowVotingModal] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -278,9 +276,9 @@ function App() {
   if (showColorTester) return <ColorTester />;
 
   // Standalone pages that don't need challenge data
+  if (galleryView) return <FollowsProvider><GalleryPage tab={galleryView.tab} /></FollowsProvider>;
   if (wallOfTheDayView) return <WallOfTheDayPage date={wallOfTheDayView.date} />;
   if (profileView) return <FollowsProvider><UserProfilePage userId={profileView.userId} /></FollowsProvider>;
-  if (friendsFeedView) return <FollowsProvider><FriendsFeedPage date={friendsFeedView.date} /></FollowsProvider>;
 
   // Show loading spinner while challenge is loading
   if (challengeLoading || !challenge) {
@@ -336,7 +334,6 @@ function App() {
         isSaving={saving}
         saveStatus={saveStatus}
         hasSubmittedToday={hasSubmittedToday}
-        onOpenCalendar={() => setShowCalendar(true)}
         onOpenFriendsModal={() => setShowFriendsModal(true)}
         keyMappings={keyMappings}
         onOpenKeyboardSettings={() => setShowKeyboardSettings(true)}
@@ -445,12 +442,6 @@ function App() {
 
       {showResetConfirm && (
         <ResetConfirmModal onConfirm={confirmReset} onCancel={cancelReset} />
-      )}
-
-      {showCalendar && (
-        <FollowsProvider>
-          <Calendar onClose={() => setShowCalendar(false)} />
-        </FollowsProvider>
       )}
 
       {showKeyboardSettings && (

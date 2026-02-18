@@ -106,26 +106,12 @@ export function getWallOfTheDayView(): { view: 'wall-of-the-day'; date: string }
   return null;
 }
 
-// Check if friends-feed view is requested
-export function getFriendsFeedView(): { view: 'friends-feed'; date: string } | null {
-  // Import getTodayDateUTC inline to avoid circular dependency
-  const getTodayDateUTC = (): string => {
-    const now = new Date();
-    return now.toISOString().split('T')[0];
-  };
-
+// Check if gallery view is requested
+export function getGalleryView(): { tab?: string } | null {
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('view') === 'friends-feed') {
-    const date = urlParams.get('date') || getTodayDateUTC();
-    // Validate date format
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      return { view: 'friends-feed', date: getTodayDateUTC() };
-    }
-    // Redirect future dates to today
-    if (date > getTodayDateUTC()) {
-      return { view: 'friends-feed', date: getTodayDateUTC() };
-    }
-    return { view: 'friends-feed', date };
+  if (urlParams.get('view') === 'gallery') {
+    const tab = urlParams.get('tab') || undefined;
+    return { tab };
   }
   return null;
 }

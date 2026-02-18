@@ -1,30 +1,38 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useAuth } from '../../hooks/useAuth';
-import { useSubmissions, type Submission } from '../../hooks/useSubmissions';
-import { getTodayDateUTC, getTwoDaysAgoDateUTC } from '../../utils/dailyChallenge';
-import { fetchChallengesBatch } from '../../hooks/useDailyChallenge';
-import { supabase } from '../../lib/supabase';
-import type { Shape, DailyChallenge } from '../../types';
-import { formatDate, getDaysInMonth, getFirstDayOfMonth } from '../../utils/calendarUtils';
-import type { CalendarProps, ViewMode, RankingInfo, WinnerEntry } from './types';
-import { CalendarHeader } from './CalendarHeader';
-import { CalendarViewToggle } from './CalendarViewToggle';
-import { ContentNavigation } from './ContentNavigation';
-import { MONTHS } from '../../utils/calendarUtils';
-import { CalendarGrid } from './CalendarGrid';
-import { CalendarDayCell } from './CalendarDayCell';
-import { CalendarStats } from './CalendarStats';
-import { WallTab } from './tabs/WallTab';
-import { FriendsFeedTab } from './tabs/FriendsFeedTab';
+import { useAuth } from '../hooks/useAuth';
+import { useSubmissions, type Submission } from '../hooks/useSubmissions';
+import { getTodayDateUTC, getTwoDaysAgoDateUTC } from '../utils/dailyChallenge';
+import { fetchChallengesBatch } from '../hooks/useDailyChallenge';
+import { supabase } from '../lib/supabase';
+import type { Shape, DailyChallenge } from '../types';
+import { formatDate, getDaysInMonth, getFirstDayOfMonth, MONTHS } from '../utils/calendarUtils';
+import type { ViewMode, RankingInfo, WinnerEntry } from './Calendar/types';
+import { CalendarViewToggle } from './Calendar/CalendarViewToggle';
+import { ContentNavigation } from './Calendar/ContentNavigation';
+import { CalendarGrid } from './Calendar/CalendarGrid';
+import { CalendarDayCell } from './Calendar/CalendarDayCell';
+import { CalendarStats } from './Calendar/CalendarStats';
+import { WallTab } from './Calendar/tabs/WallTab';
+import { FriendsFeedTab } from './Calendar/tabs/FriendsFeedTab';
+import { BackToCanvasLink } from './BackToCanvasLink';
 
-export function Calendar({ onClose }: CalendarProps) {
+interface GalleryPageProps {
+  tab?: string;
+}
+
+export function GalleryPage({ tab: initialTab }: GalleryPageProps) {
   const { user } = useAuth();
   const { loadMySubmissions, loading } = useSubmissions(user?.id);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [rankings, setRankings] = useState<Map<string, number>>(new Map());
   const [currentYear, setCurrentYear] = useState(() => new Date().getFullYear());
   const [currentMonth, setCurrentMonth] = useState(() => new Date().getMonth());
-  const [viewMode, setViewMode] = useState<ViewMode | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode | null>(() => {
+    if (initialTab && ['my-submissions', 'winners', 'wall', 'friends'].includes(initialTab)) {
+      return initialTab as ViewMode;
+    }
+    return null;
+  });
   const [winners, setWinners] = useState<WinnerEntry[]>([]);
   const [winnersLoading, setWinnersLoading] = useState(false);
   const [challenges, setChallenges] = useState<Map<string, DailyChallenge>>(new Map());
@@ -35,26 +43,31 @@ export function Calendar({ onClose }: CalendarProps) {
   const effectiveViewMode: ViewMode = viewMode ?? (user ? 'my-submissions' : 'winners');
 
   const todayStr = useMemo(() => getTodayDateUTC(), []);
-  // Winners are only available up to 2 days ago (voting completes the day after submission)
   const latestWinnersDate = useMemo(() => getTwoDaysAgoDateUTC(), []);
 
-  // Close on Escape key
+  // Keep URL in sync with active tab (so browser back always restores correct tab)
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+    const url = new URL(window.location.href);
+    if (url.searchParams.get('tab') !== effectiveViewMode) {
+      url.searchParams.set('tab', effectiveViewMode);
+      history.replaceState(null, '', url.toString());
+    }
+  }, [effectiveViewMode]);
 
-  // Load submissions on mount (only when in my-submissions mode)
+  // Update URL when tab changes (without full page reload)
+  const handleSetViewMode = useCallback((mode: ViewMode) => {
+    setViewMode(mode);
+    const url = new URL(window.location.href);
+    url.searchParams.set('view', 'gallery');
+    url.searchParams.set('tab', mode);
+    history.replaceState(null, '', url.toString());
+  }, []);
+
+  // Load submissions (only when in my-submissions mode)
   useEffect(() => {
     if (user && effectiveViewMode === 'my-submissions') {
       loadMySubmissions().then(({ data }) => {
         setSubmissions(data);
-        // Load rankings for all submissions
         if (data.length > 0) {
           const submissionIds = data.map((s) => s.id);
           supabase
@@ -85,12 +98,10 @@ export function Calendar({ onClose }: CalendarProps) {
     const loadWinners = async () => {
       setWinnersLoading(true);
 
-      // Calculate date range for the current month
       const startDate = formatDate(currentYear, currentMonth, 1);
       const daysInMonth = getDaysInMonth(currentYear, currentMonth);
       const endDate = formatDate(currentYear, currentMonth, daysInMonth);
 
-      // Fetch all 1st place winners for the month (up to latestWinnersDate)
       const { data: rankingsData, error } = await supabase
         .from('daily_rankings')
         .select(`
@@ -120,7 +131,6 @@ export function Calendar({ onClose }: CalendarProps) {
         return;
       }
 
-      // Fetch nicknames for all winners
       const userIds = [...new Set(rankingsData.map((r: { user_id: string }) => r.user_id))];
       const { data: profilesData } = await supabase
         .from('profiles')
@@ -134,7 +144,6 @@ export function Calendar({ onClose }: CalendarProps) {
         });
       }
 
-      // Transform data into WinnerEntry format
       interface RankingRow {
         challenge_date: string;
         submission_id: string;
@@ -172,7 +181,7 @@ export function Calendar({ onClose }: CalendarProps) {
     });
   }, [currentYear, currentMonth]);
 
-  // Create a map of date -> submission for quick lookup
+  // Map date -> submission for quick lookup
   const submissionsByDate = useMemo(() => {
     const map = new Map<string, Submission>();
     submissions.forEach((sub) => {
@@ -186,7 +195,7 @@ export function Calendar({ onClose }: CalendarProps) {
     return submissionsByDate.has(todayStr);
   }, [submissionsByDate, todayStr]);
 
-  // Create a map of date -> winners for quick lookup
+  // Map date -> winners for quick lookup
   const winnersByDate = useMemo(() => {
     const map = new Map<string, WinnerEntry[]>();
     winners.forEach((winner) => {
@@ -238,36 +247,29 @@ export function Calendar({ onClose }: CalendarProps) {
     setCurrentMonth(now.getMonth());
   }, []);
 
-  const handleDayClick = useCallback((day: number) => {
+  const getDayHref = useCallback((day: number): string | undefined => {
     const dateStr = formatDate(currentYear, currentMonth, day);
 
     if (effectiveViewMode === 'my-submissions') {
       const submission = submissionsByDate.get(dateStr);
       if (submission) {
-        const url = new URL(window.location.href);
-        url.searchParams.set('view', 'submission');
-        url.searchParams.set('date', dateStr);
-        window.open(url.toString(), '_blank');
+        return `/?view=submission&date=${dateStr}`;
       }
     } else {
       const dayWinners = winnersByDate.get(dateStr);
       if (dayWinners && dayWinners.length > 0) {
-        const url = new URL(window.location.href);
-        url.searchParams.set('view', 'winners-day');
-        url.searchParams.set('date', dateStr);
-        window.open(url.toString(), '_blank');
+        return `/?view=winners-day&date=${dateStr}`;
       }
     }
+    return undefined;
   }, [currentYear, currentMonth, effectiveViewMode, submissionsByDate, winnersByDate]);
 
-  // Check if we can go to next month
   const canGoNext = useMemo(() => {
     const now = new Date();
     return currentYear < now.getFullYear() ||
       (currentYear === now.getFullYear() && currentMonth < now.getMonth());
   }, [currentYear, currentMonth]);
 
-  // Hide "Today" button when already viewing the current month
   const isCurrentMonth = useMemo(() => {
     const now = new Date();
     return currentYear === now.getFullYear() && currentMonth === now.getMonth();
@@ -280,22 +282,24 @@ export function Calendar({ onClose }: CalendarProps) {
     : 'Loading winners...';
 
   return (
-    <div
-      className="fixed inset-0 flex items-center justify-center z-50 bg-(--color-modal-overlay)"
-      onClick={onClose}
-    >
-      <div
-        className="flex flex-col border rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] min-h-225 overflow-auto bg-(--color-bg-primary) border-(--color-border)"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <CalendarHeader onClose={onClose} />
+    <div className="min-h-screen p-4 md:p-8 bg-(--color-bg-primary)">
+      <div className="max-w-4xl mx-auto h-[90vh] flex flex-col">
+        {/* Header */}
+        <div className="mb-6">
+          <BackToCanvasLink/>
+          <h1 className="text-2xl font-bold mb-2 text-(--color-text-primary)">
+            Gallery
+          </h1>
+        </div>
 
+        {/* Tab toggle */}
         <CalendarViewToggle
           effectiveViewMode={effectiveViewMode}
           user={user}
-          onSetViewMode={setViewMode}
+          onSetViewMode={handleSetViewMode}
         />
 
+        {/* Tab content */}
         {effectiveViewMode === 'wall' ? (
           <WallTab
             date={wallDate}
@@ -324,37 +328,38 @@ export function Calendar({ onClose }: CalendarProps) {
                 {loadingMessage}
               </div>
             ) : (
-              <CalendarGrid className="mt-14">
-                {calendarDays.map((day, index) => {
-                  if (day === null) {
-                    return <div key={`empty-${index}`} className="aspect-square" />;
-                  }
+              <CalendarGrid
+                className="mt-7"
+                emptySlotCount={calendarDays.findIndex((d) => d !== null)}
+              >
+                {calendarDays
+                  .filter((day): day is number => day !== null)
+                  .map((day) => {
+                    const dateStr = formatDate(currentYear, currentMonth, day);
+                    const isToday = dateStr === todayStr;
+                    const isFuture = dateStr > todayStr;
+                    const challenge = challenges.get(dateStr);
+                    const submission = submissionsByDate.get(dateStr);
+                    const ranking = submission ? rankings.get(submission.id) : undefined;
+                    const dayWinners = winnersByDate.get(dateStr);
 
-                  const dateStr = formatDate(currentYear, currentMonth, day);
-                  const isToday = dateStr === todayStr;
-                  const isFuture = dateStr > todayStr;
-                  const challenge = challenges.get(dateStr);
-                  const submission = submissionsByDate.get(dateStr);
-                  const ranking = submission ? rankings.get(submission.id) : undefined;
-                  const dayWinners = winnersByDate.get(dateStr);
-
-                  return (
-                    <CalendarDayCell
-                      key={dateStr}
-                      day={day}
-                      dateStr={dateStr}
-                      viewMode={effectiveViewMode}
-                      isToday={isToday}
-                      isFuture={isFuture}
-                      challenge={challenge}
-                      submission={submission}
-                      ranking={ranking}
-                      dayWinners={dayWinners}
-                      latestWinnersDate={latestWinnersDate}
-                      onClick={handleDayClick}
-                    />
-                  );
-                })}
+                    return (
+                      <CalendarDayCell
+                        key={dateStr}
+                        day={day}
+                        dateStr={dateStr}
+                        viewMode={effectiveViewMode}
+                        isToday={isToday}
+                        isFuture={isFuture}
+                        challenge={challenge}
+                        submission={submission}
+                        ranking={ranking}
+                        dayWinners={dayWinners}
+                        latestWinnersDate={latestWinnersDate}
+                        href={getDayHref(day)}
+                      />
+                    );
+                  })}
               </CalendarGrid>
             )}
 
