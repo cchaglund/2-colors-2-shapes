@@ -334,3 +334,9 @@
 - No code changes needed — verification only
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Phase 3 complete. Next: Phase 4 (REFACTOR-036, add test identifiers)
+
+## REFACTOR-036 — Add data-testid to SubmissionThumbnail SVG root
+- Added `data-testid="submission-thumbnail"` to the `<svg>` element in SubmissionThumbnail.tsx
+- Files changed: src/components/SubmissionThumbnail.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-037 (add data-testid to FriendRow)

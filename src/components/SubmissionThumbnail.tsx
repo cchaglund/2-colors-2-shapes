@@ -42,6 +42,7 @@ export function SubmissionThumbnail({
   const svg = (
     <div className="relative">
       <svg
+        data-testid="submission-thumbnail"
         width={fill ? '100%' : size}
         height={fill ? '100%' : size}
         viewBox={`0 0 ${CANVAS_SIZE} ${CANVAS_SIZE}`}

@@ -456,7 +456,7 @@
       "SubmissionThumbnail's root SVG element has a className='submission-thumbnail' or data-testid",
       "Can be selected in DevTools using the identifier"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-037",
