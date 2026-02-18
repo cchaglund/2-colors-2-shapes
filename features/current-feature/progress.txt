@@ -115,3 +115,12 @@
 - Files changed: src/components/modals/OnboardingModal.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-015 (WelcomeModal)
+
+## REFACTOR-015 — Refactor WelcomeModal to use shared Modal
+- Replaced inline backdrop div (`fixed inset-0 bg-black/50`) + content box with shared `<Modal>`
+- Removed manual escape key handler, focus trap, modalRef, buttonRef — all handled by shared Modal
+- Removed `useEffect` and `useRef` imports (no longer needed)
+- WelcomeModal reduced from 155 to 99 lines
+- Files changed: src/components/modals/WelcomeModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-016 (FriendsModal)
