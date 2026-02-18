@@ -106,3 +106,12 @@
 - Files changed: src/components/Modal.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-014 through REFACTOR-022 (refactor each modal to use shared Modal)
+
+## REFACTOR-014 — Refactor OnboardingModal to use shared Modal
+- Replaced inline `fixed inset-0 bg-black/50` backdrop + content box with shared `<Modal>`
+- OnboardingModal is non-closable (onboarding must be completed): closeOnEscape=false, closeOnBackdropClick=false, onClose=no-op
+- Used size="max-w-sm" to match original max-w-sm styling
+- Added aria-labelledby="onboarding-title" with matching id on h2
+- Files changed: src/components/modals/OnboardingModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-015 (WelcomeModal)

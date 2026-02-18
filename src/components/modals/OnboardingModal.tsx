@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Modal } from '../Modal';
 
 interface OnboardingModalProps {
   onComplete: (nickname: string) => Promise<{ success: boolean; error?: string }>;
@@ -43,51 +44,56 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
     }
   };
 
+  // onClose is a no-op — onboarding must be completed
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-lg p-6 w-full max-w-sm mx-4">
-        <h2 className="text-lg font-semibold text-(--color-text-primary) mb-2">
-          Welcome!
-        </h2>
-        <p className="text-[13px] text-(--color-text-secondary) mb-6">
-          Choose a nickname to display in the gallery. This will be visible to other users.
-        </p>
+    <Modal
+      onClose={() => {}}
+      size="max-w-sm"
+      closeOnEscape={false}
+      closeOnBackdropClick={false}
+      ariaLabelledBy="onboarding-title"
+    >
+      <h2 id="onboarding-title" className="text-lg font-semibold text-(--color-text-primary) mb-2">
+        Welcome!
+      </h2>
+      <p className="text-[13px] text-(--color-text-secondary) mb-6">
+        Choose a nickname to display in the gallery. This will be visible to other users.
+      </p>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label
-              htmlFor="nickname"
-              className="block text-[13px] font-medium text-(--color-text-primary) mb-1"
-            >
-              Nickname
-            </label>
-            <input
-              id="nickname"
-              type="text"
-              value={nickname}
-              onChange={handleChange}
-              placeholder="Enter your nickname"
-              maxLength={15}
-              autoFocus
-              className="w-full px-3 py-2 bg-(--color-bg-secondary) border border-(--color-border) rounded-md text-[13px] text-(--color-text-primary) placeholder-(--color-text-tertiary) focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:border-transparent"
-            />
-            <div className="flex justify-between mt-1">
-              <span className="text-[11px] text-(--color-danger)">{error || ''}</span>
-              <span className="text-[11px] text-(--color-text-tertiary)">
-                {nickname.length}/15
-              </span>
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={submitting || !nickname}
-            className="w-full px-4 py-2 bg-(--color-accent) text-white rounded-md text-[13px] font-medium hover:bg-(--color-accent-hover) disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+      <form onSubmit={handleSubmit}>
+        <div className="mb-4">
+          <label
+            htmlFor="nickname"
+            className="block text-[13px] font-medium text-(--color-text-primary) mb-1"
           >
-            {submitting ? 'Saving...' : 'Continue'}
-          </button>
-        </form>
-      </div>
-    </div>
+            Nickname
+          </label>
+          <input
+            id="nickname"
+            type="text"
+            value={nickname}
+            onChange={handleChange}
+            placeholder="Enter your nickname"
+            maxLength={15}
+            autoFocus
+            className="w-full px-3 py-2 bg-(--color-bg-secondary) border border-(--color-border) rounded-md text-[13px] text-(--color-text-primary) placeholder-(--color-text-tertiary) focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:border-transparent"
+          />
+          <div className="flex justify-between mt-1">
+            <span className="text-[11px] text-(--color-danger)">{error || ''}</span>
+            <span className="text-[11px] text-(--color-text-tertiary)">
+              {nickname.length}/15
+            </span>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={submitting || !nickname}
+          className="w-full px-4 py-2 bg-(--color-accent) text-white rounded-md text-[13px] font-medium hover:bg-(--color-accent-hover) disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+        >
+          {submitting ? 'Saving...' : 'Continue'}
+        </button>
+      </form>
+    </Modal>
   );
 }
