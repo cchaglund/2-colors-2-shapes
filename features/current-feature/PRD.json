@@ -34,7 +34,7 @@
       "No inline ellipse/rect/polygon/path conditional rendering remains in SubmissionThumbnail.tsx",
       "Submission thumbnails in gallery/voting render identically to before"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-004",

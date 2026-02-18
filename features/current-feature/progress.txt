@@ -15,3 +15,11 @@
 - Files changed: src/components/SVGShape.tsx, src/components/ShapeElement.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-003/004 for SubmissionThumbnail/SubmissionCanvas
+
+## REFACTOR-003 — Refactor SubmissionThumbnail.tsx to use SVGShape
+- Replaced inline getShapeSVGData + transform + conditional element rendering with <SVGShape>
+- Removed getShapeSVGData import, replaced with SVGShape import
+- Shape rendering block reduced from 17 lines to 12 lines
+- Files changed: src/components/SubmissionThumbnail.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-004 for SubmissionCanvas
