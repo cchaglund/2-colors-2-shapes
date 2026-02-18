@@ -365,3 +365,13 @@
 - Files changed: Modal.tsx, OnboardingModal.tsx, WelcomeModal.tsx, FriendsModal.tsx, CongratulatoryModal.tsx, WinnerAnnouncementModal.tsx, KeyboardSettingsModal.tsx, ResetConfirmModal.tsx, VotingModal.tsx, LoginPromptModal.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-040 (ESLint no-console rule)
+
+## REFACTOR-040 — Add ESLint no-console rule and remove debug statements
+- Added `'no-console': ['warn', { allow: ['error'] }]` to eslint.config.js rules
+- Removed 18 console.log statements: CanvasEditorPage (2 debug logs in handleOptInToRanking), useRanking (1 informational RPC log), VotingTestPage (15 no-op test handlers → empty functions)
+- Converted 5 console.warn → console.error in error-handling contexts: useFriendsFeed, useDailyChallenge (2), FriendsFeedContent, useWallOfTheDay
+- Final count: 0 console.log/warn/info/debug, 49 intentional console.error (all in catch blocks / error paths)
+- VotingTestPage: unused `winnerId` params removed from handleVote/handleFlowVote to fix lint
+- Files changed: eslint.config.js, CanvasEditorPage.tsx, useRanking.ts, useFriendsFeed.ts, useDailyChallenge.ts, FriendsFeedContent.tsx, useWallOfTheDay.ts, VotingTestPage.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-041 (final TypeScript verification) and REFACTOR-042 (final build verification)

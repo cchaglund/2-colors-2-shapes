@@ -105,7 +105,7 @@ export function FriendsFeedContent({
       });
 
       if (rpcError) {
-        console.warn('RPC failed, falling back to manual count:', rpcError);
+        console.error('RPC failed, falling back to manual count:', rpcError);
         // Fallback: query submissions directly
         const followingIdsArray = Array.from(followingIds);
         const { data: submissionsData } = await supabase

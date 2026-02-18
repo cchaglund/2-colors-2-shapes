@@ -42,7 +42,7 @@ function loadCacheFromStorage(): void {
       challengeCache.set(date, challenge);
     }
   } catch (e) {
-    console.warn('Failed to load challenge cache from storage:', e);
+    console.error('Failed to load challenge cache from storage:', e);
     localStorage.removeItem(CACHE_KEY);
   }
 }
@@ -62,7 +62,7 @@ function saveCacheToStorage(): void {
 
     localStorage.setItem(CACHE_KEY, JSON.stringify(data));
   } catch (e) {
-    console.warn('Failed to save challenge cache to storage:', e);
+    console.error('Failed to save challenge cache to storage:', e);
   }
 }
 

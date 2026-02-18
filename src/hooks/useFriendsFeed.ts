@@ -170,7 +170,7 @@ async function fetchFriendsSubmissions(
       .in('id', userIds);
 
     if (profilesError) {
-      console.warn('Failed to fetch profiles:', profilesError);
+      console.error('Failed to fetch profiles:', profilesError);
     }
 
     // Create nickname lookup map

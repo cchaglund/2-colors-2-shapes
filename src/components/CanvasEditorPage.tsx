@@ -230,7 +230,6 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
       console.error('[handleOptInToRanking] Missing user or challenge', { user: !!user, challenge: !!challenge });
       return;
     }
-    console.log('[handleOptInToRanking] Updating submission', { userId: user.id, date: challenge.date });
     const { error } = await supabase
       .from('submissions')
       .update({ included_in_ranking: true })
@@ -238,8 +237,6 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
       .eq('challenge_date', challenge.date);
     if (error) {
       console.error('[handleOptInToRanking] Error:', error);
-    } else {
-      console.log('[handleOptInToRanking] Success!');
     }
   }, [user, challenge]);
 

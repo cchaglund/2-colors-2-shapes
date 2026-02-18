@@ -31,7 +31,7 @@ export function useRanking(): UseRankingReturn {
       // This may fail if user doesn't have permission, but that's ok - ranks may already be computed
       const rpcResult = await supabase.rpc('compute_final_ranks', { p_challenge_date: date });
       if (rpcResult.error) {
-        console.log('compute_final_ranks RPC skipped (may not have permission or ranks already computed)');
+        // RPC may fail if user doesn't have permission or ranks already computed — expected
       }
 
       // Fetch rankings with submissions (no profiles join - will fetch separately)
