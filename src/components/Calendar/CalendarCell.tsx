@@ -1,4 +1,5 @@
 import cn from "classnames";
+import { RANK_COLORS } from "../../constants/rankColors";
 
 interface CalendarCellProps {
   day: number;
@@ -17,12 +18,6 @@ interface CalendarCellProps {
 }
 
 const cellBase = 'aspect-square border-b border-r border-(--color-border) relative transition-all overflow-hidden overflow-visible';
-
-const rankOutlineColors: Record<1 | 2 | 3, string> = {
-  1: '#FFD700',
-  2: '#D1D5DC',
-  3: '#CE8946',
-};
 
 export function CalendarCell({
   day,
@@ -51,7 +46,7 @@ export function CalendarCell({
   `;
 
   const borderStyle = rankOutline
-    ? { border: `6px solid ${rankOutlineColors[rankOutline]}` }
+    ? { border: `6px solid ${RANK_COLORS[rankOutline]}` }
     : undefined;
 
   const content = (

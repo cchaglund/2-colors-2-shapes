@@ -131,7 +131,7 @@
       "No hardcoded #FFD700, #D1D5DC, or #CE8946 remain in CalendarCell.tsx",
       "Calendar cells display correct rank outline colors"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-012",

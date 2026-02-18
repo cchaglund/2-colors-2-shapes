@@ -77,3 +77,10 @@
 - Files changed: src/components/WinnerCard.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-011 (CalendarCell) and REFACTOR-012 (CANVAS_SIZE)
+
+## REFACTOR-011 — Refactor CalendarCell.tsx to use RANK_COLORS
+- Removed local `rankOutlineColors` duplicate map, replaced with import of shared RANK_COLORS
+- Updated `borderStyle` computation to use `RANK_COLORS[rankOutline]`
+- Files changed: src/components/Calendar/CalendarCell.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-012 (CANVAS_SIZE constant) — last Phase 1 item
