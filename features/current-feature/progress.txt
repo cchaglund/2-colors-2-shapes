@@ -222,3 +222,16 @@
 - Files changed: src/hooks/useCanvasStorage.ts (new), src/hooks/useCanvasState.ts (refactored)
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-025 (useShapeOperations extraction)
+
+## REFACTOR-025 — Extract useShapeOperations hook
+- Created src/hooks/useShapeOperations.ts
+- Hook receives `challenge` and `setCanvasState` (orchestrator's history-aware setter) as args
+- Exposes: addShape, duplicateShape, duplicateShapes, updateShape, updateShapes, deleteShape, deleteSelectedShapes, selectShape, moveLayer, moveGroup, reorderLayers, reorderGroup, setBackgroundColor, mirrorHorizontal, mirrorVertical, createGroup, deleteGroup, ungroupShapes, renameGroup, toggleGroupCollapsed, moveToGroup, selectGroup
+- normalizeZIndices helper moved as module-level function in useShapeOperations.ts
+- Hook doesn't push history directly — calls setCanvasState which orchestrator wired to pushHistory
+- Selection ops pass `addToHistory=false`; toggleGroupCollapsed passes `addToHistory=false`
+- Orchestrator (useCanvasState.ts) reduced from 1104 to 139 lines; removed generateId import
+- Kept in orchestrator: undo/redo, commitToHistory, resetCanvas, getShapesInGroup, loadCanvasState (these coordinate across hooks or need direct state access)
+- Files changed: src/hooks/useShapeOperations.ts (new), src/hooks/useCanvasState.ts (refactored)
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-026 (useCanvasState thin orchestrator verification)

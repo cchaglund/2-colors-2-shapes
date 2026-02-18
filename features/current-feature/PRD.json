@@ -312,7 +312,7 @@
       "Shape mutations are pure — they don't push history themselves",
       "All shape operations work correctly in the canvas editor"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-026",
