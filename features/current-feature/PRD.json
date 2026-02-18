@@ -196,7 +196,7 @@
       "No inline backdrop/box markup in FriendsModal.tsx",
       "Friends modal displays, tabs work, search works, close works"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-017",

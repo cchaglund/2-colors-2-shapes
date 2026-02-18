@@ -124,3 +124,14 @@
 - Files changed: src/components/modals/WelcomeModal.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-016 (FriendsModal)
+
+## REFACTOR-016 — Refactor FriendsModal to use shared Modal
+- Replaced both render paths (not-logged-in + logged-in) with shared `<Modal>`
+- Removed manual escape handler, focus trap, modalRef, handleOverlayClick — all handled by Modal
+- Logged-in path uses `className="!p-0 max-h-[80vh] flex flex-col"` to override default padding and add scroll layout
+- Not-logged-in path uses default Modal padding (p-6)
+- Removed `useEffect`, `useRef`, `useCallback` (handleOverlayClick) imports — only `useCallback` kept for handleNavigateToProfile
+- FriendsModal reduced from 161 to 109 lines
+- Files changed: src/components/modals/FriendsModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-017 (KeyboardSettingsModal)
