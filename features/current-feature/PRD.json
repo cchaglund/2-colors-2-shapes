@@ -445,7 +445,7 @@
       "Welcome modal opens and closes on first visit",
       "Onboarding modal works for new users"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-036",

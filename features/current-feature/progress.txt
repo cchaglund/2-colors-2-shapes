@@ -319,3 +319,18 @@
 - Files changed: src/hooks/useAppRoute.ts (new), src/components/CanvasEditorPage.tsx (new), src/App.tsx (rewritten)
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-035 (verify all modals still open/close after decomposition)
+
+## REFACTOR-035 — Verify all modals still open/close after App.tsx decomposition
+- Code-level verification: all 8 modal open/close chains traced through useAppModals → CanvasEditorPage → modal components
+- Visual browser testing (mock challenge injected via localStorage to bypass sandbox firewall):
+  - Welcome modal: opens on first visit (localStorage cleared), closes via "Start creating" button ✓
+  - Keyboard settings: opens via Toolbar "Customize" button, closes via "Done" button ✓
+  - Reset confirm: opens via "Reset Canvas" button, closes via "Cancel" button ✓
+  - Friends modal (not logged in): correctly shows LoginPromptModal via Toolbar's login gate, closes via "Cancel" ✓
+  - Friends modal (logged in path): code wiring verified — openFriendsModal → showFriendsModal → FriendsModal onClose=closeFriendsModal
+  - Voting modal: code wiring verified — openVotingModal called in onSaveSuccess, closeVotingModal passed as onComplete/onSkipVoting, gated by showVotingModal && user
+  - Onboarding modal: code wiring verified — gated by user && profile && !profile.onboarding_complete, onComplete=updateNickname
+  - Congratulatory/Winner modals: code wiring verified — useWinnerAnnouncement hook → dismissCongrats/dismissWinner from useAppModals
+- No code changes needed — verification only
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Phase 3 complete. Next: Phase 4 (REFACTOR-036, add test identifiers)
