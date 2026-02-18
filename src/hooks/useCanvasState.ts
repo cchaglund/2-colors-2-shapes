@@ -2,9 +2,9 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Shape, ShapeGroup, CanvasState, DailyChallenge } from '../types';
 import { generateId } from '../utils/shapeHelpers';
 import { getTodayDateUTC } from '../utils/dailyChallenge';
+import { useCanvasHistory } from './useCanvasHistory';
 
 const STORAGE_KEY = '2colors2shapes_canvas';
-const MAX_HISTORY = 50;
 
 interface StoredData {
   date: string;
@@ -70,14 +70,16 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
     return initialCanvasState;
   });
 
-  // History for undo/redo
-  // Use ref for the history array (not needed for rendering) and state for indices (needed for canUndo/canRedo)
-  const historyRef = useRef<CanvasState[]>([canvasState]);
-  const [historyIndex, setHistoryIndex] = useState(0);
-  const [historyLength, setHistoryLength] = useState(1);
-  const isUndoRedoRef = useRef(false);
-  const lastHistoryTimeRef = useRef(0);
-  const COALESCE_MS = 300; // Coalesce changes within this time window
+  // History management (extracted hook)
+  const {
+    pushHistory,
+    commitToHistory: historyCommit,
+    undo: historyUndo,
+    redo: historyRedo,
+    canUndo,
+    canRedo,
+    resetHistory,
+  } = useCanvasHistory(canvasState);
 
   // Wrapper that adds to history
   const setCanvasState = useCallback(
@@ -89,38 +91,14 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
         const newState =
           typeof updater === 'function' ? updater(prev) : updater;
 
-        if (addToHistory && !isUndoRedoRef.current) {
-          const now = Date.now();
-          const shouldCoalesce = now - lastHistoryTimeRef.current < COALESCE_MS;
-          lastHistoryTimeRef.current = now;
-
-          setHistoryIndex((currentIndex) => {
-            if (shouldCoalesce && currentIndex > 0) {
-              // Replace the last history entry instead of adding new one
-              historyRef.current[currentIndex] = newState;
-              return currentIndex;
-            }
-
-            // Remove any future history if we're not at the end
-            historyRef.current = historyRef.current.slice(0, currentIndex + 1);
-            // Add new state
-            historyRef.current.push(newState);
-            // Limit history size
-            if (historyRef.current.length > MAX_HISTORY) {
-              historyRef.current = historyRef.current.slice(1);
-              setHistoryLength(historyRef.current.length);
-              return currentIndex; // Index stays same when we trim from start
-            } else {
-              setHistoryLength(historyRef.current.length);
-              return currentIndex + 1;
-            }
-          });
+        if (addToHistory) {
+          pushHistory(newState);
         }
 
         return newState;
       });
     },
-    []
+    [pushHistory]
   );
 
   // Persist to localStorage on changes
@@ -133,37 +111,18 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
   }, [canvasState]);
 
   const undo = useCallback(() => {
-    setHistoryIndex((currentIndex) => {
-      if (currentIndex > 0) {
-        isUndoRedoRef.current = true;
-        const newIndex = currentIndex - 1;
-        setCanvasStateInternal(historyRef.current[newIndex]);
-        setTimeout(() => {
-          isUndoRedoRef.current = false;
-        }, 0);
-        return newIndex;
-      }
-      return currentIndex;
-    });
-  }, []);
+    const restored = historyUndo();
+    if (restored) {
+      setCanvasStateInternal(restored);
+    }
+  }, [historyUndo]);
 
   const redo = useCallback(() => {
-    setHistoryIndex((currentIndex) => {
-      if (currentIndex < historyRef.current.length - 1) {
-        isUndoRedoRef.current = true;
-        const newIndex = currentIndex + 1;
-        setCanvasStateInternal(historyRef.current[newIndex]);
-        setTimeout(() => {
-          isUndoRedoRef.current = false;
-        }, 0);
-        return newIndex;
-      }
-      return currentIndex;
-    });
-  }, []);
-
-  const canUndo = historyIndex > 0;
-  const canRedo = historyIndex < historyLength - 1;
+    const restored = historyRedo();
+    if (restored) {
+      setCanvasStateInternal(restored);
+    }
+  }, [historyRedo]);
 
   const addShape = useCallback(
     (shapeIndex: 0 | 1, colorIndex: 0 | 1) => {
@@ -303,23 +262,8 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
 
   // Commit current state to history (used after drag operations complete)
   const commitToHistory = useCallback(() => {
-    setHistoryIndex((currentIndex) => {
-      // Remove any future history if we're not at the end
-      historyRef.current = historyRef.current.slice(0, currentIndex + 1);
-      // Add current state
-      historyRef.current.push(canvasState);
-      // Limit history size
-      if (historyRef.current.length > MAX_HISTORY) {
-        historyRef.current = historyRef.current.slice(1);
-        setHistoryLength(historyRef.current.length);
-        return currentIndex;
-      } else {
-        setHistoryLength(historyRef.current.length);
-        return currentIndex + 1;
-      }
-    });
-    lastHistoryTimeRef.current = Date.now();
-  }, [canvasState]);
+    historyCommit(canvasState);
+  }, [canvasState, historyCommit]);
 
   const deleteShape = useCallback(
     (id: string) => {
@@ -1181,9 +1125,7 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
       };
 
       // Reset history when loading external state
-      historyRef.current = [newState];
-      setHistoryIndex(0);
-      setHistoryLength(1);
+      resetHistory(newState);
 
       setCanvasStateInternal(newState);
 
@@ -1194,7 +1136,7 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
         canvas: newState,
       });
     },
-    []
+    [resetHistory]
   );
 
   return {

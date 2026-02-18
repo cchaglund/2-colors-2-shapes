@@ -284,7 +284,7 @@
       "undo/redo return the restored state (shapes + selection) rather than mutating external state directly",
       "Undo/redo works correctly in the canvas editor (multi-step test)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-024",

@@ -196,3 +196,17 @@
 - Files changed: src/components/LoginPromptModal.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Phase 2 complete. Next: Phase 3 (REFACTOR-023, useCanvasHistory extraction)
+
+## REFACTOR-023 — Extract useCanvasHistory hook
+- Created src/hooks/useCanvasHistory.ts
+- Hook manages: history stack (ref), historyIndex/historyLength (state), coalescing (300ms window), max 50 entries
+- Exposes: pushHistory(state), commitToHistory(state), undo() → CanvasState|null, redo() → CanvasState|null, canUndo, canRedo, resetHistory(state)
+- pushHistory internally checks isUndoRedoRef to suppress during undo/redo — orchestrator doesn't need to check
+- commitToHistory skips coalescing check — used after drag operations complete
+- undo/redo return restored CanvasState (or null if at boundary); orchestrator applies via setCanvasStateInternal
+- resetHistory replaces stack with single entry — used by loadCanvasState
+- useCanvasState destructures hook methods for stable useCallback deps (React Compiler requires full object or destructured refs)
+- Removed ~50 lines of inline history state/logic from useCanvasState; replaced with hook call + ~15 lines of wiring
+- Files changed: src/hooks/useCanvasHistory.ts (new), src/hooks/useCanvasState.ts (refactored)
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-024 (useCanvasStorage extraction)
