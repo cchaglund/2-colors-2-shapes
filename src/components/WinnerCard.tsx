@@ -1,5 +1,6 @@
 import { SubmissionThumbnail } from './SubmissionThumbnail';
 import { TrophyBadge } from './TrophyBadge';
+import { RANK_COLORS } from '../constants/rankColors';
 import type { RankingEntry, DailyChallenge } from '../types';
 
 interface WinnerCardProps {
@@ -21,17 +22,9 @@ export function WinnerCard({
   // Page uses different thumbnail sizes than modal
   const thumbnailSize = (size === 'lg' ? 240 : size === 'md' ? 180 : 150)
 
-  const bgColor = entry.rank === 1
-    ? 'bg-[#FFD700]'
-    : entry.rank === 2
-      ? 'bg-[#D1D5DC]'
-      : entry.rank === 3
-        ? 'bg-[#CE8946]'
-        : undefined;
-
-  const getBorderStyle = () => {
-      return `${bgColor} rounded-xl p-2 shadow-lg`;
-  };
+  const bgColor = entry.rank >= 1 && entry.rank <= 3
+    ? RANK_COLORS[entry.rank as 1 | 2 | 3]
+    : undefined;
 
   return (
     <button
@@ -43,7 +36,7 @@ export function WinnerCard({
         <div className="absolute -top-3 -right-3 z-10">
           <TrophyBadge rank={entry.rank as 1 | 2 | 3} size={"md"} />
         </div>
-        <div className={getBorderStyle()}>
+        <div className="rounded-xl p-2 shadow-lg" style={{ backgroundColor: bgColor }}>
           <SubmissionThumbnail
             shapes={entry.shapes}
             challenge={challenge}

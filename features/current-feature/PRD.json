@@ -119,7 +119,7 @@
       "No hardcoded #FFD700, #D1D5DC, or #CE8946 remain in WinnerCard.tsx",
       "Winner cards display correct rank colors"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-011",

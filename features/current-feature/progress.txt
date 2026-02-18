@@ -69,3 +69,11 @@
 - Files changed: src/components/TrophyBadge.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-010 (WinnerCard) and REFACTOR-011 (CalendarCell)
+
+## REFACTOR-010 — Refactor WinnerCard.tsx to use RANK_COLORS
+- Replaced ternary chain of Tailwind `bg-[#hex]` classes with `RANK_COLORS[rank]` lookup
+- Switched from Tailwind arbitrary value class to inline `style={{ backgroundColor }}` — dynamic interpolation breaks Tailwind JIT scanning
+- Removed `getBorderStyle()` helper, inlined the static Tailwind classes directly
+- Files changed: src/components/WinnerCard.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-011 (CalendarCell) and REFACTOR-012 (CANVAS_SIZE)
