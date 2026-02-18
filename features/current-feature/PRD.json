@@ -467,7 +467,7 @@
       "FriendRow component has data-testid='friend-row' on its root element",
       "Can be selected in DevTools or testing framework using the identifier"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-038",

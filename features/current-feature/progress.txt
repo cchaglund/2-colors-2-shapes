@@ -340,3 +340,9 @@
 - Files changed: src/components/SubmissionThumbnail.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-037 (add data-testid to FriendRow)
+
+## REFACTOR-037 — Add data-testid to FriendRow component root element
+- Added `data-testid="friend-row"` to root `<div>` in FriendRow.tsx
+- Files changed: src/components/modals/FriendRow.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-038 (add test identifiers to CalendarDayCell/ContentCalendarDayCell)
