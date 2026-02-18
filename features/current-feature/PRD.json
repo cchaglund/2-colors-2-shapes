@@ -479,7 +479,7 @@
       "ContentCalendarDayCell has data-testid on root element",
       "Identifiers include the date for specific targeting (e.g. data-date attribute)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-039",

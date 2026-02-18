@@ -14,6 +14,8 @@ interface CalendarCellProps {
   href?: string;
   onClick?: () => void;
   className?: string;
+  'data-testid'?: string;
+  'data-date'?: string;
   children: React.ReactNode;
 }
 
@@ -30,6 +32,8 @@ export function CalendarCell({
   href,
   onClick,
   className = '',
+  'data-testid': dataTestId,
+  'data-date': dataDate,
   children,
 }: CalendarCellProps) {
   const isInteractive = !disabled && (!!href || !!onClick);
@@ -85,17 +89,19 @@ export function CalendarCell({
     </>
   );
 
+  const dataAttrs = { 'data-testid': dataTestId, 'data-date': dataDate };
+
   if (href) {
-    return <a href={href} className={`block ${classes}`} style={borderStyle}>{content}</a>;
+    return <a href={href} className={`block ${classes}`} style={borderStyle} {...dataAttrs}>{content}</a>;
   }
 
   if (onClick && !disabled) {
-    return <button onClick={onClick} className={classes} style={borderStyle}>{content}</button>;
+    return <button onClick={onClick} className={classes} style={borderStyle} {...dataAttrs}>{content}</button>;
   }
 
   if (onClick && disabled) {
-    return <button onClick={onClick} disabled className={classes} style={borderStyle}>{content}</button>;
+    return <button onClick={onClick} disabled className={classes} style={borderStyle} {...dataAttrs}>{content}</button>;
   }
 
-  return <div className={classes} style={borderStyle}>{content}</div>;
+  return <div className={classes} style={borderStyle} {...dataAttrs}>{content}</div>;
 }

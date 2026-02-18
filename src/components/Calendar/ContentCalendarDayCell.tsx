@@ -4,6 +4,7 @@ import { CalendarCell } from './CalendarCell';
 
 interface ContentCalendarDayCellProps {
   day: number;
+  dateStr: string;
   isDayToday: boolean;
   isFuture: boolean;
   isCurrentDayLocked: boolean;
@@ -14,6 +15,7 @@ interface ContentCalendarDayCellProps {
 
 export function ContentCalendarDayCell({
   day,
+  dateStr,
   isDayToday,
   isFuture,
   isCurrentDayLocked,
@@ -28,6 +30,8 @@ export function ContentCalendarDayCell({
       isFuture={isFuture}
       disabled={isFuture || isCurrentDayLocked}
       onClick={onClick}
+      data-testid="content-calendar-day-cell"
+      data-date={dateStr}
     >
       {count > 0 && !isFuture && !isCurrentDayLocked && (() => {
         if (!challenge) return null;

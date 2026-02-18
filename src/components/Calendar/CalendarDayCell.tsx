@@ -53,7 +53,7 @@ export function CalendarDayCell({
     // Locked day (profile privacy check)
     if (!canView && !isFuture) {
       return (
-        <CalendarCell day={day} isToday={isToday} isFuture={false}>
+        <CalendarCell day={day} isToday={isToday} isFuture={false} data-testid="calendar-day-cell" data-date={dateStr}>
           {lockedContent}
         </CalendarCell>
       );
@@ -74,6 +74,8 @@ export function CalendarDayCell({
         href={isClickable ? href : undefined}
         onClick={isClickable && !href && onClick ? () => onClick(day) : undefined}
         className="group"
+        data-testid="calendar-day-cell"
+        data-date={dateStr}
       >
         {hasArt && (
           <div className={cn(
@@ -128,6 +130,8 @@ export function CalendarDayCell({
       artFill={hasWinnerArt}
       href={hasWinner ? href : undefined}
       onClick={hasWinner && !href && onClick ? () => onClick(day) : undefined}
+      data-testid="calendar-day-cell"
+      data-date={dateStr}
     >
       {hasWinnerArt ? (
         <>

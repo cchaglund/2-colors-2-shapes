@@ -346,3 +346,12 @@
 - Files changed: src/components/modals/FriendRow.tsx
 - Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
 - Next: REFACTOR-038 (add test identifiers to CalendarDayCell/ContentCalendarDayCell)
+
+## REFACTOR-038 — Add test identifiers to CalendarDayCell and ContentCalendarDayCell
+- Added `data-testid` and `data-date` props to CalendarCell (shared base component) — flows through to all 4 DOM element render paths (a, button, button disabled, div)
+- CalendarDayCell: all 3 CalendarCell usages (locked, my-submissions, winners) pass `data-testid="calendar-day-cell"` and `data-date={dateStr}`
+- ContentCalendarDayCell: added `dateStr` prop, passes `data-testid="content-calendar-day-cell"` and `data-date={dateStr}` to CalendarCell
+- ContentCalendarGrid: passes `dateStr` to ContentCalendarDayCell
+- Files changed: CalendarCell.tsx, CalendarDayCell.tsx, ContentCalendarDayCell.tsx, ContentCalendarGrid.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-039 (standardize data-testid on all modal containers)
