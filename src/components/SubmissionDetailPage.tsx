@@ -1,10 +1,10 @@
 import { useRef } from 'react';
-import { useAuth } from '../hooks/useAuth';
-import { useSubmissions } from '../hooks/useSubmissions';
-import { useRanking } from '../hooks/useRanking';
-import { useDailyChallenge } from '../hooks/useDailyChallenge';
-import { useSubmissionDetail } from '../hooks/useSubmissionDetail';
-import { useExportActions } from '../hooks/useExportActions';
+import { useAuth } from '../hooks/auth/useAuth';
+import { useSubmissions } from '../hooks/submission/useSubmissions';
+import { useRanking } from '../hooks/challenge/useRanking';
+import { useDailyChallenge } from '../hooks/challenge/useDailyChallenge';
+import { useSubmissionDetail } from '../hooks/submission/useSubmissionDetail';
+import { useExportActions } from '../hooks/submission/useExportActions';
 import { FollowButton } from './FollowButton';
 import {
   SubmissionCanvas,

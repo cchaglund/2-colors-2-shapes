@@ -12,13 +12,13 @@ import { TouchContextMenu } from './TouchContextMenu';
 import { CanvasGridLines } from './canvas/CanvasGridLines';
 
 // Import extracted hooks
-import { useCanvasCoordinates } from '../hooks/useCanvasCoordinates';
-import { useSelectionBounds } from '../hooks/useSelectionBounds';
-import { useCanvasKeyboardShortcuts } from '../hooks/useCanvasKeyboardShortcuts';
-import { useCanvasPanning } from '../hooks/useCanvasPanning';
-import { useWheelZoom } from '../hooks/useWheelZoom';
-import { useShapeDrag } from '../hooks/useShapeDrag';
-import { useCanvasTouchGestures } from '../hooks/useCanvasTouchGestures';
+import { useCanvasCoordinates } from '../hooks/canvas/useCanvasCoordinates';
+import { useSelectionBounds } from '../hooks/canvas/useSelectionBounds';
+import { useCanvasKeyboardShortcuts } from '../hooks/canvas/useCanvasKeyboardShortcuts';
+import { useCanvasPanning } from '../hooks/canvas/useCanvasPanning';
+import { useWheelZoom } from '../hooks/canvas/useWheelZoom';
+import { useShapeDrag } from '../hooks/canvas/useShapeDrag';
+import { useCanvasTouchGestures } from '../hooks/canvas/useCanvasTouchGestures';
 
 interface CanvasProps {
   shapes: Shape[];

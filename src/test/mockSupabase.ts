@@ -4,7 +4,7 @@
  */
 
 import type { MockUser, MockFollow, WallSubmission, Scenario } from './mockData';
-import type { Profile } from '../hooks/useProfile';
+import type { Profile } from '../hooks/auth/useProfile';
 
 // ============================================================================
 // TYPES

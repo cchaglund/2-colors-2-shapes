@@ -10,8 +10,8 @@ import {
   BarChart,
   Bar,
 } from 'recharts';
-import { useAuth } from '../../hooks/useAuth';
-import { useAdmin } from '../../hooks/useAdmin';
+import { useAuth } from '../../hooks/auth/useAuth';
+import { useAdmin } from '../../hooks/auth/useAdmin';
 
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import logoSvg from '../assets/logo.svg';
 import type { DailyChallenge } from '../types';
-import type { ThemeMode } from '../hooks/useThemeState';
-import type { Profile } from '../hooks/useProfile';
+import type { ThemeMode } from '../hooks/ui/useThemeState';
+import type { Profile } from '../hooks/auth/useProfile';
 import { ThemeToggle } from './ThemeToggle';
 import { ShapeIcon } from './ShapeIcon';
 import { AuthButton } from './AuthButton';

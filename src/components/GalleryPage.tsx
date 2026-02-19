@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useAuth } from '../hooks/useAuth';
-import { useSubmissions, type Submission } from '../hooks/useSubmissions';
+import { useAuth } from '../hooks/auth/useAuth';
+import { useSubmissions, type Submission } from '../hooks/submission/useSubmissions';
 import { getTodayDateUTC, getTwoDaysAgoDateUTC } from '../utils/dailyChallenge';
-import { fetchChallengesBatch } from '../hooks/useDailyChallenge';
+import { fetchChallengesBatch } from '../hooks/challenge/useDailyChallenge';
 import { supabase } from '../lib/supabase';
 import type { Shape, DailyChallenge } from '../types';
 import { formatDate, getDaysInMonth, getFirstDayOfMonth, MONTHS } from '../utils/calendarUtils';

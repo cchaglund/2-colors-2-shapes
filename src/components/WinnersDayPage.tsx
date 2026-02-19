@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useRanking } from '../hooks/useRanking';
-import { useDailyChallenge } from '../hooks/useDailyChallenge';
+import { useRanking } from '../hooks/challenge/useRanking';
+import { useDailyChallenge } from '../hooks/challenge/useDailyChallenge';
 import { WinnerCard } from './WinnerCard';
 import { getShapeSVGData } from '../utils/shapes';
 import { BackToCanvasLink } from './BackToCanvasLink';

@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components -- Context exported for useFollows hook */
 import { createContext, useState, useEffect, useCallback, useMemo, type ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/auth/useAuth';
 
 export interface FollowUser {
   id: string;

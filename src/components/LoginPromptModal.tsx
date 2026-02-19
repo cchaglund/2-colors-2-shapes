@@ -1,4 +1,4 @@
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/auth/useAuth';
 import { Modal } from './Modal';
 
 interface LoginPromptModalProps {

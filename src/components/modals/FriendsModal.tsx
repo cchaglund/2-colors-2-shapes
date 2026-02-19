@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import { useAuth } from '../../hooks/useAuth';
-import { useFollows } from '../../hooks/useFollows';
+import { useAuth } from '../../hooks/auth/useAuth';
+import { useFollows } from '../../hooks/social/useFollows';
 import { Modal } from '../Modal';
 import { FriendsModalTabs, type FriendsTab } from './FriendsModalTabs';
 import { FriendsList } from './FriendsList';

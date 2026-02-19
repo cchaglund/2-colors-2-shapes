@@ -1,4 +1,4 @@
-import type { ThemeMode } from '../hooks/useThemeState';
+import type { ThemeMode } from '../hooks/ui/useThemeState';
 
 interface ThemeToggleProps {
   mode: ThemeMode;

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import confetti from 'canvas-confetti';
 import type { RankingEntry } from '../../types';
-import { useDailyChallenge } from '../../hooks/useDailyChallenge';
+import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
 import { WinnerCard } from '../WinnerCard';
 import { Modal } from '../Modal';
 

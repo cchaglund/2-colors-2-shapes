@@ -1,5 +1,5 @@
-import { useAuth } from '../hooks/useAuth';
-import type { Profile } from '../hooks/useProfile';
+import { useAuth } from '../hooks/auth/useAuth';
+import type { Profile } from '../hooks/auth/useProfile';
 
 interface AuthButtonProps {
   profile?: Profile | null;

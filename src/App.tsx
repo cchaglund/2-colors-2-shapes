@@ -12,7 +12,7 @@ import { SocialTestPage } from './test/SocialTestPage';
 import { Dashboard } from './components/admin/Dashboard';
 import { CanvasEditorPage } from './components/CanvasEditorPage';
 import { getTodayDateUTC } from './utils/dailyChallenge';
-import { useDailyChallenge } from './hooks/useDailyChallenge';
+import { useDailyChallenge } from './hooks/challenge/useDailyChallenge';
 import { useAppRoute, isStandaloneRoute } from './hooks/useAppRoute';
 
 function App() {

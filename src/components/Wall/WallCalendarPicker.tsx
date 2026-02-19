@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { getTodayDateUTC } from '../../utils/dailyChallenge';
-import { fetchChallengesBatch } from '../../hooks/useDailyChallenge';
+import { fetchChallengesBatch } from '../../hooks/challenge/useDailyChallenge';
 import type { DailyChallenge } from '../../types';
 import {
   DAYS_OF_WEEK,

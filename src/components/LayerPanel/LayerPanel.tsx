@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { Shape, ShapeGroup } from '../../types';
-import { useIsTouchDevice } from '../../hooks/useIsTouchDevice';
+import { useIsTouchDevice } from '../../hooks/ui/useIsTouchDevice';
 import type { LayerPanelProps, LayerItem } from './types';
 import { LayerItem as LayerItemComponent } from './LayerItem';
 import { GroupHeader } from './GroupHeader';

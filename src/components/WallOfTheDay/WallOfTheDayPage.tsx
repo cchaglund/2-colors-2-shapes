@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { WallContent } from '../Wall/WallContent';
-import { useAuth } from '../../hooks/useAuth';
-import { useSubmissions } from '../../hooks/useSubmissions';
+import { useAuth } from '../../hooks/auth/useAuth';
+import { useSubmissions } from '../../hooks/submission/useSubmissions';
 import { getTodayDateUTC } from '../../utils/dailyChallenge';
 import { BackToCanvasLink } from '../BackToCanvasLink';
 

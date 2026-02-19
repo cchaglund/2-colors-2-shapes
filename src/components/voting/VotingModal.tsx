@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useVoting } from '../../hooks/useVoting';
-import { useDailyChallenge } from '../../hooks/useDailyChallenge';
+import { useVoting } from '../../hooks/challenge/useVoting';
+import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
 import { getTodayDateUTC } from '../../utils/dailyChallenge';
 import { Modal } from '../Modal';
 import { VotingPairView } from './VotingPairView';

@@ -1,10 +1,10 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { useUserProfile } from '../hooks/useUserProfile';
-import { useAuth } from '../hooks/useAuth';
-import { useSubmissions } from '../hooks/useSubmissions';
+import { useUserProfile } from '../hooks/social/useUserProfile';
+import { useAuth } from '../hooks/auth/useAuth';
+import { useSubmissions } from '../hooks/submission/useSubmissions';
 import { FollowButton } from './FollowButton';
 import { getTodayDateUTC } from '../utils/dailyChallenge';
-import { fetchChallengesBatch } from '../hooks/useDailyChallenge';
+import { fetchChallengesBatch } from '../hooks/challenge/useDailyChallenge';
 import { canViewCurrentDay } from '../utils/privacyRules';
 import {
   MONTHS,

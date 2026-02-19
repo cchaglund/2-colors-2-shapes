@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '../../hooks/useAuth';
-import { useLikes } from '../../hooks/useLikes';
+import { useAuth } from '../../hooks/auth/useAuth';
+import { useLikes } from '../../hooks/social/useLikes';
 import { LoginPromptModal } from '../LoginPromptModal';
 
 interface LikeButtonProps {

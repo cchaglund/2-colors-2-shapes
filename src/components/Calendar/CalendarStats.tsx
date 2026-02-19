@@ -1,6 +1,6 @@
 import { TrophyBadge } from '../TrophyBadge';
 import type { ViewMode, WinnerEntry } from './types';
-import type { Submission } from '../../hooks/useSubmissions';
+import type { Submission } from '../../hooks/submission/useSubmissions';
 
 interface CalendarStatsProps {
   effectiveViewMode: ViewMode;
