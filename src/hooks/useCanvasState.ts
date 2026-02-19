@@ -42,17 +42,11 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
   );
 
   const undo = useCallback(() => {
-    const restored = historyUndo();
-    if (restored) {
-      setCanvasStateInternal(restored);
-    }
+    historyUndo((restored) => setCanvasStateInternal(restored));
   }, [historyUndo]);
 
   const redo = useCallback(() => {
-    const restored = historyRedo();
-    if (restored) {
-      setCanvasStateInternal(restored);
-    }
+    historyRedo((restored) => setCanvasStateInternal(restored));
   }, [historyRedo]);
 
   // Shape CRUD, selection, layer ordering, mirror, and group operations

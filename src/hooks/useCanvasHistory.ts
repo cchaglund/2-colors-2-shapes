@@ -64,14 +64,12 @@ export function useCanvasHistory(initialState: CanvasState) {
     lastHistoryTimeRef.current = Date.now();
   }, []);
 
-  const undo = useCallback((): CanvasState | null => {
-    let restored: CanvasState | null = null;
-
+  const undo = useCallback((onRestore: (state: CanvasState) => void): void => {
     setHistoryIndex((currentIndex) => {
       if (currentIndex > 0) {
         isUndoRedoRef.current = true;
         const newIndex = currentIndex - 1;
-        restored = historyRef.current[newIndex];
+        onRestore(historyRef.current[newIndex]);
         setTimeout(() => {
           isUndoRedoRef.current = false;
         }, 0);
@@ -79,18 +77,14 @@ export function useCanvasHistory(initialState: CanvasState) {
       }
       return currentIndex;
     });
-
-    return restored;
   }, []);
 
-  const redo = useCallback((): CanvasState | null => {
-    let restored: CanvasState | null = null;
-
+  const redo = useCallback((onRestore: (state: CanvasState) => void): void => {
     setHistoryIndex((currentIndex) => {
       if (currentIndex < historyRef.current.length - 1) {
         isUndoRedoRef.current = true;
         const newIndex = currentIndex + 1;
-        restored = historyRef.current[newIndex];
+        onRestore(historyRef.current[newIndex]);
         setTimeout(() => {
           isUndoRedoRef.current = false;
         }, 0);
@@ -98,8 +92,6 @@ export function useCanvasHistory(initialState: CanvasState) {
       }
       return currentIndex;
     });
-
-    return restored;
   }, []);
 
   /** Reset history to a single state (used when loading external canvas state). */

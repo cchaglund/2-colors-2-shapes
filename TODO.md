@@ -1,12 +1,12 @@
 # To-Do List
 
 - select multiple shapes by dragging a box around them with the mouse
-- make it so that you don't open a new tab when you click on a single submission. especially since when you click "back to app" it takes you to the canvas, and the place you were originally is actually in another tab.
 - forms for submitting feedback, reporting bugs, requesting features
 - ~~buy domain and set up hosting~~ ✅ 2colors2shapes.com (Loopia + Netlify DNS)
 - search for artist by email (hm, privacy implications?)
 - should be able to comment on submissions from the "single submission page" (maybe a nightmare?)
-- when you log in you get redirected to the netlify url
+- when undoing/redoing, a toast should pop up showing the name of the action that was undone/redone (e.g. "Moved shape", "Changed color", etc.)
+- an "eye" icon on the layers panel to toggle visibility of each layer
 
 # Bugs
 - bug: när man roterar en hel drös med shapes så verkar de rotera lite olika mängder
@@ -16,13 +16,3 @@
 - make sure voting works properly
 - moving shapes with arrow buttons seems to be jumping too much, should be 1px per press
 - when holding two fingers on trackpad and moving them you should pan the canvas (right now it's just scrolling the page)
-
-What you need to provide
-1. OG image → Save as /public/og-image.png
-- Size: 1200 x 630 pixels
-- Will be used for social sharing previews
-
-After launch: Google Search Console
-Once the domain is live, submit it to Google Search Console and:
-1. Verify ownership (you already have /public/googled1c25da4c512d2d8.html - may need updating for the new domain)
-2. Submit the sitemap: https://2colors2shapes.com/sitemap.xml

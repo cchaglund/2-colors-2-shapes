@@ -31,7 +31,7 @@ function App() {
       case 'social-test': return <SocialTestPage />;
       case 'dashboard': return <Dashboard />;
       case 'color-tester': return <ColorTester />;
-      case 'gallery': return <FollowsProvider><GalleryPage tab={route.tab} /></FollowsProvider>;
+      case 'gallery': return <FollowsProvider><GalleryPage tab={route.tab} year={route.year} month={route.month} date={route.date} /></FollowsProvider>;
       case 'wall-of-the-day': return <WallOfTheDayPage date={route.date} />;
       case 'profile': return <FollowsProvider><UserProfilePage userId={route.userId} /></FollowsProvider>;
     }

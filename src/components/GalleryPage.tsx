@@ -18,15 +18,18 @@ import { BackToCanvasLink } from './BackToCanvasLink';
 
 interface GalleryPageProps {
   tab?: string;
+  year?: number;
+  month?: number;
+  date?: string;
 }
 
-export function GalleryPage({ tab: initialTab }: GalleryPageProps) {
+export function GalleryPage({ tab: initialTab, year: initialYear, month: initialMonth, date: initialDate }: GalleryPageProps) {
   const { user } = useAuth();
   const { loadMySubmissions, loading } = useSubmissions(user?.id);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [rankings, setRankings] = useState<Map<string, number>>(new Map());
-  const [currentYear, setCurrentYear] = useState(() => new Date().getFullYear());
-  const [currentMonth, setCurrentMonth] = useState(() => new Date().getMonth());
+  const [currentYear, setCurrentYear] = useState(() => initialYear ?? new Date().getFullYear());
+  const [currentMonth, setCurrentMonth] = useState(() => initialMonth ?? new Date().getMonth());
   const [viewMode, setViewMode] = useState<ViewMode | null>(() => {
     if (initialTab && ['my-submissions', 'winners', 'wall', 'friends'].includes(initialTab)) {
       return initialTab as ViewMode;
@@ -36,8 +39,8 @@ export function GalleryPage({ tab: initialTab }: GalleryPageProps) {
   const [winners, setWinners] = useState<WinnerEntry[]>([]);
   const [winnersLoading, setWinnersLoading] = useState(false);
   const [challenges, setChallenges] = useState<Map<string, DailyChallenge>>(new Map());
-  const [wallDate, setWallDate] = useState(() => getTodayDateUTC());
-  const [friendsFeedDate, setFriendsFeedDate] = useState(() => getTodayDateUTC());
+  const [wallDate, setWallDate] = useState(() => initialDate ?? getTodayDateUTC());
+  const [friendsFeedDate, setFriendsFeedDate] = useState(() => initialDate ?? getTodayDateUTC());
 
   // Determine effective view mode - null until auth loads, then based on user
   const effectiveViewMode: ViewMode = viewMode ?? (user ? 'my-submissions' : 'winners');
@@ -45,22 +48,30 @@ export function GalleryPage({ tab: initialTab }: GalleryPageProps) {
   const todayStr = useMemo(() => getTodayDateUTC(), []);
   const latestWinnersDate = useMemo(() => getTwoDaysAgoDateUTC(), []);
 
-  // Keep URL in sync with active tab (so browser back always restores correct tab)
+  // Keep URL in sync with gallery state (tab, calendar position, date)
   useEffect(() => {
     const url = new URL(window.location.href);
-    if (url.searchParams.get('tab') !== effectiveViewMode) {
-      url.searchParams.set('tab', effectiveViewMode);
+    url.searchParams.set('view', 'gallery');
+    url.searchParams.set('tab', effectiveViewMode);
+
+    if (effectiveViewMode === 'winners' || effectiveViewMode === 'my-submissions') {
+      url.searchParams.set('year', String(currentYear));
+      url.searchParams.set('month', String(currentMonth));
+      url.searchParams.delete('date');
+    } else {
+      const date = effectiveViewMode === 'wall' ? wallDate : friendsFeedDate;
+      url.searchParams.set('date', date);
+      url.searchParams.delete('year');
+      url.searchParams.delete('month');
+    }
+
+    if (url.toString() !== window.location.href) {
       history.replaceState(null, '', url.toString());
     }
-  }, [effectiveViewMode]);
+  }, [effectiveViewMode, currentYear, currentMonth, wallDate, friendsFeedDate]);
 
-  // Update URL when tab changes (without full page reload)
   const handleSetViewMode = useCallback((mode: ViewMode) => {
     setViewMode(mode);
-    const url = new URL(window.location.href);
-    url.searchParams.set('view', 'gallery');
-    url.searchParams.set('tab', mode);
-    history.replaceState(null, '', url.toString());
   }, []);
 
   // Load submissions (only when in my-submissions mode)

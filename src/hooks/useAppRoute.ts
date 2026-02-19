@@ -19,7 +19,7 @@ type StandaloneRoute =
   | { type: 'social-test' }
   | { type: 'dashboard' }
   | { type: 'color-tester' }
-  | { type: 'gallery'; tab?: string }
+  | { type: 'gallery'; tab?: string; year?: number; month?: number; date?: string }
   | { type: 'wall-of-the-day'; date: string }
   | { type: 'profile'; userId: string };
 
@@ -41,7 +41,7 @@ export function useAppRoute(): AppRoute {
     if (isColorTesterEnabled()) return { type: 'color-tester' };
 
     const gallery = getGalleryView();
-    if (gallery) return { type: 'gallery', tab: gallery.tab };
+    if (gallery) return { type: 'gallery', tab: gallery.tab, year: gallery.year, month: gallery.month, date: gallery.date };
 
     const wall = getWallOfTheDayView();
     if (wall) return { type: 'wall-of-the-day', date: wall.date };
