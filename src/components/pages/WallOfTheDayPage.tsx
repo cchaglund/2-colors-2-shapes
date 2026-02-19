@@ -3,7 +3,7 @@ import { WallContent } from '../Wall/WallContent';
 import { useAuth } from '../../hooks/auth/useAuth';
 import { useSubmissions } from '../../hooks/submission/useSubmissions';
 import { getTodayDateUTC } from '../../utils/dailyChallenge';
-import { BackToCanvasLink } from '../BackToCanvasLink';
+import { BackToCanvasLink } from '../shared/BackToCanvasLink';
 
 interface WallOfTheDayPageProps {
   date: string;

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useRanking } from '../hooks/challenge/useRanking';
-import { useDailyChallenge } from '../hooks/challenge/useDailyChallenge';
-import { WinnerCard } from './WinnerCard';
-import { getShapeSVGData } from '../utils/shapes';
-import { BackToCanvasLink } from './BackToCanvasLink';
+import { useRanking } from '../../hooks/challenge/useRanking';
+import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
+import { WinnerCard } from '../submission/WinnerCard';
+import { getShapeSVGData } from '../../utils/shapes';
+import { BackToCanvasLink } from '../shared/BackToCanvasLink';
 
 interface WinnersDayPageProps {
   date: string;

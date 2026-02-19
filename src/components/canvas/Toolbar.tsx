@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import logoSvg from '../assets/logo.svg';
-import type { DailyChallenge } from '../types';
-import type { ThemeMode } from '../hooks/ui/useThemeState';
-import type { Profile } from '../hooks/auth/useProfile';
+import logoSvg from '../../assets/logo.svg';
+import type { DailyChallenge } from '../../types';
+import type { ThemeMode } from '../../hooks/ui/useThemeState';
+import type { Profile } from '../../hooks/auth/useProfile';
 import { ThemeToggle } from './ThemeToggle';
-import { ShapeIcon } from './ShapeIcon';
-import { AuthButton } from './AuthButton';
-import { LoginPromptModal } from './LoginPromptModal';
-import { type KeyMappings, formatKeyBinding } from '../constants/keyboardActions';
-import { InfoTooltip } from './InfoTooltip';
+import { ShapeIcon } from '../shared/ShapeIcon';
+import { AuthButton } from '../social/AuthButton';
+import { LoginPromptModal } from '../social/LoginPromptModal';
+import { type KeyMappings, formatKeyBinding } from '../../constants/keyboardActions';
+import { InfoTooltip } from '../shared/InfoTooltip';
 
 // Section label - consistent typography
 function Label({ children }: { children: React.ReactNode }) {

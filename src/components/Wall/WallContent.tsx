@@ -6,7 +6,7 @@ import { useCalendarChallenges } from '../../hooks/challenge/useCalendarChalleng
 import { WallSortControls } from './WallSortControls';
 import { WallLockedState } from './WallLockedState';
 import { WallEmptyState } from './WallEmptyState';
-import { SubmissionThumbnail } from '../SubmissionThumbnail';
+import { SubmissionThumbnail } from '../shared/SubmissionThumbnail';
 import { ContentNavigation } from '../Calendar/ContentNavigation';
 import { ContentCalendarGrid } from '../Calendar/ContentCalendarGrid';
 import { formatDate, getDaysInMonth } from '../../utils/calendarUtils';

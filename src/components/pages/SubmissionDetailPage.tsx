@@ -1,11 +1,11 @@
 import { useRef } from 'react';
-import { useAuth } from '../hooks/auth/useAuth';
-import { useSubmissions } from '../hooks/submission/useSubmissions';
-import { useRanking } from '../hooks/challenge/useRanking';
-import { useDailyChallenge } from '../hooks/challenge/useDailyChallenge';
-import { useSubmissionDetail } from '../hooks/submission/useSubmissionDetail';
-import { useExportActions } from '../hooks/submission/useExportActions';
-import { FollowButton } from './FollowButton';
+import { useAuth } from '../../hooks/auth/useAuth';
+import { useSubmissions } from '../../hooks/submission/useSubmissions';
+import { useRanking } from '../../hooks/challenge/useRanking';
+import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
+import { useSubmissionDetail } from '../../hooks/submission/useSubmissionDetail';
+import { useExportActions } from '../../hooks/submission/useExportActions';
+import { FollowButton } from '../social/FollowButton';
 import {
   SubmissionCanvas,
   SubmissionNavigation,
@@ -14,7 +14,7 @@ import {
   SubmissionStatsCard,
   ExportActionsCard,
   LikeButton,
-} from './submission';
+} from '../submission';
 
 interface SubmissionDetailPageProps {
   date?: string;

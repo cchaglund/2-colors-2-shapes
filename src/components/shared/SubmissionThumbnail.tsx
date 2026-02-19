@@ -1,5 +1,5 @@
-import type { Shape, DailyChallenge } from '../types';
-import { CANVAS_SIZE } from '../types/canvas';
+import type { Shape, DailyChallenge } from '../../types';
+import { CANVAS_SIZE } from '../../types/canvas';
 import { SVGShape } from './SVGShape';
 
 interface SubmissionThumbnailProps {

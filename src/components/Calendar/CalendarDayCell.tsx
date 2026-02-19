@@ -1,8 +1,8 @@
 import type { DailyChallenge, Shape } from '../../types';
 import type { ViewMode, WinnerEntry } from './types';
-import { SubmissionThumbnail } from '../SubmissionThumbnail';
-import { ChallengeShapeIndicators } from '../ChallengeShapeIndicators';
-import { Tooltip } from '../InfoTooltip';
+import { SubmissionThumbnail } from '../shared/SubmissionThumbnail';
+import { ChallengeShapeIndicators } from '../shared/ChallengeShapeIndicators';
+import { Tooltip } from '../shared/InfoTooltip';
 import { CalendarCell } from './CalendarCell';
 import cn from "classnames";
 

@@ -1,7 +1,7 @@
-import { SubmissionThumbnail } from './SubmissionThumbnail';
-import { TrophyBadge } from './TrophyBadge';
-import { RANK_COLORS } from '../constants/rankColors';
-import type { RankingEntry, DailyChallenge } from '../types';
+import { SubmissionThumbnail } from '../shared/SubmissionThumbnail';
+import { TrophyBadge } from '../shared/TrophyBadge';
+import { RANK_COLORS } from '../../constants/rankColors';
+import type { RankingEntry, DailyChallenge } from '../../types';
 
 interface WinnerCardProps {
   entry: RankingEntry;

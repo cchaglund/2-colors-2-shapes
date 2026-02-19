@@ -1,6 +1,6 @@
 import type { DailyChallenge } from '../../types';
-import { Modal } from '../Modal';
-import { ShapeIcon } from '../ShapeIcon';
+import { Modal } from '../shared/Modal';
+import { ShapeIcon } from '../shared/ShapeIcon';
 
 interface WelcomeModalProps {
   onDismiss: () => void;

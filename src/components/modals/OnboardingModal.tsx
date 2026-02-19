@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal } from '../Modal';
+import { Modal } from '../shared/Modal';
 
 interface OnboardingModalProps {
   onComplete: (nickname: string) => Promise<{ success: boolean; error?: string }>;

@@ -1,24 +1,24 @@
 import { useRef, useCallback } from 'react';
-import type { Shape, DailyChallenge, ViewportState } from '../types';
-import { CANVAS_SIZE } from '../types/canvas';
+import type { Shape, DailyChallenge, ViewportState } from '../../types';
+import { CANVAS_SIZE } from '../../types/canvas';
 import { ShapeElement } from './ShapeElement';
 import {
   TransformInteractionLayer,
   MultiSelectTransformLayer,
   MultiSelectInteractionLayer,
 } from './TransformHandles';
-import { type KeyMappings } from '../constants/keyboardActions';
+import { type KeyMappings } from '../../constants/keyboardActions';
 import { TouchContextMenu } from './TouchContextMenu';
-import { CanvasGridLines } from './canvas/CanvasGridLines';
+import { CanvasGridLines } from './CanvasGridLines';
 
 // Import extracted hooks
-import { useCanvasCoordinates } from '../hooks/canvas/useCanvasCoordinates';
-import { useSelectionBounds } from '../hooks/canvas/useSelectionBounds';
-import { useCanvasKeyboardShortcuts } from '../hooks/canvas/useCanvasKeyboardShortcuts';
-import { useCanvasPanning } from '../hooks/canvas/useCanvasPanning';
-import { useWheelZoom } from '../hooks/canvas/useWheelZoom';
-import { useShapeDrag } from '../hooks/canvas/useShapeDrag';
-import { useCanvasTouchGestures } from '../hooks/canvas/useCanvasTouchGestures';
+import { useCanvasCoordinates } from '../../hooks/canvas/useCanvasCoordinates';
+import { useSelectionBounds } from '../../hooks/canvas/useSelectionBounds';
+import { useCanvasKeyboardShortcuts } from '../../hooks/canvas/useCanvasKeyboardShortcuts';
+import { useCanvasPanning } from '../../hooks/canvas/useCanvasPanning';
+import { useWheelZoom } from '../../hooks/canvas/useWheelZoom';
+import { useShapeDrag } from '../../hooks/canvas/useShapeDrag';
+import { useCanvasTouchGestures } from '../../hooks/canvas/useCanvasTouchGestures';
 
 interface CanvasProps {
   shapes: Shape[];

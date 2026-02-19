@@ -1,20 +1,20 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useAuth } from '../hooks/auth/useAuth';
-import { useSubmissions, type Submission } from '../hooks/submission/useSubmissions';
-import { getTodayDateUTC, getTwoDaysAgoDateUTC } from '../utils/dailyChallenge';
-import { fetchChallengesBatch } from '../hooks/challenge/useDailyChallenge';
-import { supabase } from '../lib/supabase';
-import type { Shape, DailyChallenge } from '../types';
-import { formatDate, getDaysInMonth, getFirstDayOfMonth, MONTHS } from '../utils/calendarUtils';
-import type { ViewMode, RankingInfo, WinnerEntry } from './Calendar/types';
-import { CalendarViewToggle } from './Calendar/CalendarViewToggle';
-import { ContentNavigation } from './Calendar/ContentNavigation';
-import { CalendarGrid } from './Calendar/CalendarGrid';
-import { CalendarDayCell } from './Calendar/CalendarDayCell';
-import { CalendarStats } from './Calendar/CalendarStats';
-import { WallTab } from './Calendar/tabs/WallTab';
-import { FriendsFeedTab } from './Calendar/tabs/FriendsFeedTab';
-import { BackToCanvasLink } from './BackToCanvasLink';
+import { useAuth } from '../../hooks/auth/useAuth';
+import { useSubmissions, type Submission } from '../../hooks/submission/useSubmissions';
+import { getTodayDateUTC, getTwoDaysAgoDateUTC } from '../../utils/dailyChallenge';
+import { fetchChallengesBatch } from '../../hooks/challenge/useDailyChallenge';
+import { supabase } from '../../lib/supabase';
+import type { Shape, DailyChallenge } from '../../types';
+import { formatDate, getDaysInMonth, getFirstDayOfMonth, MONTHS } from '../../utils/calendarUtils';
+import type { ViewMode, RankingInfo, WinnerEntry } from '../Calendar/types';
+import { CalendarViewToggle } from '../Calendar/CalendarViewToggle';
+import { ContentNavigation } from '../Calendar/ContentNavigation';
+import { CalendarGrid } from '../Calendar/CalendarGrid';
+import { CalendarDayCell } from '../Calendar/CalendarDayCell';
+import { CalendarStats } from '../Calendar/CalendarStats';
+import { WallTab } from '../Calendar/tabs/WallTab';
+import { FriendsFeedTab } from '../Calendar/tabs/FriendsFeedTab';
+import { BackToCanvasLink } from '../shared/BackToCanvasLink';
 
 interface GalleryPageProps {
   tab?: string;

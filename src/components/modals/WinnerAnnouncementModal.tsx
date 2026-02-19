@@ -1,7 +1,7 @@
 import type { RankingEntry } from '../../types';
 import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
-import { WinnerCard } from '../WinnerCard';
-import { Modal } from '../Modal';
+import { WinnerCard } from '../submission/WinnerCard';
+import { Modal } from '../shared/Modal';
 
 interface WinnerAnnouncementModalProps {
   challengeDate: string;

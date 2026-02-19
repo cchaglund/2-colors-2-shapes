@@ -1,5 +1,5 @@
-import type { ShapeType } from '../types';
-import { getShapeSVGData } from '../utils/shapes';
+import type { ShapeType } from '../../types';
+import { getShapeSVGData } from '../../utils/shapes';
 
 interface ShapeIconProps {
   type: ShapeType;

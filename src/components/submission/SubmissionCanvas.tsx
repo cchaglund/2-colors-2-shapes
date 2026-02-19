@@ -1,7 +1,7 @@
 import type { RefObject } from 'react';
 import type { DailyChallenge, Shape } from '../../types';
 import { CANVAS_SIZE } from '../../types/canvas';
-import { SVGShape } from '../SVGShape';
+import { SVGShape } from '../shared/SVGShape';
 
 interface SubmissionCanvasProps {
   shapes: Shape[];

@@ -2,8 +2,8 @@ import { useEffect, useRef, useCallback } from 'react';
 import confetti from 'canvas-confetti';
 import type { RankingEntry } from '../../types';
 import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
-import { WinnerCard } from '../WinnerCard';
-import { Modal } from '../Modal';
+import { WinnerCard } from '../submission/WinnerCard';
+import { Modal } from '../shared/Modal';
 
 const CONFETTI_DURATION_MS = 6_000;
 const CONFETTI_INTERVAL_MS = 300;

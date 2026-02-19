@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import type { KeyMappings } from '../constants/keyboardActions';
-import { formatKeyBinding, getDefaultMappings } from '../constants/keyboardActions';
+import type { KeyMappings } from '../../constants/keyboardActions';
+import { formatKeyBinding, getDefaultMappings } from '../../constants/keyboardActions';
 
 // SVG Icons as components for cleaner code
 const UndoIcon = () => (

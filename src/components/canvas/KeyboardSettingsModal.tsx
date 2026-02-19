@@ -8,8 +8,8 @@ import {
   formatKeyBinding,
   bindingFromEvent,
   findConflicts,
-} from '../constants/keyboardActions';
-import { Modal } from './Modal';
+} from '../../constants/keyboardActions';
+import { Modal } from '../shared/Modal';
 
 interface KeyboardSettingsModalProps {
   mappings: KeyMappings;
@@ -139,7 +139,7 @@ export function KeyboardSettingsModal({
         closeOnEscape={false}
         ariaLabelledBy="keyboard-settings-title"
         dataTestId="keyboard-settings-modal"
-        className="!p-0 max-h-[80vh] overflow-hidden flex flex-col"
+        className="p-0! max-h-[80vh] overflow-hidden flex flex-col"
       >
         {/* Header */}
         <div className="p-4 border-b flex items-center justify-between border-(--color-border)">

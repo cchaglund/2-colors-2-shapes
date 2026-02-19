@@ -1,4 +1,4 @@
-import { TrophyBadge } from '../TrophyBadge';
+import { TrophyBadge } from '../shared/TrophyBadge';
 import type { ViewMode, WinnerEntry } from './types';
 import type { Submission } from '../../hooks/submission/useSubmissions';
 

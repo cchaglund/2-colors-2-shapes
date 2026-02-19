@@ -1,5 +1,5 @@
-import type { Shape } from '../types';
-import { SVGShape } from './SVGShape';
+import type { Shape } from '../../types';
+import { SVGShape } from '../shared/SVGShape';
 
 interface ShapeElementProps {
   shape: Shape;

@@ -4,7 +4,7 @@ import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
 import { useCalendarMonth } from '../../hooks/challenge/useCalendarMonth';
 import { useCalendarChallenges } from '../../hooks/challenge/useCalendarChallenges';
 import { WallSortControls } from '../Wall/WallSortControls';
-import { SubmissionThumbnail } from '../SubmissionThumbnail';
+import { SubmissionThumbnail } from '../shared/SubmissionThumbnail';
 import { ContentNavigation } from '../Calendar/ContentNavigation';
 import { ContentCalendarGrid } from '../Calendar/ContentCalendarGrid';
 import { useAuth } from '../../hooks/auth/useAuth';

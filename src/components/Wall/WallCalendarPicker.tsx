@@ -9,7 +9,7 @@ import {
   getDaysInMonth,
   getFirstDayOfMonth,
 } from '../../utils/calendarUtils';
-import { ChallengeShapeIndicators } from '../ChallengeShapeIndicators';
+import { ChallengeShapeIndicators } from '../shared/ChallengeShapeIndicators';
 
 interface WallCalendarPickerProps {
   selectedDate: string;

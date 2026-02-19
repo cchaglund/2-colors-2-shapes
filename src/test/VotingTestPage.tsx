@@ -27,7 +27,7 @@ import { calculateRequiredVotes, calculateTotalPairs } from '../utils/votingRule
 import type { RankingEntry } from '../types';
 import { WinnerAnnouncementModal } from '../components/modals/WinnerAnnouncementModal';
 import { CongratulatoryModal } from '../components/modals/CongratulatoryModal';
-import { BackToCanvasLink } from '../components/BackToCanvasLink';
+import { BackToCanvasLink } from '../components/shared/BackToCanvasLink';
 
 type TestScenario =
   | 'voting-ui'

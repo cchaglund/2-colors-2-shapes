@@ -1,5 +1,5 @@
-import { useAuth } from '../hooks/auth/useAuth';
-import { Modal } from './Modal';
+import { useAuth } from '../../hooks/auth/useAuth';
+import { Modal } from '../shared/Modal';
 
 interface LoginPromptModalProps {
   onClose: () => void;

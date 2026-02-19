@@ -1,4 +1,4 @@
-import { RANK_COLORS } from '../constants/rankColors';
+import { RANK_COLORS } from '../../constants/rankColors';
 
 interface TrophyBadgeProps {
   rank: 1 | 2 | 3;

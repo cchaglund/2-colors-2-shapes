@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useAuth } from '../../hooks/auth/useAuth';
 import { useFollows } from '../../hooks/social/useFollows';
-import { Modal } from '../Modal';
+import { Modal } from '../shared/Modal';
 import { FriendsModalTabs, type FriendsTab } from './FriendsModalTabs';
 import { FriendsList } from './FriendsList';
 import { UserSearchBar } from './UserSearchBar';
@@ -53,7 +53,7 @@ export function FriendsModal({ onClose }: FriendsModalProps) {
       onClose={onClose}
       ariaLabelledBy="friends-modal-title"
       dataTestId="friends-modal"
-      className="!p-0 max-h-[80vh] flex flex-col"
+      className="p-0! max-h-[80vh] flex flex-col"
     >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-(--color-border)">
