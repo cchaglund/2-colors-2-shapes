@@ -14,6 +14,7 @@ import { ResetConfirmModal } from './ResetConfirmModal';
 import { WinnerAnnouncementModal } from './modals/WinnerAnnouncementModal';
 import { CongratulatoryModal } from './modals/CongratulatoryModal';
 import { useCanvasState } from '../hooks/useCanvasState';
+import { UndoRedoToast } from './UndoRedoToast';
 import { useViewportState } from '../hooks/useViewportState';
 import { useSidebarState } from '../hooks/useSidebarState';
 import { useThemeState } from '../hooks/useThemeState';
@@ -123,6 +124,8 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
     toggleGroupCollapsed,
     selectGroup,
     loadCanvasState,
+    toast,
+    dismissToast,
   } = useCanvasState(challenge, user?.id);
 
   // Sync submission from server
@@ -265,7 +268,7 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
           canvasState.selectedShapeIds.forEach((id) => {
             updates.set(id, { colorIndex });
           });
-          updateShapes(updates);
+          updateShapes(updates, true, 'Change color');
         }}
         onReset={handleReset}
         isOpen={leftOpen}
@@ -372,7 +375,7 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
         onReorderLayers={reorderLayers}
         onReorderGroup={reorderGroup}
         onDeleteShape={deleteShape}
-        onRenameShape={(id, name) => updateShape(id, { name })}
+        onRenameShape={(id, name) => updateShape(id, { name }, true, 'Rename')}
         onCreateGroup={createGroup}
         onDeleteGroup={deleteGroup}
         onUngroupShapes={ungroupShapes}
@@ -443,6 +446,14 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
         <FollowsProvider>
           <FriendsModal onClose={closeFriendsModal} />
         </FollowsProvider>
+      )}
+
+      {toast && (
+        <UndoRedoToast
+          key={toast.key}
+          message={toast.message}
+          onDismiss={dismissToast}
+        />
       )}
     </div>
   );

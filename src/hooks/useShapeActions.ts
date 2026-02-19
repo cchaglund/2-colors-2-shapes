@@ -4,7 +4,7 @@ import type { Shape } from '../types';
 interface UseShapeActionsOptions {
   shapes: Shape[];
   selectedShapeIds: Set<string>;
-  updateShapes: (updates: Map<string, Partial<Shape>>) => void;
+  updateShapes: (updates: Map<string, Partial<Shape>>, addToHistory?: boolean, label?: string) => void;
   duplicateShapes: (ids: string[]) => void;
   mirrorHorizontal: (ids: string[]) => void;
   mirrorVertical: (ids: string[]) => void;
@@ -33,7 +33,7 @@ export function useShapeActions({
       selectedShapes.forEach((shape) => {
         updates.set(shape.id, { x: shape.x + dx, y: shape.y + dy });
       });
-      updateShapes(updates);
+      updateShapes(updates, true, 'Move');
     },
     [selectedShapes, updateShapes]
   );
@@ -45,7 +45,7 @@ export function useShapeActions({
       selectedShapes.forEach((shape) => {
         updates.set(shape.id, { rotation: shape.rotation + dRotation });
       });
-      updateShapes(updates);
+      updateShapes(updates, true, 'Rotate');
     },
     [selectedShapes, updateShapes]
   );
@@ -80,7 +80,7 @@ export function useShapeActions({
           y: shape.y - sizeDiff / 2,
         });
       });
-      updateShapes(updates);
+      updateShapes(updates, true, 'Resize');
     },
     [selectedShapes, updateShapes]
   );

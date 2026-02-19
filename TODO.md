@@ -5,8 +5,8 @@
 - ~~buy domain and set up hosting~~ ✅ 2colors2shapes.com (Loopia + Netlify DNS)
 - search for artist by email (hm, privacy implications?)
 - should be able to comment on submissions from the "single submission page" (maybe a nightmare?)
-- when undoing/redoing, a toast should pop up showing the name of the action that was undone/redone (e.g. "Moved shape", "Changed color", etc.)
 - an "eye" icon on the layers panel to toggle visibility of each layer
+- in the "see what others have made" modal, actually show some of the submissions as a tease.
 
 # Bugs
 - bug: när man roterar en hel drös med shapes så verkar de rotera lite olika mängder

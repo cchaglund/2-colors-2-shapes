@@ -7,7 +7,7 @@ interface UseShapeDragOptions {
   getSVGPoint: (clientX: number, clientY: number) => { x: number; y: number };
   onUpdateShape: (id: string, updates: Partial<Shape>, addToHistory?: boolean) => void;
   onUpdateShapes: (updates: Map<string, Partial<Shape>>, addToHistory?: boolean) => void;
-  onCommitToHistory: () => void;
+  onCommitToHistory: (label?: string) => void;
 }
 
 /**
@@ -213,7 +213,11 @@ export function useShapeDrag({
 
     const handleMouseUp = () => {
       if (dragState) {
-        onCommitToHistory();
+        const label = dragState.mode === 'move' ? 'Move'
+          : dragState.mode === 'resize' ? 'Resize'
+          : dragState.mode === 'rotate' ? 'Rotate'
+          : undefined;
+        onCommitToHistory(label);
       }
       setDragState(null);
     };
@@ -351,7 +355,11 @@ export function useShapeDrag({
 
     const handleTouchEnd = () => {
       if (dragState) {
-        onCommitToHistory();
+        const label = dragState.mode === 'move' ? 'Move'
+          : dragState.mode === 'resize' ? 'Resize'
+          : dragState.mode === 'rotate' ? 'Rotate'
+          : undefined;
+        onCommitToHistory(label);
       }
       setDragState(null);
     };

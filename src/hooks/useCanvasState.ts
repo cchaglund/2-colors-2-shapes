@@ -1,8 +1,13 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import type { Shape, ShapeGroup, CanvasState, DailyChallenge } from '../types';
 import { useCanvasHistory } from './useCanvasHistory';
 import { useCanvasStorage, getInitialCanvasState, initialCanvasState } from './useCanvasStorage';
 import { useShapeOperations } from './useShapeOperations';
+
+export interface UndoRedoToast {
+  message: string;
+  key: number;
+}
 
 export function useCanvasState(challenge: DailyChallenge | null, userId: string | undefined) {
   const [canvasState, setCanvasStateInternal] = useState<CanvasState>(getInitialCanvasState);
@@ -21,18 +26,23 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
     resetHistory,
   } = useCanvasHistory(canvasState);
 
+  // Toast state for undo/redo notifications
+  const [toast, setToast] = useState<UndoRedoToast | null>(null);
+  const toastKeyRef = useRef(0);
+
   // Wrapper that adds to history
   const setCanvasState = useCallback(
     (
       updater: CanvasState | ((prev: CanvasState) => CanvasState),
-      addToHistory = true
+      addToHistory = true,
+      label?: string
     ) => {
       setCanvasStateInternal((prev) => {
         const newState =
           typeof updater === 'function' ? updater(prev) : updater;
 
         if (addToHistory) {
-          pushHistory(newState);
+          pushHistory(newState, label);
         }
 
         return newState;
@@ -42,12 +52,22 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
   );
 
   const undo = useCallback(() => {
-    historyUndo((restored) => setCanvasStateInternal(restored));
+    historyUndo((restored, label) => {
+      setCanvasStateInternal(restored);
+      toastKeyRef.current += 1;
+      setToast({ message: `Undo: ${label || 'Edit'}`, key: toastKeyRef.current });
+    });
   }, [historyUndo]);
 
   const redo = useCallback(() => {
-    historyRedo((restored) => setCanvasStateInternal(restored));
+    historyRedo((restored, label) => {
+      setCanvasStateInternal(restored);
+      toastKeyRef.current += 1;
+      setToast({ message: `Redo: ${label || 'Edit'}`, key: toastKeyRef.current });
+    });
   }, [historyRedo]);
+
+  const dismissToast = useCallback(() => setToast(null), []);
 
   // Shape CRUD, selection, layer ordering, mirror, and group operations
   const {
@@ -76,12 +96,12 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
   } = useShapeOperations(challenge, setCanvasState);
 
   // Commit current state to history (used after drag operations complete)
-  const commitToHistory = useCallback(() => {
-    historyCommit(canvasState);
+  const commitToHistory = useCallback((label?: string) => {
+    historyCommit(canvasState, label);
   }, [canvasState, historyCommit]);
 
   const resetCanvas = useCallback(() => {
-    setCanvasState(initialCanvasState);
+    setCanvasState(initialCanvasState, true, 'Reset canvas');
   }, [setCanvasState]);
 
   // Get shapes in a group (helper for LayerPanel)
@@ -143,5 +163,8 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
     getShapesInGroup,
     // External loading
     loadCanvasState,
+    // Toast
+    toast,
+    dismissToast,
   };
 }

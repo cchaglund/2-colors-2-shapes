@@ -6,7 +6,7 @@ interface UseCanvasKeyboardShortcutsOptions {
   selectedShapes: Shape[];
   hasSelection: boolean;
   keyMappings: KeyMappings;
-  onUpdateShapes: (updates: Map<string, Partial<Shape>>) => void;
+  onUpdateShapes: (updates: Map<string, Partial<Shape>>, addToHistory?: boolean, label?: string) => void;
   onUndo: () => void;
   onRedo: () => void;
   onDuplicateShapes: (ids: string[]) => void;
@@ -156,7 +156,7 @@ export function useCanvasKeyboardShortcuts({
             y: shape.y + dy,
           });
         });
-        onUpdateShapes(updates);
+        onUpdateShapes(updates, true, 'Move');
       }
 
       if (dRotation !== 0) {
@@ -167,7 +167,7 @@ export function useCanvasKeyboardShortcuts({
             rotation: shape.rotation + dRotation,
           });
         });
-        onUpdateShapes(updates);
+        onUpdateShapes(updates, true, 'Rotate');
       }
     };
 

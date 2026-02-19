@@ -4,7 +4,8 @@ import { generateId } from '../utils/shapes';
 
 type SetCanvasState = (
   updater: CanvasState | ((prev: CanvasState) => CanvasState),
-  addToHistory?: boolean
+  addToHistory?: boolean,
+  label?: string
 ) => void;
 
 /** Helper to ensure all shapes have unique, sequential zIndices. */
@@ -54,7 +55,7 @@ export function useShapeOperations(
           shapes: [...prev.shapes, newShape],
           selectedShapeIds: new Set([newShape.id]),
         };
-      });
+      }, true, 'Add shape');
     },
     [challenge, setCanvasState]
   );
@@ -84,7 +85,7 @@ export function useShapeOperations(
           shapes: [...prev.shapes, newShape],
           selectedShapeIds: new Set([newShape.id]),
         };
-      });
+      }, true, 'Duplicate');
     },
     [challenge, setCanvasState]
   );
@@ -131,30 +132,30 @@ export function useShapeOperations(
           shapes: [...prev.shapes, ...newShapes],
           selectedShapeIds: new Set(newSelectedIds),
         };
-      });
+      }, true, 'Duplicate');
     },
     [challenge, duplicateShape, setCanvasState]
   );
 
   const updateShape = useCallback(
-    (id: string, updates: Partial<Shape>, addToHistory = true) => {
+    (id: string, updates: Partial<Shape>, addToHistory = true, label?: string) => {
       setCanvasState((prev) => ({
         ...prev,
         shapes: prev.shapes.map((s) => (s.id === id ? { ...s, ...updates } : s)),
-      }), addToHistory);
+      }), addToHistory, label);
     },
     [setCanvasState]
   );
 
   const updateShapes = useCallback(
-    (updates: Map<string, Partial<Shape>>, addToHistory = true) => {
+    (updates: Map<string, Partial<Shape>>, addToHistory = true, label?: string) => {
       setCanvasState((prev) => ({
         ...prev,
         shapes: prev.shapes.map((s) => {
           const shapeUpdates = updates.get(s.id);
           return shapeUpdates ? { ...s, ...shapeUpdates } : s;
         }),
-      }), addToHistory);
+      }), addToHistory, label);
     },
     [setCanvasState]
   );
@@ -169,7 +170,7 @@ export function useShapeOperations(
           shapes: prev.shapes.filter((s) => s.id !== id),
           selectedShapeIds: newSelectedIds,
         };
-      });
+      }, true, 'Delete');
     },
     [setCanvasState]
   );
@@ -182,7 +183,7 @@ export function useShapeOperations(
         shapes: prev.shapes.filter((s) => !prev.selectedShapeIds.has(s.id)),
         selectedShapeIds: new Set<string>(),
       };
-    });
+    }, true, 'Delete');
   }, [setCanvasState]);
 
   const selectShape = useCallback(
@@ -281,7 +282,7 @@ export function useShapeOperations(
         }
 
         return { ...prev, shapes: newShapes };
-      });
+      }, true, 'Reorder');
     },
     [setCanvasState]
   );
@@ -320,7 +321,7 @@ export function useShapeOperations(
         }
 
         return { ...prev, shapes: newShapes, groups: newGroups };
-      });
+      }, true, 'Reorder');
     },
     [setCanvasState]
   );
@@ -465,7 +466,7 @@ export function useShapeOperations(
         newShapes = normalizeZIndices(newShapes);
 
         return { ...prev, shapes: newShapes };
-      });
+      }, true, 'Reorder');
     },
     [setCanvasState]
   );
@@ -544,14 +545,14 @@ export function useShapeOperations(
         });
 
         return { ...prev, shapes: newShapes };
-      });
+      }, true, 'Reorder');
     },
     [setCanvasState]
   );
 
   const setBackgroundColor = useCallback(
     (colorIndex: 0 | 1 | null) => {
-      setCanvasState((prev) => ({ ...prev, backgroundColorIndex: colorIndex }));
+      setCanvasState((prev) => ({ ...prev, backgroundColorIndex: colorIndex }), true, 'Background');
     },
     [setCanvasState]
   );
@@ -593,7 +594,7 @@ export function useShapeOperations(
             return shapeUpdates ? { ...s, ...shapeUpdates } : s;
           }),
         };
-      });
+      }, true, 'Mirror');
     },
     [setCanvasState]
   );
@@ -635,7 +636,7 @@ export function useShapeOperations(
             return shapeUpdates ? { ...s, ...shapeUpdates } : s;
           }),
         };
-      });
+      }, true, 'Mirror');
     },
     [setCanvasState]
   );
@@ -694,7 +695,7 @@ export function useShapeOperations(
           shapes: newShapes,
           groups: [...prev.groups, newGroup],
         };
-      });
+      }, true, 'Group');
     },
     [setCanvasState]
   );
@@ -708,7 +709,7 @@ export function useShapeOperations(
         const newGroups = prev.groups.filter((g) => g.id !== groupId);
 
         return { ...prev, shapes: newShapes, groups: newGroups };
-      });
+      }, true, 'Ungroup');
     },
     [setCanvasState]
   );
@@ -759,7 +760,7 @@ export function useShapeOperations(
         const newGroups = prev.groups.filter((g) => !groupsToRemove.has(g.id));
 
         return { ...prev, shapes: newShapes, groups: newGroups };
-      });
+      }, true, 'Ungroup');
     },
     [setCanvasState]
   );
@@ -771,7 +772,7 @@ export function useShapeOperations(
         groups: prev.groups.map((g) =>
           g.id === groupId ? { ...g, name: newName } : g
         ),
-      }));
+      }), true, 'Rename group');
     },
     [setCanvasState]
   );
@@ -805,7 +806,7 @@ export function useShapeOperations(
         const newGroups = prev.groups.filter((g) => groupsWithShapes.has(g.id));
 
         return { ...prev, shapes: newShapes, groups: newGroups };
-      });
+      }, true, 'Move to group');
     },
     [setCanvasState]
   );
