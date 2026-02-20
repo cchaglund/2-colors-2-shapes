@@ -6,13 +6,13 @@ interface UseSaveSubmissionOptions {
   challenge: DailyChallenge | null;
   shapes: Shape[];
   groups: ShapeGroup[];
-  backgroundColorIndex: 0 | 1 | null;
+  backgroundColorIndex: number | null;
   user: User | null;
   saveSubmission: (params: {
     challengeDate: string;
     shapes: Shape[];
     groups: ShapeGroup[];
-    backgroundColorIndex: 0 | 1 | null;
+    backgroundColorIndex: number | null;
   }) => Promise<{ success: boolean }>;
   onSaveSuccess?: () => void;
 }

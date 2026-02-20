@@ -2,6 +2,7 @@ import { useRef, useCallback, useState } from 'react';
 import type { Shape, ViewportState } from '../../types';
 import type { TouchState, ContextMenuState } from '../../types/canvas';
 import { LONG_PRESS_DURATION, TAP_THRESHOLD, CANVAS_SIZE } from '../../types/canvas';
+import { getShapeDimensions } from '../../utils/shapes';
 
 interface UseCanvasTouchGesturesOptions {
   shapes: Shape[];
@@ -207,11 +208,14 @@ export function useCanvasTouchGestures({
         if (selectedShapes.length > 0) {
           state.startShapeData = new Map();
           selectedShapes.forEach((s) => {
+            const dims = getShapeDimensions(s.type, s.size);
             state.startShapeData!.set(s.id, {
               x: s.x,
               y: s.y,
               size: s.size,
               rotation: s.rotation,
+              width: dims.width,
+              height: dims.height,
             });
           });
         } else {
@@ -340,8 +344,9 @@ export function useCanvasTouchGestures({
             const newSize = Math.max(20, startData.size * scale);
 
             // Calculate new position (scale around pinch center)
-            const shapeCenterX = startData.x + startData.size / 2;
-            const shapeCenterY = startData.y + startData.size / 2;
+            // Use actual shape dimensions for correct center calculation
+            const shapeCenterX = startData.x + startData.width / 2;
+            const shapeCenterY = startData.y + startData.height / 2;
 
             // Vector from pinch center to shape center
             const relX = shapeCenterX - state.startCenter.x;
@@ -358,9 +363,9 @@ export function useCanvasTouchGestures({
             const newCenterX = currentCenter.x + rotatedX * scale;
             const newCenterY = currentCenter.y + rotatedY * scale;
 
-            // Convert center to top-left position
-            const newX = newCenterX - newSize / 2;
-            const newY = newCenterY - newSize / 2;
+            // Convert center to top-left position (dimensions scale proportionally with size)
+            const newX = newCenterX - (startData.width * scale) / 2;
+            const newY = newCenterY - (startData.height * scale) / 2;
 
             // Calculate new rotation, accounting for flip
             const flipInverts = (shape.flipX ? 1 : 0) ^ (shape.flipY ? 1 : 0);

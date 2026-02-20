@@ -21,11 +21,11 @@ function Label({ children }: { children: React.ReactNode }) {
 
 interface ToolbarProps {
   challenge: DailyChallenge;
-  backgroundColorIndex: 0 | 1 | null;
+  backgroundColorIndex: number | null;
   selectedShapeIds: Set<string>;
-  onAddShape: (shapeIndex: 0 | 1, colorIndex: 0 | 1) => void;
-  onSetBackground: (colorIndex: 0 | 1 | null) => void;
-  onChangeShapeColor: (colorIndex: 0 | 1) => void;
+  onAddShape: (shapeIndex: number, colorIndex: number) => void;
+  onSetBackground: (colorIndex: number | null) => void;
+  onChangeShapeColor: (colorIndex: number) => void;
   onReset: () => void;
   isOpen: boolean;
   width: number;
@@ -192,7 +192,7 @@ export function Toolbar({
                 }`}
                 style={{ backgroundColor: color }}
                 title={hasSelection ? `Change selected shape(s) to ${color}` : color}
-                onClick={() => hasSelection && onChangeShapeColor(index as 0 | 1)}
+                onClick={() => hasSelection && onChangeShapeColor(index)}
                 disabled={!hasSelection}
               />
             ))}
@@ -229,7 +229,7 @@ export function Toolbar({
                     ? 'border-(--color-accent) ring-2 ring-(--color-accent-subtle)'
                     : 'border-(--color-border) hover:border-(--color-border-emphasis)'
                 }`}
-                onClick={() => onSetBackground(index as 0 | 1)}
+                onClick={() => onSetBackground(index)}
                 style={{ backgroundColor: color }}
                 title={`${color} background`}
               >
@@ -261,7 +261,7 @@ export function Toolbar({
                       key={colorIndex}
                       className="w-7 h-7 rounded-md cursor-pointer text-[13px] font-medium text-white/90 transition-all hover:scale-105 border border-(--color-border-light) flex items-center justify-center"
                       style={{ backgroundColor: color, textShadow: '0 1px 1px rgba(0,0,0,0.2)' }}
-                      onClick={() => onAddShape(shapeIndex as 0 | 1, colorIndex as 0 | 1)}
+                      onClick={() => onAddShape(shapeIndex, colorIndex)}
                       title={`Add ${shapeData.name} with ${color}`}
                     >
                       +

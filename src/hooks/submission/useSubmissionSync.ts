@@ -14,7 +14,7 @@ interface UseSubmissionSyncOptions {
   loadCanvasState: (
     shapes: Shape[],
     groups: ShapeGroup[],
-    backgroundColorIndex: 0 | 1 | null
+    backgroundColorIndex: number | null
   ) => void;
 }
 
@@ -60,7 +60,7 @@ export function useSubmissionSync({
         loadCanvasState(
           submission.shapes,
           submission.groups || [], // Handle old submissions without groups
-          submission.background_color_index as 0 | 1 | null
+          submission.background_color_index as number | null
         );
       }
       hasSyncedSubmissionRef.current = true;

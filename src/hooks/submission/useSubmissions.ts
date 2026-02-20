@@ -18,7 +18,7 @@ interface SaveSubmissionParams {
   challengeDate: string;
   shapes: Shape[];
   groups: ShapeGroup[];
-  backgroundColorIndex: 0 | 1 | null;
+  backgroundColorIndex: number | null;
 }
 
 export function useSubmissions(userId: string | undefined, todayDate?: string) {

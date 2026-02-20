@@ -409,6 +409,33 @@ export function getShapeSVGData(type: ShapeType, size: number) {
   }
 }
 
+// Get actual rendered dimensions for a shape (accounting for non-square viewBoxes)
+export function getShapeDimensions(type: ShapeType, size: number): { width: number; height: number } {
+  // Polygon shapes compute their own viewBox dimensions via getPolygonPoints/getStarPoints
+  switch (type) {
+    case 'triangle':
+      return pickDims(getPolygonPoints(3, size));
+    case 'pentagon':
+      return pickDims(getPolygonPoints(5, size));
+    case 'hexagon':
+      return pickDims(getPolygonPoints(6, size));
+    case 'heptagon':
+      return pickDims(getPolygonPoints(7, size));
+    case 'star':
+      return pickDims(getStarPoints(size));
+    default: {
+      const aspectRatio = SHAPE_ASPECT_RATIOS[type] || 1;
+      const width = aspectRatio >= 1 ? size : size * aspectRatio;
+      const height = aspectRatio >= 1 ? size / aspectRatio : size;
+      return { width, height };
+    }
+  }
+}
+
+function pickDims(v: { width: number; height: number }) {
+  return { width: v.width, height: v.height };
+}
+
 // Generate a unique ID
 export function generateId(): string {
   return `shape-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;

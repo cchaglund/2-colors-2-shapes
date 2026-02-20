@@ -42,6 +42,7 @@ export {
 export {
   SHAPE_ASPECT_RATIOS,
   getShapeSVGData,
+  getShapeDimensions,
   generateId,
   SHAPE_NAMES,
 } from './utils';

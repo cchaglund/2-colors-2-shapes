@@ -168,9 +168,17 @@ export function useDailyChallenge(date: string): UseDailyChallengeReturn {
       //   },
       // ];
 
+      // DEBUG: Override colors (uncomment to force specific colors)
+      // const debugColors = [
+      //   'hsl(270, 100%, 85%)',  // blue
+      //   'hsl(324, 100%, 44%)',  // red
+      //   'hsl(61, 52%, 67%)',   // yellow
+      // ];
+
       const fetchedChallenge: DailyChallenge = {
         date: data.date,
         colors: data.colors,
+        // colors: debugColors,
         shapes: data.shapes,
         // shapes: debugShapes,
         word: data.word,

@@ -157,9 +157,12 @@ export function useShapeDrag({
             const shapeFlipY = shape?.flipY ?? false;
 
             // Rotate position around the center of the bounding box (same for all shapes)
+            // Use actual shape dimensions (not size×size) to find the true visual center
+            const halfW = startData.width / 2;
+            const halfH = startData.height / 2;
             const shapeCenter = {
-              x: startData.x + startData.size / 2,
-              y: startData.y + startData.size / 2,
+              x: startData.x + halfW,
+              y: startData.y + halfH,
             };
             const relX = shapeCenter.x - centerX;
             const relY = shapeCenter.y - centerY;
@@ -175,8 +178,8 @@ export function useShapeDrag({
             const shapeRotationDelta = shapeFlipInverts ? -angleDelta : angleDelta;
 
             updates.set(id, {
-              x: newCenterX - startData.size / 2,
-              y: newCenterY - startData.size / 2,
+              x: newCenterX - halfW,
+              y: newCenterY - halfH,
               rotation: startData.rotation + shapeRotationDelta,
             });
           });
@@ -308,9 +311,11 @@ export function useShapeDrag({
             const shapeFlipX = shape?.flipX ?? false;
             const shapeFlipY = shape?.flipY ?? false;
 
+            const halfW = startData.width / 2;
+            const halfH = startData.height / 2;
             const shapeCenter = {
-              x: startData.x + startData.size / 2,
-              y: startData.y + startData.size / 2,
+              x: startData.x + halfW,
+              y: startData.y + halfH,
             };
             const relX = shapeCenter.x - centerX;
             const relY = shapeCenter.y - centerY;
@@ -326,8 +331,8 @@ export function useShapeDrag({
             const shapeRotationDelta = shapeFlipInverts ? -angleDelta : angleDelta;
 
             updates.set(id, {
-              x: newCenterX - startData.size / 2,
-              y: newCenterY - startData.size / 2,
+              x: newCenterX - halfW,
+              y: newCenterY - halfH,
               rotation: startData.rotation + shapeRotationDelta,
             });
           });

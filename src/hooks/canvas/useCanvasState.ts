@@ -114,7 +114,7 @@ export function useCanvasState(challenge: DailyChallenge | null, userId: string 
 
   // Load canvas state from an external source (e.g., a submission from the server)
   const loadCanvasState = useCallback(
-    (shapes: Shape[], groups: ShapeGroup[], backgroundColorIndex: 0 | 1 | null) => {
+    (shapes: Shape[], groups: ShapeGroup[], backgroundColorIndex: number | null) => {
       const newState: CanvasState = {
         shapes,
         groups,

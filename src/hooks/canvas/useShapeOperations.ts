@@ -28,7 +28,7 @@ export function useShapeOperations(
   setCanvasState: SetCanvasState,
 ) {
   const addShape = useCallback(
-    (shapeIndex: 0 | 1, colorIndex: 0 | 1) => {
+    (shapeIndex: number, colorIndex: number) => {
       if (!challenge) return;
 
       setCanvasState((prev) => {
@@ -68,7 +68,7 @@ export function useShapeOperations(
 
         const maxZIndex = Math.max(0, ...prev.shapes.map((s) => s.zIndex));
         const totalCount = prev.shapes.length + 1;
-        const shapeIndex = challenge ? (challenge.shapes.findIndex(s => s.type === shape.type) as 0 | 1) : 0;
+        const shapeIndex = challenge ? challenge.shapes.findIndex(s => s.type === shape.type) : 0;
         const shapeLetter = shapeIndex === 0 ? 'A' : 'B';
 
         const newShape: Shape = {
@@ -111,7 +111,7 @@ export function useShapeOperations(
         for (const shape of shapesToDuplicate) {
           currentCount++;
           maxZIndex++;
-          const shapeIndex = challenge ? (challenge.shapes.findIndex(s => s.type === shape.type) as 0 | 1) : 0;
+          const shapeIndex = challenge ? challenge.shapes.findIndex(s => s.type === shape.type) : 0;
           const shapeLetter = shapeIndex === 0 ? 'A' : 'B';
 
           const newShape: Shape = {
@@ -551,7 +551,7 @@ export function useShapeOperations(
   );
 
   const setBackgroundColor = useCallback(
-    (colorIndex: 0 | 1 | null) => {
+    (colorIndex: number | null) => {
       setCanvasState((prev) => ({ ...prev, backgroundColorIndex: colorIndex }), true, 'Background');
     },
     [setCanvasState]

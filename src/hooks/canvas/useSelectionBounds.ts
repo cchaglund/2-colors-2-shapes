@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import type { Shape } from '../../types';
 import type { SelectionBounds } from '../../types/canvas';
+import { getShapeDimensions } from '../../utils/shapes';
 
 /**
  * Hook for calculating selection bounds and managing selected shapes
@@ -23,17 +24,20 @@ export function useSelectionBounds(shapes: Shape[], selectedShapeIds: Set<string
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
     for (const shape of selectedShapes) {
-      // Get the four corners of the shape's bounding box
+      // Get actual rendered dimensions (may differ from size×size for non-square shapes)
+      const dims = getShapeDimensions(shape.type, shape.size);
+
+      // Get the four corners of the shape's actual bounding box
       const corners = [
         { x: 0, y: 0 },
-        { x: shape.size, y: 0 },
-        { x: shape.size, y: shape.size },
-        { x: 0, y: shape.size },
+        { x: dims.width, y: 0 },
+        { x: dims.width, y: dims.height },
+        { x: 0, y: dims.height },
       ];
 
-      // Rotation center is at the center of the shape
-      const cx = shape.size / 2;
-      const cy = shape.size / 2;
+      // Rotation center is at the center of the actual shape dimensions
+      const cx = dims.width / 2;
+      const cy = dims.height / 2;
       const angleRad = (shape.rotation * Math.PI) / 180;
       const cos = Math.cos(angleRad);
       const sin = Math.sin(angleRad);

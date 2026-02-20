@@ -264,7 +264,7 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
         onAddShape={addShape}
         onSetBackground={setBackgroundColor}
         onChangeShapeColor={(colorIndex) => {
-          const updates = new Map<string, { colorIndex: 0 | 1 }>();
+          const updates = new Map<string, { colorIndex: number }>();
           canvasState.selectedShapeIds.forEach((id) => {
             updates.set(id, { colorIndex });
           });

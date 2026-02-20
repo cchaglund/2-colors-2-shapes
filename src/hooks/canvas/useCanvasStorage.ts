@@ -93,7 +93,7 @@ export function useCanvasStorage(canvasState: CanvasState, userId: string | unde
    * Used when loading external state (server submissions).
    */
   const saveCanvasStateNow = useCallback(
-    (shapes: Shape[], groups: ShapeGroup[], backgroundColorIndex: 0 | 1 | null) => {
+    (shapes: Shape[], groups: ShapeGroup[], backgroundColorIndex: number | null) => {
       saveToStorage({
         date: getTodayDateUTC(),
         userId: userIdRef.current,

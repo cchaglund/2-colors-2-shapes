@@ -1,6 +1,7 @@
 import { useRef, useCallback } from 'react';
 import type { Shape, DailyChallenge, ViewportState } from '../../types';
 import { CANVAS_SIZE } from '../../types/canvas';
+import { getShapeDimensions } from '../../utils/shapes';
 import { ShapeElement } from './ShapeElement';
 import {
   TransformInteractionLayer,
@@ -286,9 +287,10 @@ export function Canvas({
       const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
       const point = getSVGPoint(clientX, clientY);
 
-      const startShapeData = new Map<string, { x: number; y: number; size: number; rotation: number }>();
+      const startShapeData = new Map<string, { x: number; y: number; size: number; rotation: number; width: number; height: number }>();
       selectedShapes.forEach(s => {
-        startShapeData.set(s.id, { x: s.x, y: s.y, size: s.size, rotation: s.rotation });
+        const dims = getShapeDimensions(s.type, s.size);
+        startShapeData.set(s.id, { x: s.x, y: s.y, size: s.size, rotation: s.rotation, width: dims.width, height: dims.height });
       });
 
       const refShape = selectedShapes[0];
@@ -319,9 +321,10 @@ export function Canvas({
       const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
       const point = getSVGPoint(clientX, clientY);
 
-      const startShapeData = new Map<string, { x: number; y: number; size: number; rotation: number }>();
+      const startShapeData = new Map<string, { x: number; y: number; size: number; rotation: number; width: number; height: number }>();
       selectedShapes.forEach(s => {
-        startShapeData.set(s.id, { x: s.x, y: s.y, size: s.size, rotation: s.rotation });
+        const dims = getShapeDimensions(s.type, s.size);
+        startShapeData.set(s.id, { x: s.x, y: s.y, size: s.size, rotation: s.rotation, width: dims.width, height: dims.height });
       });
 
       const refShape = selectedShapes[0];
