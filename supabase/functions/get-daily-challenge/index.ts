@@ -123,7 +123,7 @@ interface ShapeData {
 
 interface DailyChallenge {
   date: string;
-  colors: [string, string];
+  colors: string[];
   shapes: [ShapeData, ShapeData];
   word: string;
 }
@@ -133,6 +133,7 @@ interface ChallengeRow {
   challenge_date: string;
   color_1: string;
   color_2: string;
+  color_3: string | null;
   shape_1: string;
   shape_2: string;
   shape_1_svg: string | null;
@@ -586,49 +587,61 @@ function isColorTooSimilar(color: string, colorsToAvoid: string[]): boolean {
 function generateDistinctColors(
   random: () => number,
   colorsToAvoid: string[] = []
-): [string, string] {
+): string[] {
   const { colorSpace, excludeMuddyHues, minContrastRatio } = COLOR_CONFIG;
   const minHueDiff = 30;
 
-  for (let i = 0; i < 100; i++) {
-    // Generate two distinct hues
-    const hue1 = generateSafeHue(random, excludeMuddyHues);
-    const hue2 = generateSafeHue(random, excludeMuddyHues);
+  const generateColor = (hue: number) =>
+    colorSpace === 'oklch'
+      ? generateColorWithOKLCH(random, hue)
+      : generateColorWithHSL(random, hue);
 
-    // Check hue difference between the pair
-    let hueDiff = Math.abs(hue1 - hue2);
-    if (hueDiff > 180) hueDiff = 360 - hueDiff;
-    if (hueDiff < minHueDiff) continue;
-
-    // Generate colors based on color space
-    const color1 = colorSpace === 'oklch'
-      ? generateColorWithOKLCH(random, hue1)
-      : generateColorWithHSL(random, hue1);
-    const color2 = colorSpace === 'oklch'
-      ? generateColorWithOKLCH(random, hue2)
-      : generateColorWithHSL(random, hue2);
-
-    // Check WCAG contrast ratio
-    if (getContrastRatio(color1, color2) < minContrastRatio) continue;
-
-    // Check similarity to colors to avoid (e.g., previous day's colors)
-    if (isColorTooSimilar(color1, colorsToAvoid) || isColorTooSimilar(color2, colorsToAvoid)) {
-      continue;
+  // Helper: check pairwise hue differences for 3 hues (all pairs ≥ minHueDiff)
+  function huesDistinct(hues: number[]): boolean {
+    for (let a = 0; a < hues.length; a++) {
+      for (let b = a + 1; b < hues.length; b++) {
+        let diff = Math.abs(hues[a] - hues[b]);
+        if (diff > 180) diff = 360 - diff;
+        if (diff < minHueDiff) return false;
+      }
     }
-
-    return [color1, color2];
+    return true;
   }
 
-  // Fallback: generate complementary hues (180° apart)
-  // Note: fallback doesn't check colorsToAvoid to prevent infinite loops
+  for (let i = 0; i < 100; i++) {
+    // Generate 3 distinct hues
+    const hues = [
+      generateSafeHue(random, excludeMuddyHues),
+      generateSafeHue(random, excludeMuddyHues),
+      generateSafeHue(random, excludeMuddyHues),
+    ];
+
+    if (!huesDistinct(hues)) continue;
+
+    const colors = hues.map(generateColor);
+
+    // Relaxed contrast: require ≥2 of 3 pairwise contrast ratios to meet threshold
+    const pairs = [
+      getContrastRatio(colors[0], colors[1]),
+      getContrastRatio(colors[0], colors[2]),
+      getContrastRatio(colors[1], colors[2]),
+    ];
+    const passingPairs = pairs.filter(r => r >= minContrastRatio).length;
+    if (passingPairs < 2) continue;
+
+    // Check similarity to colors to avoid (previous days)
+    if (colors.some(c => isColorTooSimilar(c, colorsToAvoid))) continue;
+
+    return colors;
+  }
+
+  // Fallback: trichromatic hues (120° apart)
   const hue = generateSafeHue(random, excludeMuddyHues);
-  const color1 = colorSpace === 'oklch'
-    ? generateColorWithOKLCH(random, hue)
-    : generateColorWithHSL(random, hue);
-  const color2 = colorSpace === 'oklch'
-    ? generateColorWithOKLCH(random, (hue + 180) % 360)
-    : generateColorWithHSL(random, (hue + 180) % 360);
-  return [color1, color2];
+  return [
+    generateColor(hue),
+    generateColor((hue + 120) % 360),
+    generateColor((hue + 240) % 360),
+  ];
 }
 
 function generateShapes(random: () => number): [ShapeType, ShapeType] {
@@ -642,7 +655,7 @@ function generateShapes(random: () => number): [ShapeType, ShapeType] {
 
 interface PreviousChallenge {
   shapes: [ShapeType, ShapeType];
-  colors: [string, string];
+  colors: string[];
 }
 
 function haveSameShapes(
@@ -659,16 +672,28 @@ function areSimilarColors(color1: string, color2: string): boolean {
 }
 
 function haveSimilarColors(
-  colors1: [string, string],
-  colors2: [string, string]
+  colors1: string[],
+  colors2: string[]
 ): boolean {
-  const match1 = areSimilarColors(colors1[0], colors2[0]) && areSimilarColors(colors1[1], colors2[1]);
-  const match2 = areSimilarColors(colors1[0], colors2[1]) && areSimilarColors(colors1[1], colors2[0]);
-  return match1 || match2;
+  // For each color in colors1, check if it has a similar match in colors2
+  // If most colors match, the palettes are too similar
+  let matches = 0;
+  const used = new Set<number>();
+  for (const c1 of colors1) {
+    for (let j = 0; j < colors2.length; j++) {
+      if (!used.has(j) && areSimilarColors(c1, colors2[j])) {
+        matches++;
+        used.add(j);
+        break;
+      }
+    }
+  }
+  // Similar if most colors have a match (allow 1 different color)
+  return matches >= Math.min(colors1.length, colors2.length) - 1;
 }
 
 function isTooSimilarToAny(
-  candidate: { shapes: [ShapeType, ShapeType]; colors: [string, string] },
+  candidate: { shapes: [ShapeType, ShapeType]; colors: string[] },
   previousChallenges: PreviousChallenge[]
 ): boolean {
   for (const prev of previousChallenges) {
@@ -736,7 +761,7 @@ function rowToChallenge(row: ChallengeRow): DailyChallenge {
 
   return {
     date: row.challenge_date,
-    colors: [row.color_1, row.color_2],
+    colors: [row.color_1, row.color_2, row.color_3].filter(Boolean) as string[],
     shapes: [
       {
         type: shape1Type,
@@ -756,7 +781,7 @@ function rowToChallenge(row: ChallengeRow): DailyChallenge {
 function rowToPreviousChallenge(row: ChallengeRow): PreviousChallenge {
   return {
     shapes: [row.shape_1 as ShapeType, row.shape_2 as ShapeType],
-    colors: [row.color_1, row.color_2],
+    colors: [row.color_1, row.color_2, row.color_3].filter(Boolean) as string[],
   };
 }
 
@@ -811,6 +836,7 @@ async function fetchOrCreateChallenge(
         challenge_date: challenge.date,
         color_1: challenge.colors[0],
         color_2: challenge.colors[1],
+        color_3: challenge.colors[2] ?? null,
         shape_1: challenge.shapes[0].type,
         shape_2: challenge.shapes[1].type,
         shape_1_svg: challenge.shapes[0].svg,
@@ -869,11 +895,9 @@ interface ChallengeRequest {
 }
 
 interface TestColorResponse {
-  colors: [string, string];
+  colors: string[];
   metadata: {
-    contrastRatio: number;
-    hueDiff: number;
-    distance: number;
+    pairwise: Array<{ pair: string; contrastRatio: number; hueDiff: number; distance: number }>;
   };
 }
 
@@ -907,19 +931,26 @@ serve(async (req: Request) => {
       const colorsToAvoid = requestData.previousColors || [];
       const colors = generateDistinctColors(random, colorsToAvoid);
 
-      // Calculate metadata for display
-      const c1 = parseHSL(colors[0]);
-      const c2 = parseHSL(colors[1]);
-      let hueDiff = Math.abs(c1.h - c2.h);
-      if (hueDiff > 180) hueDiff = 360 - hueDiff;
+      // Calculate pairwise metadata for display
+      const pairwise: TestColorResponse['metadata']['pairwise'] = [];
+      for (let a = 0; a < colors.length; a++) {
+        for (let b = a + 1; b < colors.length; b++) {
+          const ca = parseHSL(colors[a]);
+          const cb = parseHSL(colors[b]);
+          let hueDiff = Math.abs(ca.h - cb.h);
+          if (hueDiff > 180) hueDiff = 360 - hueDiff;
+          pairwise.push({
+            pair: `${a + 1}-${b + 1}`,
+            contrastRatio: getContrastRatio(colors[a], colors[b]),
+            hueDiff,
+            distance: colorDistance(colors[a], colors[b]),
+          });
+        }
+      }
 
       const response: TestColorResponse = {
         colors,
-        metadata: {
-          contrastRatio: getContrastRatio(colors[0], colors[1]),
-          hueDiff,
-          distance: colorDistance(colors[0], colors[1]),
-        },
+        metadata: { pairwise },
       };
 
       return new Response(JSON.stringify(response), {

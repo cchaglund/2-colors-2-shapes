@@ -121,7 +121,7 @@ export function Toolbar({
           <span className="flex items-center gap-2 text-[13px] font-medium text-(--color-text-primary)">
             <img src={logoSvg} alt="" width="28" height="28" />
             <span className="flex flex-col leading-tight">
-              <span>2 Colors</span>
+              <span>3 Colors</span>
               <span>2 Shapes</span>
             </span>
           </span>

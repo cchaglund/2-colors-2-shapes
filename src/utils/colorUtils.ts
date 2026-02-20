@@ -79,14 +79,16 @@ function getLuminance(color: string): number {
 }
 
 /**
- * Given two colors, return which is darker and which is lighter
+ * Given an array of colors, return the darkest and lightest
  */
 export function getDarkerLighterColors(
-  colors: [string, string]
+  colors: string[]
 ): { darker: string; lighter: string } {
-  const l0 = getLuminance(colors[0]);
-  const l1 = getLuminance(colors[1]);
-  return l0 < l1
-    ? { darker: colors[0], lighter: colors[1] }
-    : { darker: colors[1], lighter: colors[0] };
+  const sorted = colors
+    .map(c => ({ color: c, luminance: getLuminance(c) }))
+    .sort((a, b) => a.luminance - b.luminance);
+  return {
+    darker: sorted[0].color,
+    lighter: sorted[sorted.length - 1].color,
+  };
 }

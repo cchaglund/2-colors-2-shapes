@@ -14,20 +14,19 @@ export function WelcomeModal({ onDismiss, challenge }: WelcomeModalProps) {
         id="welcome-title"
         className="text-xl font-semibold text-(--color-text-primary) mb-5 text-center"
       >
-        Welcome to 2 Colors 2 Shapes!
+        Welcome to 3 Colors 2 Shapes!
       </h2>
 
       {challenge && (
         <div className="flex flex-col items-center gap-3 mt-11 mb-6">
           <div className="flex items-center gap-3">
-            <div
-              className="w-6 h-6 rounded-full border border-(--color-border)"
-              style={{ backgroundColor: challenge.colors[0] }}
-            />
-            <div
-              className="w-6 h-6 rounded-full border border-(--color-border)"
-              style={{ backgroundColor: challenge.colors[1] }}
-            />
+            {challenge.colors.map((color, i) => (
+              <div
+                key={i}
+                className="w-6 h-6 rounded-full border border-(--color-border)"
+                style={{ backgroundColor: color }}
+              />
+            ))}
             <div className="w-px h-5 bg-gray-200 mx-1" />
             <span className="text-(--color-text-tertiary)">
               <ShapeIcon type={challenge.shapes[0].type} size={22} />
@@ -41,7 +40,7 @@ export function WelcomeModal({ onDismiss, challenge }: WelcomeModalProps) {
 
       <div className="flex items-center gap-4">
         <p className="text-md text-(--color-text-secondary) text-center">
-          Each day brings a new <strong>creative challenge</strong> — make art using today's 2 colors and 2 shapes!
+          Each day brings a new <strong>creative challenge</strong> — make art using today's 3 colors and 2 shapes!
         </p>
       </div>
 
