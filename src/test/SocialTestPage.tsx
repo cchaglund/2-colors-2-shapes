@@ -9,8 +9,8 @@
 
 import { useState } from 'react';
 
-import { SubmissionThumbnail } from '../components/SubmissionThumbnail';
-import { UserProfilePage } from '../components/UserProfilePage';
+import { SubmissionThumbnail } from '../components/shared/SubmissionThumbnail';
+import { UserProfilePage } from '../components/pages/UserProfilePage';
 import { FriendsFeedContent } from '../components/FriendsFeed/FriendsFeedContent';
 import { FriendsModal } from '../components/modals/FriendsModal';
 import { FriendsModalTabs, type FriendsTab } from '../components/modals/FriendsModalTabs';
@@ -26,7 +26,7 @@ import {
   MOCK_WALL_SUBMISSIONS,
   SCENARIOS,
 } from './mockData';
-import { BackToCanvasLink } from '../components/BackToCanvasLink';
+import { BackToCanvasLink } from '../components/shared/BackToCanvasLink';
 
 // ============================================================================
 // Test Scenario Types

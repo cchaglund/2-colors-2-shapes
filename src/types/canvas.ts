@@ -17,7 +17,7 @@ export interface DragState {
   flipY?: boolean;
   // For multi-select: store start positions and sizes of all selected shapes
   startPositions?: Map<string, { x: number; y: number }>;
-  startShapeData?: Map<string, { x: number; y: number; size: number; rotation: number }>;
+  startShapeData?: Map<string, { x: number; y: number; size: number; rotation: number; width: number; height: number }>;
   // For multi-select resize/rotate: store the initial bounds
   startBounds?: { x: number; y: number; width: number; height: number };
 }
@@ -37,7 +37,7 @@ export interface TouchState {
   startDistance: number;
   startAngle: number;
   startCenter: { x: number; y: number };
-  startShapeData: Map<string, { x: number; y: number; size: number; rotation: number }> | null;
+  startShapeData: Map<string, { x: number; y: number; size: number; rotation: number; width: number; height: number }> | null;
   // For canvas zoom when no shapes selected
   startZoom: number;
   startPanX: number;

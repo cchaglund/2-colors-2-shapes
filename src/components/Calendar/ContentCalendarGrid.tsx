@@ -51,6 +51,7 @@ export function ContentCalendarGrid({
             <ContentCalendarDayCell
               key={dateStr}
               day={day}
+              dateStr={dateStr}
               isDayToday={isDayToday}
               isFuture={isFuture}
               isCurrentDayLocked={isCurrentDayLocked}

@@ -1,14 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useFriendsFeed, type SortMode } from '../../hooks/useFriendsFeed';
-import { useDailyChallenge } from '../../hooks/useDailyChallenge';
-import { useCalendarMonth } from '../../hooks/useCalendarMonth';
-import { useCalendarChallenges } from '../../hooks/useCalendarChallenges';
+import { useFriendsFeed, type SortMode } from '../../hooks/social/useFriendsFeed';
+import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
+import { useCalendarMonth } from '../../hooks/challenge/useCalendarMonth';
+import { useCalendarChallenges } from '../../hooks/challenge/useCalendarChallenges';
 import { WallSortControls } from '../Wall/WallSortControls';
-import { SubmissionThumbnail } from '../SubmissionThumbnail';
+import { SubmissionThumbnail } from '../shared/SubmissionThumbnail';
 import { ContentNavigation } from '../Calendar/ContentNavigation';
 import { ContentCalendarGrid } from '../Calendar/ContentCalendarGrid';
-import { useAuth } from '../../hooks/useAuth';
-import { useFollows } from '../../hooks/useFollows';
+import { useAuth } from '../../hooks/auth/useAuth';
+import { useFollows } from '../../hooks/social/useFollows';
 import { supabase } from '../../lib/supabase';
 import { formatDate, getDaysInMonth } from '../../utils/calendarUtils';
 
@@ -105,7 +105,7 @@ export function FriendsFeedContent({
       });
 
       if (rpcError) {
-        console.warn('RPC failed, falling back to manual count:', rpcError);
+        console.error('RPC failed, falling back to manual count:', rpcError);
         // Fallback: query submissions directly
         const followingIdsArray = Array.from(followingIds);
         const { data: submissionsData } = await supabase

@@ -1,4 +1,4 @@
-import type { Submission } from '../../hooks/useSubmissions';
+import type { Submission } from '../../hooks/submission/useSubmissions';
 
 interface SubmissionStatsCardProps {
   submission: Submission;

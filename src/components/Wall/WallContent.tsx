@@ -1,12 +1,12 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { useWallOfTheDay, type SortMode } from '../../hooks/useWallOfTheDay';
-import { useDailyChallenge } from '../../hooks/useDailyChallenge';
-import { useCalendarMonth } from '../../hooks/useCalendarMonth';
-import { useCalendarChallenges } from '../../hooks/useCalendarChallenges';
+import { useWallOfTheDay, type SortMode } from '../../hooks/challenge/useWallOfTheDay';
+import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
+import { useCalendarMonth } from '../../hooks/challenge/useCalendarMonth';
+import { useCalendarChallenges } from '../../hooks/challenge/useCalendarChallenges';
 import { WallSortControls } from './WallSortControls';
 import { WallLockedState } from './WallLockedState';
 import { WallEmptyState } from './WallEmptyState';
-import { SubmissionThumbnail } from '../SubmissionThumbnail';
+import { SubmissionThumbnail } from '../shared/SubmissionThumbnail';
 import { ContentNavigation } from '../Calendar/ContentNavigation';
 import { ContentCalendarGrid } from '../Calendar/ContentCalendarGrid';
 import { formatDate, getDaysInMonth } from '../../utils/calendarUtils';

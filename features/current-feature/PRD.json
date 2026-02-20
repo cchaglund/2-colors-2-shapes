@@ -10,7 +10,7 @@
       "Component handles all 4 element types: ellipse, rect, polygon, path",
       "Component computes transform string from shape position/rotation/scale"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-002",
@@ -22,7 +22,7 @@
       "No inline ellipse/rect/polygon/path conditional rendering remains in ShapeElement.tsx",
       "Canvas editor renders shapes identically to before (visual regression check)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-003",
@@ -34,7 +34,7 @@
       "No inline ellipse/rect/polygon/path conditional rendering remains in SubmissionThumbnail.tsx",
       "Submission thumbnails in gallery/voting render identically to before"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-004",
@@ -46,7 +46,7 @@
       "No inline ellipse/rect/polygon/path conditional rendering remains in SubmissionCanvas.tsx",
       "Submission detail view renders shapes identically to before"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-005",
@@ -59,7 +59,7 @@
       "Component uses getShapeSVGData() and renders correct element type",
       "Component supports viewBox from getShapeSVGData"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-006",
@@ -71,7 +71,7 @@
       "Local ShapePreviewIcon function removed from Toolbar.tsx",
       "Toolbar shape previews render correctly in the canvas editor"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-007",
@@ -83,7 +83,7 @@
       "Local ShapeIcon function removed from WelcomeModal.tsx",
       "Welcome modal shape icons render correctly"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-008",
@@ -95,7 +95,7 @@
       "Exports RANK_COLORS with keys 1, 2, 3 mapping to hex values",
       "Gold=#FFD700, Silver=#D1D5DC, Bronze=#CE8946"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-009",
@@ -107,7 +107,7 @@
       "No hardcoded #FFD700, #D1D5DC, or #CE8946 remain in TrophyBadge.tsx",
       "Trophy badges display correct gold/silver/bronze colors"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-010",
@@ -119,7 +119,7 @@
       "No hardcoded #FFD700, #D1D5DC, or #CE8946 remain in WinnerCard.tsx",
       "Winner cards display correct rank colors"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-011",
@@ -131,7 +131,7 @@
       "No hardcoded #FFD700, #D1D5DC, or #CE8946 remain in CalendarCell.tsx",
       "Calendar cells display correct rank outline colors"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-012",
@@ -144,7 +144,7 @@
       "SubmissionCanvas.tsx imports CANVAS_SIZE from shared location",
       "No duplicate CANVAS_SIZE definition exists"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-013",
@@ -160,7 +160,7 @@
       "Component accepts children and optional size/className props",
       "Component accepts closeOnOutsideClick prop (default true) for destructive modals"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-014",
@@ -172,7 +172,7 @@
       "No 'fixed inset-0' backdrop div in OnboardingModal.tsx",
       "Onboarding flow works correctly for new users"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-015",
@@ -184,7 +184,7 @@
       "No inline backdrop/box markup in WelcomeModal.tsx",
       "Welcome modal displays and closes correctly"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-016",
@@ -196,7 +196,7 @@
       "No inline backdrop/box markup in FriendsModal.tsx",
       "Friends modal displays, tabs work, search works, close works"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-017",
@@ -208,7 +208,7 @@
       "No inline backdrop/box markup in KeyboardSettingsModal.tsx",
       "Keyboard settings modal displays and closes correctly"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-018",
@@ -221,7 +221,7 @@
       "Clicking outside does NOT close ResetConfirmModal",
       "Reset confirm modal displays and confirm/cancel buttons work"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-019",
@@ -233,7 +233,7 @@
       "No inline backdrop/box markup in VotingModal.tsx",
       "Voting modal displays and voting interaction works"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-020",
@@ -245,7 +245,7 @@
       "No inline backdrop/box markup in CongratulatoryModal.tsx",
       "Congratulatory modal displays correctly"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-021",
@@ -257,7 +257,7 @@
       "No inline backdrop/box markup in WinnerAnnouncementModal.tsx",
       "Winner announcement modal displays correctly"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-022",
@@ -269,7 +269,7 @@
       "No inline backdrop/box markup in LoginPromptModal.tsx",
       "Login prompt modal displays and auth flow works"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-023",
@@ -284,7 +284,7 @@
       "undo/redo return the restored state (shapes + selection) rather than mutating external state directly",
       "Undo/redo works correctly in the canvas editor (multi-step test)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-024",
@@ -298,7 +298,7 @@
       "Hook handles loading canvas state from server submissions",
       "Canvas state persists across page refreshes"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-025",
@@ -312,7 +312,7 @@
       "Shape mutations are pure — they don't push history themselves",
       "All shape operations work correctly in the canvas editor"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-026",
@@ -326,7 +326,7 @@
       "All existing consumers of useCanvasState continue to work without API changes",
       "Atomic operations (group create/delete, duplicate-with-select) are correctly wrapped"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-027",
@@ -340,7 +340,7 @@
       "Can move grouped shapes together",
       "Can delete a group"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-028",
@@ -352,7 +352,7 @@
       "Can mirror shapes vertically",
       "Mirror operations integrate with undo/redo"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-029",
@@ -365,7 +365,7 @@
       "Selection state persists correctly during shape operations",
       "Deselection works on click-away"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-030",
@@ -379,7 +379,7 @@
       "Utility functions (getShapeSVGData, generateId, SHAPE_NAMES, SHAPE_ASPECT_RATIOS) are in index.ts or utils.ts",
       "Each file exports its functions"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-031",
@@ -392,7 +392,7 @@
       "Existing imports of shapeHelpers throughout the codebase are updated to use the new path",
       "No import errors across the codebase"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-032",
@@ -404,7 +404,7 @@
       "No file in the codebase imports directly from the old shapeHelpers.ts path (unless it's a barrel)",
       "All shape generation works correctly (canvas, thumbnails, icons)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-033",
@@ -417,7 +417,7 @@
       "Hook exposes toggle/open/close functions for each modal",
       "App.tsx imports and uses useAppModals instead of individual useState calls"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-034",
@@ -430,7 +430,7 @@
       "All routes still resolve correctly (canvas, gallery, voting, calendar, etc.)",
       "Browser back/forward navigation still works"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-035",
@@ -445,7 +445,7 @@
       "Welcome modal opens and closes on first visit",
       "Onboarding modal works for new users"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-036",
@@ -456,7 +456,7 @@
       "SubmissionThumbnail's root SVG element has a className='submission-thumbnail' or data-testid",
       "Can be selected in DevTools using the identifier"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-037",
@@ -467,7 +467,7 @@
       "FriendRow component has data-testid='friend-row' on its root element",
       "Can be selected in DevTools or testing framework using the identifier"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-038",
@@ -479,7 +479,7 @@
       "ContentCalendarDayCell has data-testid on root element",
       "Identifiers include the date for specific targeting (e.g. data-date attribute)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-039",
@@ -490,7 +490,7 @@
       "Each modal's root container has a data-testid matching its name (e.g. data-testid='friends-modal')",
       "Pattern is consistent across all modals"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-040",
@@ -503,7 +503,7 @@
       "Intentional console.error in catch blocks retained",
       "Total console statements reduced significantly (target: under 15 intentional ones)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-041",
@@ -515,7 +515,7 @@
       "No import resolution errors",
       "No type errors introduced by refactoring"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REFACTOR-042",
@@ -527,6 +527,6 @@
       "App loads in browser without console errors",
       "Canvas editor, gallery, voting, calendar, and profile pages all functional"
     ],
-    "passes": false
+    "passes": true
   }
 ]

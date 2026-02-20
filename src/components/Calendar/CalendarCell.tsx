@@ -1,4 +1,5 @@
 import cn from "classnames";
+import { RANK_COLORS } from "../../constants/rankColors";
 
 interface CalendarCellProps {
   day: number;
@@ -13,16 +14,12 @@ interface CalendarCellProps {
   href?: string;
   onClick?: () => void;
   className?: string;
+  'data-testid'?: string;
+  'data-date'?: string;
   children: React.ReactNode;
 }
 
 const cellBase = 'aspect-square border-b border-r border-(--color-border) relative transition-all overflow-hidden overflow-visible';
-
-const rankOutlineColors: Record<1 | 2 | 3, string> = {
-  1: '#FFD700',
-  2: '#D1D5DC',
-  3: '#CE8946',
-};
 
 export function CalendarCell({
   day,
@@ -35,6 +32,8 @@ export function CalendarCell({
   href,
   onClick,
   className = '',
+  'data-testid': dataTestId,
+  'data-date': dataDate,
   children,
 }: CalendarCellProps) {
   const isInteractive = !disabled && (!!href || !!onClick);
@@ -51,7 +50,7 @@ export function CalendarCell({
   `;
 
   const borderStyle = rankOutline
-    ? { border: `6px solid ${rankOutlineColors[rankOutline]}` }
+    ? { border: `6px solid ${RANK_COLORS[rankOutline]}` }
     : undefined;
 
   const content = (
@@ -90,17 +89,19 @@ export function CalendarCell({
     </>
   );
 
+  const dataAttrs = { 'data-testid': dataTestId, 'data-date': dataDate };
+
   if (href) {
-    return <a href={href} className={`block ${classes}`} style={borderStyle}>{content}</a>;
+    return <a href={href} className={`block ${classes}`} style={borderStyle} {...dataAttrs}>{content}</a>;
   }
 
   if (onClick && !disabled) {
-    return <button onClick={onClick} className={classes} style={borderStyle}>{content}</button>;
+    return <button onClick={onClick} className={classes} style={borderStyle} {...dataAttrs}>{content}</button>;
   }
 
   if (onClick && disabled) {
-    return <button onClick={onClick} disabled className={classes} style={borderStyle}>{content}</button>;
+    return <button onClick={onClick} disabled className={classes} style={borderStyle} {...dataAttrs}>{content}</button>;
   }
 
-  return <div className={classes} style={borderStyle}>{content}</div>;
+  return <div className={classes} style={borderStyle} {...dataAttrs}>{content}</div>;
 }

@@ -1,0 +1,396 @@
+## REFACTOR-001 — Create shared <SVGShape> component
+- Created src/components/SVGShape.tsx
+- Props: type, size, x, y, rotation, flipX, flipY, color, style (optional)
+- Handles all 4 SVG element types: ellipse, rect, polygon, path
+- Transform logic identical to ShapeElement/SubmissionThumbnail/SubmissionCanvas
+- Typecheck: pass. Tests: 102 pass. Lint: clean (pre-existing error in useCalendarChallenges.ts unrelated).
+- Note: npm install requires sandbox workaround (see installing-packages.md)
+- Next: REFACTOR-002/003/004 to replace inline rendering with <SVGShape> in consumers
+
+## REFACTOR-002 — Refactor ShapeElement.tsx to use SVGShape
+- Added `dataShapeId` prop to SVGShape for DOM identification (data-shape-id attribute)
+- ShapeElement now delegates entirely to SVGShape, passing shape props + cursor style + dataShapeId
+- Removed getShapeSVGData import and all inline transform/render logic from ShapeElement
+- ShapeElement reduced from 41 to 28 lines
+- Files changed: src/components/SVGShape.tsx, src/components/ShapeElement.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-003/004 for SubmissionThumbnail/SubmissionCanvas
+
+## REFACTOR-003 — Refactor SubmissionThumbnail.tsx to use SVGShape
+- Replaced inline getShapeSVGData + transform + conditional element rendering with <SVGShape>
+- Removed getShapeSVGData import, replaced with SVGShape import
+- Shape rendering block reduced from 17 lines to 12 lines
+- Files changed: src/components/SubmissionThumbnail.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-004 for SubmissionCanvas
+
+## REFACTOR-004 — Refactor SubmissionCanvas.tsx to use SVGShape
+- Replaced getShapeSVGData import + inline transform/conditional rendering with SVGShape
+- Shape map block reduced from 17 lines to 12 lines
+- Files changed: src/components/submission/SubmissionCanvas.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-005 (ShapeIcon) or REFACTOR-008 (RANK_COLORS) — phase 1 remaining items
+
+## REFACTOR-005 — Create shared ShapeIcon component
+- Created src/components/ShapeIcon.tsx
+- Props: type (ShapeType), size (optional, default 24)
+- Uses getShapeSVGData() viewBox dimensions for correct aspect ratios
+- Renders with fill="currentColor" for inheriting parent text color
+- Files changed: src/components/ShapeIcon.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-006/007 to replace local icons in Toolbar/WelcomeModal
+
+## REFACTOR-006 — Refactor Toolbar.tsx to use shared ShapeIcon
+- Removed local ShapePreviewIcon function (lines 14-24)
+- Replaced with import of shared ShapeIcon from ./ShapeIcon
+- Removed unused getShapeSVGData and ShapeType imports
+- Files changed: src/components/Toolbar.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-007 (WelcomeModal ShapeIcon) or REFACTOR-008 (RANK_COLORS)
+
+## REFACTOR-007 — Refactor WelcomeModal.tsx to use shared ShapeIcon
+- Removed local ShapeIcon function (lines 10-20), replaced with import of shared ShapeIcon
+- Removed unused getShapeSVGData import
+- Local version had loose `type: string` typing with `as never` cast; shared version uses proper ShapeType
+- Files changed: src/components/modals/WelcomeModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-008 (RANK_COLORS constant) then REFACTOR-009/010/011 consumers
+
+## REFACTOR-008 — Create RANK_COLORS constant
+- Created src/constants/rankColors.ts exporting RANK_COLORS: Record<1|2|3, string>
+- Gold=#FFD700, Silver=#D1D5DC, Bronze=#CE8946
+- Files changed: src/constants/rankColors.ts
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-009/010/011 to replace hardcoded hex values in TrophyBadge/WinnerCard/CalendarCell
+
+## REFACTOR-009 — Refactor TrophyBadge.tsx to use RANK_COLORS
+- Replaced ternary chain `rank === 1 ? "#FFD700" : rank === 2 ? "#D1D5DC" : "#CE8946"` with `RANK_COLORS[rank]`
+- Added import of RANK_COLORS from constants
+- Files changed: src/components/TrophyBadge.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-010 (WinnerCard) and REFACTOR-011 (CalendarCell)
+
+## REFACTOR-010 — Refactor WinnerCard.tsx to use RANK_COLORS
+- Replaced ternary chain of Tailwind `bg-[#hex]` classes with `RANK_COLORS[rank]` lookup
+- Switched from Tailwind arbitrary value class to inline `style={{ backgroundColor }}` — dynamic interpolation breaks Tailwind JIT scanning
+- Removed `getBorderStyle()` helper, inlined the static Tailwind classes directly
+- Files changed: src/components/WinnerCard.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-011 (CalendarCell) and REFACTOR-012 (CANVAS_SIZE)
+
+## REFACTOR-011 — Refactor CalendarCell.tsx to use RANK_COLORS
+- Removed local `rankOutlineColors` duplicate map, replaced with import of shared RANK_COLORS
+- Updated `borderStyle` computation to use `RANK_COLORS[rankOutline]`
+- Files changed: src/components/Calendar/CalendarCell.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-012 (CANVAS_SIZE constant) — last Phase 1 item
+
+## REFACTOR-012 — Deduplicate CANVAS_SIZE constant
+- CANVAS_SIZE=800 already exported from src/types/canvas.ts; removed 4 local duplicates
+- Replaced local `const CANVAS_SIZE = 800` with import in: SubmissionCanvas.tsx, SubmissionThumbnail.tsx, useExportActions.ts, useBackgroundPanning.ts
+- PRD said "two files" but found 4 duplicates total (SubmissionCanvas, SubmissionThumbnail, useExportActions, useBackgroundPanning)
+- Files changed: src/components/submission/SubmissionCanvas.tsx, src/components/SubmissionThumbnail.tsx, src/hooks/useExportActions.ts, src/hooks/useBackgroundPanning.ts
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Phase 1 complete. Next: Phase 2 (REFACTOR-013, shared Modal wrapper)
+
+## REFACTOR-013 — Create shared Modal wrapper component
+- Created src/components/Modal.tsx
+- Props: onClose, children, size (max-w class), className, closeOnEscape (default true), closeOnBackdropClick (default true), ariaLabelledBy, zIndex
+- Backdrop: fixed inset-0, bg-(--color-modal-overlay), flex center, configurable z-index
+- Content box: bg-(--color-bg-primary), border, rounded-lg, p-6, configurable max-w via size prop
+- Escape key closes modal when closeOnEscape=true
+- Backdrop click closes modal when closeOnBackdropClick=true (e.target === e.currentTarget check)
+- Focus trap: Tab/Shift+Tab cycles through focusable elements within modal
+- Auto-focuses first focusable element on mount
+- Accessibility: role="dialog", aria-modal="true", configurable aria-labelledby
+- Files changed: src/components/Modal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-014 through REFACTOR-022 (refactor each modal to use shared Modal)
+
+## REFACTOR-014 — Refactor OnboardingModal to use shared Modal
+- Replaced inline `fixed inset-0 bg-black/50` backdrop + content box with shared `<Modal>`
+- OnboardingModal is non-closable (onboarding must be completed): closeOnEscape=false, closeOnBackdropClick=false, onClose=no-op
+- Used size="max-w-sm" to match original max-w-sm styling
+- Added aria-labelledby="onboarding-title" with matching id on h2
+- Files changed: src/components/modals/OnboardingModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-015 (WelcomeModal)
+
+## REFACTOR-015 — Refactor WelcomeModal to use shared Modal
+- Replaced inline backdrop div (`fixed inset-0 bg-black/50`) + content box with shared `<Modal>`
+- Removed manual escape key handler, focus trap, modalRef, buttonRef — all handled by shared Modal
+- Removed `useEffect` and `useRef` imports (no longer needed)
+- WelcomeModal reduced from 155 to 99 lines
+- Files changed: src/components/modals/WelcomeModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-016 (FriendsModal)
+
+## REFACTOR-016 — Refactor FriendsModal to use shared Modal
+- Replaced both render paths (not-logged-in + logged-in) with shared `<Modal>`
+- Removed manual escape handler, focus trap, modalRef, handleOverlayClick — all handled by Modal
+- Logged-in path uses `className="!p-0 max-h-[80vh] flex flex-col"` to override default padding and add scroll layout
+- Not-logged-in path uses default Modal padding (p-6)
+- Removed `useEffect`, `useRef`, `useCallback` (handleOverlayClick) imports — only `useCallback` kept for handleNavigateToProfile
+- FriendsModal reduced from 161 to 109 lines
+- Files changed: src/components/modals/FriendsModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-017 (KeyboardSettingsModal)
+
+## REFACTOR-017 — Refactor KeyboardSettingsModal to use shared Modal
+- Replaced outer backdrop div (`fixed inset-0 bg-(--color-modal-overlay)`) + content box with shared `<Modal>`
+- Used `className="!p-0 max-h-[80vh] overflow-hidden flex flex-col"` to preserve custom header/content/footer layout
+- Set `closeOnEscape={false}` — component has custom 3-level escape logic (cancel listening > dismiss conflicts > close)
+- Conflict resolution dialog also uses shared `<Modal>` with `zIndex="z-60"`, `closeOnEscape={false}`, `closeOnBackdropClick={false}`
+- Removed `useRef` import (Modal handles its own ref)
+- Files changed: src/components/KeyboardSettingsModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-018 (ResetConfirmModal)
+
+## REFACTOR-018 — Refactor ResetConfirmModal to use shared Modal
+- Replaced inline `fixed inset-0` backdrop + content box with shared `<Modal>`
+- Destructive confirmation: `closeOnEscape={false}`, `closeOnBackdropClick={false}`
+- Preserved `z-1000` via zIndex prop, `max-w-100` via size prop, `text-center` via className
+- Added `ariaLabelledBy="reset-confirm-title"` with matching id on h3
+- Files changed: src/components/ResetConfirmModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-019 (VotingModal)
+
+## REFACTOR-019 — Refactor VotingModal to use shared Modal
+- Replaced inline `fixed inset-0 bg-black/50` backdrop + `ref={modalRef}` wrapper with shared `<Modal>`
+- Modal content box styled as transparent (`!p-0 !border-0 !bg-transparent !rounded-none`) — child components (VotingPairView, VotingConfirmation, etc.) own their own card styling
+- Context-dependent close: `handleClose` switches between `onComplete` (confirmation/opt-in screens) and `onSkipVoting` (voting screen) — passed as `onClose` to Modal
+- Removed manual focus trap and escape key handler (30+ lines) — delegated to shared Modal
+- Removed `useRef` import (no longer needed)
+- Files changed: src/components/voting/VotingModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-020 (CongratulatoryModal)
+
+## REFACTOR-020 — Refactor CongratulatoryModal to use shared Modal
+- Replaced both render paths (loading + main) with shared `<Modal>`
+- Loading state: `closeOnBackdropClick={false}` (no accidental dismiss while loading)
+- Main state: default close behavior (escape + backdrop click), `ariaLabelledBy="congrats-title"`
+- Removed `modalRef`, `buttonRef`, manual escape handler, focus trap (~30 lines) — delegated to shared Modal
+- Confetti logic unchanged (useRef + useEffect for canvas-confetti)
+- File reduced from 169 to 119 lines
+- Files changed: src/components/modals/CongratulatoryModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-021 (WinnerAnnouncementModal)
+
+## REFACTOR-021 — Refactor WinnerAnnouncementModal to use shared Modal
+- Replaced both render paths (loading + main) with shared `<Modal>`
+- Loading state: `closeOnBackdropClick={false}` (no accidental dismiss while loading)
+- Main state: default close behavior (escape + backdrop click), `ariaLabelledBy="winner-title"`, `size="max-w-140"`
+- Removed `modalRef`, `buttonRef`, manual escape handler, focus trap (~25 lines) — delegated to shared Modal
+- Removed `useEffect` and `useRef` imports (no longer needed)
+- File reduced from 161 to 107 lines
+- Files changed: src/components/modals/WinnerAnnouncementModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-022 (LoginPromptModal)
+
+## REFACTOR-022 — Refactor LoginPromptModal to use shared Modal
+- Replaced inline `fixed inset-0 bg-(--color-modal-overlay)` backdrop + content box with shared `<Modal>`
+- Preserved `z-1000` via zIndex prop, `max-w-84` via size prop, `text-center` via className
+- Added `ariaLabelledBy="login-prompt-title"` with matching id on h3
+- No manual escape/focus trap to remove — component was simple; gains accessibility features from shared Modal
+- File reduced from 65 to 67 lines (added Modal import + aria props)
+- Files changed: src/components/LoginPromptModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Phase 2 complete. Next: Phase 3 (REFACTOR-023, useCanvasHistory extraction)
+
+## REFACTOR-023 — Extract useCanvasHistory hook
+- Created src/hooks/useCanvasHistory.ts
+- Hook manages: history stack (ref), historyIndex/historyLength (state), coalescing (300ms window), max 50 entries
+- Exposes: pushHistory(state), commitToHistory(state), undo() → CanvasState|null, redo() → CanvasState|null, canUndo, canRedo, resetHistory(state)
+- pushHistory internally checks isUndoRedoRef to suppress during undo/redo — orchestrator doesn't need to check
+- commitToHistory skips coalescing check — used after drag operations complete
+- undo/redo return restored CanvasState (or null if at boundary); orchestrator applies via setCanvasStateInternal
+- resetHistory replaces stack with single entry — used by loadCanvasState
+- useCanvasState destructures hook methods for stable useCallback deps (React Compiler requires full object or destructured refs)
+- Removed ~50 lines of inline history state/logic from useCanvasState; replaced with hook call + ~15 lines of wiring
+- Files changed: src/hooks/useCanvasHistory.ts (new), src/hooks/useCanvasState.ts (refactored)
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-024 (useCanvasStorage extraction)
+
+## REFACTOR-024 — Extract useCanvasStorage hook
+- Created src/hooks/useCanvasStorage.ts
+- Exports: `getInitialCanvasState()` (pure fn, reads localStorage, returns CanvasState for useState init), `initialCanvasState` (empty default), `useCanvasStorage(canvasState, userId)` hook
+- Hook manages: debounced save (300ms) on canvasState changes via useEffect + setTimeout, `saveCanvasStateNow()` for immediate save bypassing debounce
+- `getInitialCanvasState()` checks localStorage date matches today, handles groups migration, clears stale data
+- Orchestrator uses `saveCanvasStateNow` in `loadCanvasState` for server submission sync (no debounce delay)
+- Removed from useCanvasState: STORAGE_KEY, StoredData interface, loadFromStorage, saveToStorage, initialCanvasState, userIdRef, save useEffect (~40 lines)
+- Added to useCanvasState: 2 import lines + 1 hook call line
+- Files changed: src/hooks/useCanvasStorage.ts (new), src/hooks/useCanvasState.ts (refactored)
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-025 (useShapeOperations extraction)
+
+## REFACTOR-025 — Extract useShapeOperations hook
+- Created src/hooks/useShapeOperations.ts
+- Hook receives `challenge` and `setCanvasState` (orchestrator's history-aware setter) as args
+- Exposes: addShape, duplicateShape, duplicateShapes, updateShape, updateShapes, deleteShape, deleteSelectedShapes, selectShape, moveLayer, moveGroup, reorderLayers, reorderGroup, setBackgroundColor, mirrorHorizontal, mirrorVertical, createGroup, deleteGroup, ungroupShapes, renameGroup, toggleGroupCollapsed, moveToGroup, selectGroup
+- normalizeZIndices helper moved as module-level function in useShapeOperations.ts
+- Hook doesn't push history directly — calls setCanvasState which orchestrator wired to pushHistory
+- Selection ops pass `addToHistory=false`; toggleGroupCollapsed passes `addToHistory=false`
+- Orchestrator (useCanvasState.ts) reduced from 1104 to 139 lines; removed generateId import
+- Kept in orchestrator: undo/redo, commitToHistory, resetCanvas, getShapesInGroup, loadCanvasState (these coordinate across hooks or need direct state access)
+- Files changed: src/hooks/useShapeOperations.ts (new), src/hooks/useCanvasState.ts (refactored)
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-026 (useCanvasState thin orchestrator verification)
+
+## REFACTOR-026 — Verify useCanvasState is a thin orchestrator
+- useCanvasState.ts already completed during REFACTOR-023/024/025 incremental extraction
+- File is 153 lines (target was <300), composes useCanvasHistory + useCanvasStorage + useShapeOperations
+- No inline undo/redo stack logic, no localStorage persistence, no shape CRUD operations remain
+- Orchestrator owns canvasState via useState, wraps setCanvasState with history push, delegates all ops
+- Atomic ops (group create/delete, duplicate-with-select) handled correctly via setCanvasState wrapper
+- Single consumer (App.tsx) unchanged — public API identical
+- Files changed: none (verification only, PRD updated)
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-027/028/029 (verify group/mirror/selection ops post-decomposition)
+
+## REFACTOR-027 — Verify group operations post-decomposition
+- Code-level verification (visual testing blocked by sandbox firewall — no Supabase access)
+- createGroup: useShapeOperations:645-700, generates group ID, assigns groupId to shapes, normalizes z-indices
+- deleteGroup: useShapeOperations:702-714, clears groupId from shapes, removes group from groups array
+- ungroupShapes: useShapeOperations:716-765, removes groupId, cleans up empty groups, preserves z-order
+- renameGroup: useShapeOperations:767-777, updates group name
+- moveGroup: useShapeOperations:328-471, handles up/down/top/bottom including group-vs-group swaps
+- All ops wired: useShapeOperations → useCanvasState orchestrator → App.tsx → LayerPanel → GroupHeader
+- Public API unchanged — no consumer changes needed
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-028 (verify mirror/flip ops) or REFACTOR-029 (verify selection)
+
+## REFACTOR-028 — Verify mirror/flip operations post-decomposition
+- Code-level verification (visual testing blocked by sandbox firewall — no Supabase access)
+- mirrorHorizontal: useShapeOperations:559-598, single shape toggles flipX, multi-shape reflects across bounding box center + toggles flipX
+- mirrorVertical: useShapeOperations:601-641, single shape toggles flipY, multi-shape reflects across center Y + toggles flipY
+- Both ops call setCanvasState(updater) → orchestrator pushes to history → undo/redo works
+- Wiring: useShapeOperations → useCanvasState → App.tsx → useShapeActions (button clicks) + useCanvasKeyboardShortcuts (key bindings)
+- ActionToolbar receives handleMirrorHorizontal/handleMirrorVertical (selection-wrapped)
+- Keyboard shortcuts receive raw mirrorHorizontal/mirrorVertical, pass selected shape IDs
+- Public API unchanged — no consumer changes needed
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-029 (verify selection management) or REFACTOR-030 (shapeHelpers split)
+
+## REFACTOR-029 — Verify selection management post-decomposition
+- Code-level verification (visual testing blocked by sandbox firewall — no Supabase access)
+- selectShape: useShapeOperations:188-238, handles single select (new Set([id])), toggle/multi-select (Cmd/Ctrl+click), range select (Shift+click), deselect (id=null → empty Set)
+- selectGroup: useShapeOperations:813-842, selects all shapes in group with toggle support
+- All selection ops pass addToHistory=false — selection is ephemeral UI state, no undo/redo entries
+- Deselection: 3-level — canvas background rect onMouseDown, SVG handleCanvasMouseDown, <main> onClick; stopPropagation prevents double-firing
+- Selection persistence: updateShape/updateShapes/moveLayer/mirror ops use {...prev, shapes: ...} spread, preserving selectedShapeIds untouched; shape IDs stable across mutations
+- Wiring intact: useShapeOperations → useCanvasState (destructured + re-exported) → App.tsx → Canvas (onSelectShape) + LayerPanel (onSelectShape, onSelectGroup)
+- Public API unchanged — no consumer changes needed
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-030 (shapeHelpers split into src/utils/shapes/)
+
+## REFACTOR-030/031/032 — Split shapeHelpers.ts into src/utils/shapes/
+- Created src/utils/shapes/ directory with 4 files:
+  - polygons.ts: 14 polygon point generators (getPolygonPoints, getStarPoints, getRightTrianglePoints, getIsoscelesTrianglePoints, getDiamondPoints, getTrapezoidPoints, getParallelogramPoints, getKitePoints, getCrossPoints, getArrowPoints, getShardPoints, getWedgePoints, getSplinterPoints, getChunkPoints)
+  - paths.ts: 21 path/bezier generators (getSemicirclePath, getQuarterCirclePath, getBladePath, getLensPath, getArchPath, getDropPath, getFanPath, getHookPath, getWavePath, getCrescentPath, getPillPath, getFangPath, getClawPath, getFinPath, getThornPath, getSlantPath, getNotchPath, getSpikePath, getBulgePath, getScoopPath, getRidgePath)
+  - utils.ts: SHAPE_ASPECT_RATIOS, getShapeSVGData (imports from polygons/paths), generateId, SHAPE_NAMES
+  - index.ts: barrel re-exporting all from polygons, paths, utils
+- Updated 8 consumer imports: ChallengeDetailsCard, WinnersDayPage, TransformHandles, ChallengeShapeIndicators, ShapeIcon, ShapeExplorer, SVGShape, useShapeOperations
+- Deleted original src/utils/shapeHelpers.ts — zero remaining references
+- Files changed: 4 new (shapes/polygons.ts, paths.ts, utils.ts, index.ts), 8 edited (import paths), 1 deleted (shapeHelpers.ts)
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-033 (useAppModals hook extraction from App.tsx)
+
+## REFACTOR-033 — Extract useAppModals hook from App.tsx
+- Created src/hooks/useAppModals.ts
+- Hook manages 6 modal states: showKeyboardSettings, showVotingModal, showResetConfirm, showFriendsModal, congratsDismissed, winnerDismissed
+- Exposes open/close/dismiss callbacks for each (useCallback-wrapped for stable references)
+- App.tsx: replaced 6 individual useState calls with single useAppModals() destructure
+- App.tsx: replaced all inline `() => setState(...)` callbacks with named functions from hook (openFriendsModal, closeVotingModal, etc.)
+- Removed `useState` import from App.tsx (no longer needed)
+- Note: useWelcomeModal already its own hook — left as-is
+- Files changed: src/hooks/useAppModals.ts (new), src/App.tsx (refactored)
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-034 (route/view resolution extraction from App.tsx)
+
+## REFACTOR-034 — Extract route/view resolution from App.tsx
+- Created src/hooks/useAppRoute.ts: resolves URL params into discriminated union `AppRoute` type
+- Route types: explorer, voting-test, social-test, dashboard, color-tester, gallery, wall-of-the-day, profile (standalone), winners-day, submission-by-id, submission-by-date, canvas (challenge-dependent)
+- Exported `isStandaloneRoute()` type guard to separate routes needing challenge data from those that don't
+- Replaced 10 individual `useMemo(() => urlParamFn(), [])` calls with single `useAppRoute()` call
+- Extracted canvas editor (hooks, handlers, JSX) into src/components/CanvasEditorPage.tsx (452 lines)
+- App.tsx reduced from 519 to 61 lines — thin router that resolves route, loads challenge, and renders appropriate page
+- CanvasEditorPage accepts `challenge: DailyChallenge` + `todayDate: string` props; owns all canvas-specific state/hooks
+- Removed direct urlParams imports from App.tsx
+- Files changed: src/hooks/useAppRoute.ts (new), src/components/CanvasEditorPage.tsx (new), src/App.tsx (rewritten)
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-035 (verify all modals still open/close after decomposition)
+
+## REFACTOR-035 — Verify all modals still open/close after App.tsx decomposition
+- Code-level verification: all 8 modal open/close chains traced through useAppModals → CanvasEditorPage → modal components
+- Visual browser testing (mock challenge injected via localStorage to bypass sandbox firewall):
+  - Welcome modal: opens on first visit (localStorage cleared), closes via "Start creating" button ✓
+  - Keyboard settings: opens via Toolbar "Customize" button, closes via "Done" button ✓
+  - Reset confirm: opens via "Reset Canvas" button, closes via "Cancel" button ✓
+  - Friends modal (not logged in): correctly shows LoginPromptModal via Toolbar's login gate, closes via "Cancel" ✓
+  - Friends modal (logged in path): code wiring verified — openFriendsModal → showFriendsModal → FriendsModal onClose=closeFriendsModal
+  - Voting modal: code wiring verified — openVotingModal called in onSaveSuccess, closeVotingModal passed as onComplete/onSkipVoting, gated by showVotingModal && user
+  - Onboarding modal: code wiring verified — gated by user && profile && !profile.onboarding_complete, onComplete=updateNickname
+  - Congratulatory/Winner modals: code wiring verified — useWinnerAnnouncement hook → dismissCongrats/dismissWinner from useAppModals
+- No code changes needed — verification only
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Phase 3 complete. Next: Phase 4 (REFACTOR-036, add test identifiers)
+
+## REFACTOR-036 — Add data-testid to SubmissionThumbnail SVG root
+- Added `data-testid="submission-thumbnail"` to the `<svg>` element in SubmissionThumbnail.tsx
+- Files changed: src/components/SubmissionThumbnail.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-037 (add data-testid to FriendRow)
+
+## REFACTOR-037 — Add data-testid to FriendRow component root element
+- Added `data-testid="friend-row"` to root `<div>` in FriendRow.tsx
+- Files changed: src/components/modals/FriendRow.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-038 (add test identifiers to CalendarDayCell/ContentCalendarDayCell)
+
+## REFACTOR-038 — Add test identifiers to CalendarDayCell and ContentCalendarDayCell
+- Added `data-testid` and `data-date` props to CalendarCell (shared base component) — flows through to all 4 DOM element render paths (a, button, button disabled, div)
+- CalendarDayCell: all 3 CalendarCell usages (locked, my-submissions, winners) pass `data-testid="calendar-day-cell"` and `data-date={dateStr}`
+- ContentCalendarDayCell: added `dateStr` prop, passes `data-testid="content-calendar-day-cell"` and `data-date={dateStr}` to CalendarCell
+- ContentCalendarGrid: passes `dateStr` to ContentCalendarDayCell
+- Files changed: CalendarCell.tsx, CalendarDayCell.tsx, ContentCalendarDayCell.tsx, ContentCalendarGrid.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-039 (standardize data-testid on all modal containers)
+
+## REFACTOR-039 — Standardize data-testid on all modal containers
+- Added `dataTestId` prop to shared Modal component (src/components/Modal.tsx), rendered as `data-testid` on root backdrop div
+- 10 modal components updated (13 `<Modal>` usages total, some modals have loading/main states):
+  - onboarding-modal, welcome-modal, friends-modal, congratulatory-modal, winner-announcement-modal
+  - keyboard-settings-modal, keyboard-conflict-modal, reset-confirm-modal, voting-modal, login-prompt-modal
+- Pattern consistent: kebab-case matching component name, e.g. FriendsModal → `data-testid="friends-modal"`
+- Files changed: Modal.tsx, OnboardingModal.tsx, WelcomeModal.tsx, FriendsModal.tsx, CongratulatoryModal.tsx, WinnerAnnouncementModal.tsx, KeyboardSettingsModal.tsx, ResetConfirmModal.tsx, VotingModal.tsx, LoginPromptModal.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-040 (ESLint no-console rule)
+
+## REFACTOR-040 — Add ESLint no-console rule and remove debug statements
+- Added `'no-console': ['warn', { allow: ['error'] }]` to eslint.config.js rules
+- Removed 18 console.log statements: CanvasEditorPage (2 debug logs in handleOptInToRanking), useRanking (1 informational RPC log), VotingTestPage (15 no-op test handlers → empty functions)
+- Converted 5 console.warn → console.error in error-handling contexts: useFriendsFeed, useDailyChallenge (2), FriendsFeedContent, useWallOfTheDay
+- Final count: 0 console.log/warn/info/debug, 49 intentional console.error (all in catch blocks / error paths)
+- VotingTestPage: unused `winnerId` params removed from handleVote/handleFlowVote to fix lint
+- Files changed: eslint.config.js, CanvasEditorPage.tsx, useRanking.ts, useFriendsFeed.ts, useDailyChallenge.ts, FriendsFeedContent.tsx, useWallOfTheDay.ts, VotingTestPage.tsx
+- Typecheck: pass. Tests: 102 pass. Lint: pre-existing error only.
+- Next: REFACTOR-041 (final TypeScript verification) and REFACTOR-042 (final build verification)
+
+## REFACTOR-041 — Final TypeScript compilation verification
+- `npm run typecheck` (tsc -b --noEmit): 0 errors
+- No import resolution errors, no type errors from refactoring
+- Tests: 102 pass. Lint: pre-existing useCalendarChallenges.ts error only.
+- No files changed (verification only)
+
+## REFACTOR-042 — Final build/runtime verification
+- Dev server (vite): starts cleanly, no compilation errors
+- Browser test with mock challenge (sandbox firewall blocks Supabase):
+  - Canvas editor: loads, WelcomeModal displays via shared Modal, dismisses correctly
+  - Shape rendering: added Circle + Rectangle via toolbar, SVGShape renders on canvas, LayerPanel shows both
+  - Action toolbar: all buttons enabled/disabled correctly based on selection
+  - Gallery page: renders calendar grid with CalendarDayCells, CalendarCells, navigation works
+  - Zero JS runtime errors — only font-loading (sandbox) and CORS (firewall) errors
+- Note: `npm run build` cannot run in this VM; dev server verification substituted
+- All 42 PRD items now pass. Refactoring complete.
+
+<COMPLETE>

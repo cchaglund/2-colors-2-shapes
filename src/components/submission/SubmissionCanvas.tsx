@@ -1,8 +1,7 @@
 import type { RefObject } from 'react';
 import type { DailyChallenge, Shape } from '../../types';
-import { getShapeSVGData } from '../../utils/shapeHelpers';
-
-const CANVAS_SIZE = 800;
+import { CANVAS_SIZE } from '../../types/canvas';
+import { SVGShape } from '../shared/SVGShape';
 
 interface SubmissionCanvasProps {
   shapes: Shape[];
@@ -38,24 +37,19 @@ export function SubmissionCanvas({
         height={CANVAS_SIZE}
         fill={backgroundColor}
       />
-      {sortedShapes.map((shape) => {
-        const { element, props, viewBox } = getShapeSVGData(shape.type, shape.size);
-        const centerX = viewBox.width / 2;
-        const centerY = viewBox.height / 2;
-        const scaleX = shape.flipX ? -1 : 1;
-        const scaleY = shape.flipY ? -1 : 1;
-        const transform = `translate(${shape.x}, ${shape.y}) translate(${centerX}, ${centerY}) scale(${scaleX}, ${scaleY}) translate(${-centerX}, ${-centerY}) rotate(${shape.rotation}, ${centerX}, ${centerY})`;
-        const color = challenge.colors[shape.colorIndex];
-
-        return (
-          <g key={shape.id} transform={transform}>
-            {element === 'ellipse' && <ellipse {...props} fill={color} />}
-            {element === 'rect' && <rect {...props} fill={color} />}
-            {element === 'polygon' && <polygon {...props} fill={color} />}
-            {element === 'path' && <path {...props} fill={color} />}
-          </g>
-        );
-      })}
+      {sortedShapes.map((shape) => (
+        <SVGShape
+          key={shape.id}
+          type={shape.type}
+          size={shape.size}
+          x={shape.x}
+          y={shape.y}
+          rotation={shape.rotation}
+          flipX={shape.flipX}
+          flipY={shape.flipY}
+          color={challenge.colors[shape.colorIndex]}
+        />
+      ))}
     </svg>
   );
 }

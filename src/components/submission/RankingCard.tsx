@@ -1,5 +1,5 @@
-import { TrophyBadge } from '../TrophyBadge';
-import { RankingBadge } from '../RankingBadge';
+import { TrophyBadge } from '../shared/TrophyBadge';
+import { RankingBadge } from './RankingBadge';
 
 interface RankingCardProps {
   rankInfo: { rank: number; total: number };

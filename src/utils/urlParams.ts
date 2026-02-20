@@ -107,11 +107,22 @@ export function getWallOfTheDayView(): { view: 'wall-of-the-day'; date: string }
 }
 
 // Check if gallery view is requested
-export function getGalleryView(): { tab?: string } | null {
+export function getGalleryView(): { tab?: string; year?: number; month?: number; date?: string } | null {
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('view') === 'gallery') {
     const tab = urlParams.get('tab') || undefined;
-    return { tab };
+
+    const yearStr = urlParams.get('year');
+    const monthStr = urlParams.get('month');
+    const year = yearStr ? parseInt(yearStr, 10) : undefined;
+    const month = monthStr ? parseInt(monthStr, 10) : undefined;
+    const validYear = year !== undefined && !isNaN(year) && year >= 2024 && year <= 2100 ? year : undefined;
+    const validMonth = month !== undefined && !isNaN(month) && month >= 0 && month <= 11 ? month : undefined;
+
+    const dateStr = urlParams.get('date') || undefined;
+    const validDate = dateStr && /^\d{4}-\d{2}-\d{2}$/.test(dateStr) ? dateStr : undefined;
+
+    return { tab, year: validYear, month: validMonth, date: validDate };
   }
   return null;
 }

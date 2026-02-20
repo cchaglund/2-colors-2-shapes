@@ -27,7 +27,7 @@ import { calculateRequiredVotes, calculateTotalPairs } from '../utils/votingRule
 import type { RankingEntry } from '../types';
 import { WinnerAnnouncementModal } from '../components/modals/WinnerAnnouncementModal';
 import { CongratulatoryModal } from '../components/modals/CongratulatoryModal';
-import { BackToCanvasLink } from '../components/BackToCanvasLink';
+import { BackToCanvasLink } from '../components/shared/BackToCanvasLink';
 
 type TestScenario =
   | 'voting-ui'
@@ -125,22 +125,19 @@ export function VotingTestPage() {
   const flowRequiredVotes = calculateRequiredVotes(flowSubmissionCount);
   const flowTotalPairs = calculateTotalPairs(flowSubmissionCount);
 
-  const handleVote = (winnerId: string) => {
-    console.log('Vote cast for:', winnerId);
+  const handleVote = () => {
     setVoteCount((prev) => Math.min(prev + 1, 10));
     setCurrentPairIndex((prev) => Math.min(prev + 1, MOCK_VOTING_PAIRS.length - 1));
   };
 
   const handleSkip = () => {
-    console.log('Pair skipped');
     setCurrentPairIndex((prev) => Math.min(prev + 1, MOCK_VOTING_PAIRS.length - 1));
   };
 
   const currentPair = MOCK_VOTING_PAIRS[currentPairIndex];
 
   // Interactive flow handlers
-  const handleFlowVote = (winnerId: string) => {
-    console.log('Flow vote cast for:', winnerId);
+  const handleFlowVote = () => {
     const newVoteCount = flowVoteCount + 1;
     const newPairIndex = flowPairIndex + 1;
     setFlowVoteCount(newVoteCount);
@@ -237,7 +234,7 @@ export function VotingTestPage() {
               submitting={false}
               onVote={handleVote}
               onSkip={handleSkip}
-              onSkipVoting={() => console.log('Skip voting clicked')}
+              onSkipVoting={() => {}}
             />
           </div>
         );
@@ -313,7 +310,7 @@ export function VotingTestPage() {
                   submitting={false}
                   onVote={handleFlowVote}
                   onSkip={handleFlowSkip}
-                  onSkipVoting={() => console.log('Skip voting clicked')}
+                  onSkipVoting={() => {}}
                 />
               )}
             </div>
@@ -345,8 +342,8 @@ export function VotingTestPage() {
               isEntered={true}
               wallDate={MOCK_CHALLENGE.date}
               canContinueVoting={true}
-              onContinue={() => console.log('Continue clicked')}
-              onDone={() => console.log('Done clicked')}
+              onContinue={() => {}}
+              onDone={() => {}}
             />
           </div>
         );
@@ -372,7 +369,7 @@ export function VotingTestPage() {
                   wallDate={MOCK_CHALLENGE.date}
                   canContinueVoting={false}
                   onContinue={() => {}}
-                  onDone={() => console.log('Done')}
+                  onDone={() => {}}
                 />
               </div>
               {/* Scenario: Not entered ranking */}
@@ -385,7 +382,7 @@ export function VotingTestPage() {
                   wallDate={MOCK_CHALLENGE.date}
                   canContinueVoting={false}
                   onContinue={() => {}}
-                  onDone={() => console.log('Done')}
+                  onDone={() => {}}
                 />
               </div>
               {/* Scenario: Entered with continue voting option */}
@@ -397,8 +394,8 @@ export function VotingTestPage() {
                   isEntered={true}
                   wallDate={MOCK_CHALLENGE.date}
                   canContinueVoting={true}
-                  onContinue={() => console.log('Continue')}
-                  onDone={() => console.log('Done')}
+                  onContinue={() => {}}
+                  onDone={() => {}}
                 />
               </div>
             </div>
@@ -426,8 +423,8 @@ export function VotingTestPage() {
         return (
           <div className="flex items-center justify-center min-h-100">
             <VotingOptInPrompt
-              onOptIn={() => console.log('Opted in')}
-              onSkip={() => console.log('Skipped')}
+              onOptIn={() => {}}
+              onSkip={() => {}}
             />
           </div>
         );
@@ -436,8 +433,8 @@ export function VotingTestPage() {
         return (
           <div className="flex items-center justify-center min-h-100">
             <VotingOptInPrompt
-              onOptIn={() => console.log('Opted in')}
-              onSkip={() => console.log('Skipped')}
+              onOptIn={() => {}}
+              onSkip={() => {}}
             />
           </div>
         );

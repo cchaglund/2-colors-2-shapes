@@ -52,7 +52,7 @@ export interface Shape {
   y: number;
   size: number;
   rotation: number;
-  colorIndex: 0 | 1; // Index into the daily colors array
+  colorIndex: number; // Index into the daily colors array
   zIndex: number;
   flipX?: boolean; // Flip horizontally (mirror left/right)
   flipY?: boolean; // Flip vertically (mirror up/down)
@@ -74,7 +74,7 @@ export interface ChallengeShapeData {
 
 export interface DailyChallenge {
   date: string; // YYYY-MM-DD format
-  colors: [string, string];
+  colors: string[];
   shapes: [ChallengeShapeData, ChallengeShapeData];
   word: string; // Daily word for creative inspiration
 }
@@ -82,7 +82,7 @@ export interface DailyChallenge {
 export interface CanvasState {
   shapes: Shape[];
   groups: ShapeGroup[];
-  backgroundColorIndex: 0 | 1 | null; // null means transparent/white
+  backgroundColorIndex: number | null; // null means transparent/white
   selectedShapeIds: Set<string>; // Set of selected shape IDs for multi-select
 }
 

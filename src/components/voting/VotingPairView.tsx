@@ -1,5 +1,5 @@
-import { InfoTooltip } from '../InfoTooltip';
-import { SubmissionThumbnail } from '../SubmissionThumbnail';
+import { InfoTooltip } from '../shared/InfoTooltip';
+import { SubmissionThumbnail } from '../shared/SubmissionThumbnail';
 import type { VotingPairViewProps } from './types';
 
 function formatDate(dateStr: string) {

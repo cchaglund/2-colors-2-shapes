@@ -3,7 +3,7 @@
  */
 
 import type { Shape, RankingEntry, VotingPair, DailyChallenge } from '../types';
-import type { Profile } from '../hooks/useProfile';
+import type { Profile } from '../hooks/auth/useProfile';
 
 // ============================================================================
 // MOCK USERS - Minimal Supabase User objects for testing

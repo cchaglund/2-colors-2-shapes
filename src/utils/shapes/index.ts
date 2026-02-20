@@ -1,0 +1,48 @@
+export {
+  getPolygonPoints,
+  getStarPoints,
+  getRightTrianglePoints,
+  getIsoscelesTrianglePoints,
+  getDiamondPoints,
+  getTrapezoidPoints,
+  getParallelogramPoints,
+  getKitePoints,
+  getCrossPoints,
+  getArrowPoints,
+  getShardPoints,
+  getWedgePoints,
+  getSplinterPoints,
+  getChunkPoints,
+} from './polygons';
+
+export {
+  getSemicirclePath,
+  getQuarterCirclePath,
+  getBladePath,
+  getLensPath,
+  getArchPath,
+  getDropPath,
+  getFanPath,
+  getHookPath,
+  getWavePath,
+  getCrescentPath,
+  getPillPath,
+  getFangPath,
+  getClawPath,
+  getFinPath,
+  getThornPath,
+  getSlantPath,
+  getNotchPath,
+  getSpikePath,
+  getBulgePath,
+  getScoopPath,
+  getRidgePath,
+} from './paths';
+
+export {
+  SHAPE_ASPECT_RATIOS,
+  getShapeSVGData,
+  getShapeDimensions,
+  generateId,
+  SHAPE_NAMES,
+} from './utils';
