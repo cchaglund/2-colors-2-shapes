@@ -61,6 +61,7 @@ export function VotingConfirmation({
               <div key={s.id} className="aspect-square">
                 <SubmissionThumbnail
                   shapes={s.shapes}
+                  groups={s.groups}
                   challenge={challenge}
                   backgroundColorIndex={s.background_color_index}
                   fill

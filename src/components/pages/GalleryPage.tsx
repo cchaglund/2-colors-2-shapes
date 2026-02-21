@@ -4,7 +4,7 @@ import { useSubmissions, type Submission } from '../../hooks/submission/useSubmi
 import { getTodayDateUTC, getTwoDaysAgoDateUTC } from '../../utils/dailyChallenge';
 import { fetchChallengesBatch } from '../../hooks/challenge/useDailyChallenge';
 import { supabase } from '../../lib/supabase';
-import type { Shape, DailyChallenge } from '../../types';
+import type { Shape, ShapeGroup, DailyChallenge } from '../../types';
 import { formatDate, getDaysInMonth, getFirstDayOfMonth, MONTHS } from '../../utils/calendarUtils';
 import type { ViewMode, RankingInfo, WinnerEntry } from '../Calendar/types';
 import { CalendarViewToggle } from '../Calendar/CalendarViewToggle';
@@ -122,6 +122,7 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
           final_rank,
           submissions!inner (
             shapes,
+            groups,
             background_color_index
           )
         `)
@@ -160,7 +161,7 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
         submission_id: string;
         user_id: string;
         final_rank: number;
-        submissions: { shapes: Shape[]; background_color_index: number | null };
+        submissions: { shapes: Shape[]; groups: ShapeGroup[] | null; background_color_index: number | null };
       }
       const winnerEntries: WinnerEntry[] = (rankingsData as unknown as RankingRow[]).map((row) => ({
         challenge_date: row.challenge_date,
@@ -169,6 +170,7 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
         nickname: profileMap.get(row.user_id) || 'Anonymous',
         final_rank: row.final_rank,
         shapes: row.submissions?.shapes || [],
+        groups: row.submissions?.groups || [],
         background_color_index: row.submissions?.background_color_index ?? null,
       }));
 

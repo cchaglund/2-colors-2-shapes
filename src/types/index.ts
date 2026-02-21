@@ -57,6 +57,7 @@ export interface Shape {
   flipX?: boolean; // Flip horizontally (mirror left/right)
   flipY?: boolean; // Flip vertically (mirror up/down)
   groupId?: string; // Optional group membership
+  visible?: boolean; // Layer visibility (undefined = visible)
 }
 
 export interface ShapeGroup {
@@ -64,6 +65,7 @@ export interface ShapeGroup {
   name: string;
   isCollapsed: boolean;
   zIndex: number; // For ordering groups in the layer panel
+  visible?: boolean; // Group visibility (undefined = visible)
 }
 
 export interface ChallengeShapeData {
@@ -116,6 +118,7 @@ export interface RankingEntry {
   elo_score: number;
   vote_count: number;
   shapes: Shape[];
+  groups?: ShapeGroup[];
   background_color_index: number | null;
 }
 
@@ -130,12 +133,14 @@ export interface VotingPair {
     id: string;
     user_id: string;
     shapes: Shape[];
+    groups?: ShapeGroup[];
     background_color_index: number | null;
   };
   submissionB: {
     id: string;
     user_id: string;
     shapes: Shape[];
+    groups?: ShapeGroup[];
     background_color_index: number | null;
   };
 }

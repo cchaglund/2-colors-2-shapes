@@ -808,6 +808,30 @@ export function useShapeOperations(
     [setCanvasState]
   );
 
+  const toggleShapeVisibility = useCallback(
+    (id: string) => {
+      setCanvasState((prev) => ({
+        ...prev,
+        shapes: prev.shapes.map((s) =>
+          s.id === id ? { ...s, visible: s.visible === false ? undefined : false } : s
+        ),
+      }), true, 'Toggle visibility');
+    },
+    [setCanvasState]
+  );
+
+  const toggleGroupVisibility = useCallback(
+    (groupId: string) => {
+      setCanvasState((prev) => ({
+        ...prev,
+        groups: prev.groups.map((g) =>
+          g.id === groupId ? { ...g, visible: g.visible === false ? undefined : false } : g
+        ),
+      }), true, 'Toggle visibility');
+    },
+    [setCanvasState]
+  );
+
   const moveToGroup = useCallback(
     (shapeIds: string[], groupId: string | null) => {
       setCanvasState((prev) => {
@@ -882,6 +906,8 @@ export function useShapeOperations(
     ungroupShapes,
     renameGroup,
     toggleGroupCollapsed,
+    toggleShapeVisibility,
+    toggleGroupVisibility,
     moveToGroup,
     selectGroup,
   };

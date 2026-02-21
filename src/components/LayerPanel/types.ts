@@ -18,6 +18,8 @@ export interface LayerPanelProps {
   onUngroupShapes: (shapeIds: string[]) => void;
   onRenameGroup: (groupId: string, newName: string) => void;
   onToggleGroupCollapsed: (groupId: string) => void;
+  onToggleShapeVisibility: (id: string) => void;
+  onToggleGroupVisibility: (groupId: string) => void;
   onSelectGroup: (groupId: string, options?: { toggle?: boolean }) => void;
   isOpen: boolean;
   width: number;
@@ -64,7 +66,9 @@ export interface LayerItemProps {
   onDrop: (e: React.DragEvent, targetIndex: number, targetGroupId: string | null) => void;
   onMoveLayer: (id: string, direction: 'up' | 'down' | 'top' | 'bottom') => void;
   onDeleteShape: (id: string) => void;
+  onToggleVisibility: (id: string) => void;
   onHoverShape: (ids: Set<string> | null) => void;
+  groupVisible: boolean;
 }
 
 export interface GroupHeaderProps {
@@ -87,6 +91,7 @@ export interface GroupHeaderProps {
   onFinishEditing: () => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
   onToggleGroupCollapsed: (groupId: string) => void;
+  onToggleGroupVisibility: (groupId: string) => void;
   onDeleteGroup: (groupId: string) => void;
   onMoveGroup: (groupId: string, direction: 'up' | 'down' | 'top' | 'bottom') => void;
   onGroupDragStart: (e: React.DragEvent, groupId: string) => void;

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
-import type { RankingEntry, Shape } from '../../types';
+import type { RankingEntry, Shape, ShapeGroup } from '../../types';
 
 interface UseRankingReturn {
   topThree: RankingEntry[];
@@ -46,6 +46,7 @@ export function useRanking(): UseRankingReturn {
           vote_count,
           submissions!inner (
             shapes,
+            groups,
             background_color_index
           )
         `
@@ -85,6 +86,7 @@ export function useRanking(): UseRankingReturn {
         vote_count: number;
         submissions: {
           shapes: Shape[];
+          groups: ShapeGroup[] | null;
           background_color_index: number | null;
         };
       }
@@ -97,6 +99,7 @@ export function useRanking(): UseRankingReturn {
         elo_score: row.elo_score,
         vote_count: row.vote_count,
         shapes: row.submissions?.shapes || [],
+        groups: row.submissions?.groups || [],
         background_color_index: row.submissions?.background_color_index ?? null,
       }));
 
@@ -133,6 +136,7 @@ export function useRanking(): UseRankingReturn {
           vote_count,
           submissions!inner (
             shapes,
+            groups,
             background_color_index
           )
         `
@@ -172,6 +176,7 @@ export function useRanking(): UseRankingReturn {
         vote_count: number;
         submissions: {
           shapes: Shape[];
+          groups: ShapeGroup[] | null;
           background_color_index: number | null;
         };
       }
@@ -184,6 +189,7 @@ export function useRanking(): UseRankingReturn {
         elo_score: row.elo_score,
         vote_count: row.vote_count,
         shapes: row.submissions?.shapes || [],
+        groups: row.submissions?.groups || [],
         background_color_index: row.submissions?.background_color_index ?? null,
       }));
 

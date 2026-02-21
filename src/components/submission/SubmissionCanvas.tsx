@@ -1,10 +1,12 @@
 import type { RefObject } from 'react';
-import type { DailyChallenge, Shape } from '../../types';
+import type { DailyChallenge, Shape, ShapeGroup } from '../../types';
 import { CANVAS_SIZE } from '../../types/canvas';
 import { SVGShape } from '../shared/SVGShape';
+import { getVisibleShapes } from '../../utils/visibility';
 
 interface SubmissionCanvasProps {
   shapes: Shape[];
+  groups?: ShapeGroup[];
   challenge: DailyChallenge;
   backgroundColorIndex: number | null;
   svgRef: RefObject<SVGSVGElement | null>;
@@ -12,11 +14,12 @@ interface SubmissionCanvasProps {
 
 export function SubmissionCanvas({
   shapes,
+  groups = [],
   challenge,
   backgroundColorIndex,
   svgRef,
 }: SubmissionCanvasProps) {
-  const sortedShapes = [...shapes].sort((a, b) => a.zIndex - b.zIndex);
+  const sortedShapes = [...getVisibleShapes(shapes, groups)].sort((a, b) => a.zIndex - b.zIndex);
   const backgroundColor =
     backgroundColorIndex !== null
       ? challenge.colors[backgroundColorIndex]

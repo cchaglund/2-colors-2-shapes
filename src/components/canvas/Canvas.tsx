@@ -1,7 +1,8 @@
 import { useRef, useCallback, useMemo } from 'react';
-import type { Shape, DailyChallenge, ViewportState } from '../../types';
+import type { Shape, ShapeGroup, DailyChallenge, ViewportState } from '../../types';
 import { CANVAS_SIZE } from '../../types/canvas';
 import { getShapeDimensions } from '../../utils/shapes';
+import { getVisibleShapes } from '../../utils/visibility';
 import { ShapeElement } from './ShapeElement';
 import {
   TransformInteractionLayer,
@@ -24,6 +25,7 @@ import { useCanvasTouchGestures } from '../../hooks/canvas/useCanvasTouchGesture
 
 interface CanvasProps {
   shapes: Shape[];
+  groups: ShapeGroup[];
   selectedShapeIds: Set<string>;
   backgroundColor: string | null;
   challenge: DailyChallenge;
@@ -51,6 +53,7 @@ interface CanvasProps {
 
 export function Canvas({
   shapes,
+  groups,
   selectedShapeIds,
   backgroundColor,
   challenge,
@@ -77,6 +80,17 @@ export function Canvas({
 }: CanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
 
+  // Filter to only visible shapes
+  const visibleShapes = useMemo(() => getVisibleShapes(shapes, groups), [shapes, groups]);
+
+  // Exclude hidden shapes from effective selection (don't show transform handles for hidden shapes)
+  const effectiveSelectedShapeIds = useMemo(() => {
+    const visibleIds = new Set(visibleShapes.map(s => s.id));
+    const filtered = new Set<string>();
+    selectedShapeIds.forEach(id => { if (visibleIds.has(id)) filtered.add(id); });
+    return filtered;
+  }, [visibleShapes, selectedShapeIds]);
+
   // Use extracted hooks
   const { getSVGPoint, getClientPoint } = useCanvasCoordinates(svgRef);
 
@@ -86,7 +100,7 @@ export function Canvas({
     hasSingleSelection,
     singleSelectedShape,
     selectionBounds,
-  } = useSelectionBounds(shapes, selectedShapeIds);
+  } = useSelectionBounds(visibleShapes, effectiveSelectedShapeIds);
 
   const { isSpacePressed, cursorStyle } = useCanvasPanning(
     viewport,
@@ -127,6 +141,7 @@ export function Canvas({
     handleCanvasTouchEnd,
   } = useCanvasTouchGestures({
     shapes,
+    groups,
     selectedShapes,
     selectedShapeIds,
     viewport,
@@ -388,14 +403,14 @@ export function Canvas({
     }
   }, [contextMenu.shapeId, onMoveLayer]);
 
-  // Sort shapes by zIndex for rendering
-  const sortedShapes = [...shapes].sort((a, b) => a.zIndex - b.zIndex);
+  // Sort visible shapes by zIndex for rendering
+  const sortedShapes = useMemo(() => [...visibleShapes].sort((a, b) => a.zIndex - b.zIndex), [visibleShapes]);
 
-  // Compute shapes to highlight on hover (excluding already-selected shapes)
+  // Compute shapes to highlight on hover (excluding already-selected and hidden shapes)
   const hoveredShapes = useMemo(() => {
     if (!hoveredShapeIds || hoveredShapeIds.size === 0) return [];
-    return shapes.filter(s => hoveredShapeIds.has(s.id) && !selectedShapeIds.has(s.id));
-  }, [shapes, hoveredShapeIds, selectedShapeIds]);
+    return visibleShapes.filter(s => hoveredShapeIds.has(s.id) && !effectiveSelectedShapeIds.has(s.id));
+  }, [visibleShapes, hoveredShapeIds, effectiveSelectedShapeIds]);
 
   // Calculate viewBox based on zoom and pan
   const viewBoxSize = CANVAS_SIZE / viewport.zoom;

@@ -1,11 +1,13 @@
 import { useRef, useCallback, useState } from 'react';
-import type { Shape, ViewportState } from '../../types';
+import type { Shape, ShapeGroup, ViewportState } from '../../types';
 import type { TouchState, ContextMenuState } from '../../types/canvas';
 import { LONG_PRESS_DURATION, TAP_THRESHOLD, CANVAS_SIZE } from '../../types/canvas';
 import { getShapeDimensions } from '../../utils/shapes';
+import { isShapeVisible } from '../../utils/visibility';
 
 interface UseCanvasTouchGesturesOptions {
   shapes: Shape[];
+  groups: ShapeGroup[];
   selectedShapes: Shape[];
   selectedShapeIds: Set<string>;
   viewport: ViewportState;
@@ -24,6 +26,7 @@ interface UseCanvasTouchGesturesOptions {
  */
 export function useCanvasTouchGestures({
   shapes,
+  groups,
   selectedShapes,
   selectedShapeIds,
   viewport,
@@ -111,6 +114,7 @@ export function useCanvasTouchGestures({
       // Search from top to bottom (highest zIndex first)
       const sortedByZ = [...shapes].sort((a, b) => b.zIndex - a.zIndex);
       for (const shape of sortedByZ) {
+        if (!isShapeVisible(shape, groups)) continue;
         const halfSize = shape.size / 2;
         const centerX = shape.x + halfSize;
         const centerY = shape.y + halfSize;
@@ -136,7 +140,7 @@ export function useCanvasTouchGestures({
       }
       return null;
     },
-    [shapes]
+    [shapes, groups]
   );
 
   // Handle touch start on canvas

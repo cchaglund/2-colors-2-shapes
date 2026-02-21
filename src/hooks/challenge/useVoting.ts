@@ -147,7 +147,7 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
       // Fetch the actual submissions
       const { data: submissions, error: subError } = await supabase
         .from('submissions')
-        .select('id, user_id, shapes, background_color_index')
+        .select('id, user_id, shapes, groups, background_color_index')
         .in('id', [pair.submission_a_id, pair.submission_b_id]);
 
       if (subError) throw subError;

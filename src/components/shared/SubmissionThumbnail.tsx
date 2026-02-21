@@ -1,9 +1,11 @@
-import type { Shape, DailyChallenge } from '../../types';
+import type { Shape, ShapeGroup, DailyChallenge } from '../../types';
 import { CANVAS_SIZE } from '../../types/canvas';
 import { SVGShape } from './SVGShape';
+import { getVisibleShapes } from '../../utils/visibility';
 
 interface SubmissionThumbnailProps {
   shapes: Shape[];
+  groups?: ShapeGroup[];
   challenge: DailyChallenge;
   backgroundColorIndex: number | null;
   size?: number;
@@ -19,6 +21,7 @@ interface SubmissionThumbnailProps {
 
 export function SubmissionThumbnail({
   shapes,
+  groups = [],
   challenge,
   backgroundColorIndex,
   size = 100,
@@ -30,7 +33,7 @@ export function SubmissionThumbnail({
   likeCount,
   showLikeCount = false,
 }: SubmissionThumbnailProps) {
-  const sortedShapes = [...shapes].sort((a, b) => a.zIndex - b.zIndex);
+  const sortedShapes = [...getVisibleShapes(shapes, groups)].sort((a, b) => a.zIndex - b.zIndex);
   const backgroundColor =
     backgroundColorIndex !== null
       ? challenge.colors[backgroundColorIndex]

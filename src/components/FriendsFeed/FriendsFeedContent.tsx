@@ -380,6 +380,7 @@ export function FriendsFeedContent({
                   >
                     <SubmissionThumbnail
                       shapes={submission.shapes}
+                      groups={submission.groups}
                       challenge={challenge}
                       backgroundColorIndex={submission.background_color_index}
                       size={140}

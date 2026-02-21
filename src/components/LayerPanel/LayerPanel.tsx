@@ -26,6 +26,8 @@ export function LayerPanel({
   onUngroupShapes,
   onRenameGroup,
   onToggleGroupCollapsed,
+  onToggleShapeVisibility,
+  onToggleGroupVisibility,
   onSelectGroup,
   isOpen,
   width,
@@ -385,6 +387,7 @@ export function LayerPanel({
                   onFinishEditing={finishEditing}
                   onKeyDown={handleKeyDown}
                   onToggleGroupCollapsed={onToggleGroupCollapsed}
+                  onToggleGroupVisibility={onToggleGroupVisibility}
                   onDeleteGroup={onDeleteGroup}
                   onMoveGroup={onMoveGroup}
                   onGroupDragStart={handleGroupDragStart}
@@ -426,7 +429,11 @@ export function LayerPanel({
                   onDrop={handleDrop}
                   onMoveLayer={onMoveLayer}
                   onDeleteShape={onDeleteShape}
+                  onToggleVisibility={onToggleShapeVisibility}
                   onHoverShape={onHoverShape}
+                  groupVisible={item.shape.groupId
+                    ? groups.find(g => g.id === item.shape!.groupId)?.visible !== false
+                    : true}
                 />
               );
             }

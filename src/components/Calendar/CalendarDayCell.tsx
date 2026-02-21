@@ -137,6 +137,7 @@ export function CalendarDayCell({
         <>
           <SubmissionThumbnail
             shapes={dayWinners[0].shapes}
+            groups={dayWinners[0].groups}
             challenge={challenge}
             backgroundColorIndex={dayWinners[0].background_color_index}
             fill

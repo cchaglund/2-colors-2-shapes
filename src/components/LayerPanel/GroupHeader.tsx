@@ -1,4 +1,5 @@
 import type { GroupHeaderProps } from './types';
+import { VisibilityToggle } from './VisibilityToggle';
 
 /**
  * Renders a group header in the layer panel
@@ -23,6 +24,7 @@ export function GroupHeader({
   onFinishEditing,
   onKeyDown,
   onToggleGroupCollapsed,
+  onToggleGroupVisibility,
   onDeleteGroup,
   onMoveGroup,
   onGroupDragStart,
@@ -37,6 +39,7 @@ export function GroupHeader({
 
   const isDragging = draggedGroupId === group.id;
   const isDropTarget = dropTargetTopLevelIndex === topLevelIndex && draggedGroupId !== group.id;
+  const isGroupVisible = group.visible !== false;
 
   return (
     <li
@@ -55,7 +58,7 @@ export function GroupHeader({
           : someSelected
           ? 'bg-(--color-selected-partial) hover:bg-(--color-hover)'
           : 'hover:bg-(--color-hover)'
-      }`}
+      } ${!isGroupVisible ? 'opacity-50' : ''}`}
       onClick={(e) => onGroupClick(e, group.id)}
       onMouseEnter={() => onHoverShape(new Set(shapesInGroup.map(s => s.id)))}
       onMouseLeave={() => onHoverShape(null)}
@@ -63,6 +66,14 @@ export function GroupHeader({
         ? (isMultiSelectMode ? 'Tap to toggle group selection' : 'Tap to select group')
         : `Click to select all shapes in group, ${modifierKeyHint}+click to add to selection`}
     >
+      <VisibilityToggle
+        visible={isGroupVisible}
+        onToggle={(e) => {
+          e.stopPropagation();
+          onToggleGroupVisibility(group.id);
+        }}
+      />
+
       {/* Collapse/expand toggle */}
       <button
         className="w-5 h-5 flex items-center justify-center text-xs rounded hover:bg-black/10 text-(--color-text-secondary)"

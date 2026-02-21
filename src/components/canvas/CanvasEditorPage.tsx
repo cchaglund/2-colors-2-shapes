@@ -122,6 +122,8 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
     ungroupShapes,
     renameGroup,
     toggleGroupCollapsed,
+    toggleShapeVisibility,
+    toggleGroupVisibility,
     selectGroup,
     loadCanvasState,
     toast,
@@ -306,6 +308,7 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
         <div className="overflow-visible p-16 canvas-wrapper" style={{ cursor: isBackgroundPanning ? 'grabbing' : 'grab' }}>
           <Canvas
             shapes={canvasState.shapes}
+            groups={canvasState.groups}
             selectedShapeIds={canvasState.selectedShapeIds}
             backgroundColor={backgroundColor}
             challenge={challenge}
@@ -385,6 +388,8 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
         onUngroupShapes={ungroupShapes}
         onRenameGroup={renameGroup}
         onToggleGroupCollapsed={toggleGroupCollapsed}
+        onToggleShapeVisibility={toggleShapeVisibility}
+        onToggleGroupVisibility={toggleGroupVisibility}
         onSelectGroup={selectGroup}
         isOpen={rightOpen}
         width={rightWidth}

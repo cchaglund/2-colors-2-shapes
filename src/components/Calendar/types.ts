@@ -1,4 +1,4 @@
-import type { Shape } from '../../types';
+import type { Shape, ShapeGroup } from '../../types';
 
 export type ViewMode = 'my-submissions' | 'winners' | 'wall' | 'friends';
 
@@ -14,6 +14,7 @@ export interface WinnerEntry {
   nickname: string;
   final_rank: number;
   shapes: Shape[];
+  groups?: ShapeGroup[];
   background_color_index: number | null;
 }
 

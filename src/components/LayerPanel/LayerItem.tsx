@@ -1,4 +1,5 @@
 import type { LayerItemProps } from './types';
+import { VisibilityToggle } from './VisibilityToggle';
 
 /**
  * Renders a shape layer item in the layer panel
@@ -29,9 +30,13 @@ export function LayerItem({
   onDrop,
   onMoveLayer,
   onDeleteShape,
+  onToggleVisibility,
   onHoverShape,
+  groupVisible,
 }: LayerItemProps) {
   const isSelected = selectedShapeIds.has(shape.id);
+  const isVisible = shape.visible !== false;
+  const isEffectivelyVisible = isVisible && groupVisible;
 
   return (
     <li
@@ -48,12 +53,19 @@ export function LayerItem({
           : ''
       } ${
         isSelected ? 'bg-(--color-selected)' : 'hover:bg-(--color-hover)'
-      } ${isInGroup ? 'pl-6' : 'pl-2'}`}
+      } ${isInGroup ? 'pl-6' : 'pl-2'} ${!isEffectivelyVisible ? 'opacity-50' : ''}`}
       onClick={(e) => onLayerClick(e, shape.id)}
       onMouseEnter={() => onHoverShape(new Set([shape.id]))}
       onMouseLeave={() => onHoverShape(null)}
       title={layerHint}
     >
+      <VisibilityToggle
+        visible={isVisible}
+        onToggle={(e) => {
+          e.stopPropagation();
+          onToggleVisibility(shape.id);
+        }}
+      />
       <div
         className="w-5 h-5 rounded shrink-0 border border-(--color-border-light)"
         style={{ backgroundColor: challenge.colors[shape.colorIndex] }}

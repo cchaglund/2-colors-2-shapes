@@ -89,6 +89,7 @@ export function VotingPairView({
           >
             <SubmissionThumbnail
               shapes={currentPair.submissionA.shapes}
+              groups={currentPair.submissionA.groups}
               challenge={challenge}
               backgroundColorIndex={currentPair.submissionA.background_color_index}
               size={260}
@@ -105,6 +106,7 @@ export function VotingPairView({
           >
             <SubmissionThumbnail
               shapes={currentPair.submissionB.shapes}
+              groups={currentPair.submissionB.groups}
               challenge={challenge}
               backgroundColorIndex={currentPair.submissionB.background_color_index}
               size={260}

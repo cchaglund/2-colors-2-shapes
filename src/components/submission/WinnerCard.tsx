@@ -39,6 +39,7 @@ export function WinnerCard({
         <div className="rounded-xl p-2 shadow-lg" style={{ backgroundColor: bgColor }}>
           <SubmissionThumbnail
             shapes={entry.shapes}
+            groups={entry.groups}
             challenge={challenge}
             backgroundColorIndex={entry.background_color_index}
             size={thumbnailSize}

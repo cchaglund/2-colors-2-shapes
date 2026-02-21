@@ -143,6 +143,7 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
             <div className="border rounded-lg overflow-hidden w-fit border-(--color-border)">
               <SubmissionCanvas
                 shapes={submission.shapes}
+                groups={submission.groups}
                 challenge={challenge}
                 backgroundColorIndex={submission.background_color_index}
                 svgRef={svgRef}
