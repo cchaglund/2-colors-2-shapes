@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Canvas } from './Canvas';
 import { Toolbar } from './Toolbar';
 import { LayerPanel } from '../LayerPanel';
@@ -243,6 +243,9 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
     }
   }, [user, challenge]);
 
+  // Hover highlight state (transient UI, not canvas document state)
+  const [hoveredShapeIds, setHoveredShapeIds] = useState<Set<string> | null>(null);
+
   // Computed values
   const backgroundColor =
     canvasState.backgroundColorIndex !== null && challenge
@@ -324,6 +327,7 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
             onSetZoomAtPoint={setZoomAtPoint}
             onPan={setPan}
             onToggleGrid={toggleGrid}
+            hoveredShapeIds={hoveredShapeIds}
           />
         </div>
 
@@ -386,6 +390,7 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
         width={rightWidth}
         onToggle={toggleRight}
         onStartResize={startResizeRight}
+        onHoverShape={setHoveredShapeIds}
       />
 
       {showResetConfirm && (

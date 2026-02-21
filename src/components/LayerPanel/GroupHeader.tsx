@@ -29,6 +29,7 @@ export function GroupHeader({
   onGroupDragEnd,
   onGroupDragOver,
   onGroupDrop,
+  onHoverShape,
 }: GroupHeaderProps) {
   // Check if all shapes in group are selected
   const allSelected = shapesInGroup.every((s) => selectedShapeIds.has(s.id));
@@ -56,6 +57,8 @@ export function GroupHeader({
           : 'hover:bg-(--color-hover)'
       }`}
       onClick={(e) => onGroupClick(e, group.id)}
+      onMouseEnter={() => onHoverShape(new Set(shapesInGroup.map(s => s.id)))}
+      onMouseLeave={() => onHoverShape(null)}
       title={isTouchDevice
         ? (isMultiSelectMode ? 'Tap to toggle group selection' : 'Tap to select group')
         : `Click to select all shapes in group, ${modifierKeyHint}+click to add to selection`}

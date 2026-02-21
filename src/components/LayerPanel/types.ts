@@ -23,6 +23,7 @@ export interface LayerPanelProps {
   width: number;
   onToggle: () => void;
   onStartResize: (e: React.MouseEvent) => void;
+  onHoverShape: (ids: Set<string> | null) => void;
 }
 
 // Helper type for rendering grouped and ungrouped shapes
@@ -63,6 +64,7 @@ export interface LayerItemProps {
   onDrop: (e: React.DragEvent, targetIndex: number, targetGroupId: string | null) => void;
   onMoveLayer: (id: string, direction: 'up' | 'down' | 'top' | 'bottom') => void;
   onDeleteShape: (id: string) => void;
+  onHoverShape: (ids: Set<string> | null) => void;
 }
 
 export interface GroupHeaderProps {
@@ -91,4 +93,5 @@ export interface GroupHeaderProps {
   onGroupDragEnd: () => void;
   onGroupDragOver: (e: React.DragEvent, topLevelIndex: number) => void;
   onGroupDrop: (e: React.DragEvent, targetTopLevelIndex: number) => void;
+  onHoverShape: (ids: Set<string> | null) => void;
 }

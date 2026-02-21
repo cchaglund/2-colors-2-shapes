@@ -31,6 +31,7 @@ export function LayerPanel({
   width,
   onToggle,
   onStartResize,
+  onHoverShape,
 }: LayerPanelProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
@@ -390,6 +391,7 @@ export function LayerPanel({
                   onGroupDragEnd={handleGroupDragEnd}
                   onGroupDragOver={handleGroupDragOver}
                   onGroupDrop={handleGroupDrop}
+                  onHoverShape={onHoverShape}
                 />
               );
             } else if (item.type === 'shape' && item.shape) {
@@ -424,6 +426,7 @@ export function LayerPanel({
                   onDrop={handleDrop}
                   onMoveLayer={onMoveLayer}
                   onDeleteShape={onDeleteShape}
+                  onHoverShape={onHoverShape}
                 />
               );
             }

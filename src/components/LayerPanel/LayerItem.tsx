@@ -29,6 +29,7 @@ export function LayerItem({
   onDrop,
   onMoveLayer,
   onDeleteShape,
+  onHoverShape,
 }: LayerItemProps) {
   const isSelected = selectedShapeIds.has(shape.id);
 
@@ -49,6 +50,8 @@ export function LayerItem({
         isSelected ? 'bg-(--color-selected)' : 'hover:bg-(--color-hover)'
       } ${isInGroup ? 'pl-6' : 'pl-2'}`}
       onClick={(e) => onLayerClick(e, shape.id)}
+      onMouseEnter={() => onHoverShape(new Set([shape.id]))}
+      onMouseLeave={() => onHoverShape(null)}
       title={layerHint}
     >
       <div

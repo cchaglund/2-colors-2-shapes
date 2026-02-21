@@ -429,6 +429,41 @@ export function MultiSelectTransformLayer({
   );
 }
 
+// Hover highlight layer - shows orange dashed outline for shapes hovered in the layer panel
+export function HoverHighlightLayer({ shapes, zoom = 1 }: { shapes: Shape[]; zoom?: number }) {
+  const scale = 1 / zoom;
+  const strokeWidth = 2 * scale;
+  const dashLength = 6 * scale;
+
+  return (
+    <g style={{ pointerEvents: 'none' }}>
+      {shapes.map((shape) => {
+        const { viewBox } = getShapeSVGData(shape.type, shape.size);
+        const centerX = viewBox.width / 2;
+        const centerY = viewBox.height / 2;
+        const scaleX = shape.flipX ? -1 : 1;
+        const scaleY = shape.flipY ? -1 : 1;
+        const transform = `translate(${shape.x}, ${shape.y}) translate(${centerX}, ${centerY}) scale(${scaleX}, ${scaleY}) translate(${-centerX}, ${-centerY}) rotate(${shape.rotation}, ${centerX}, ${centerY})`;
+
+        return (
+          <g key={shape.id} transform={transform}>
+            <rect
+              x={0}
+              y={0}
+              width={viewBox.width}
+              height={viewBox.height}
+              fill="none"
+              stroke="#ff9500"
+              strokeWidth={strokeWidth}
+              strokeDasharray={`${dashLength},${dashLength}`}
+            />
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
 // Invisible interaction layer for multi-select bounding box
 // Note: No fill rect here - moving is handled by clicking on actual shapes
 export function MultiSelectInteractionLayer({

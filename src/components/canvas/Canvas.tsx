@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useMemo } from 'react';
 import type { Shape, DailyChallenge, ViewportState } from '../../types';
 import { CANVAS_SIZE } from '../../types/canvas';
 import { getShapeDimensions } from '../../utils/shapes';
@@ -7,6 +7,7 @@ import {
   TransformInteractionLayer,
   MultiSelectTransformLayer,
   MultiSelectInteractionLayer,
+  HoverHighlightLayer,
 } from './TransformHandles';
 import { type KeyMappings } from '../../constants/keyboardActions';
 import { TouchContextMenu } from './TouchContextMenu';
@@ -45,6 +46,7 @@ interface CanvasProps {
   onPan: (panX: number, panY: number) => void;
   onMoveLayer?: (id: string, direction: 'front' | 'back' | 'up' | 'down') => void;
   onToggleGrid?: () => void;
+  hoveredShapeIds?: Set<string> | null;
 }
 
 export function Canvas({
@@ -71,6 +73,7 @@ export function Canvas({
   onPan,
   onMoveLayer,
   onToggleGrid,
+  hoveredShapeIds,
 }: CanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -388,6 +391,12 @@ export function Canvas({
   // Sort shapes by zIndex for rendering
   const sortedShapes = [...shapes].sort((a, b) => a.zIndex - b.zIndex);
 
+  // Compute shapes to highlight on hover (excluding already-selected shapes)
+  const hoveredShapes = useMemo(() => {
+    if (!hoveredShapeIds || hoveredShapeIds.size === 0) return [];
+    return shapes.filter(s => hoveredShapeIds.has(s.id) && !selectedShapeIds.has(s.id));
+  }, [shapes, hoveredShapeIds, selectedShapeIds]);
+
   // Calculate viewBox based on zoom and pan
   const viewBoxSize = CANVAS_SIZE / viewport.zoom;
   const viewBoxX = -viewport.panX / viewport.zoom;
@@ -443,6 +452,11 @@ export function Canvas({
 
         {/* Grid lines - rendered on top of shapes but don't export/print */}
         {showGrid && <CanvasGridLines zoom={viewport.zoom} showOffCanvas={showOffCanvas} />}
+
+        {/* Hover highlight from layer panel */}
+        {hoveredShapes.length > 0 && (
+          <HoverHighlightLayer shapes={hoveredShapes} zoom={viewport.zoom} />
+        )}
 
         {/* Interaction layers - outside clip path for better hit detection */}
         {!isSpacePressed && sortedShapes.map((shape) => (
