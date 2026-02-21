@@ -27,7 +27,7 @@ import { useWelcomeModal } from '../../hooks/ui/useWelcomeModal';
 import { useKeyboardSettings } from '../../hooks/ui/useKeyboardSettings';
 import { useWinnerAnnouncement } from '../../hooks/ui/useWinnerAnnouncement';
 import { useShapeActions } from '../../hooks/canvas/useShapeActions';
-import { useBackgroundPanning } from '../../hooks/canvas/useBackgroundPanning';
+
 import { useAppModals } from '../../hooks/ui/useAppModals';
 import { useSaveSubmission } from '../../hooks/submission/useSaveSubmission';
 import { useSubmissionSync } from '../../hooks/submission/useSubmissionSync';
@@ -63,9 +63,6 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
     dismissWinner,
   } = useAppModals();
   const { isOpen: showWelcome, dismiss: dismissWelcome } = useWelcomeModal();
-
-  // Refs
-  const mainRef = useRef<HTMLElement>(null);
 
   // Auth state
   const { user } = useAuth();
@@ -104,6 +101,7 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
     deleteShape,
     deleteSelectedShapes,
     selectShape,
+    selectShapes,
     moveLayer,
     moveGroup,
     reorderLayers,
@@ -188,14 +186,6 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
     mirrorVertical,
   });
 
-  // Background panning
-  const { isBackgroundPanning, handleBackgroundMouseDown } = useBackgroundPanning({
-    mainRef,
-    panX: viewport.panX,
-    panY: viewport.panY,
-    setPan,
-  });
-
   // Save submission
   const { saveStatus, handleSave } = useSaveSubmission({
     challenge,
@@ -254,6 +244,17 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
       ? challenge.colors[canvasState.backgroundColorIndex]
       : null;
 
+  // Marquee selection from outside the canvas (checkerboard background)
+  const marqueeStartRef = useRef<((clientX: number, clientY: number) => void) | null>(null);
+  const handleBackgroundMouseDown = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    const target = e.target as HTMLElement;
+    if (target === e.currentTarget || target.classList.contains('canvas-wrapper')) {
+      if (e.button !== 0) return;
+      e.preventDefault(); // Prevent text selection during marquee drag
+      marqueeStartRef.current?.(e.clientX, e.clientY);
+    }
+  }, []);
+
   // Show onboarding modal if user is logged in but hasn't completed onboarding
   const showOnboarding = user && profile && !profile.onboarding_complete;
 
@@ -299,13 +300,10 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
       />
 
       <main
-        ref={mainRef}
         className="flex-1 flex items-center justify-center canvas-bg-checkered overflow-auto relative"
-        style={{ cursor: isBackgroundPanning ? 'grabbing' : undefined }}
         onMouseDown={handleBackgroundMouseDown}
-        onClick={() => selectShape(null)}
       >
-        <div className="overflow-visible p-16 canvas-wrapper" style={{ cursor: isBackgroundPanning ? 'grabbing' : 'grab' }}>
+        <div className="overflow-visible p-16 canvas-wrapper">
           <Canvas
             shapes={canvasState.shapes}
             groups={canvasState.groups}
@@ -317,6 +315,7 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
             showGrid={showGrid}
             showOffCanvas={showOffCanvas}
             onSelectShape={selectShape}
+            onSelectShapes={selectShapes}
             onUpdateShape={updateShape}
             onUpdateShapes={updateShapes}
             onCommitToHistory={commitToHistory}
@@ -331,6 +330,7 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
             onPan={setPan}
             onToggleGrid={toggleGrid}
             hoveredShapeIds={hoveredShapeIds}
+            marqueeStartRef={marqueeStartRef}
           />
         </div>
 

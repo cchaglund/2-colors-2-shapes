@@ -22,6 +22,7 @@ import { useCanvasPanning } from '../../hooks/canvas/useCanvasPanning';
 import { useWheelZoom } from '../../hooks/canvas/useWheelZoom';
 import { useShapeDrag } from '../../hooks/canvas/useShapeDrag';
 import { useCanvasTouchGestures } from '../../hooks/canvas/useCanvasTouchGestures';
+import { useMarqueeSelection } from '../../hooks/canvas/useMarqueeSelection';
 
 interface CanvasProps {
   shapes: Shape[];
@@ -34,6 +35,7 @@ interface CanvasProps {
   showGrid?: boolean;
   showOffCanvas?: boolean;
   onSelectShape: (id: string | null, options?: { toggle?: boolean; range?: boolean; orderedIds?: string[] }) => void;
+  onSelectShapes: (ids: string[], options?: { additive?: boolean }) => void;
   onUpdateShape: (id: string, updates: Partial<Shape>, addToHistory?: boolean) => void;
   onUpdateShapes: (updates: Map<string, Partial<Shape>>, addToHistory?: boolean, label?: string) => void;
   onCommitToHistory: (label?: string) => void;
@@ -49,6 +51,7 @@ interface CanvasProps {
   onMoveLayer?: (id: string, direction: 'front' | 'back' | 'up' | 'down') => void;
   onToggleGrid?: () => void;
   hoveredShapeIds?: Set<string> | null;
+  marqueeStartRef?: React.MutableRefObject<((clientX: number, clientY: number) => void) | null>;
 }
 
 export function Canvas({
@@ -62,6 +65,7 @@ export function Canvas({
   showGrid,
   showOffCanvas,
   onSelectShape,
+  onSelectShapes,
   onUpdateShape,
   onUpdateShapes,
   onCommitToHistory,
@@ -77,6 +81,7 @@ export function Canvas({
   onMoveLayer,
   onToggleGrid,
   hoveredShapeIds,
+  marqueeStartRef,
 }: CanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -108,6 +113,20 @@ export function Canvas({
     getClientPoint,
     onPan
   );
+
+  const { marqueeState, startMarqueeAt } = useMarqueeSelection({
+    shapes: visibleShapes,
+    groups,
+    getSVGPoint,
+    isSpacePressed,
+    onSelectShapes,
+    onSelectShape,
+  });
+
+  // Expose startMarqueeAt to parent so marquee can start from outside the SVG
+  if (marqueeStartRef) {
+    marqueeStartRef.current = startMarqueeAt;
+  }
 
   useWheelZoom(svgRef, onZoomAtPoint);
 
@@ -158,7 +177,7 @@ export function Canvas({
   // Event handlers that need to set drag state
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
     if (e.target === svgRef.current) {
-      onSelectShape(null);
+      startMarqueeAt(e.clientX, e.clientY);
     }
   };
 
@@ -425,7 +444,7 @@ export function Canvas({
         height={CANVAS_SIZE}
         viewBox={`${viewBoxX} ${viewBoxY} ${viewBoxSize} ${viewBoxSize}`}
         className="border touch-none overflow-visible border-(--color-border)"
-        style={{ cursor: cursorStyle }}
+        style={{ cursor: marqueeState ? 'crosshair' : cursorStyle }}
         onMouseDown={handleCanvasMouseDown}
         onTouchStart={handleCanvasTouchStart}
         onTouchMove={handleCanvasTouchMove}
@@ -447,7 +466,7 @@ export function Canvas({
           width={CANVAS_SIZE}
           height={CANVAS_SIZE}
           fill={backgroundColor || '#ffffff'}
-          onMouseDown={() => !isSpacePressed && onSelectShape(null)}
+          onMouseDown={(e) => !isSpacePressed && startMarqueeAt(e.clientX, e.clientY)}
         />
 
         {/* Render shapes - optionally clipped to canvas bounds */}
@@ -517,6 +536,21 @@ export function Canvas({
               showIndividualOutlines={true}
             />
           </>
+        )}
+
+        {/* Marquee selection rectangle */}
+        {marqueeState && (
+          <rect
+            x={Math.min(marqueeState.startX, marqueeState.currentX)}
+            y={Math.min(marqueeState.startY, marqueeState.currentY)}
+            width={Math.abs(marqueeState.currentX - marqueeState.startX)}
+            height={Math.abs(marqueeState.currentY - marqueeState.startY)}
+            fill="rgba(59, 130, 246, 0.1)"
+            stroke="rgba(59, 130, 246, 0.6)"
+            strokeWidth={1 / viewport.zoom}
+            strokeDasharray={`${4 / viewport.zoom} ${2 / viewport.zoom}`}
+            pointerEvents="none"
+          />
         )}
       </svg>
 

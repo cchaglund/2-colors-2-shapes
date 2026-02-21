@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import type { Shape } from '../../types';
 import type { SelectionBounds } from '../../types/canvas';
-import { getShapeDimensions } from '../../utils/shapes';
+import { getShapeAABB } from '../../utils/shapeBounds';
 
 /**
  * Hook for calculating selection bounds and managing selected shapes
@@ -24,38 +24,11 @@ export function useSelectionBounds(shapes: Shape[], selectedShapeIds: Set<string
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
     for (const shape of selectedShapes) {
-      // Get actual rendered dimensions (may differ from size×size for non-square shapes)
-      const dims = getShapeDimensions(shape.type, shape.size);
-
-      // Get the four corners of the shape's actual bounding box
-      const corners = [
-        { x: 0, y: 0 },
-        { x: dims.width, y: 0 },
-        { x: dims.width, y: dims.height },
-        { x: 0, y: dims.height },
-      ];
-
-      // Rotation center is at the center of the actual shape dimensions
-      const cx = dims.width / 2;
-      const cy = dims.height / 2;
-      const angleRad = (shape.rotation * Math.PI) / 180;
-      const cos = Math.cos(angleRad);
-      const sin = Math.sin(angleRad);
-
-      // Rotate each corner around the center and translate to shape position
-      for (const corner of corners) {
-        const relX = corner.x - cx;
-        const relY = corner.y - cy;
-        const rotatedX = relX * cos - relY * sin;
-        const rotatedY = relX * sin + relY * cos;
-        const finalX = shape.x + cx + rotatedX;
-        const finalY = shape.y + cy + rotatedY;
-
-        minX = Math.min(minX, finalX);
-        minY = Math.min(minY, finalY);
-        maxX = Math.max(maxX, finalX);
-        maxY = Math.max(maxY, finalY);
-      }
+      const aabb = getShapeAABB(shape);
+      minX = Math.min(minX, aabb.minX);
+      minY = Math.min(minY, aabb.minY);
+      maxX = Math.max(maxX, aabb.maxX);
+      maxY = Math.max(maxY, aabb.maxY);
     }
 
     return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };

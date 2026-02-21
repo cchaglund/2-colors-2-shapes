@@ -259,6 +259,24 @@ export function useShapeOperations(
     [setCanvasState]
   );
 
+  const selectShapes = useCallback(
+    (ids: string[], options?: { additive?: boolean }) => {
+      const additive = options?.additive ?? false;
+      setCanvasState(
+        (prev) => {
+          if (additive) {
+            const newSelected = new Set(prev.selectedShapeIds);
+            for (const id of ids) newSelected.add(id);
+            return { ...prev, selectedShapeIds: newSelected };
+          }
+          return { ...prev, selectedShapeIds: new Set(ids) };
+        },
+        false
+      );
+    },
+    [setCanvasState]
+  );
+
   const moveLayer = useCallback(
     (id: string, direction: 'up' | 'down' | 'top' | 'bottom') => {
       setCanvasState((prev) => {
@@ -894,6 +912,7 @@ export function useShapeOperations(
     deleteShape,
     deleteSelectedShapes,
     selectShape,
+    selectShapes,
     moveLayer,
     moveGroup,
     reorderLayers,
