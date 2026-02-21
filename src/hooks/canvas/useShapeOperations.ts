@@ -8,6 +8,11 @@ type SetCanvasState = (
   label?: string
 ) => void;
 
+/** Shift all shapes with zIndex > insertAfterZ up by `count` positions. */
+function shiftZIndicesAbove(shapes: Shape[], insertAfterZ: number, count: number): Shape[] {
+  return shapes.map((s) => s.zIndex > insertAfterZ ? { ...s, zIndex: s.zIndex + count } : s);
+}
+
 /** Helper to ensure all shapes have unique, sequential zIndices. */
 function normalizeZIndices(shapes: Shape[]): Shape[] {
   const sorted = [...shapes].sort(
@@ -66,10 +71,12 @@ export function useShapeOperations(
         const shape = prev.shapes.find((s) => s.id === id);
         if (!shape) return prev;
 
-        const maxZIndex = Math.max(0, ...prev.shapes.map((s) => s.zIndex));
         const totalCount = prev.shapes.length + 1;
         const shapeIndex = challenge ? challenge.shapes.findIndex(s => s.type === shape.type) : 0;
         const shapeLetter = shapeIndex === 0 ? 'A' : 'B';
+
+        // Shift everything above the original up by 1, then slot the duplicate directly above
+        const shiftedShapes = shiftZIndicesAbove(prev.shapes, shape.zIndex, 1);
 
         const newShape: Shape = {
           ...shape,
@@ -77,12 +84,12 @@ export function useShapeOperations(
           name: `${shapeLetter}${totalCount}`,
           x: shape.x + 20,
           y: shape.y + 20,
-          zIndex: maxZIndex + 1,
+          zIndex: shape.zIndex + 1,
         };
 
         return {
           ...prev,
-          shapes: [...prev.shapes, newShape],
+          shapes: [...shiftedShapes, newShape],
           selectedShapeIds: new Set([newShape.id]),
         };
       }, true, 'Duplicate');
@@ -100,19 +107,32 @@ export function useShapeOperations(
       }
 
       setCanvasState((prev) => {
-        const shapesToDuplicate = prev.shapes.filter((s) => ids.includes(s.id));
+        const shapesToDuplicate = prev.shapes
+          .filter((s) => ids.includes(s.id))
+          .sort((a, b) => a.zIndex - b.zIndex); // process lowest zIndex first
         if (shapesToDuplicate.length === 0) return prev;
 
-        let maxZIndex = Math.max(0, ...prev.shapes.map((s) => s.zIndex));
+        let currentShapes = prev.shapes;
         let currentCount = prev.shapes.length;
         const newShapes: Shape[] = [];
         const newSelectedIds: string[] = [];
+        let cumulativeShift = 0;
 
         for (const shape of shapesToDuplicate) {
           currentCount++;
-          maxZIndex++;
           const shapeIndex = challenge ? challenge.shapes.findIndex(s => s.type === shape.type) : 0;
           const shapeLetter = shapeIndex === 0 ? 'A' : 'B';
+
+          // Account for prior shifts when computing this shape's effective position
+          const effectiveOrigZ = shape.zIndex + cumulativeShift;
+
+          // Shift existing shapes and already-created duplicates above this point
+          currentShapes = shiftZIndicesAbove(currentShapes, effectiveOrigZ, 1);
+          for (let i = 0; i < newShapes.length; i++) {
+            if (newShapes[i].zIndex > effectiveOrigZ) {
+              newShapes[i] = { ...newShapes[i], zIndex: newShapes[i].zIndex + 1 };
+            }
+          }
 
           const newShape: Shape = {
             ...shape,
@@ -120,16 +140,17 @@ export function useShapeOperations(
             name: `${shapeLetter}${currentCount}`,
             x: shape.x + 20,
             y: shape.y + 20,
-            zIndex: maxZIndex,
+            zIndex: effectiveOrigZ + 1,
           };
 
           newShapes.push(newShape);
           newSelectedIds.push(newShape.id);
+          cumulativeShift++;
         }
 
         return {
           ...prev,
-          shapes: [...prev.shapes, ...newShapes],
+          shapes: [...currentShapes, ...newShapes],
           selectedShapeIds: new Set(newSelectedIds),
         };
       }, true, 'Duplicate');
