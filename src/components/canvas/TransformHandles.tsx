@@ -199,6 +199,7 @@ export function TransformVisualLayer({ shape, zoom = 1 }: { shape: Shape; zoom?:
       {element === 'ellipse' && <ellipse {...outlineProps} />}
       {element === 'rect' && <rect {...outlineProps} />}
       {element === 'polygon' && <polygon {...outlineProps} />}
+      {element === 'path' && <path {...outlineProps} />}
 
       {/* Bounding box (blue solid) */}
       <rect
@@ -294,6 +295,7 @@ export function MultiSelectTransformLayer({
         {element === 'ellipse' && <ellipse {...outlineProps} />}
         {element === 'rect' && <rect {...outlineProps} />}
         {element === 'polygon' && <polygon {...outlineProps} />}
+        {element === 'path' && <path {...outlineProps} />}
 
         {/* Bounding box (blue solid) */}
         <rect
@@ -375,6 +377,7 @@ export function MultiSelectTransformLayer({
               {element === 'ellipse' && <ellipse {...outlineProps} />}
               {element === 'rect' && <rect {...outlineProps} />}
               {element === 'polygon' && <polygon {...outlineProps} />}
+              {element === 'path' && <path {...outlineProps} />}
             </g>
           );
         })}
