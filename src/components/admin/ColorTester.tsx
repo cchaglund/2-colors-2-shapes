@@ -12,21 +12,22 @@ import { supabase } from '../../lib/supabase';
 //   supabase functions deploy get-daily-challenge
 // =============================================================================
 
-interface ColorMetadata {
+interface PairwiseMetadata {
+  pair: string;
   contrastRatio: number;
   hueDiff: number;
   distance: number;
 }
 
 interface TestColorResponse {
-  colors: [string, string];
-  metadata: ColorMetadata;
+  colors: string[];
+  metadata: { pairwise: PairwiseMetadata[] };
 }
 
 export function ColorTester() {
-  const [colors, setColors] = useState<[string, string] | null>(null);
-  const [metadata, setMetadata] = useState<ColorMetadata | null>(null);
-  const [history, setHistory] = useState<[string, string][]>([]);
+  const [colors, setColors] = useState<string[] | null>(null);
+  const [metadata, setMetadata] = useState<PairwiseMetadata[] | null>(null);
+  const [history, setHistory] = useState<string[][]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,7 +55,7 @@ export function ColorTester() {
 
       const response = data as TestColorResponse;
       setColors(response.colors);
-      setMetadata(response.metadata);
+      setMetadata(response.metadata.pairwise);
       setHistory((prev) => [response.colors, ...prev]);
 
       // Update "previous" colors for next generation (simulates day-to-day)
@@ -99,10 +100,11 @@ export function ColorTester() {
             </h3>
             <ul className="text-xs text-(--color-text-tertiary) space-y-1">
               <li>Color space: OKLCH (perceptually uniform)</li>
+              <li>3 colors per challenge</li>
               <li>Lightness range: 0.4 - 0.9</li>
               <li>Muddy hues excluded: 30-50° (browns)</li>
-              <li>Min contrast ratio: 2.5</li>
-              <li>Min hue difference: 30°</li>
+              <li>Min contrast ratio: 2.5 (≥2 of 3 pairs must pass)</li>
+              <li>Min hue difference: 30° between each pair</li>
               <li>Consecutive day similarity check: enabled</li>
             </ul>
           </div>
@@ -134,26 +136,13 @@ export function ColorTester() {
             </div>
           )}
 
-          <div className="relative w-64 h-48 flex items-center justify-center">
+          <div className="flex items-center justify-center py-4">
             {colors ? (
-              <>
-                <svg
-                  width="150"
-                  height="150"
-                  viewBox="0 0 150 150"
-                  className="absolute left-5"
-                >
-                  <circle cx="75" cy="75" r="70" fill={colors[0]} stroke="none" />
-                </svg>
-                <svg
-                  width="150"
-                  height="150"
-                  viewBox="0 0 150 150"
-                  className="absolute right-5"
-                >
-                  <circle cx="75" cy="75" r="70" fill={colors[1]} stroke="none" />
-                </svg>
-              </>
+              <svg width="240" height="235" viewBox="0 0 240 235">
+                <circle cx="80" cy="80" r="75" fill={colors[0]} stroke="none" />
+                <circle cx="160" cy="80" r="75" fill={colors[1]} stroke="none" />
+                <circle cx="120" cy="158" r="75" fill={colors[2]} stroke="none" />
+              </svg>
             ) : (
               <p className="text-(--color-text-tertiary)">
                 Click the button to generate colors
@@ -167,33 +156,36 @@ export function ColorTester() {
                 Color Details
               </h3>
               <div className="space-y-2 text-sm text-(--color-text-secondary)">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-4 h-4 rounded"
-                    style={{ backgroundColor: colors[0] }}
-                  />
-                  <code>{colors[0]}</code>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-4 h-4 rounded"
-                    style={{ backgroundColor: colors[1] }}
-                  />
-                  <code>{colors[1]}</code>
-                </div>
+                {colors.map((color, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <div
+                      className="w-4 h-4 rounded"
+                      style={{ backgroundColor: color }}
+                    />
+                    <code>{color}</code>
+                  </div>
+                ))}
                 <hr className="border-(--color-border) my-3" />
-                <div>
-                  <strong>Contrast Ratio:</strong> {metadata.contrastRatio.toFixed(2)}:1
-                  {metadata.contrastRatio >= 2.5 && (
-                    <span className="ml-2 text-green-500">(passes min 2.5)</span>
-                  )}
-                </div>
-                <div>
-                  <strong>Perceptual Distance:</strong> {metadata.distance.toFixed(1)}
-                </div>
-                <div>
-                  <strong>Hue Difference:</strong> {metadata.hueDiff.toFixed(0)}°
-                </div>
+                <h4 className="text-xs font-semibold text-(--color-text-primary) mb-2">
+                  Pairwise Comparisons
+                </h4>
+                {metadata.map((m, i) => (
+                  <div key={i} className="p-2 rounded bg-(--color-bg-tertiary) space-y-1">
+                    <div className="text-xs font-medium text-(--color-text-primary)">{m.pair}</div>
+                    <div>
+                      <strong>Contrast:</strong> {m.contrastRatio.toFixed(2)}:1
+                      {m.contrastRatio >= 2.5 && (
+                        <span className="ml-2 text-green-500">(passes)</span>
+                      )}
+                    </div>
+                    <div>
+                      <strong>Distance:</strong> {m.distance.toFixed(1)}
+                    </div>
+                    <div>
+                      <strong>Hue Diff:</strong> {m.hueDiff.toFixed(0)}°
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -206,18 +198,15 @@ export function ColorTester() {
               History (simulated consecutive days)
             </h2>
             <p className="text-xs text-(--color-text-tertiary) mb-4">
-              Each pair should avoid having colors too similar to the previous pair.
+              Each set should avoid having colors too similar to the previous set.
             </p>
             <div className="flex flex-wrap gap-4">
-              {history.slice(1).map((pair, index) => (
-                <div key={index} className="relative w-24 h-16 flex items-center justify-center">
-                  <svg width="50" height="50" viewBox="0 0 50 50" className="absolute left-2">
-                    <circle cx="25" cy="25" r="23" fill={pair[0]} stroke="none" />
-                  </svg>
-                  <svg width="50" height="50" viewBox="0 0 50 50" className="absolute right-2">
-                    <circle cx="25" cy="25" r="23" fill={pair[1]} stroke="none" />
-                  </svg>
-                </div>
+              {history.slice(1).map((set, index) => (
+                <svg key={index} width="64" height="62" viewBox="0 0 64 62">
+                  <circle cx="21" cy="21" r="19" fill={set[0]} stroke="none" />
+                  <circle cx="43" cy="21" r="19" fill={set[1]} stroke="none" />
+                  <circle cx="32" cy="41" r="19" fill={set[2]} stroke="none" />
+                </svg>
               ))}
             </div>
           </div>

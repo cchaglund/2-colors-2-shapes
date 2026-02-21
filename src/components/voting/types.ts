@@ -23,6 +23,7 @@ export interface VotingConfirmationProps {
   canContinueVoting: boolean;
   onContinue: () => void;
   onDone: () => void;
+  userId: string;
 }
 
 export interface VotingOptInPromptProps {

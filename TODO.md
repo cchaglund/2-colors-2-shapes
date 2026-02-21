@@ -6,10 +6,12 @@
 - search for artist by email (hm, privacy implications?)
 - should be able to comment on submissions from the "single submission page" (maybe a nightmare?)
 - an "eye" icon on the layers panel to toggle visibility of each layer
+- when hovering over a layer in the layers panel, highlight the corresponding shape on the canvas to make it easier to identify which layer corresponds to which shape
 - in the "see what others have made" modal, actually show some of the submissions as a tease.
 
 # Bugs
-- bug: när man roterar en hel drös med shapes så verkar de rotera lite olika mängder
+- if i have a layer in a group and i duplicate it, then entire group moves to the top of the layer stack - bug! It should just duplicate the layer within the same group and not move the group at all.
+- i have three groups. the bottommost group, if I click the single up arrow, it moves all the way to the top of the stack.
 
 - test a bunch of manipulations (scaling, rotating, moving around) to see if the outline updates correctly in all cases.
 - verify that when dragging layers in and out of groups, the layer panel UI updates correctly to reflect the new location of the layer after dragging.

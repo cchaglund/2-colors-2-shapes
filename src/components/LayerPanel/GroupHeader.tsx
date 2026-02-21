@@ -130,7 +130,7 @@ export function GroupHeader({
           </button>
           <button
             className="w-7 h-7 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center text-red-600 bg-(--color-bg-primary) border border-(--color-border)"
-            title="Delete group (keeps shapes)"
+            title="Delete group and shapes"
             onClick={(e) => {
               e.stopPropagation();
               onDeleteGroup(group.id);
@@ -187,7 +187,7 @@ export function GroupHeader({
           </button>
           <button
             className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center text-red-600 ml-1 hover:bg-red-50 bg-(--color-bg-primary) border border-(--color-border)"
-            title="Delete group (keeps shapes)"
+            title="Delete group and shapes"
             onClick={(e) => {
               e.stopPropagation();
               onDeleteGroup(group.id);

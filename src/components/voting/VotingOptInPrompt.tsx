@@ -5,7 +5,7 @@ export function VotingOptInPrompt({ onOptIn, onSkip }: VotingOptInPromptProps) {
   const message3 = 'Your artwork has been saved to your gallery regardless of your choice.';
 
   return (
-    <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-lg p-6 w-full max-w-md text-center">
+    <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-lg p-6 w-full max-w-md mx-auto text-center">
       <div className="w-12 h-12 rounded-full bg-(--color-accent-subtle) flex items-center justify-center mx-auto mb-4">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />

@@ -703,13 +703,11 @@ export function useShapeOperations(
   const deleteGroup = useCallback(
     (groupId: string) => {
       setCanvasState((prev) => {
-        const newShapes = prev.shapes.map((s) =>
-          s.groupId === groupId ? { ...s, groupId: undefined } : s
-        );
+        const newShapes = prev.shapes.filter((s) => s.groupId !== groupId);
         const newGroups = prev.groups.filter((g) => g.id !== groupId);
 
         return { ...prev, shapes: newShapes, groups: newGroups };
-      }, true, 'Ungroup');
+      }, true, 'Delete group');
     },
     [setCanvasState]
   );

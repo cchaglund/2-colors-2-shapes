@@ -1,3 +1,7 @@
+import { useState, useEffect } from 'react';
+import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
+import { fetchWallSubmissions, type WallSubmission } from '../../hooks/challenge/useWallOfTheDay';
+import { SubmissionThumbnail } from '../shared/SubmissionThumbnail';
 import type { VotingConfirmationProps } from './types';
 
 export function VotingConfirmation({
@@ -6,11 +10,21 @@ export function VotingConfirmation({
   canContinueVoting,
   onContinue,
   onDone,
+  userId,
 }: VotingConfirmationProps) {
   const wallUrl = `?view=wall-of-the-day&date=${wallDate}`;
+  const { challenge } = useDailyChallenge(wallDate);
+  const [previewSubmissions, setPreviewSubmissions] = useState<WallSubmission[]>([]);
+
+  useEffect(() => {
+    fetchWallSubmissions(wallDate).then((all) => {
+      const others = all.filter((s) => s.user_id !== userId).slice(0, 6);
+      setPreviewSubmissions(others);
+    });
+  }, [wallDate, userId]);
 
   return (
-    <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-lg p-6 w-full max-w-sm text-center">
+    <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-lg p-6 w-full max-w-sm mx-auto text-center">
       {isEntered ? (
         <>
           <div className="text-3xl mb-3">🎉</div>
@@ -39,6 +53,28 @@ export function VotingConfirmation({
           </p>
         </>
       )}
+
+      {challenge && previewSubmissions.length > 0 && (
+        <div className="relative mb-4 overflow-hidden rounded">
+          <div className="grid grid-cols-3 gap-1.5">
+            {previewSubmissions.map((s) => (
+              <div key={s.id} className="aspect-square">
+                <SubmissionThumbnail
+                  shapes={s.shapes}
+                  challenge={challenge}
+                  backgroundColorIndex={s.background_color_index}
+                  fill
+                />
+              </div>
+            ))}
+          </div>
+          <div
+            className="absolute inset-x-0 bottom-0 h-2/5 pointer-events-none"
+            style={{ background: 'linear-gradient(to bottom, transparent, var(--color-bg-primary))' }}
+          />
+        </div>
+      )}
+
       <div className="flex flex-col gap-2">
         {canContinueVoting && (
           <button

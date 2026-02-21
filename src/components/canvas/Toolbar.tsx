@@ -206,21 +206,6 @@ export function Toolbar({
         <div className="py-4 border-b border-(--color-border-light)">
           <Label>Background</Label>
           <div className="flex gap-2">
-            <button
-              className={`w-8 h-8 rounded-md cursor-pointer text-[11px] transition-all flex items-center justify-center bg-white border ${
-                backgroundColorIndex === null
-                  ? 'border-(--color-accent) ring-2 ring-(--color-accent-subtle)'
-                  : 'border-(--color-border) hover:border-(--color-border-emphasis)'
-              }`}
-              onClick={() => onSetBackground(null)}
-              title="White background"
-            >
-              {backgroundColorIndex === null && (
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points="2 6 5 9 10 3" />
-                </svg>
-              )}
-            </button>
             {challenge.colors.map((color, index) => (
               <button
                 key={index}

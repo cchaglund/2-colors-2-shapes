@@ -109,7 +109,7 @@ function isDateWithinLastTwoDays(date: string): boolean {
 
 const INITIAL_LIMIT = 100;
 
-async function fetchWallSubmissions(date: string): Promise<WallSubmission[]> {
+export async function fetchWallSubmissions(date: string): Promise<WallSubmission[]> {
   const cacheKey = `wall-${date}`;
 
   // Check cache

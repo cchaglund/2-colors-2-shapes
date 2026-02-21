@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useVoting } from '../../hooks/challenge/useVoting';
 import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
+import { fetchWallSubmissions } from '../../hooks/challenge/useWallOfTheDay';
 import { getTodayDateUTC } from '../../utils/dailyChallenge';
 import { Modal } from '../shared/Modal';
 import { VotingPairView } from './VotingPairView';
@@ -49,12 +50,13 @@ export function VotingModal({
     initializeVoting,
   } = useVoting(userId, challengeDate);
 
-  // Initialize voting on mount
+  // Initialize voting on mount + prefetch wall data for confirmation preview
   useEffect(() => {
     initializeVoting().then(() => {
       fetchNextPair();
     });
-  }, [initializeVoting, fetchNextPair]);
+    fetchWallSubmissions(todayDate);
+  }, [initializeVoting, fetchNextPair, todayDate]);
 
   // Derive showConfirmation from state instead of using an effect
   const showConfirmation = hasEnteredRanking && !dismissedConfirmation;
@@ -96,6 +98,7 @@ export function VotingModal({
           canContinueVoting={false}
           onContinue={() => {}} // Not used when canContinueVoting is false
           onDone={onComplete}
+          userId={userId}
         />
       );
     }
@@ -114,6 +117,7 @@ export function VotingModal({
           canContinueVoting={!noMorePairs}
           onContinue={handleContinueVoting}
           onDone={onComplete}
+          userId={userId}
         />
       );
     }
@@ -127,6 +131,7 @@ export function VotingModal({
           canContinueVoting={false}
           onContinue={() => {}} // Not used when canContinueVoting is false
           onDone={onComplete}
+          userId={userId}
         />
       );
     }
@@ -134,7 +139,7 @@ export function VotingModal({
     // Main voting UI
     if (loading || !currentPair || !challenge) {
       return (
-        <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-3xl shadow-xl">
+        <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-3xl mx-auto shadow-xl">
           <div className="flex items-center justify-center h-64">
             <div className="text-(--color-text-secondary)">Loading...</div>
           </div>
