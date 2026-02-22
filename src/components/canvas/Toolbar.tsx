@@ -174,22 +174,49 @@ export function Toolbar({
         <div className="py-4 border-b border-(--color-border-light)">
 
           {/* Daily Word */}
-          <div className="mt-3 mb-4">
+          <div className="">
             <Label>Inspiration<InfoTooltip text="This is just for inspiration, feel free to ignore it" /></Label>
             <p className="m-0 text-base font-medium text-(--color-text-primary) capitalize">"{challenge.word}"</p>
           </div>
 
+        </div>
+
+        {/* Background Section */}
+        <div className="py-4 border-b border-(--color-border-light)">
+          <div className="mb-3">
+            <Label>Background</Label>
+            <div className="flex gap-2">
+              {challenge.colors.map((color, index) => (
+                <button
+                  key={index}
+                  className={`w-8 h-8 rounded-md cursor-pointer text-[11px] transition-all border flex items-center justify-center ${backgroundColorIndex === index
+                      ? 'border-(--color-accent) ring-2 ring-(--color-accent-subtle)'
+                      : 'border-(--color-border) hover:border-(--color-border-emphasis)'
+                    }`}
+                  onClick={() => onSetBackground(index)}
+                  style={{ backgroundColor: color }}
+                  title={`${color} background`}
+                >
+                  {backgroundColorIndex === index && (
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2" style={{ filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.3))' }}>
+                      <polyline points="2 6 5 9 10 3" />
+                    </svg>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Colors */}
-          <Label>Colors</Label>
+          <Label>Shape Color</Label>
           <div className="flex gap-2">
             {challenge.colors.map((color, index) => (
               <button
                 key={index}
-                className={`w-8 h-8 rounded-md border transition-all ${
-                  hasSelection
-                    ? 'cursor-pointer hover:scale-105 border-(--color-border)'
-                    : 'cursor-default border-(--color-border-light)'
-                }`}
+                className={`w-8 h-8 rounded-md border transition-all ${hasSelection
+                  ? 'cursor-pointer hover:scale-105 border-(--color-border)'
+                  : 'cursor-default border-(--color-border-light)'
+                  }`}
                 style={{ backgroundColor: color }}
                 title={hasSelection ? `Change selected shape(s) to ${color}` : color}
                 onClick={() => hasSelection && onChangeShapeColor(index)}
@@ -200,32 +227,7 @@ export function Toolbar({
           {hasSelection && (
             <p className="mt-1.5 mb-0 text-[11px] text-(--color-text-tertiary)">Click to change selected</p>
           )}
-        </div>
 
-        {/* Background Section */}
-        <div className="py-4 border-b border-(--color-border-light)">
-          <Label>Background</Label>
-          <div className="flex gap-2">
-            {challenge.colors.map((color, index) => (
-              <button
-                key={index}
-                className={`w-8 h-8 rounded-md cursor-pointer text-[11px] transition-all border flex items-center justify-center ${
-                  backgroundColorIndex === index
-                    ? 'border-(--color-accent) ring-2 ring-(--color-accent-subtle)'
-                    : 'border-(--color-border) hover:border-(--color-border-emphasis)'
-                }`}
-                onClick={() => onSetBackground(index)}
-                style={{ backgroundColor: color }}
-                title={`${color} background`}
-              >
-                {backgroundColorIndex === index && (
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2" style={{ filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.3))' }}>
-                    <polyline points="2 6 5 9 10 3" />
-                  </svg>
-                )}
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Add Shape Section */}
@@ -244,7 +246,7 @@ export function Toolbar({
                   {challenge.colors.map((color, colorIndex) => (
                     <button
                       key={colorIndex}
-                      className="w-7 h-7 rounded-md cursor-pointer text-[13px] font-medium text-white/90 transition-all hover:scale-105 border border-(--color-border-light) flex items-center justify-center"
+                      className="w-7 h-7 rounded-md cursor-pointer text-[16px] font-medium text-white/90 transition-all hover:scale-105 border border-(--color-border-light) flex items-center justify-center"
                       style={{ backgroundColor: color, textShadow: '0 1px 1px rgba(0,0,0,0.2)' }}
                       onClick={() => onAddShape(shapeIndex, colorIndex)}
                       title={`Add ${shapeData.name} with ${color}`}

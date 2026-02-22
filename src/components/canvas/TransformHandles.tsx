@@ -174,7 +174,7 @@ export function TransformVisualLayer({ shape, zoom = 1 }: { shape: Shape; zoom?:
   const strokeWidth = BASE_STROKE_WIDTH * scale;
   const dashStrokeWidth = BASE_DASH_STROKE_WIDTH * scale;
 
-  const { element, props, viewBox } = getShapeSVGData(shape.type, shape.size);
+  const { element, props, viewBox, outlineD } = getShapeSVGData(shape.type, shape.size);
   const corners = getCorners(viewBox.width, viewBox.height);
   const rotationHandles = getRotationHandles(viewBox.width, viewBox.height, rotateOffset);
   const centerX = viewBox.width / 2;
@@ -187,6 +187,7 @@ export function TransformVisualLayer({ shape, zoom = 1 }: { shape: Shape; zoom?:
   // Common props for the shape outline
   const outlineProps = {
     ...props,
+    ...(outlineD && { d: outlineD }),
     fill: 'none',
     stroke: '#000',
     strokeWidth: dashStrokeWidth,
@@ -271,7 +272,7 @@ export function MultiSelectTransformLayer({
   // For single shape, use the existing visual layer behavior
   if (isSingleShape) {
     const shape = shapes[0];
-    const { element, props, viewBox } = getShapeSVGData(shape.type, shape.size);
+    const { element, props, viewBox, outlineD } = getShapeSVGData(shape.type, shape.size);
     const corners = getCorners(viewBox.width, viewBox.height);
     const rotationHandles = getRotationHandles(viewBox.width, viewBox.height, rotateOffset);
     const centerX = viewBox.width / 2;
@@ -283,6 +284,7 @@ export function MultiSelectTransformLayer({
 
     const outlineProps = {
       ...props,
+      ...(outlineD && { d: outlineD }),
       fill: 'none',
       stroke: '#000',
       strokeWidth: dashStrokeWidth,
@@ -356,7 +358,7 @@ export function MultiSelectTransformLayer({
       {/* Individual shape outlines (black dashed) */}
       {showIndividualOutlines &&
         shapes.map((shape) => {
-          const { element, props, viewBox } = getShapeSVGData(shape.type, shape.size);
+          const { element, props, viewBox, outlineD } = getShapeSVGData(shape.type, shape.size);
           const centerX = viewBox.width / 2;
           const centerY = viewBox.height / 2;
           const scaleX = shape.flipX ? -1 : 1;
@@ -366,6 +368,7 @@ export function MultiSelectTransformLayer({
 
           const outlineProps = {
             ...props,
+            ...(outlineD && { d: outlineD }),
             fill: 'none',
             stroke: '#000',
             strokeWidth: dashStrokeWidth,

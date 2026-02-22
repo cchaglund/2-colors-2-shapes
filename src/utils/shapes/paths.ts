@@ -35,6 +35,12 @@ export function getArchPath(size: number): string {
   return `M 0,${size} L 0,0 A ${outerRadius},${outerRadius * 0.6} 0 0 1 ${size},0 L ${size},${size} L ${size - archWidth},${size} L ${size - archWidth},${size * 0.25} A ${innerRadius},${innerRadius * 0.6} 0 0 0 ${archWidth},${size * 0.25} L ${archWidth},${size} Z`;
 }
 
+// Outer-only outline for arch (no inner cutout stroke)
+export function getArchOutlinePath(size: number): string {
+  const outerRadius = size / 2;
+  return `M 0,${size} L 0,0 A ${outerRadius},${outerRadius * 0.6} 0 0 1 ${size},0 L ${size},${size} Z`;
+}
+
 // Generate teardrop/drop path (smooth curve using cubic bezier)
 export function getDropPath(width: number, height: number): string {
   // Drop/leaf shape - pointed ends with curves touching left/right edges
@@ -53,6 +59,11 @@ export function getHookPath(size: number): string {
   // Original x range: 0.3 to 1.0 (width 0.7), normalize to 0-1
   // Transform: newX = (oldX - 0.3) / 0.7
   return `M 0,0 L ${size * 0.286},0 Q ${size},0 ${size},${size * 0.4} Q ${size},${size * 0.7} ${size * 0.429},${size * 0.7} L ${size * 0.429},${size} L 0,${size} L 0,${size * 0.5} Q 0,${size * 0.2} ${size * 0.429},${size * 0.2} Q ${size * 0.643},${size * 0.2} ${size * 0.643},${size * 0.4} Q ${size * 0.643},${size * 0.5} ${size * 0.429},${size * 0.5} L 0,${size * 0.5} Z`;
+}
+
+// Outer-only outline for hook (no inner hole stroke)
+export function getHookOutlinePath(size: number): string {
+  return `M 0,0 L ${size * 0.286},0 Q ${size},0 ${size},${size * 0.4} Q ${size},${size * 0.7} ${size * 0.429},${size * 0.7} L ${size * 0.429},${size} L 0,${size} L 0,${size * 0.5} Z`;
 }
 
 // Generate wave - flowing wave shape

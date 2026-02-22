@@ -21,9 +21,11 @@ import {
   getBladePath,
   getLensPath,
   getArchPath,
+  getArchOutlinePath,
   getDropPath,
   getFanPath,
   getHookPath,
+  getHookOutlinePath,
   getWavePath,
   getCrescentPath,
   getPillPath,
@@ -258,6 +260,7 @@ export function getShapeSVGData(type: ShapeType, size: number) {
         element: 'path' as const,
         props: { d: getArchPath(size) },
         viewBox: { width, height },
+        outlineD: getArchOutlinePath(size),
       };
 
     case 'drop':
@@ -293,6 +296,7 @@ export function getShapeSVGData(type: ShapeType, size: number) {
         element: 'path' as const,
         props: { d: getHookPath(size) },
         viewBox: { width, height },
+        outlineD: getHookOutlinePath(size),
       };
 
     case 'wave':
