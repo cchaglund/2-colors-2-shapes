@@ -25,7 +25,10 @@ interface GalleryPageProps {
 
 export function GalleryPage({ tab: initialTab, year: initialYear, month: initialMonth, date: initialDate }: GalleryPageProps) {
   const { user } = useAuth();
-  const { loadMySubmissions, loading } = useSubmissions(user?.id);
+  const todayStr = useMemo(() => getTodayDateUTC(), []);
+  const { loadMySubmissions, loading, hasSubmittedToday: submittedToday, hasCheckedSubmission } = useSubmissions(user?.id, todayStr);
+  // Optimistic: assume submitted while check is pending to avoid flashing locked state
+  const hasSubmittedToday = !hasCheckedSubmission || submittedToday;
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [rankings, setRankings] = useState<Map<string, number>>(new Map());
   const [currentYear, setCurrentYear] = useState(() => initialYear ?? new Date().getFullYear());
@@ -44,8 +47,6 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
 
   // Determine effective view mode - null until auth loads, then based on user
   const effectiveViewMode: ViewMode = viewMode ?? (user ? 'my-submissions' : 'winners');
-
-  const todayStr = useMemo(() => getTodayDateUTC(), []);
   const latestWinnersDate = useMemo(() => getTwoDaysAgoDateUTC(), []);
 
   // Keep URL in sync with gallery state (tab, calendar position, date)
@@ -202,11 +203,6 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
     });
     return map;
   }, [submissions]);
-
-  // Check if user has submitted today (needed for Wall tab)
-  const hasSubmittedToday = useMemo(() => {
-    return submissionsByDate.has(todayStr);
-  }, [submissionsByDate, todayStr]);
 
   // Map date -> winners for quick lookup
   const winnersByDate = useMemo(() => {

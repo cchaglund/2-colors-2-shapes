@@ -25,6 +25,7 @@ export function useSubmissions(userId: string | undefined, todayDate?: string) {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hasSubmittedToday, setHasSubmittedToday] = useState(false);
+  const [hasCheckedSubmission, setHasCheckedSubmission] = useState(false);
 
   // Check if user has already submitted today
   useEffect(() => {
@@ -32,6 +33,7 @@ export function useSubmissions(userId: string | undefined, todayDate?: string) {
       return; // Initial state (false) handles the no-user case
     }
 
+    setHasCheckedSubmission(false);
     const checkExistingSubmission = async () => {
       const { data } = await supabase
         .from('submissions')
@@ -41,6 +43,7 @@ export function useSubmissions(userId: string | undefined, todayDate?: string) {
         .maybeSingle();
 
       setHasSubmittedToday(!!data);
+      setHasCheckedSubmission(true);
     };
 
     checkExistingSubmission();
@@ -158,5 +161,6 @@ export function useSubmissions(userId: string | undefined, todayDate?: string) {
     saving,
     loading,
     hasSubmittedToday,
+    hasCheckedSubmission,
   };
 }
