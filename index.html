@@ -55,6 +55,17 @@
       }
     }
     </script>
+    <!-- Apply dark mode before first paint to prevent white flash -->
+    <style>
+      html.dark { background-color: #161616; }
+    </style>
+    <script>
+      (function() {
+        var t = localStorage.getItem('theme-preference');
+        var dark = t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+        if (dark) document.documentElement.classList.add('dark');
+      })();
+    </script>
   </head>
   <body>
     <noscript>

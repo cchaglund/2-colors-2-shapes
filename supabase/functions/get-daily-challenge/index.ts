@@ -701,6 +701,10 @@ function isTooSimilarToAny(
       return true;
     }
   }
+  // Don't repeat the same two shapes as yesterday (index 0 = most recent)
+  if (previousChallenges.length > 0 && haveSameShapes(candidate.shapes, previousChallenges[0].shapes)) {
+    return true;
+  }
   return false;
 }
 
@@ -819,7 +823,8 @@ async function fetchOrCreateChallenge(
   const { data: previousRows } = await supabase
     .from('challenges')
     .select('*')
-    .in('challenge_date', previousDates);
+    .in('challenge_date', previousDates)
+    .order('challenge_date', { ascending: false });
 
   const previousChallenges: PreviousChallenge[] = (previousRows || []).map(
     (row: ChallengeRow) => rowToPreviousChallenge(row)

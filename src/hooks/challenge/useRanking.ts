@@ -209,12 +209,9 @@ export function useRanking(): UseRankingReturn {
         .select('final_rank')
         .eq('challenge_date', date)
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
-      if (error) {
-        if (error.code === 'PGRST116') return null; // No row found
-        throw error;
-      }
+      if (error) throw error;
 
       const rank = data?.final_rank ?? null;
       setUserRank(rank);
@@ -234,12 +231,9 @@ export function useRanking(): UseRankingReturn {
           .from('daily_rankings')
           .select('final_rank, challenge_date')
           .eq('submission_id', submissionId)
-          .single();
+          .maybeSingle();
 
-        if (rankingError) {
-          if (rankingError.code === 'PGRST116') return null;
-          throw rankingError;
-        }
+        if (rankingError) throw rankingError;
 
         if (!rankingData?.final_rank) return null;
 

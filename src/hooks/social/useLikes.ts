@@ -1,48 +1,51 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 
 interface UseLikesOptions {
   userId: string | undefined;
   submissionId: string | undefined;
+  initialLikeCount: number;
 }
 
-export function useLikes({ userId, submissionId }: UseLikesOptions) {
+export function useLikes({ userId, submissionId, initialLikeCount }: UseLikesOptions) {
   const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
+  const [likeCount, setLikeCount] = useState(initialLikeCount);
   const [loading, setLoading] = useState(true);
   const [mutating, setMutating] = useState(false);
 
-  // Check if user has liked this submission
-  const checkLikeStatus = useCallback(async () => {
-    if (!submissionId) {
+  // Dedup: track what we've already checked
+  const checkedForRef = useRef<string | null>(null);
+
+  // Check like status on mount, deduped
+  useEffect(() => {
+    const key = userId && submissionId ? `${userId}:${submissionId}` : null;
+    if (!key || checkedForRef.current === key) return;
+    checkedForRef.current = key;
+
+    (async () => {
+      const { data } = await supabase
+        .from('likes')
+        .select('id')
+        .eq('user_id', userId!)
+        .eq('submission_id', submissionId!)
+        .maybeSingle();
+
+      setIsLiked(!!data);
       setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-
-    // If no user, just mark as not liked
-    if (!userId) {
-      setIsLiked(false);
-      setLoading(false);
-      return;
-    }
-
-    const { data } = await supabase
-      .from('likes')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('submission_id', submissionId)
-      .maybeSingle();
-
-    setIsLiked(!!data);
-    setLoading(false);
+    })();
   }, [userId, submissionId]);
 
-  // Initialize like count from submission data
-  const initializeLikeCount = useCallback((count: number) => {
-    setLikeCount(count);
-  }, []);
+  // Handle no-user or no-submission case
+  useEffect(() => {
+    if (!submissionId || !userId) {
+      setLoading(false);
+    }
+  }, [userId, submissionId]);
+
+  // Sync initialLikeCount prop changes
+  useEffect(() => {
+    setLikeCount(initialLikeCount);
+  }, [initialLikeCount]);
 
   // Toggle like status
   const toggleLike = useCallback(async (): Promise<{ success: boolean; error?: string }> => {
@@ -110,8 +113,6 @@ export function useLikes({ userId, submissionId }: UseLikesOptions) {
     likeCount,
     loading,
     mutating,
-    checkLikeStatus,
-    initializeLikeCount,
     toggleLike,
   };
 }

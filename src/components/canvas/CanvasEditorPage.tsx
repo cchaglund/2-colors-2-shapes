@@ -17,7 +17,7 @@ import { useCanvasState } from '../../hooks/canvas/useCanvasState';
 import { UndoRedoToast } from './UndoRedoToast';
 import { useViewportState } from '../../hooks/canvas/useViewportState';
 import { useSidebarState } from '../../hooks/ui/useSidebarState';
-import { useThemeState } from '../../hooks/ui/useThemeState';
+import type { ThemeMode } from '../../hooks/ui/useThemeState';
 import { useGridState } from '../../hooks/canvas/useGridState';
 import { useOffCanvasState } from '../../hooks/canvas/useOffCanvasState';
 import { useAuth } from '../../hooks/auth/useAuth';
@@ -40,9 +40,11 @@ import { useMemo } from 'react';
 interface CanvasEditorPageProps {
   challenge: DailyChallenge;
   todayDate: string;
+  themeMode: ThemeMode;
+  onSetThemeMode: (mode: ThemeMode) => void;
 }
 
-export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps) {
+export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMode }: CanvasEditorPageProps) {
   // Modal states
   const {
     showKeyboardSettings,
@@ -160,8 +162,7 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
     startResizeRight,
   } = useSidebarState();
 
-  // Theme state
-  const { mode: themeMode, setMode: setThemeMode } = useThemeState();
+  // Theme state (received from App)
 
   // Grid state
   const { showGrid, toggleGrid } = useGridState();
@@ -282,7 +283,7 @@ export function CanvasEditorPage({ challenge, todayDate }: CanvasEditorPageProps
         onToggle={toggleLeft}
         onStartResize={startResizeLeft}
         themeMode={themeMode}
-        onSetThemeMode={setThemeMode}
+        onSetThemeMode={onSetThemeMode}
         isLoggedIn={!!user}
         onSave={handleSave}
         isSaving={saving}

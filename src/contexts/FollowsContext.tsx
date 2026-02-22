@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components -- Context exported for useFollows hook */
-import { createContext, useState, useEffect, useCallback, useMemo, type ReactNode } from 'react';
+import { createContext, useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/auth/useAuth';
 
@@ -41,6 +41,10 @@ export function FollowsProvider({ children }: FollowsProviderProps) {
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
+  // Dedup: track which user ID we've already fetched for
+  const fetchedForRef = useRef<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+
   // O(1) lookup set for isFollowing checks
   const followingIds = useMemo(() => new Set(following.map(f => f.id)), [following]);
 
@@ -50,12 +54,22 @@ export function FollowsProvider({ children }: FollowsProviderProps) {
   const isFollowing = useCallback((userId: string) => followingIds.has(userId), [followingIds]);
 
   // Fetch following and followers lists
-  const fetchFollowData = useCallback(async () => {
+  const fetchFollowData = useCallback(async (forceRefresh = false) => {
     if (!user) {
       setFollowing([]);
       setFollowers([]);
+      fetchedForRef.current = null;
       return;
     }
+
+    // Skip if already fetched for this user (prevents StrictMode + auth-change duplicates)
+    if (!forceRefresh && fetchedForRef.current === user.id) return;
+    fetchedForRef.current = user.id;
+
+    // Cancel any in-flight request
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
 
     setLoading(true);
     try {
@@ -65,6 +79,7 @@ export function FollowsProvider({ children }: FollowsProviderProps) {
         .select('following_id, created_at')
         .eq('follower_id', user.id);
 
+      if (controller.signal.aborted) return;
       if (followingError) throw followingError;
 
       // Fetch followers (users who follow me)
@@ -73,6 +88,7 @@ export function FollowsProvider({ children }: FollowsProviderProps) {
         .select('follower_id, created_at')
         .eq('following_id', user.id);
 
+      if (controller.signal.aborted) return;
       if (followersError) throw followersError;
 
       // Get profile info for following
@@ -87,6 +103,7 @@ export function FollowsProvider({ children }: FollowsProviderProps) {
           .select('id, nickname')
           .in('id', allUserIds);
 
+        if (controller.signal.aborted) return;
         if (profilesError) throw profilesError;
 
         profilesMap = (profiles || []).reduce((acc, p) => {
@@ -109,18 +126,26 @@ export function FollowsProvider({ children }: FollowsProviderProps) {
         followedAt: f.created_at,
       }));
 
-      setFollowing(followingList);
-      setFollowers(followersList);
+      if (!controller.signal.aborted) {
+        setFollowing(followingList);
+        setFollowers(followersList);
+      }
     } catch (error) {
-      console.error('Error fetching follow data:', error);
+      if (!controller.signal.aborted) {
+        console.error('Error fetching follow data:', error);
+        fetchedForRef.current = null; // Allow retry on error
+      }
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) {
+        setLoading(false);
+      }
     }
   }, [user]);
 
   // Fetch on mount and when user changes
   useEffect(() => {
     fetchFollowData();
+    return () => { abortRef.current?.abort(); };
   }, [fetchFollowData]);
 
   // Follow a user with optimistic update
@@ -236,7 +261,7 @@ export function FollowsProvider({ children }: FollowsProviderProps) {
     isFollowing,
     follow,
     unfollow,
-    refetch: fetchFollowData,
+    refetch: useCallback(() => fetchFollowData(true), [fetchFollowData]),
     loading,
     actionLoading,
   };

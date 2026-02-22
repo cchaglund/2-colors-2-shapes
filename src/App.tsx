@@ -14,8 +14,12 @@ import { CanvasEditorPage } from './components/canvas/CanvasEditorPage';
 import { getTodayDateUTC } from './utils/dailyChallenge';
 import { useDailyChallenge } from './hooks/challenge/useDailyChallenge';
 import { useAppRoute, isStandaloneRoute } from './hooks/useAppRoute';
+import { useThemeState } from './hooks/ui/useThemeState';
 
 function App() {
+  // Apply theme globally so all pages respect dark mode
+  const { mode: themeMode, setMode: setThemeMode } = useThemeState();
+
   // Resolve current route from URL params
   const route = useAppRoute();
 
@@ -55,7 +59,7 @@ function App() {
   if (route.type === 'submission-by-date') return <FollowsProvider><SubmissionDetailPage date={route.date} /></FollowsProvider>;
 
   // Default: canvas editor
-  return <CanvasEditorPage challenge={challenge} todayDate={todayDate} />;
+  return <CanvasEditorPage challenge={challenge} todayDate={todayDate} themeMode={themeMode} onSetThemeMode={setThemeMode} />;
 }
 
 export default App;

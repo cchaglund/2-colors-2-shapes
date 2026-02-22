@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../../hooks/auth/useAuth';
 import { useLikes } from '../../hooks/social/useLikes';
 import { LoginPromptModal } from '../social/LoginPromptModal';
@@ -12,16 +12,11 @@ interface LikeButtonProps {
 export function LikeButton({ submissionId, submissionUserId, initialLikeCount }: LikeButtonProps) {
   const { user } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const { isLiked, likeCount, loading, mutating, checkLikeStatus, initializeLikeCount, toggleLike } = useLikes({
+  const { isLiked, likeCount, loading, mutating, toggleLike } = useLikes({
     userId: user?.id,
     submissionId,
+    initialLikeCount,
   });
-
-  // Initialize like count from prop and check like status on mount
-  useEffect(() => {
-    initializeLikeCount(initialLikeCount);
-    checkLikeStatus();
-  }, [initialLikeCount, initializeLikeCount, checkLikeStatus]);
 
   const isOwnSubmission = user?.id === submissionUserId;
   const isLoggedOut = !user;
