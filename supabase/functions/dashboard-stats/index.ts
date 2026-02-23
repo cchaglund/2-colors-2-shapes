@@ -134,8 +134,7 @@ serve(async (req: Request) => {
     });
   } catch (error) {
     console.error('Error fetching dashboard stats:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: 'Internal server error', details: errorMessage }), {
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

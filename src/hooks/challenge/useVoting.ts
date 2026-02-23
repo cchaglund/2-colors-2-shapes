@@ -204,7 +204,6 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
             submissionAId: currentPair.submissionA.id,
             submissionBId: currentPair.submissionB.id,
             winnerId,
-            requiredVotes,
           },
         });
 
@@ -212,6 +211,7 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
 
         const result = response.data;
         setVoteCount(result.voteCount);
+        if (result.requiredVotes !== undefined) setRequiredVotes(result.requiredVotes);
         setHasEnteredRanking(result.enteredRanking);
 
         // Fetch next pair
@@ -222,7 +222,7 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
 
       setSubmitting(false);
     },
-    [userId, currentPair, requiredVotes, fetchNextPair]
+    [userId, currentPair, fetchNextPair]
   );
 
   // Skip the current pair (doesn't count toward vote requirement)
@@ -237,7 +237,6 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
           submissionAId: currentPair.submissionA.id,
           submissionBId: currentPair.submissionB.id,
           winnerId: null, // null = skip
-          requiredVotes,
         },
       });
 
@@ -250,7 +249,7 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
     }
 
     setSubmitting(false);
-  }, [userId, currentPair, requiredVotes, fetchNextPair]);
+  }, [userId, currentPair, fetchNextPair]);
 
   return {
     currentPair,

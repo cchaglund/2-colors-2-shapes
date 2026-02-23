@@ -6,11 +6,23 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const DEFAULT_REQUIRED_VOTES = 5;
+
 interface VoteRequest {
   submissionAId: string;
   submissionBId: string;
   winnerId: string | null; // null if skipped
-  requiredVotes?: number; // Dynamic threshold based on available submissions (default: 5)
+}
+
+/**
+ * Calculate required votes server-side based on available submissions.
+ * Mirrors client-side logic in votingRules.ts.
+ */
+function calculateRequiredVotes(submissionCount: number): number {
+  if (submissionCount === 0) return 0;
+  const totalPairs = (submissionCount * (submissionCount - 1)) / 2;
+  return Math.min(DEFAULT_REQUIRED_VOTES, totalPairs);
 }
 
 /**
@@ -95,11 +107,27 @@ serve(async (req: Request) => {
     }
 
     // Parse request body
-    const { submissionAId, submissionBId, winnerId, requiredVotes = 5 }: VoteRequest = await req.json();
+    const { submissionAId, submissionBId, winnerId }: VoteRequest = await req.json();
 
-    // Validate input
+    // Validate required fields
     if (!submissionAId || !submissionBId) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Validate UUID format
+    if (!UUID_REGEX.test(submissionAId) || !UUID_REGEX.test(submissionBId)) {
+      return new Response(JSON.stringify({ error: 'Invalid submission ID format' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Validate winnerId if provided
+    if (winnerId !== null && winnerId !== submissionAId && winnerId !== submissionBId) {
+      return new Response(JSON.stringify({ error: 'winnerId must match one of the submissions or be null' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -114,6 +142,16 @@ serve(async (req: Request) => {
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
+
+    // Calculate requiredVotes server-side based on submissions from other users
+    const { count: otherSubmissionCount, error: countError } = await supabaseAdmin
+      .from('submissions')
+      .select('*', { count: 'exact', head: true })
+      .eq('challenge_date', challengeDate)
+      .neq('user_id', user.id);
+
+    if (countError) throw countError;
+    const requiredVotes = calculateRequiredVotes(otherSubmissionCount ?? 0);
 
     // Record the comparison
     const { error: comparisonError } = await supabaseAdmin.from('comparisons').insert({
@@ -205,6 +243,7 @@ serve(async (req: Request) => {
         JSON.stringify({
           success: true,
           voteCount: newVoteCount,
+          requiredVotes,
           enteredRanking,
         }),
         {
@@ -226,6 +265,7 @@ serve(async (req: Request) => {
         JSON.stringify({
           success: true,
           voteCount,
+          requiredVotes,
           enteredRanking: false,
         }),
         {
@@ -235,8 +275,7 @@ serve(async (req: Request) => {
     }
   } catch (error) {
     console.error('Error processing vote:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: 'Internal server error', details: errorMessage }), {
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
