@@ -290,6 +290,7 @@ export function VotingTestPage() {
                     canContinueVoting={flowPairIndex < flowTotalPairs}
                     onContinue={handleFlowContinueVoting}
                     onDone={handleFlowDone}
+                    userId="mock-user-id"
                   />
                 </div>
               ) : noMorePairs ? (
@@ -299,6 +300,7 @@ export function VotingTestPage() {
                   canContinueVoting={false}
                   onContinue={() => {}}
                   onDone={handleFlowDone}
+                  userId="mock-user-id"
                 />
               ) : (
                 <VotingPairView
@@ -344,6 +346,7 @@ export function VotingTestPage() {
               canContinueVoting={true}
               onContinue={() => {}}
               onDone={() => {}}
+              userId="mock-user-id"
             />
           </div>
         );
@@ -370,6 +373,7 @@ export function VotingTestPage() {
                   canContinueVoting={false}
                   onContinue={() => {}}
                   onDone={() => {}}
+                  userId="mock-user-id"
                 />
               </div>
               {/* Scenario: Not entered ranking */}
@@ -383,6 +387,7 @@ export function VotingTestPage() {
                   canContinueVoting={false}
                   onContinue={() => {}}
                   onDone={() => {}}
+                  userId="mock-user-id"
                 />
               </div>
               {/* Scenario: Entered with continue voting option */}
@@ -396,6 +401,7 @@ export function VotingTestPage() {
                   canContinueVoting={true}
                   onContinue={() => {}}
                   onDone={() => {}}
+                  userId="mock-user-id"
                 />
               </div>
             </div>

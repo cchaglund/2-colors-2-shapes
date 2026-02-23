@@ -13,7 +13,7 @@
     "typecheck": "tsc -b --noEmit",
     "test": "vitest",
     "test:run": "vitest run",
-    "deploy": "rm -rf node_modules && npm install && npm run build && netlify deploy --prod --dir=dist"
+    "deploy": "rm -rf node_modules && npm install && npm run build && netlify deploy --prod --dir=dist && supabase functions deploy get-daily-challenge && supabase functions deploy process-vote && supabase functions deploy dashboard-stats"
   },
   "dependencies": {
     "@floating-ui/react": "0.27.16",

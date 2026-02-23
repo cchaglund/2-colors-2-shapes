@@ -11,7 +11,7 @@
 
 # Bugs
 ~~- no dark mode on the gallery pages?~~
-- when you click on the wall, then a single submission page, then click back, now it says "you need to submit to see the wall" even though I have submitted.
+~~- when you click on the wall, then a single submission page, then click back, now it says "you need to submit to see the wall" even though I have submitted.~~
 ~~- if i have a layer in a group and i duplicate it, then entire group moves to the top of the layer stack - bug! It should just duplicate the layer within the same group and not move the group at all.~~
 - i have three groups. the bottommost group, if I click the single up arrow, it moves all the way to the top of the stack.
 
