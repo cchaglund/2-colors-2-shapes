@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Shape, ShapeGroup } from '../../types';
 import { getVisibleShapes } from '../../utils/visibility';
-import { getShapeAABB, rectsIntersect } from '../../utils/shapeBounds';
+import { shapeIntersectsRect } from '../../utils/shapeBounds';
 
 export interface MarqueeState {
   startX: number;
@@ -51,7 +51,7 @@ export function useMarqueeSelection({
       const visible = getVisibleShapes(shapesRef.current, groupsRef.current);
       const ids: string[] = [];
       for (const shape of visible) {
-        if (rectsIntersect(getShapeAABB(shape), rect)) {
+        if (shapeIntersectsRect(shape, rect)) {
           ids.push(shape.id);
         }
       }
