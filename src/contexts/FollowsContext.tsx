@@ -145,7 +145,10 @@ export function FollowsProvider({ children }: FollowsProviderProps) {
   // Fetch on mount and when user changes
   useEffect(() => {
     fetchFollowData();
-    return () => { abortRef.current?.abort(); };
+    return () => {
+      abortRef.current?.abort();
+      fetchedForRef.current = null;
+    };
   }, [fetchFollowData]);
 
   // Follow a user with optimistic update

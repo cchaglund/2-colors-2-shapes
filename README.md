@@ -1,6 +1,6 @@
-# 2 Colors 2 Shapes
+# 3 Colors 2 Shapes
 
-A daily art challenge app where you create art using only 2 colors and 2 geometric shapes.
+A daily art challenge app where you create art using only 3 colors and 2 geometric shapes.
 
 https://2colors2shapes.com
 
@@ -10,7 +10,7 @@ https://2colors2shapes.com
 ## Concept
 
 Every day, the app generates a unique set of constraints:
-- **2 Colors**: Two visually distinct colors (ensured to be different enough to distinguish)
+- **3 Colors**: Three visually distinct colors (ensured to be different enough to distinguish)
 - **2 Shapes**: Two geometric shapes from 41 available shapes including basic shapes (circle, square, triangle, etc.), sophisticated polygons (diamond, trapezoid, parallelogram, etc.), and irregular abstract shapes with mixed straight/curved edges
 - **1 Word** (optional): A daily word for creative inspiration — interpret it however you like, or ignore it entirely!
 
