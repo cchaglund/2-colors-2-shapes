@@ -4,7 +4,7 @@ import { useIsTouchDevice } from '../../hooks/ui/useIsTouchDevice';
 import type { LayerPanelProps, LayerItem } from './types';
 import { LayerItem as LayerItemComponent } from './LayerItem';
 import { GroupHeader } from './GroupHeader';
-import { LayerPanelCollapsed } from './LayerPanelCollapsed';
+
 
 // Detect if user is on macOS for modifier key instructions
 const isMac = typeof navigator !== 'undefined' && navigator.userAgent.includes('Mac');
@@ -29,8 +29,6 @@ export function LayerPanel({
   onToggleShapeVisibility,
   onToggleGroupVisibility,
   onSelectGroup,
-  isOpen,
-  width,
   onToggle,
   onStartResize,
   onHoverShape,
@@ -288,18 +286,12 @@ export function LayerPanel({
     }
   };
 
-  // Collapsed view
-  if (!isOpen) {
-    return <LayerPanelCollapsed onToggle={onToggle} />;
-  }
-
   // Track shape indices for drag and drop
   let shapeIndex = 0;
 
   return (
     <div
-      className="overflow-y-auto shrink-0 relative flex flex-col z-10 bg-(--color-bg-primary) border-l border-(--color-border)"
-      style={{ width }}
+      className="overflow-y-auto h-full w-full relative flex flex-col bg-(--color-bg-primary) border-l border-(--color-border)"
     >
       {/* Resize handle */}
       <div

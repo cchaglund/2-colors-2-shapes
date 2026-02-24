@@ -21,8 +21,6 @@ export interface LayerPanelProps {
   onToggleShapeVisibility: (id: string) => void;
   onToggleGroupVisibility: (groupId: string) => void;
   onSelectGroup: (groupId: string, options?: { toggle?: boolean }) => void;
-  isOpen: boolean;
-  width: number;
   onToggle: () => void;
   onStartResize: (e: React.MouseEvent) => void;
   onHoverShape: (ids: Set<string> | null) => void;

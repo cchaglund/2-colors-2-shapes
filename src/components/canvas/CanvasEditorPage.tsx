@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { Canvas } from './Canvas';
 import { Toolbar } from './Toolbar';
 import { LayerPanel } from '../LayerPanel';
@@ -260,48 +261,13 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
   const showOnboarding = user && profile && !profile.onboarding_complete;
 
   return (
-    <div className="flex h-screen">
+    <div className="relative h-screen overflow-hidden">
       {showWelcome && <WelcomeModal onDismiss={dismissWelcome} challenge={challenge} />}
       {showOnboarding && <OnboardingModal onComplete={updateNickname} />}
 
-      <Toolbar
-        challenge={challenge}
-        backgroundColorIndex={canvasState.backgroundColorIndex}
-        selectedShapeIds={canvasState.selectedShapeIds}
-        onAddShape={addShape}
-        onSetBackground={setBackgroundColor}
-        onChangeShapeColor={(colorIndex) => {
-          const updates = new Map<string, { colorIndex: number }>();
-          canvasState.selectedShapeIds.forEach((id) => {
-            updates.set(id, { colorIndex });
-          });
-          updateShapes(updates, true, 'Change color');
-        }}
-        onReset={handleReset}
-        isOpen={leftOpen}
-        width={leftWidth}
-        onToggle={toggleLeft}
-        onStartResize={startResizeLeft}
-        themeMode={themeMode}
-        onSetThemeMode={onSetThemeMode}
-        isLoggedIn={!!user}
-        onSave={handleSave}
-        isSaving={saving}
-        saveStatus={saveStatus}
-        hasSubmittedToday={hasSubmittedToday}
-        onOpenFriendsModal={openFriendsModal}
-        keyMappings={keyMappings}
-        onOpenKeyboardSettings={openKeyboardSettings}
-        profile={profile}
-        profileLoading={profileLoading}
-        showGrid={showGrid}
-        onToggleGrid={toggleGrid}
-        showOffCanvas={showOffCanvas}
-        onToggleOffCanvas={toggleOffCanvas}
-      />
-
+      {/* Canvas fills full viewport */}
       <main
-        className="flex-1 flex items-center justify-center canvas-bg-checkered overflow-auto relative"
+        className="w-full h-full flex items-center justify-center canvas-bg-checkered overflow-auto relative"
         onMouseDown={handleBackgroundMouseDown}
       >
         <div className="overflow-visible p-16 canvas-wrapper">
@@ -372,32 +338,120 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
         </div>
       </main>
 
-      <LayerPanel
-        shapes={canvasState.shapes}
-        groups={canvasState.groups}
-        selectedShapeIds={canvasState.selectedShapeIds}
-        challenge={challenge}
-        onSelectShape={selectShape}
-        onMoveLayer={moveLayer}
-        onMoveGroup={moveGroup}
-        onReorderLayers={reorderLayers}
-        onReorderGroup={reorderGroup}
-        onDeleteShape={deleteShape}
-        onRenameShape={(id, name) => updateShape(id, { name }, true, 'Rename')}
-        onCreateGroup={createGroup}
-        onDeleteGroup={deleteGroup}
-        onUngroupShapes={ungroupShapes}
-        onRenameGroup={renameGroup}
-        onToggleGroupCollapsed={toggleGroupCollapsed}
-        onToggleShapeVisibility={toggleShapeVisibility}
-        onToggleGroupVisibility={toggleGroupVisibility}
-        onSelectGroup={selectGroup}
-        isOpen={rightOpen}
-        width={rightWidth}
-        onToggle={toggleRight}
-        onStartResize={startResizeRight}
-        onHoverShape={setHoveredShapeIds}
-      />
+      {/* Left sidebar collapsed toggle */}
+      {!leftOpen && (
+        <button
+          className="absolute left-0 top-4 z-20 px-1.5 py-3 cursor-pointer transition-colors border-r border-y border-(--color-border) rounded-r-md bg-(--color-bg-primary) hover:bg-(--color-hover)"
+          onClick={toggleLeft}
+          title="Show Toolbar"
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <polyline points="4 2 8 6 4 10" />
+          </svg>
+        </button>
+      )}
+
+      {/* Left sidebar overlay */}
+      <AnimatePresence>
+        {leftOpen && (
+          <motion.div
+            key="left-sidebar"
+            initial={{ x: '-100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '-100%' }}
+            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            className="absolute top-0 left-0 h-full z-20 shadow-lg"
+            style={{ width: leftWidth }}
+          >
+            <Toolbar
+              challenge={challenge}
+              backgroundColorIndex={canvasState.backgroundColorIndex}
+              selectedShapeIds={canvasState.selectedShapeIds}
+              onAddShape={addShape}
+              onSetBackground={setBackgroundColor}
+              onChangeShapeColor={(colorIndex) => {
+                const updates = new Map<string, { colorIndex: number }>();
+                canvasState.selectedShapeIds.forEach((id) => {
+                  updates.set(id, { colorIndex });
+                });
+                updateShapes(updates, true, 'Change color');
+              }}
+              onReset={handleReset}
+              onToggle={toggleLeft}
+              onStartResize={startResizeLeft}
+              themeMode={themeMode}
+              onSetThemeMode={onSetThemeMode}
+              isLoggedIn={!!user}
+              onSave={handleSave}
+              isSaving={saving}
+              saveStatus={saveStatus}
+              hasSubmittedToday={hasSubmittedToday}
+              onOpenFriendsModal={openFriendsModal}
+              keyMappings={keyMappings}
+              onOpenKeyboardSettings={openKeyboardSettings}
+              profile={profile}
+              profileLoading={profileLoading}
+              showGrid={showGrid}
+              onToggleGrid={toggleGrid}
+              showOffCanvas={showOffCanvas}
+              onToggleOffCanvas={toggleOffCanvas}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Right sidebar collapsed toggle */}
+      {!rightOpen && (
+        <button
+          className="absolute right-0 top-4 z-20 px-1.5 py-3 cursor-pointer transition-colors border-l border-y border-(--color-border) rounded-l-md bg-(--color-bg-primary) hover:bg-(--color-hover)"
+          onClick={toggleRight}
+          title="Show Layers"
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <polyline points="8 2 4 6 8 10" />
+          </svg>
+        </button>
+      )}
+
+      {/* Right sidebar overlay */}
+      <AnimatePresence>
+        {rightOpen && (
+          <motion.div
+            key="right-sidebar"
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            className="absolute top-0 right-0 h-full z-20 shadow-lg"
+            style={{ width: rightWidth }}
+          >
+            <LayerPanel
+              shapes={canvasState.shapes}
+              groups={canvasState.groups}
+              selectedShapeIds={canvasState.selectedShapeIds}
+              challenge={challenge}
+              onSelectShape={selectShape}
+              onMoveLayer={moveLayer}
+              onMoveGroup={moveGroup}
+              onReorderLayers={reorderLayers}
+              onReorderGroup={reorderGroup}
+              onDeleteShape={deleteShape}
+              onRenameShape={(id, name) => updateShape(id, { name }, true, 'Rename')}
+              onCreateGroup={createGroup}
+              onDeleteGroup={deleteGroup}
+              onUngroupShapes={ungroupShapes}
+              onRenameGroup={renameGroup}
+              onToggleGroupCollapsed={toggleGroupCollapsed}
+              onToggleShapeVisibility={toggleShapeVisibility}
+              onToggleGroupVisibility={toggleGroupVisibility}
+              onSelectGroup={selectGroup}
+              onToggle={toggleRight}
+              onStartResize={startResizeRight}
+              onHoverShape={setHoveredShapeIds}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {showResetConfirm && (
         <ResetConfirmModal onConfirm={confirmReset} onCancel={cancelReset} />
