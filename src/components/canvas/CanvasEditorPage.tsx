@@ -357,9 +357,8 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
           <motion.div
             key="left-sidebar"
             initial={{ x: '-100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '-100%' }}
-            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            animate={{ x: 0, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
+            exit={{ x: [0, '3%', '-100%'], transition: { duration: 0.4, times: [0, 0.15, 1], ease: ['easeOut', [0.55, 0, 1, 0.2]] } }}
             className="absolute top-0 left-0 h-full z-20 shadow-lg"
             style={{ width: leftWidth }}
           >
@@ -419,9 +418,8 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
           <motion.div
             key="right-sidebar"
             initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            animate={{ x: 0, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
+            exit={{ x: [0, '-3%', '100%'], transition: { duration: 0.4, times: [0, 0.15, 1], ease: ['easeOut', [0.55, 0, 1, 0.2]] } }}
             className="absolute top-0 right-0 h-full z-20 shadow-lg"
             style={{ width: rightWidth }}
           >
