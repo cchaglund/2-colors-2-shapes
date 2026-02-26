@@ -477,3 +477,24 @@ User menu dropdown in TopBar: avatar+name+chevron trigger, spring-animated dropd
 - Typecheck passes clean; lint/tests fail (pre-existing VM binary compat)
 - FriendRow not reused — dropdown uses simpler inline rows (avatar initial circle + nickname) to avoid FollowButton complexity in narrow dropdown
 - Friend list rows navigate to user profile on click (same pattern as FriendsModal)
+
+## STAMP-2: Empty Canvas Prompt — DONE
+
+Centered semi-transparent prompt text on empty canvas in select mode, with hydration-aware display.
+
+### Key decisions
+- `useSubmissionSync` now returns `{ hydrated: boolean }` — tracks whether initial data load is settled
+- Hydrated = true immediately when no userId/challenge (localStorage-only, synchronous), or after Supabase sync completes
+- Prompt condition: `hydrated && shapes.length === 0 && editorTool === 'select'` — prevents flash during async load
+- Text uses `pointer-events-none` + `z-0` to avoid interfering with canvas interaction
+- Opacity 50% via `opacity-50` on top of `text-(--color-text-secondary)` for semi-transparent appearance
+- Disappears automatically when: shapes added (length > 0), stamp mode entered (editorTool !== 'select'), or shapes loaded from Supabase
+
+### Files changed
+- `src/hooks/submission/useSubmissionSync.ts` — added `hydrated` state, returned from hook; set true after sync or when no sync needed
+- `src/components/canvas/CanvasEditorPage.tsx` — destructure `hydrated` from useSubmissionSync, render prompt overlay in canvas area
+- `features/current-feature/PRD.json` — marked passes: true
+
+### Blockers / notes
+- Typecheck passes clean; lint/tests fail (pre-existing VM binary compat)
+- Text reappears correctly when all shapes deleted + in select mode (reactive to shapes.length)

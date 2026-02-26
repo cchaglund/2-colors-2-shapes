@@ -136,7 +136,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
   } = useCanvasState(challenge, user?.id);
 
   // Sync submission from server
-  useSubmissionSync({
+  const { hydrated } = useSubmissionSync({
     userId: user?.id,
     challenge,
     loadSubmission,
@@ -344,6 +344,15 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
             />
           </div>
         </main>
+
+        {/* Empty canvas prompt — only after hydration to avoid flash */}
+        {hydrated && canvasState.shapes.length === 0 && editorTool === 'select' && (
+          <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
+            <p className="text-base text-(--color-text-secondary) opacity-50 select-none">
+              Pick a shape below to start creating.
+            </p>
+          </div>
+        )}
 
         {/* Left tools panel collapsed toggle */}
         {!leftOpen && (

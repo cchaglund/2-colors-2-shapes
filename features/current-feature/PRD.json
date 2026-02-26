@@ -419,7 +419,7 @@
       "Text reappears if all shapes are deleted and editor returns to select mode",
       "Text does NOT flash during initial canvas state loading from Supabase"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "SHORTCUT-1",

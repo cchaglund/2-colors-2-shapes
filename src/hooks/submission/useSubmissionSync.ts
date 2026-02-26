@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Shape, ShapeGroup, DailyChallenge } from '../../types';
 
 interface UseSubmissionSyncOptions {
@@ -21,6 +21,9 @@ interface UseSubmissionSyncOptions {
 /**
  * Hook for syncing artwork from server when user logs in
  * Local storage is the source of truth only if it belongs to the same user
+ *
+ * Returns { hydrated } — true once the initial data load is settled
+ * (either no user to sync, or the Supabase fetch completed).
  */
 export function useSubmissionSync({
   userId,
@@ -30,9 +33,16 @@ export function useSubmissionSync({
 }: UseSubmissionSyncOptions) {
   // Track if we've synced the submission for this session to avoid repeated syncs
   const hasSyncedSubmissionRef = useRef(false);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    if (!userId || !challenge || hasSyncedSubmissionRef.current) return;
+    // No user or no challenge — localStorage is the only source (loaded synchronously)
+    if (!userId || !challenge) {
+      setHydrated(true);
+      return;
+    }
+
+    if (hasSyncedSubmissionRef.current) return;
 
     const syncSubmission = async () => {
       // Check if we have local changes for today from the same user
@@ -47,6 +57,7 @@ export function useSubmissionSync({
           if (isSameDay && isSameUser && hasShapes) {
             // Local storage has work for today from same user - keep it as source of truth
             hasSyncedSubmissionRef.current = true;
+            setHydrated(true);
             return;
           }
         } catch {
@@ -64,8 +75,11 @@ export function useSubmissionSync({
         );
       }
       hasSyncedSubmissionRef.current = true;
+      setHydrated(true);
     };
 
     syncSubmission();
   }, [userId, challenge, loadSubmission, loadCanvasState]);
+
+  return { hydrated };
 }
