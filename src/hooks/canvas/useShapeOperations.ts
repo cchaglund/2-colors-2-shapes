@@ -33,7 +33,7 @@ export function useShapeOperations(
   setCanvasState: SetCanvasState,
 ) {
   const addShape = useCallback(
-    (shapeIndex: number, colorIndex: number) => {
+    (shapeIndex: number, colorIndex: number, options?: { x?: number; y?: number; size?: number }) => {
       if (!challenge) return;
 
       setCanvasState((prev) => {
@@ -43,13 +43,17 @@ export function useShapeOperations(
         const totalCount = prev.shapes.length + 1;
         const defaultName = `${shapeLetter}${totalCount}`;
 
+        const size = options?.size ?? 100;
+        const x = options?.x != null ? options.x - size / 2 : 350;
+        const y = options?.y != null ? options.y - size / 2 : 350;
+
         const newShape: Shape = {
           id: generateId(),
           type: challenge.shapes[shapeIndex].type,
           name: defaultName,
-          x: 350,
-          y: 350,
-          size: 100,
+          x,
+          y,
+          size,
           rotation: 0,
           colorIndex,
           zIndex: maxZIndex + 1,

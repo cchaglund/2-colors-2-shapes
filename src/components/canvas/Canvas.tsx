@@ -4,6 +4,7 @@ import { CANVAS_SIZE } from '../../types/canvas';
 import { getShapeDimensions } from '../../utils/shapes';
 import { getVisibleShapes } from '../../utils/visibility';
 import { ShapeElement } from './ShapeElement';
+import { SVGShape } from '../shared/SVGShape';
 import {
   TransformInteractionLayer,
   MultiSelectTransformLayer,
@@ -11,6 +12,7 @@ import {
   HoverHighlightLayer,
 } from './TransformHandles';
 import { type KeyMappings } from '../../constants/keyboardActions';
+import { type EditorTool } from './BottomToolbar';
 import { TouchContextMenu } from './TouchContextMenu';
 import { CanvasGridLines } from './CanvasGridLines';
 
@@ -23,6 +25,7 @@ import { useWheelZoom } from '../../hooks/canvas/useWheelZoom';
 import { useShapeDrag } from '../../hooks/canvas/useShapeDrag';
 import { useCanvasTouchGestures } from '../../hooks/canvas/useCanvasTouchGestures';
 import { useMarqueeSelection } from '../../hooks/canvas/useMarqueeSelection';
+import { useStampMode } from '../../hooks/canvas/useStampMode';
 
 interface CanvasProps {
   shapes: Shape[];
@@ -52,6 +55,10 @@ interface CanvasProps {
   onToggleGrid?: () => void;
   hoveredShapeIds?: Set<string> | null;
   marqueeStartRef?: React.MutableRefObject<((clientX: number, clientY: number) => void) | null>;
+  editorTool: EditorTool;
+  selectedColorIndex: number;
+  onAddShape: (shapeIndex: number, colorIndex: number, options?: { x?: number; y?: number; size?: number }) => void;
+  onSetTool: (tool: EditorTool) => void;
 }
 
 export function Canvas({
@@ -82,6 +89,10 @@ export function Canvas({
   onToggleGrid,
   hoveredShapeIds,
   marqueeStartRef,
+  editorTool,
+  selectedColorIndex,
+  onAddShape,
+  onSetTool,
 }: CanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -174,8 +185,28 @@ export function Canvas({
     getClientPoint,
   });
 
+  // Stamp mode
+  const {
+    isStampMode,
+    shapeIndex: stampShapeIndex,
+    ghost: stampGhost,
+    handleMouseMove: handleStampMouseMove,
+    handleMouseLeave: handleStampMouseLeave,
+    handleMouseDown: handleStampMouseDown,
+  } = useStampMode({
+    editorTool,
+    selectedColorIndex,
+    getSVGPoint,
+    onAddShape,
+    onSetTool,
+  });
+
   // Event handlers that need to set drag state
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
+    if (isStampMode) {
+      handleStampMouseDown(e);
+      return;
+    }
     if (e.target === svgRef.current) {
       startMarqueeAt(e.clientX, e.clientY);
     }
@@ -444,8 +475,10 @@ export function Canvas({
         height={CANVAS_SIZE}
         viewBox={`${viewBoxX} ${viewBoxY} ${viewBoxSize} ${viewBoxSize}`}
         className="border touch-none overflow-visible border-(--color-border)"
-        style={{ cursor: marqueeState ? 'crosshair' : cursorStyle }}
+        style={{ cursor: isStampMode ? 'crosshair' : marqueeState ? 'crosshair' : cursorStyle }}
         onMouseDown={handleCanvasMouseDown}
+        onMouseMove={isStampMode ? handleStampMouseMove : undefined}
+        onMouseLeave={isStampMode ? handleStampMouseLeave : undefined}
         onTouchStart={handleCanvasTouchStart}
         onTouchMove={handleCanvasTouchMove}
         onTouchEnd={handleCanvasTouchEnd}
@@ -466,14 +499,26 @@ export function Canvas({
           width={CANVAS_SIZE}
           height={CANVAS_SIZE}
           fill={backgroundColor || 'var(--color-bg-elevated)'}
-          onMouseDown={(e) => !isSpacePressed && startMarqueeAt(e.clientX, e.clientY)}
+          onMouseDown={(e) => {
+            if (isStampMode) {
+              handleStampMouseDown(e);
+              return;
+            }
+            if (!isSpacePressed) startMarqueeAt(e.clientX, e.clientY);
+          }}
         />
 
         {/* Render shapes - optionally clipped to canvas bounds */}
         <g clipPath={showOffCanvas ? undefined : "url(#canvas-clip)"}>
           {sortedShapes.map((shape) => (
             <g key={shape.id}>
-              <g onMouseDown={(e) => !isSpacePressed && handleShapeMouseDown(e, shape.id)}>
+              <g onMouseDown={(e) => {
+                if (isStampMode) {
+                  handleStampMouseDown(e);
+                  return;
+                }
+                if (!isSpacePressed) handleShapeMouseDown(e, shape.id);
+              }}>
                 <ShapeElement
                   shape={shape}
                   color={challenge.colors[shape.colorIndex]}
@@ -536,6 +581,20 @@ export function Canvas({
               showIndividualOutlines={true}
             />
           </>
+        )}
+
+        {/* Ghost cursor for stamp mode */}
+        {isStampMode && stampGhost && challenge && (
+          <g style={{ opacity: 0.35 }} pointerEvents="none">
+            <SVGShape
+              type={challenge.shapes[stampShapeIndex].type}
+              size={60}
+              x={stampGhost.x - 30}
+              y={stampGhost.y - 30}
+              rotation={0}
+              color={challenge.colors[selectedColorIndex]}
+            />
+          </g>
         )}
 
         {/* Marquee selection rectangle */}

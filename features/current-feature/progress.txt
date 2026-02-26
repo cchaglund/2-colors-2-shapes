@@ -198,3 +198,28 @@ Floating horizontal pill toolbar at bottom center of canvas editor with spring e
 - Lint/tests still can't run in VM (binary compat issues); typecheck passes clean
 - STAMP-1 will wire up canvas click → addShape using editorTool + selectedColorIndex
 - ZOOM-1 (zoom controls relocation) partially addressed by move to bottom-right; ZOOM-1 still covers range extension + reset button
+
+## STAMP-1: Stamp Mode — Shape Creation — DONE
+
+Stamp mode: click canvas to place shapes, drag to size, ghost cursor follows mouse.
+
+### Key decisions
+- New `useStampMode` hook encapsulates all stamp interaction logic (ghost tracking, click-to-place, drag-to-size, Esc/V exit)
+- `addShape` extended with optional `{ x, y, size }` — x/y are center coords (shape offset by -size/2)
+- Ghost cursor: SVGShape at 0.35 opacity, 60x60, rendered in canvas SVG coords (auto-scales with zoom/pan)
+- Click-to-place: default 60px size. Drag-to-size: canvas-coord distance * 2, min 20px
+- In stamp mode: canvas bg click, shape click, and SVG click all route to stamp handler (stamps through existing shapes)
+- Esc/V keydown exits stamp mode → select; handled in useStampMode, not useCanvasKeyboardShortcuts (separate concern)
+- Ghost hides during drag (no preview during sizing)
+- Hint text "Click to place · Drag to size · Esc to select" floats above bottom toolbar, pointer-events: none
+
+### Files changed
+- `src/hooks/canvas/useStampMode.ts` — NEW: stamp mode hook (ghost state, mouse handlers, keyboard exit)
+- `src/hooks/canvas/useShapeOperations.ts` — addShape accepts optional `{ x, y, size }` param
+- `src/components/canvas/Canvas.tsx` — imports useStampMode + SVGShape, new props (editorTool, selectedColorIndex, onAddShape, onSetTool), stamp mode intercepts all mousedown events, renders ghost cursor
+- `src/components/canvas/CanvasEditorPage.tsx` — passes editorTool/selectedColorIndex/addShape/setEditorTool to Canvas, adds stamp hint text
+- `features/current-feature/PRD.json` — marked passes: true
+
+### Blockers / notes
+- Spring animation for newly placed shapes (ANIM-1) not implemented here — separate PRD item
+- Typecheck passes clean; lint/tests can't run in VM

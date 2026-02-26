@@ -79,7 +79,7 @@
       "Pressing Esc or V exits stamp mode and returns to select mode",
       "Newly placed shape has a spring animation (scale 0→1)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "THEME-1",

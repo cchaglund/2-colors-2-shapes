@@ -325,6 +325,10 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
               onToggleGrid={toggleGrid}
               hoveredShapeIds={hoveredShapeIds}
               marqueeStartRef={marqueeStartRef}
+              editorTool={editorTool}
+              selectedColorIndex={selectedColorIndex}
+              onAddShape={addShape}
+              onSetTool={setEditorTool}
             />
           </div>
         </main>
@@ -352,6 +356,15 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
             onMirrorVertical={handleMirrorVertical}
           />
         </div>
+
+        {/* Stamp mode hint text */}
+        {editorTool.startsWith('stamp-') && (
+          <div className="absolute bottom-18 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
+            <span className="text-xs text-(--color-text-secondary) bg-(--color-surface)/80 backdrop-blur-sm px-3 py-1 rounded-(--radius-pill) border border-(--color-border-light)">
+              Click to place · Drag to size · Esc to select
+            </span>
+          </div>
+        )}
 
         {/* Bottom floating toolbar */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
