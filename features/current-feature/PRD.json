@@ -289,7 +289,7 @@
       "Footer shows total winners count and unique winners count for the month",
       "Clicking a day cell navigates to that day's winner detail"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "GALLERY-4",

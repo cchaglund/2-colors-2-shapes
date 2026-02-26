@@ -145,6 +145,7 @@ export function CalendarDayCell({
             backgroundColorIndex={dayWinners[0].background_color_index}
             fill
           />
+          <span className="absolute top-0 right-0.5 z-10 text-sm leading-none drop-shadow-sm" aria-label="Winner">👑</span>
           {dayWinners.length > 1 && (
             <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 z-10 text-[10px] px-1 rounded bg-black/70 text-white">
               +{dayWinners.length - 1}

@@ -522,3 +522,19 @@ Nearly complete from prior calendar infrastructure work. Only gap: "Create!" CTA
 ### Files changed
 - `src/components/Calendar/CalendarDayCell.tsx` — added "Create!" CTA for today's empty cell, made today clickable → "/"
 - `features/current-feature/PRD.json` — marked passes: true
+
+## GALLERY-3: Winners Tab — DONE (nearly complete from prior infrastructure)
+
+All winners tab functionality already implemented: calendar with winner thumbnails, Voting.../Creating... status, future days empty, footer stats, click navigation to WinnersDayPage. Only gap: crown emoji on winner cells.
+
+### Key decisions
+- 👑 emoji positioned absolute top-right of winner cells, z-10, with drop-shadow for legibility over artwork
+- aria-label="Winner" for accessibility
+
+### Files changed
+- `src/components/Calendar/CalendarDayCell.tsx` — added crown emoji overlay on winner art cells
+- `features/current-feature/PRD.json` — marked passes: true
+
+### Blockers / notes
+- Typecheck passes clean; tests/lint fail (pre-existing VM binary compat)
+- Ties show "+N more" badge at bottom + crown at top — both visible
