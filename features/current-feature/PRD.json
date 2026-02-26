@@ -347,7 +347,7 @@
       "Animation completes in a reasonable time (~300-500ms)",
       "Animation is skipped when prefers-reduced-motion is enabled"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "ANIM-2",

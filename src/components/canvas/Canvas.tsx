@@ -107,6 +107,24 @@ export function Canvas({
     return filtered;
   }, [visibleShapes, selectedShapeIds]);
 
+  // Track newly added shapes for entrance animation.
+  // First render seeds with all current IDs (no animation for loaded shapes).
+  // Subsequent renders detect new IDs (user-placed shapes → animate).
+  // Bulk loads (>3 new shapes, e.g. Supabase hydration) skip animation.
+  const knownShapeIdsRef = useRef<Set<string> | null>(null);
+  const newShapeIds: ReadonlySet<string> = (() => {
+    if (knownShapeIdsRef.current === null) {
+      knownShapeIdsRef.current = new Set(shapes.map(s => s.id));
+      return new Set<string>();
+    }
+    const added = new Set<string>();
+    for (const s of shapes) {
+      if (!knownShapeIdsRef.current.has(s.id)) added.add(s.id);
+    }
+    knownShapeIdsRef.current = new Set(shapes.map(s => s.id));
+    return added.size > 3 ? new Set<string>() : added;
+  })();
+
   // Use extracted hooks
   const { getSVGPoint, getClientPoint } = useCanvasCoordinates(svgRef);
 
@@ -531,6 +549,7 @@ export function Canvas({
                   shape={shape}
                   color={challenge.colors[shape.colorIndex]}
                   isSelected={selectedShapeIds.has(shape.id)}
+                  animateEntrance={newShapeIds.has(shape.id)}
                 />
               </g>
             </g>

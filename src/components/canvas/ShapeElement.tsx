@@ -1,17 +1,24 @@
+import { motion } from 'motion/react';
 import type { Shape } from '../../types';
 import { SVGShape } from '../shared/SVGShape';
+
+const prefersReducedMotion =
+  typeof window !== 'undefined' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 interface ShapeElementProps {
   shape: Shape;
   color: string;
   isSelected: boolean;
+  animateEntrance?: boolean;
 }
 
 export function ShapeElement({
   shape,
   color,
+  animateEntrance,
 }: ShapeElementProps) {
-  return (
+  const svgShape = (
     <SVGShape
       type={shape.type}
       size={shape.size}
@@ -24,5 +31,22 @@ export function ShapeElement({
       style={{ cursor: 'move' }}
       dataShapeId={shape.id}
     />
+  );
+
+  if (!animateEntrance || prefersReducedMotion) return svgShape;
+
+  // Scale from center of shape in SVG coordinates
+  const cx = shape.x + shape.size / 2;
+  const cy = shape.y + shape.size / 2;
+
+  return (
+    <motion.g
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+      style={{ transformOrigin: `${cx}px ${cy}px` }}
+    >
+      {svgShape}
+    </motion.g>
   );
 }

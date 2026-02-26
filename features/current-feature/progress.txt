@@ -426,3 +426,24 @@ Zoom controls already at bottom-right (LAYOUT-4). Extended range + added 1:1 res
 ### Blockers / notes
 - Typecheck passes clean; lint/tests fail (pre-existing VM binary compat)
 - handleZoomIn/Out in CanvasEditorPage uses ±0.1 step — works fine within new 0.25–4 range
+
+## ANIM-1: Shape Placement Animation — DONE
+
+Spring scale animation (0→1) for newly placed shapes using motion/react.
+
+### Key decisions
+- Animation lives in ShapeElement via `motion.g` wrapper with `transformOrigin` at shape center
+- New shape detection in Canvas.tsx: ref tracks known shape IDs, new IDs on subsequent renders → animate
+- Bulk load heuristic: >3 new shapes at once = hydration/load, skip animation
+- First render seeds known IDs (localStorage shapes don't animate)
+- `prefers-reduced-motion` checked once at module level (same pattern as CongratulatoryModal)
+- Spring config: stiffness 400, damping 15 per PRD spec
+- Shape center approximated as (x + size/2, y + size/2) — exact for aspect-ratio-1 shapes, negligibly off for others
+
+### Files changed
+- `src/components/canvas/ShapeElement.tsx` — added `animateEntrance` prop, `motion.g` wrapper with spring scale, `prefers-reduced-motion` guard
+- `src/components/canvas/Canvas.tsx` — `knownShapeIdsRef` + `newShapeIds` computation to detect user-placed shapes
+
+### Blockers / notes
+- Typecheck passes clean; lint/tests fail (pre-existing VM binary compat)
+- Duplicate shapes (via D key) also animate if ≤3 shapes added — acceptable side effect
