@@ -5,89 +5,97 @@ import { FollowsProvider } from '../../contexts/FollowsContext';
 import { useFollows } from '../../hooks/social/useFollows';
 import { supabase } from '../../lib/supabase';
 
-// --- Avatar circle with user initial fallback ---
-
-function AvatarCircle({ profile, size = 'sm' }: { profile: Profile; size?: 'sm' | 'lg' }) {
-  const sizeClasses = size === 'lg' ? 'w-10 h-10 text-base' : 'w-5 h-5 text-[10px]';
-
-  if (profile.avatar_url) {
-    return <img src={profile.avatar_url} alt="" className={`${sizeClasses} rounded-full`} />;
-  }
-
-  const initial = (profile.nickname || 'U').charAt(0).toUpperCase();
-  return (
-    <div className={`${sizeClasses} rounded-full bg-(--color-accent) text-(--color-accent-text) flex items-center justify-center font-semibold`}>
-      {initial}
-    </div>
-  );
-}
-
-// --- Dropdown trigger + panel ---
-
 interface UserMenuDropdownProps {
-  profile: Profile;
+  profile: Profile | null;
+  loading: boolean;
+  isLoggedIn: boolean;
+  onSignIn: () => void;
   onSignOut: () => void;
 }
 
-export function UserMenuDropdown({ profile, onSignOut }: UserMenuDropdownProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+export function UserMenuDropdown({ profile, loading, isLoggedIn, onSignIn, onSignOut }: UserMenuDropdownProps) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Close on click outside or Escape
+  // Close on click outside
   useEffect(() => {
-    if (!isOpen) return;
-
+    if (!open) return;
     const handleClick = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
       }
     };
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsOpen(false);
-    };
-
     document.addEventListener('mousedown', handleClick);
-    document.addEventListener('keydown', handleEscape);
-    return () => {
-      document.removeEventListener('mousedown', handleClick);
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [isOpen]);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [open]);
 
+  // Close on Escape
+  useEffect(() => {
+    if (!open) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [open]);
+
+  if (loading) {
+    return <div className="h-8 px-3 flex items-center text-xs text-(--color-text-tertiary)">...</div>;
+  }
+
+  if (!isLoggedIn || !profile) {
+    return (
+      <button
+        className="h-8 px-3 rounded-(--radius-pill) border border-(--color-border) text-xs font-medium transition-colors bg-transparent text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) cursor-pointer"
+        onClick={onSignIn}
+      >
+        Log in
+      </button>
+    );
+  }
+
+  const initial = (profile.nickname || 'U')[0].toUpperCase();
   const displayName = profile.onboarding_complete ? profile.nickname : 'New user';
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div ref={containerRef} className="relative">
       {/* Trigger: avatar + name + chevron */}
       <button
         className="h-8 px-3 rounded-(--radius-pill) border border-(--color-border) text-xs font-medium transition-colors bg-transparent text-(--color-text-secondary) hover:bg-(--color-hover) flex items-center gap-2 cursor-pointer"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => setOpen(prev => !prev)}
       >
-        <AvatarCircle profile={profile} size="sm" />
+        {profile.avatar_url ? (
+          <img src={profile.avatar_url} alt="" className="w-5 h-5 rounded-full" />
+        ) : (
+          <div className="w-5 h-5 rounded-full bg-(--color-accent) text-(--color-accent-text) flex items-center justify-center text-[10px] font-semibold leading-none">
+            {initial}
+          </div>
+        )}
         <span className="max-w-20 truncate">{displayName}</span>
         <svg
           width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
           strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-          className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}
         >
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
 
-      {/* Dropdown panel */}
+      {/* Dropdown */}
       <AnimatePresence>
-        {isOpen && (
+        {open && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -8 }}
-            animate={{ opacity: 1, scale: 1, y: 0, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
-            exit={{ opacity: 0, scale: 0.95, y: -8, transition: { duration: 0.15 } }}
-            className="absolute right-0 top-full mt-2 w-72 rounded-(--radius-lg) border border-(--color-border) bg-(--color-surface) shadow-lg overflow-hidden z-50"
+            initial={{ opacity: 0, scale: 0.95, y: -4 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -4 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+            className="absolute top-full right-0 mt-2 w-[280px] rounded-(--radius-md) border border-(--color-border) bg-(--color-surface) shadow-(--modal-shadow) overflow-hidden z-50"
           >
             <FollowsProvider>
               <UserMenuContent
                 profile={profile}
-                onSignOut={() => { setIsOpen(false); onSignOut(); }}
-                onClose={() => setIsOpen(false)}
+                onSignOut={() => { setOpen(false); onSignOut(); }}
+                onClose={() => setOpen(false)}
               />
             </FollowsProvider>
           </motion.div>
@@ -97,9 +105,7 @@ export function UserMenuDropdown({ profile, onSignOut }: UserMenuDropdownProps) 
   );
 }
 
-// --- Dropdown content (rendered inside FollowsProvider) ---
-
-type MenuTab = 'following' | 'followers';
+// --- Dropdown content (requires FollowsProvider ancestor) ---
 
 function UserMenuContent({
   profile,
@@ -110,139 +116,164 @@ function UserMenuContent({
   onSignOut: () => void;
   onClose: () => void;
 }) {
-  const { following, followers, followingCount, followersCount, follow, loading } = useFollows();
-  const [activeTab, setActiveTab] = useState<MenuTab>('following');
-  const [nickname, setNickname] = useState('');
+  const { following, followers, followingCount, followersCount, loading, follow } = useFollows();
+  const [activeTab, setActiveTab] = useState<'following' | 'followers'>('following');
+  const [addNickname, setAddNickname] = useState('');
+  const [addStatus, setAddStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [addError, setAddError] = useState('');
-  const [adding, setAdding] = useState(false);
 
-  const displayName = profile.onboarding_complete ? profile.nickname : 'New user';
-  const friendsList = activeTab === 'following' ? following : followers;
+  const friends = activeTab === 'following' ? following : followers;
 
-  const handleAdd = useCallback(async () => {
-    const trimmed = nickname.trim();
-    if (!trimmed) return;
-    setAddError('');
-    setAdding(true);
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id')
-        .ilike('nickname', trimmed)
-        .limit(1)
-        .single();
-
-      if (error || !data) {
-        setAddError('User not found');
-        return;
-      }
-
-      const result = await follow(data.id);
-      if (result.success) {
-        setNickname('');
-      } else {
-        setAddError(result.error || 'Failed to add');
-      }
-    } catch {
-      setAddError('User not found');
-    } finally {
-      setAdding(false);
-    }
-  }, [nickname, follow]);
-
-  const handleNavigate = useCallback((userId: string) => {
+  const handleNavigateToProfile = useCallback((userId: string) => {
     onClose();
     window.location.href = `?view=profile&user=${userId}`;
   }, [onClose]);
 
+  const handleAddByNickname = useCallback(async () => {
+    const nickname = addNickname.trim();
+    if (!nickname) return;
+
+    setAddStatus('loading');
+    setAddError('');
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, nickname')
+        .ilike('nickname', nickname)
+        .limit(1);
+
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        setAddStatus('error');
+        setAddError('User not found');
+        return;
+      }
+
+      const result = await follow(data[0].id);
+      if (result.success) {
+        setAddStatus('success');
+        setAddNickname('');
+        setTimeout(() => setAddStatus('idle'), 2000);
+      } else {
+        setAddStatus('error');
+        setAddError(result.error || 'Failed to follow');
+      }
+    } catch {
+      setAddStatus('error');
+      setAddError('Something went wrong');
+    }
+  }, [addNickname, follow]);
+
+  const initial = (profile.nickname || 'U')[0].toUpperCase();
+
   return (
-    <div className="flex flex-col max-h-96">
+    <div className="flex flex-col max-h-[420px]">
       {/* Header: large avatar + name + stats */}
-      <div className="p-4 border-b border-(--color-border)">
+      <div className="px-4 py-3 border-b border-(--color-border-light)">
         <div className="flex items-center gap-3">
-          <AvatarCircle profile={profile} size="lg" />
+          {profile.avatar_url ? (
+            <img src={profile.avatar_url} alt="" className="w-10 h-10 rounded-full shrink-0" />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-(--color-accent) text-(--color-accent-text) flex items-center justify-center text-base font-semibold shrink-0">
+              {initial}
+            </div>
+          )}
           <div className="min-w-0">
-            <div className="text-sm font-semibold text-(--color-text-primary) truncate">{displayName}</div>
-            <div className="text-xs text-(--color-text-secondary)">
-              {followingCount} following &middot; {followersCount} followers
+            <div className="text-sm font-semibold text-(--color-text-primary) truncate">
+              {profile.nickname || 'New user'}
+            </div>
+            <div className="text-[11px] text-(--color-text-secondary)">
+              {loading ? '...' : `${followingCount} following · ${followersCount} followers`}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Following / Followers tabs */}
-      <div className="flex border-b border-(--color-border)">
+      {/* Tabs: Following | Followers */}
+      <div className="flex border-b border-(--color-border-light)">
         {(['following', 'followers'] as const).map(tab => (
           <button
             key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`flex-1 px-3 py-2 text-xs font-medium transition-colors cursor-pointer ${
+            className={`flex-1 px-3 py-2 text-[11px] font-medium transition-colors cursor-pointer relative ${
               activeTab === tab
-                ? 'text-(--color-accent) border-b-2 border-(--color-accent)'
+                ? 'text-(--color-accent)'
                 : 'text-(--color-text-secondary) hover:text-(--color-text-primary)'
             }`}
+            onClick={() => setActiveTab(tab)}
           >
             {tab === 'following' ? `Following (${followingCount})` : `Followers (${followersCount})`}
+            {activeTab === tab && (
+              <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-(--color-accent) rounded-full" />
+            )}
           </button>
         ))}
       </div>
 
-      {/* Scrollable friends list */}
+      {/* Friend list (scrollable) */}
       <div className="flex-1 overflow-y-auto min-h-0">
         {loading ? (
           <div className="flex items-center justify-center py-6">
             <div className="w-4 h-4 border-2 border-(--color-accent) border-t-transparent rounded-full animate-spin" />
           </div>
-        ) : friendsList.length === 0 ? (
-          <div className="text-center py-6 text-xs text-(--color-text-secondary)">
+        ) : friends.length === 0 ? (
+          <div className="text-center py-6 text-[11px] text-(--color-text-secondary)">
             {activeTab === 'following' ? 'Not following anyone yet' : 'No followers yet'}
           </div>
         ) : (
-          <div className="py-1">
-            {friendsList.map(user => (
-              <button
-                key={user.id}
-                onClick={() => handleNavigate(user.id)}
-                className="w-full flex items-center gap-2 px-4 py-2 text-left text-xs transition-colors hover:bg-(--color-hover) cursor-pointer"
-              >
-                <div className="w-6 h-6 rounded-full bg-(--color-accent)/20 text-(--color-accent) flex items-center justify-center text-[10px] font-semibold shrink-0">
-                  {user.nickname.charAt(0).toUpperCase()}
-                </div>
-                <span className="text-(--color-text-primary) truncate">{user.nickname}</span>
-              </button>
-            ))}
-          </div>
+          friends.map(friend => (
+            <button
+              key={friend.id}
+              className="w-full flex items-center gap-2 px-4 py-2 text-[12px] text-(--color-text-primary) hover:bg-(--color-hover) transition-colors cursor-pointer text-left"
+              onClick={() => handleNavigateToProfile(friend.id)}
+            >
+              <div className="w-6 h-6 rounded-full bg-(--color-accent)/20 text-(--color-accent) flex items-center justify-center text-[10px] font-semibold shrink-0 leading-none">
+                {(friend.nickname || 'U')[0].toUpperCase()}
+              </div>
+              <span className="truncate">@{friend.nickname}</span>
+            </button>
+          ))
         )}
       </div>
 
       {/* Add by nickname */}
-      <div className="p-3 border-t border-(--color-border)">
+      <div className="px-3 py-2 border-t border-(--color-border-light)">
         <div className="flex gap-2">
           <input
             type="text"
-            value={nickname}
-            onChange={e => { setNickname(e.target.value); setAddError(''); }}
-            onKeyDown={e => { if (e.key === 'Enter') handleAdd(); }}
+            value={addNickname}
+            onChange={e => { setAddNickname(e.target.value); setAddStatus('idle'); }}
+            onKeyDown={e => { if (e.key === 'Enter') handleAddByNickname(); }}
             placeholder="Add by nickname..."
-            className="flex-1 h-7 px-2 text-xs bg-(--color-bg-secondary) border border-(--color-border) rounded-(--radius-sm) text-(--color-text-primary) placeholder:text-(--color-text-secondary) focus:outline-none focus:ring-1 focus:ring-(--color-accent)"
+            className="flex-1 min-w-0 px-2 py-1.5 text-[11px] bg-(--color-bg-secondary) border border-(--color-border) rounded-(--radius-sm) text-(--color-text-primary) placeholder:text-(--color-text-secondary) focus:outline-none focus:ring-1 focus:ring-(--color-accent)"
           />
           <button
-            onClick={handleAdd}
-            disabled={!nickname.trim() || adding}
-            className="h-7 px-3 text-xs font-medium rounded-(--radius-sm) bg-(--color-accent) text-(--color-accent-text) hover:bg-(--color-accent-hover) disabled:opacity-50 transition-colors cursor-pointer"
+            onClick={handleAddByNickname}
+            disabled={!addNickname.trim() || addStatus === 'loading'}
+            className="px-3 py-1.5 text-[11px] font-medium rounded-(--radius-sm) bg-(--color-accent) text-(--color-accent-text) hover:bg-(--color-accent-hover) disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
           >
-            {adding ? '...' : 'Add'}
+            {addStatus === 'loading' ? '...' : 'Add'}
           </button>
         </div>
-        {addError && <div className="text-[10px] text-(--color-danger) mt-1">{addError}</div>}
+        {addStatus === 'success' && (
+          <div className="text-[10px] text-green-600 mt-1">Followed!</div>
+        )}
+        {addStatus === 'error' && (
+          <div className="text-[10px] text-(--color-danger) mt-1">{addError}</div>
+        )}
       </div>
 
       {/* Log out */}
-      <div className="p-3 border-t border-(--color-border)">
+      <div className="px-3 py-2 border-t border-(--color-border-light)">
         <button
           onClick={onSignOut}
-          className="w-full h-8 text-xs font-medium rounded-(--radius-sm) border border-(--color-border) text-(--color-text-secondary) hover:text-(--color-danger) hover:border-(--color-danger) transition-colors cursor-pointer"
+          className="w-full flex items-center gap-2 px-2 py-1.5 text-[11px] font-medium text-(--color-text-secondary) hover:text-(--color-danger) hover:bg-(--color-hover) rounded-(--radius-sm) transition-colors cursor-pointer"
         >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
           Log out
         </button>
       </div>

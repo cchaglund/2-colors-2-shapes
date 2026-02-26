@@ -242,19 +242,14 @@ function DefaultRightContent({
         Gallery
       </a>
 
-      {/* Login / User */}
-      {authLoading || profileLoading ? (
-        <div className="h-8 px-3 flex items-center text-xs text-(--color-text-tertiary)">...</div>
-      ) : user && profile ? (
-        <UserMenuDropdown profile={profile} onSignOut={signOut} />
-      ) : (
-        <button
-          className="h-8 px-3 rounded-(--radius-pill) border border-(--color-border) text-xs font-medium transition-colors bg-transparent text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary)"
-          onClick={signInWithGoogle}
-        >
-          Log in
-        </button>
-      )}
+      {/* Login / User menu */}
+      <UserMenuDropdown
+        profile={profile ?? null}
+        loading={!!(authLoading || profileLoading)}
+        isLoggedIn={!!user}
+        onSignIn={signInWithGoogle}
+        onSignOut={signOut}
+      />
     </>
   );
 }

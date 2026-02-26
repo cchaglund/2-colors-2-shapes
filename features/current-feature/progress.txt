@@ -467,6 +467,12 @@ User menu dropdown in TopBar: avatar+name+chevron trigger, spring-animated dropd
 - `src/components/canvas/TopBar.tsx` — import UserMenuDropdown, replace static user button with dropdown, added signOut to useAuth destructure
 - `features/current-feature/PRD.json` — marked passes: true
 
+### Refinements (second pass)
+- Expanded UserMenuDropdown props: added `loading`, `isLoggedIn`, `onSignIn` — component now handles all 3 states internally (loading → "Log in" → dropdown)
+- TopBar simplified: replaced conditional 3-branch render (loading/logged-in/logged-out) with single `<UserMenuDropdown .../>` call
+- Spring animation tuned: stiffness 500, damping 30 (snappier feel)
+- Chevron rotate-180 transition on open state
+
 ### Blockers / notes
 - Typecheck passes clean; lint/tests fail (pre-existing VM binary compat)
 - FriendRow not reused — dropdown uses simpler inline rows (avatar initial circle + nickname) to avoid FollowButton complexity in narrow dropdown
