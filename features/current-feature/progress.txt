@@ -597,3 +597,23 @@ Most of the page already implemented from prior work (TopBar, two-column layout,
 ### Blockers / notes
 - Typecheck passes clean; tests/lint fail (pre-existing VM binary compat)
 - Ties show "+N more" badge at bottom + crown at top — both visible
+
+## ANIM-2: Panel Transitions — DONE (already complete from prior work)
+
+All ANIM-2 requirements already implemented across PANEL-1, THEME-1, USER-1, and consistent hover patterns.
+
+### Verification
+- Panel open: spring animation (stiffness 400, damping 20) sliding from edge ✓ (CanvasEditorPage.tsx)
+- Panel close: multi-step exit `x: [0, '3%', '-100%']` — slight opposite bounce, then slide out ✓
+- Button hover states: all buttons across TopBar, ToolsPanel, BottomToolbar, ZoomControls, LayerPanel, UserMenuDropdown have hover feedback (bg change, text color, scale, or border change) ✓
+- Theme transitions: 0.35s ease on color/bg/border/shadow via `html.theme-transitioning` class ✓ (index.css + useThemeState.ts)
+- User menu dropdown: motion.div spring animation (scale 0.95→1, y -4→0) ✓ (UserMenuDropdown.tsx)
+- BottomToolbar: spring entrance from bottom (y: 60→0, stiffness 400, damping 25) ✓
+- Typecheck passes clean
+
+### Files changed
+- `features/current-feature/PRD.json` — marked passes: true
+
+### Blockers / notes
+- No code changes needed — prior work covered all requirements
+- Color swatches in BottomToolbar use `hover:scale-105` (qualifies as "scale" hover feedback per PRD)

@@ -360,7 +360,7 @@
       "Theme switcher transitions smoothly between themes (~0.35s)",
       "User menu dropdown animates in with spring (scale + translate)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "ANIM-3",
