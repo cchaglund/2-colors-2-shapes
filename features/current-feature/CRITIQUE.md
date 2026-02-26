@@ -1,152 +1,116 @@
-# PRD Critique: Codebase Refactoring
+# PRD Critique: UI/UX Redesign
 
-**Reviewer:** Senior Engineer (hostile)
-**Verdict:** REJECT. Rewrite from scratch with an actual strategy.
+## Overall
 
----
-
-## 1. This isn't a PRD, it's a todo list with delusions of grandeur
-
-58 items. Fifty-eight. You want to touch every file in the codebase, rewrite the entire data layer, decompose the core state management hook, rename files, extract components, standardize return types, AND clean up console.logs — all in one "feature"? This isn't a refactor, this is a full rewrite cosplaying as incremental improvement.
-
-No sane team ships this as one deliverable. Where's the phasing? Where are the milestones? Where's the "if we only get halfway, is the codebase better or worse?" analysis?
+This isn't a PRD. It's a wish list. 27 items spanning every component, every page, every interaction — with no phasing, no priority tiers, no dependency ordering. If someone handed me this and said "build it," I'd hand it back and say "pick 5."
 
 ---
 
-## 2. Zero business justification
+## Scope & Planning
 
-Not one item explains what user-facing problem this solves. "useCanvasState is 1235 lines" — so? Is it causing bugs? Is it blocking features? Is it slow? "Supabase queries scattered in 31 files" — and they work. Users don't care about your import aesthetics.
+**No incremental delivery path.** The PRD wants to simultaneously rip out the sidebar, the action toolbar, the gallery, the submission page, the theming system, the shape creation model, the selection handles, the keyboard shortcuts, and the zoom controls. All at once. There's no "phase 1 ships value, phase 2 adds polish." It's "rewrite the entire frontend or nothing." That's how rewrites die.
 
-Every refactoring PRD needs to answer: **"What can we build after this that we can't build now?"** This one doesn't even try.
+**No priority ordering.** Are all 27 items equally critical? The theme system (4 themes x 2 modes = 8 visual configurations) and stamp mode are massive features on their own. The gallery redesign is a separate project's worth of work. But they're all sitting next to "move zoom controls to bottom-right" as if they're equivalent effort.
 
----
-
-## 3. The service layer migration (REFACTOR-043 through 047) is a guaranteed disaster
-
-You want to move every Supabase call from 31+ hooks and components into a centralized `src/services/` layer. The verification for this is literally "All data fetching still works correctly." That's not a verification step — that's a hope.
-
-Specific problems:
-- Hooks currently construct queries with dynamic filters, RPC calls, realtime subscriptions, and pagination. A "service function" for each of these becomes either (a) a thin wrapper that adds nothing, or (b) a leaky abstraction that can't handle edge cases.
-- Realtime subscriptions (`supabase.channel()`) have lifecycle tied to components. Moving them to a service layer breaks that coupling and you'll need to reinvent cleanup logic.
-- You've listed 5 PRD items (043-047) but zero thought on how to handle queries that span domains (e.g., "fetch submission with author profile and ranking position"). Do services call other services? Do hooks combine multiple service calls? Neither option is clean.
+**Item #11 is missing from the feature request numbering.** Skips from 10 to 12. Sloppy.
 
 ---
 
-## 4. Splitting useCanvasState is high-risk surgery with no design
+## Theme System (THEME-1 through THEME-7)
 
-"Extract useCanvasHistory, useCanvasStorage, useShapeOperations" — easy to say, terrifying to execute. This hook has 1235 lines because everything in it is interconnected:
+**"Zero JS conditionals for styling" is dogmatic nonsense in a Tailwind app.** The current codebase uses Tailwind with arbitrary CSS variable values (`bg-(--color-bg-primary)`). Tailwind is fundamentally class-based. Enforcing "zero JS conditionals" while using a utility-first CSS framework is fighting two systems at once. What happens when a component needs conditional rendering based on theme (e.g., different icon sets, different layout spacing)? You can't express everything in CSS variables.
 
-- Shape operations need to push history entries
-- History undo/redo needs to restore shapes AND selection state
-- Storage needs to serialize the result of shape operations AND history position
-- Group operations need to update shapes, selection, AND history atomically
+**Five font families is a performance disaster.** Fredoka, Lilita One, DM Sans, Nunito, Space Mono. Even with modern font loading strategies, that's 5 font families (likely 10+ font files for weights/styles) the user potentially needs. Currently the app loads one font (DM Sans, self-hosted for GDPR). The PRD doesn't mention font loading strategy, FOUT/FOIT handling, or the bandwidth cost for users on slow connections. Are we loading all 5 upfront? On demand? What does the theme switch look like while fonts are loading?
 
-The PRD says "thin orchestrator composing the three hooks." How? Through shared refs? Through callbacks? Through a shared state store? This is the entire architectural decision and it's hand-waved into nothing. "Target: under 300 lines" is a line count, not a design.
+**"0.35s transition on themed properties" is a performance landmine.** Transitioning ALL CSS properties — including backgrounds, borders, shadows, fonts, pattern images — is expensive. Pattern images can't smoothly transition. Font changes cause layout reflow. This will either look janky or kill frame rate on mid-range devices.
 
-What happens when undo restores a state but the storage hook has already saved the new state? What happens when duplicating a grouped shape needs to atomically update shapes, groups, selection, and push one history entry? These are the hard problems. The PRD ignores all of them.
+**Background pattern overlays are visual noise.** Dot patterns, circular patterns — these look cute in a mockup and annoying after 10 minutes of actual use in a creative tool where you're trying to focus on your artwork. The PRD treats these as mandatory, not optional.
 
 ---
 
-## 5. The Modal wrapper will become a god component within weeks
+## Stamp Mode (STAMP-1, STAMP-2)
 
-"Create shared `<Modal>` with backdrop, focus trap, escape-to-close, click-outside-to-close."
+**What happened to 43 of the 45 shape types?** The current app supports 45 shapes: circle, square, triangle, star, diamond, blade, wave, crescent, fang, spike, and many more. The bottom toolbar shows Circle and Square. The feature request title is "2 Colors 2 Shapes" so maybe only 2 shape types per day — but the PRD never addresses how the daily shape assignment maps to the toolbar. What if today's shapes are "blade" and "crescent"? Does the toolbar show those? The PRD says "Circle button, Square button" as if they're hardcoded.
 
-Sounds great. Now consider:
-- **OnboardingModal**: multi-step wizard with forward/back navigation. Does Modal handle step state?
-- **VotingModal**: custom width, swipe gestures, no click-outside-to-close during animation
-- **ResetConfirmModal**: must NOT close on click-outside (destructive confirmation)
-- **WinnerAnnouncementModal**: confetti animation needs to escape the modal bounds
+**Ghost cursor rendering over SVG canvas.** The ghost preview needs to follow the mouse over an SVG canvas that has its own coordinate system, zoom, and pan transforms. The PRD handwaves this as "follows the mouse position over the canvas" without acknowledging the coordinate transformation complexity. The ghost needs to respect the viewport transform to appear at the correct canvas position, not screen position.
 
-You'll end up with `<Modal disableClickOutside disableEscape fullWidth noFocusTrap customBackdrop={...}>`. Congratulations, you've replaced 8 simple modals with 8 slightly less simple modals + one complex abstraction nobody wants to maintain.
+**"Click to place at default size ~60px" — 60px in what coordinate space?** Canvas coordinates? Screen pixels? At 4x zoom, a 60px canvas shape is 240 screen pixels. At 0.25x zoom, it's 15 screen pixels. The PRD doesn't specify.
 
-Also: you've listed NINE separate PRD items (029-038) for migrating individual modals. That's 9 items of "change import, test manually." This is padding.
+**Empty canvas prompt reappears on saved empty canvases.** STAMP-2 says "Text reappears if all shapes are deleted." What about loading a saved submission that happens to have zero shapes? What about the initial load before canvas state is hydrated from Supabase? The prompt will flash before data loads.
 
 ---
 
-## 6. Naming renames are pure git blame destruction
+## Selection Handles (THEME-7)
 
-REFACTOR-025 through 028: rename `ContentCalendarDayCell` to `SubmissionCalendarDayCell`, `ContentNavigation` to `CalendarMonthNav`, standardize prop names.
+**This is two separate PRD items crammed into one.** Structural changes (4→8 resize handles, 4→1 rotation handle) and theming changes are completely independent concerns. Bundling them guarantees a larger, harder-to-review diff.
 
-What you get: slightly more "correct" names.
+**Removing 3 rotation handles breaks spatial affordance.** Currently users can grab any edge to rotate. Reducing to 1 handle at top-center means: (a) if the shape is near the top edge, the rotation handle may be off-screen or under the top bar, and (b) users who've built muscle memory for grabbing the nearest rotation handle lose that. The PRD doesn't acknowledge this UX regression.
 
-What you lose:
-- git blame on every renamed file — gone
-- Every in-flight branch touching these files — merge conflict
-- Every team member's mental model — invalidated
-
-Prop name standardization (`isDayToday` -> `isToday`) is even worse. It's a cosmetic change with nonzero regression risk. `isDayToday` is perfectly readable.
+**"Handles scale to 1.3x on hover" + touch support.** Touch devices don't have hover. The current app has full touch gesture support. The PRD never mentions touch devices or how any of these hover-dependent interactions degrade on mobile.
 
 ---
 
-## 7. data-testid without tests is cargo culting
+## Mobile / Responsive / Accessibility
 
-REFACTOR-039 through 042 add `data-testid` to components. Great. Where are the tests that use them? There are zero test items in this PRD. You're adding DOM noise for a testing infrastructure that doesn't exist. Add the test IDs when you write the tests, not before.
+**Zero mention of responsive behavior.** The current app has touch gesture support (pinch to zoom, multi-touch rotate). The PRD describes a layout with: 56px top bar + slim left panel + 240px right panel + bottom toolbar + zoom controls in bottom-right + info button in bottom-left. On a tablet or phone, that's UI colliding everywhere. The feature request says nothing about breakpoints, touch affordances, or mobile layout.
 
----
-
-## 8. Console.log cleanup is an ESLint rule, not three PRD items
-
-REFACTOR-048 through 050 dedicate three items to removing `console.log` statements. Add `no-console` to your ESLint config. Autofix. Done. This doesn't need to be in a PRD, and it definitely doesn't need three separate work items with separate verification steps.
+**Zero accessibility considerations.** No ARIA labels, no keyboard navigation for the new bottom toolbar, no focus management when panels open/close, no screen reader considerations for the theme switcher. The current app at least has keyboard shortcuts — the new layout adds clickable elements with no mention of how they're accessible.
 
 ---
 
-## 9. The hook return convention (REFACTOR-052 through 056) is premature standardization
+## Gallery (GALLERY-1 through GALLERY-5)
 
-"All data-fetching hooks return `{ data, loading, error, ...actions }`"
+**This is a separate project masquerading as a sub-item.** 5 PRD items covering: tab redesign, calendar view for My Submissions, calendar view for Winners, dual-mode Wall (grid + calendar + 3 sort modes + date navigation), Friends feed. Each of these is a full feature. The Gallery alone is probably 40% of total effort.
 
-- `useKeyboardSettings` manages local preferences. It doesn't have a loading state.
-- `useCanvasState` returns dozens of methods and state values. Cramming them into `{ data, loading, error }` makes no sense.
-- `useSaveSubmission` is an action hook, not a query hook. Its "data" IS the action.
+**Calendar views need data that may not exist.** The Winners calendar needs winning artwork for every past day. Does the backend return this efficiently? Or are we making 30 API calls per month view? The PRD has no data/API considerations.
 
-Forcing every hook into one shape will create awkward `data.data` nesting, meaningless `loading: false` states on hooks that never load, and `error: null` on hooks that can't fail. You're trading real diversity for fake consistency.
+**"Random" sort option.** Random sort with pagination is a well-known nightmare. Do you re-randomize on every page? Cache the random order? The PRD just says "Random" like it's free.
 
 ---
 
-## 10. shapeHelpers.ts split doesn't reduce complexity
+## User Menu (USER-1)
 
-"Create `src/utils/shapes/` with `polygon.ts`, `paths.ts`, etc."
+**"Green online status dot" requires real-time presence.** The current backend is Supabase. Does it have presence/real-time channels set up? Online status tracking is a feature unto itself — it needs heartbeats, timeout logic, and real-time subscriptions. The PRD treats it as a UI detail.
 
-You're taking 35 functions in one file and splitting them into 4+ files with a barrel re-export. The total code is identical. The call sites are identical (they'll import from `shapes/index.ts` instead of `shapeHelpers.ts`). You've added import indirection with zero benefit.
-
-If the argument is "717 lines is too long" — it's a file of pure functions with no shared state. Long pure-function files are the LEAST problematic kind of long file. This is cosmetic.
+**"Add by nickname" in a dropdown menu is bad UX.** Adding friends is a deliberate action that deserves a proper flow, not a text input crammed into a user dropdown. What happens on error? Where does the success/failure feedback go? The dropdown is going to get awkwardly tall with the avatar + stats + tabs + friend list + input + logout button all stacked.
 
 ---
 
-## 11. No rollback plan, no incremental value
+## Keyboard Shortcuts (SHORTCUT-1)
 
-What happens when you're on REFACTOR-015 (useCanvasState orchestrator) and discover the decomposition creates subtle race conditions? You've already modified 3 new hooks and the orchestrator. Do you revert all 4 files? Do you ship the broken decomposition?
-
-The PRD has no checkpoints where you can stop and still have improved the codebase. If you complete items 1-11 (component extractions and constants) but abandon items 12-58, you're in good shape. But the PRD doesn't acknowledge this — it presents all 58 items as one atomic unit.
+**Remapping V breaks existing users with zero migration path.** V currently does mirror vertical. Users who've built that into muscle memory will suddenly be yanked into select mode when they try to flip a shape. The PRD doesn't mention migration, notification, or even a one-time "shortcuts have changed" toast. It also doesn't mention what happens for users who've already customized their bindings — do custom bindings take precedence? They should, but it's not stated.
 
 ---
 
-## 12. Verification steps are "it still works" repeated 58 times
+## Animation (ANIM-1 through ANIM-3)
 
-Nearly every item's verification is "X renders correctly" or "X still works." That's not verification — that's the absence of catastrophe. Where are:
-- Render count assertions before/after (the stated motivation for splitting App.tsx is re-renders)
-- Bundle size comparison
-- Performance benchmarks for the canvas editor
-- Grep confirmation that old patterns are truly gone (e.g., "no file imports supabase directly")
+**Spring animation on every shape placement will get old fast.** Power users placing 10+ shapes in rapid succession don't want to watch each one bounce in. The PRD doesn't have a "reduced motion" escape hatch beyond the existing `prefers-reduced-motion` media query (which the current app already respects, but the PRD never mentions).
+
+**"Rotation from -180 to target" on shape placement.** If the target rotation is 0, the shape spins 180 degrees on every placement. That's disorienting and adds nothing to the creative flow. It's a demo-ware flourish that will annoy real users.
 
 ---
 
-## What I'd actually approve
+## Submission Detail (SUBMISSION-1)
 
-1. **Phase 1 (low risk, high value):** Items 1-11 only. Extract `<SVGShape>`, `<ShapeIcon>`, `RANK_COLORS`, `CANVAS_SIZE`. These are isolated, mechanical, and genuinely DRY improvements. Ship, verify, move on.
+**Two-column layout with no responsive fallback.** On viewports under ~900px, two columns of "large artwork preview" + "stacked info cards" will either overflow or need to stack — which the PRD doesn't address.
 
-2. **Phase 2 (medium risk):** The `<Modal>` wrapper — but design it FIRST. Audit all 9 modals, document their actual requirements, and design a wrapper that handles 80% of cases without a prop explosion. Accept that 1-2 modals may not fit.
+**"Following" badge requires relationship data per submission.** Is this data included in the submission query? Or is it a separate lookup? The PRD doesn't consider data loading.
 
-3. **Phase 3 (high risk, needs design doc):** useCanvasState decomposition. Write an actual architecture document explaining state flow between sub-hooks. Prototype. Test. Then write the PRD items.
-
-4. **Defer indefinitely:** Service layer, hook conventions, naming renames. These are "nice to have" that carry real risk and solve no user problem.
-
-5. **Automate, don't PRD:** Console.log cleanup, data-testid additions. ESLint rules and a grep script.
+**"Copy Link" button, but routing is query-param based.** The current app uses `?view=submission&id=X`. That's technically shareable, but ugly and fragile. The PRD doesn't mention whether routing should change.
 
 ---
 
-## Unresolved questions
+## What's Missing
 
-- Is this refactor blocking any actual feature work? What's the urgency?
-- Has anyone profiled the re-render problem in App.tsx, or is "6 useState + 15 hooks" just vibes?
-- Are there any in-flight branches that would conflict with the naming renames?
-- Does the team have any integration tests, or is "manually verify" the actual test strategy?
+1. **Error states and loading states** — for the gallery views, user menu data, friend lists. Nothing.
+2. **Performance budget** — 5 fonts, pattern overlays, spring animations everywhere, 0.25x-4x zoom range with potentially many shapes. No discussion.
+3. **Testing strategy** — 27 items touching every component. How do we verify we haven't broken canvas editing, submission saving, voting, auth?
+4. **Migration of existing UI tests** — if any exist.
+5. **Rollback plan** — if the redesign ships and users hate it.
+6. **Data attribute naming convention** — `data-theme='a|b|c|d'` is cryptic. Why not `data-theme='pop-art|swiss|cloud|brutalist'`?
+
+---
+
+## Summary
+
+This PRD tries to boil the ocean. It's a ground-up rewrite of every visual surface in the app, with no phasing, no priority ordering, no responsive strategy, no accessibility plan, no performance budget, and several features (online presence, layer grouping UX, 45→2 shape types in toolbar) that have unanswered design questions. The theme system alone — done properly with 8 variants, smooth transitions, font loading, and pattern overlays — is a multi-week effort. Ship the layout restructuring and stamp mode first. Ship themes later. Ship the gallery redesign as a separate initiative. Stop trying to do everything at once.
