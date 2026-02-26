@@ -7,6 +7,7 @@ import { WallSortControls } from './WallSortControls';
 import { WallLockedState } from './WallLockedState';
 import { WallEmptyState } from './WallEmptyState';
 import { SubmissionThumbnail } from '../shared/SubmissionThumbnail';
+import { TrophyBadge } from '../shared/TrophyBadge';
 import { ContentNavigation } from '../Calendar/ContentNavigation';
 import { ContentCalendarGrid } from '../Calendar/ContentCalendarGrid';
 import { formatDate, getDaysInMonth } from '../../utils/calendarUtils';
@@ -234,9 +235,14 @@ export function WallContent({
             {submissions.map((submission) => (
               <div
                 key={submission.id}
-                className="flex flex-col items-center"
+                className="relative flex flex-col items-center"
                 title={`Submitted at ${formatTime(submission.created_at)}`}
               >
+                {submission.final_rank !== undefined && submission.final_rank >= 1 && submission.final_rank <= 3 && (
+                  <div className="absolute top-0 right-0 z-10">
+                    <TrophyBadge rank={submission.final_rank as 1 | 2 | 3} />
+                  </div>
+                )}
                 <SubmissionThumbnail
                   shapes={submission.shapes}
                   groups={submission.groups}
@@ -250,6 +256,9 @@ export function WallContent({
                   likeCount={submission.like_count}
                   showLikeCount={sortMode === 'likes'}
                 />
+                <span className="text-[10px] text-(--color-text-tertiary)">
+                  {formatTime(submission.created_at)}
+                </span>
               </div>
             ))}
           </div>

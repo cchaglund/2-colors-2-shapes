@@ -304,7 +304,7 @@
       "Winners have a trophy badge on their card",
       "Clicking a card navigates to the submission detail page"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "GALLERY-5",
@@ -318,7 +318,7 @@
       "Cards are clickable and navigate to submission detail",
       "Layout is responsive — cards reflow based on viewport width"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "SUBMISSION-1",

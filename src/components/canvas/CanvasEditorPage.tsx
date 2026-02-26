@@ -64,7 +64,6 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
     closeVotingModal,
     openResetConfirm,
     closeResetConfirm,
-    openFriendsModal,
     closeFriendsModal,
     dismissCongrats,
     dismissWinner,

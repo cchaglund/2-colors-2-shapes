@@ -5,6 +5,7 @@ import { useCalendarMonth } from '../../hooks/challenge/useCalendarMonth';
 import { useCalendarChallenges } from '../../hooks/challenge/useCalendarChallenges';
 import { WallSortControls } from '../Wall/WallSortControls';
 import { SubmissionThumbnail } from '../shared/SubmissionThumbnail';
+import { TrophyBadge } from '../shared/TrophyBadge';
 import { ContentNavigation } from '../Calendar/ContentNavigation';
 import { ContentCalendarGrid } from '../Calendar/ContentCalendarGrid';
 import { useAuth } from '../../hooks/auth/useAuth';
@@ -375,9 +376,14 @@ export function FriendsFeedContent({
                 {submissions.map((submission) => (
                   <div
                     key={submission.id}
-                    className="flex flex-col items-center"
+                    className="relative flex flex-col items-center"
                     title={`Submitted at ${formatTime(submission.created_at)}`}
                   >
+                    {submission.final_rank !== undefined && submission.final_rank >= 1 && submission.final_rank <= 3 && (
+                      <div className="absolute top-0 right-0 z-10">
+                        <TrophyBadge rank={submission.final_rank as 1 | 2 | 3} />
+                      </div>
+                    )}
                     <SubmissionThumbnail
                       shapes={submission.shapes}
                       groups={submission.groups}
@@ -389,6 +395,9 @@ export function FriendsFeedContent({
                       href={onSubmissionClick ? undefined : getSubmissionHref(submission.id)}
                       onClick={onSubmissionClick ? () => onSubmissionClick(submission.id) : undefined}
                     />
+                    <span className="text-[10px] text-(--color-text-tertiary)">
+                      {formatTime(submission.created_at)}
+                    </span>
                   </div>
                 ))}
               </div>

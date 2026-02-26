@@ -527,6 +527,39 @@ Nearly complete from prior calendar infrastructure work. Only gap: "Create!" CTA
 
 All winners tab functionality already implemented: calendar with winner thumbnails, Voting.../Creating... status, future days empty, footer stats, click navigation to WinnersDayPage. Only gap: crown emoji on winner cells.
 
+## GALLERY-4: Wall Tab + GALLERY-5: Friends Tab — DONE
+
+Both tabs had identical gaps: no final_rank data fetched, no trophy badges on cards, no date/time display. Fixed in parallel since same pattern.
+
+### Key decisions
+- `final_rank` fetched via batch query to `daily_rankings` after submissions load (parallel with nickname fetch)
+- TrophyBadge (gold/silver/bronze) overlaid in top-right corner of cards with final_rank 1-3
+- Submission time shown as small text below each card (same-day view makes full date redundant)
+- Also removed unused `openFriendsModal` from CanvasEditorPage (was causing typecheck failure)
+
+### Verification
+- Grid/Calendar toggle ✓ (WallContent + FriendsFeedContent)
+- Calendar view colored count badges ✓ (ContentCalendarDayCell)
+- Grid view date navigation ✓ (showNavigation=true from tab wrappers)
+- Sort dropdown (Newest/Oldest/Random + Ranked/Likes) ✓ (WallSortControls)
+- Cards: thumbnail + nickname + time + trophy badge ✓
+- Cards clickable → submission detail ✓ (getSubmissionHref)
+- Responsive grid ✓ (auto-fill minmax(140px))
+- Friends: login check, no-friends state, locked day state ✓ (all pre-existing)
+- Typecheck passes clean
+
+### Files changed
+- `src/hooks/challenge/useWallOfTheDay.ts` — batch fetch final_rank from daily_rankings (replaced TODO)
+- `src/hooks/social/useFriendsFeed.ts` — same pattern: batch fetch final_rank
+- `src/components/Wall/WallContent.tsx` — import TrophyBadge, add trophy overlay + time text to grid cards
+- `src/components/FriendsFeed/FriendsFeedContent.tsx` — same pattern: trophy + time
+- `src/components/canvas/CanvasEditorPage.tsx` — removed unused openFriendsModal (typecheck fix)
+- `features/current-feature/PRD.json` — marked GALLERY-4 + GALLERY-5 passes: true
+
+### Blockers / notes
+- Tests/lint fail (pre-existing VM binary compat); typecheck passes clean
+- Trophy badge appears over card top-right, outside the SubmissionThumbnail href wrapper — clicking card still works
+
 ### Key decisions
 - 👑 emoji positioned absolute top-right of winner cells, z-10, with drop-shadow for legibility over artwork
 - aria-label="Winner" for accessibility

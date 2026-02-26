@@ -167,7 +167,24 @@ export async function fetchWallSubmissions(date: string): Promise<WallSubmission
       }
     }
 
-    // Map submissions with nicknames
+    // Batch fetch final_rank from daily_rankings
+    const submissionIds = submissions.map(s => s.id);
+    const rankMap = new Map<string, number>();
+    const { data: rankings, error: rankingsError } = await supabase
+      .from('daily_rankings')
+      .select('submission_id, final_rank')
+      .in('submission_id', submissionIds)
+      .not('final_rank', 'is', null);
+
+    if (rankingsError) {
+      console.error('Failed to fetch rankings:', rankingsError);
+    } else if (rankings) {
+      for (const r of rankings) {
+        rankMap.set(r.submission_id, r.final_rank as number);
+      }
+    }
+
+    // Map submissions with nicknames and ranks
     const wallSubmissions: WallSubmission[] = submissions.map(s => ({
       id: s.id,
       user_id: s.user_id,
@@ -176,7 +193,7 @@ export async function fetchWallSubmissions(date: string): Promise<WallSubmission
       groups: (s.groups as ShapeGroup[]) || [],
       background_color_index: s.background_color_index,
       created_at: s.created_at,
-      final_rank: undefined, // TODO: join from daily_rankings if needed
+      final_rank: rankMap.get(s.id),
       like_count: s.like_count ?? 0,
     }));
 
