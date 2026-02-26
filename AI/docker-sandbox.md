@@ -184,6 +184,9 @@ Old workaround (annoying): `rm -rf node_modules && npm install` every time you s
 Run the dev server in a Docker container with the same architecture as the sandbox (Linux ARM64). The entire repo is mounted, so it uses the same node_modules the agent installed.
 
 **To start:**
+
+Copy the dockerfile-to-copy/Dockerfile.dev to the root of your project as `Dockerfile.dev`, then run:
+
 ```
 npm run dev:docker
 ```
