@@ -63,7 +63,7 @@
       "Selected color/background swatch has a visible border indicator",
       "Toolbar animates in from bottom with spring physics on page load"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "STAMP-1",
@@ -166,7 +166,7 @@
       "Clicking dark mode toggle switches between light and dark modes",
       "Theme and mode preference persists across page reloads (localStorage)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "THEME-7",

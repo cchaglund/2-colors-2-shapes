@@ -5,6 +5,7 @@ import { Toolbar } from './Toolbar';
 import { LayerPanel } from '../LayerPanel';
 import { ZoomControls } from './ZoomControls';
 import { ActionToolbar } from './ActionToolbar';
+import { BottomToolbar, type EditorTool } from './BottomToolbar';
 import { TopBar, InspirationCenter } from './TopBar';
 import { OnboardingModal } from '../modals/OnboardingModal';
 import { WelcomeModal } from '../modals/WelcomeModal';
@@ -240,6 +241,10 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
     }
   }, [user, challenge]);
 
+  // Editor tool mode (select vs stamp) and selected color for new shapes
+  const [editorTool, setEditorTool] = useState<EditorTool>('select');
+  const [selectedColorIndex, setSelectedColorIndex] = useState<number>(0);
+
   // Hover highlight state (transient UI, not canvas document state)
   const [hoveredShapeIds, setHoveredShapeIds] = useState<Set<string> | null>(null);
 
@@ -348,8 +353,21 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
           />
         </div>
 
-        {/* Zoom controls overlay */}
+        {/* Bottom floating toolbar */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
+          <BottomToolbar
+            challenge={challenge}
+            activeTool={editorTool}
+            selectedColorIndex={selectedColorIndex}
+            backgroundColorIndex={canvasState.backgroundColorIndex}
+            onSetTool={setEditorTool}
+            onSetSelectedColor={setSelectedColorIndex}
+            onSetBackground={setBackgroundColor}
+          />
+        </div>
+
+        {/* Zoom controls — bottom right */}
+        <div className="absolute bottom-4 right-4 z-10">
           <ZoomControls
             zoom={viewport.zoom}
             onZoomIn={handleZoomIn}

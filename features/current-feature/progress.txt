@@ -169,3 +169,32 @@ Created fixed 56px top bar replacing sidebar header. Layout restructured from si
 - Playwright can't reach local Vite dev server (network isolation) — no visual verification
 - TypeScript typecheck passes clean
 - BackToCanvasLink component still used by other pages (WinnersDayPage, UserProfilePage, etc.) — not removed
+
+## THEME-6: Theme Switcher UI — DONE (already complete from LAYOUT-1)
+
+ThemePill component built as part of LAYOUT-1 already satisfies all THEME-6 requirements: sun/moon dark mode toggle, divider, A/B/C/D theme buttons with accent-filled selected state, smooth transitions via triggerThemeTransition(), localStorage persistence via useThemeState.
+
+### Files changed
+- `features/current-feature/PRD.json` — marked passes: true
+
+## LAYOUT-4: Bottom Floating Toolbar — DONE
+
+Floating horizontal pill toolbar at bottom center of canvas editor with spring entrance animation.
+
+### Key decisions
+- `EditorTool` type: `'select' | 'stamp-0' | 'stamp-1'` — stamp tool toggles back to select if clicked again
+- `selectedColorIndex` state added to CanvasEditorPage — determines color for new shapes (used by STAMP-1 later)
+- Zoom controls moved to bottom-right to avoid overlap (aligns with ZOOM-1 intent)
+- Background "cream/white" option uses `null` backgroundColorIndex (existing behavior for no custom bg)
+- Color/bg swatches use `challenge.colors` dynamically — works with any color count
+- Labels "Color" and "Background" per PRD; dividers separate all 3 sections
+
+### Files changed
+- `src/components/canvas/BottomToolbar.tsx` — NEW: BottomToolbar + EditorTool type, ToolButton, ColorSwatch, Divider sub-components
+- `src/components/canvas/CanvasEditorPage.tsx` — import BottomToolbar, add editorTool/selectedColorIndex state, render toolbar at bottom center, move ZoomControls to bottom-right
+- `features/current-feature/PRD.json` — marked LAYOUT-4 + THEME-6 passes: true
+
+### Blockers / notes
+- Lint/tests still can't run in VM (binary compat issues); typecheck passes clean
+- STAMP-1 will wire up canvas click → addShape using editorTool + selectedColorIndex
+- ZOOM-1 (zoom controls relocation) partially addressed by move to bottom-right; ZOOM-1 still covers range extension + reset button
