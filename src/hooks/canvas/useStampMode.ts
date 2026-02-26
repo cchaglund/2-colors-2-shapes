@@ -127,13 +127,13 @@ export function useStampMode({
     return () => window.removeEventListener('mouseup', handleWindowMouseUp);
   }, [isStampMode, shapeIndex, selectedColorIndex, getSVGPoint, onAddShape]);
 
-  // Esc / V to exit stamp mode
+  // Esc to exit stamp mode (V handled via keyboard shortcuts system — selectMode action)
   useEffect(() => {
     if (!isStampMode) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      if (e.key === 'Escape' || e.key === 'v' || e.key === 'V') {
+      if (e.key === 'Escape') {
         e.preventDefault();
         onSetTool('select');
       }

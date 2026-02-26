@@ -16,16 +16,39 @@ interface StoredSettings {
   version: number;
 }
 
-const CURRENT_VERSION = 1;
+const CURRENT_VERSION = 2;
+
+/** Migrate v1 → v2: remap mirrorH from H→M, mirrorV from V→Shift+M, add selectMode=V */
+function migrateV1ToV2(mappings: KeyMappings): KeyMappings {
+  const migrated = { ...mappings };
+  // Only remap if the user hasn't customized (still on old default)
+  if (migrated.mirrorHorizontal?.key === 'KeyH' && !migrated.mirrorHorizontal.shift) {
+    migrated.mirrorHorizontal = { key: 'KeyM' };
+  }
+  if (migrated.mirrorVertical?.key === 'KeyV' && !migrated.mirrorVertical.shift) {
+    migrated.mirrorVertical = { key: 'KeyM', shift: true };
+  }
+  // Add selectMode with new default (won't conflict after migration above)
+  if (!migrated.selectMode) {
+    migrated.selectMode = { key: 'KeyV' };
+  }
+  return migrated;
+}
 
 function loadFromLocalStorage(): KeyMappings {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed: StoredSettings = JSON.parse(stored);
-      if (parsed.version === CURRENT_VERSION && parsed.mappings) {
+      if (parsed.mappings) {
+        let mappings = parsed.mappings;
+        if (parsed.version < 2) {
+          mappings = migrateV1ToV2(mappings);
+          // Persist the migration
+          saveToLocalStorage({ ...getDefaultMappings(), ...mappings });
+        }
         // Merge with defaults in case new actions were added
-        return { ...getDefaultMappings(), ...parsed.mappings };
+        return { ...getDefaultMappings(), ...mappings };
       }
     }
   } catch (e) {
@@ -81,8 +104,18 @@ export function useKeyboardSettings(userId: string | undefined) {
               setMappings(loadFromLocalStorage());
             }
           } else if (data?.mappings) {
+            // Migrate if pre-v2 (no selectMode binding stored)
+            let dbMappings = data.mappings as KeyMappings;
+            if (!dbMappings.selectMode) {
+              dbMappings = migrateV1ToV2(dbMappings);
+              // Persist migration to Supabase
+              supabase
+                .from('keyboard_settings')
+                .upsert({ user_id: userId, mappings: { ...getDefaultMappings(), ...dbMappings }, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
+                .then(({ error: e2 }) => { if (e2) console.error('Failed to persist keyboard migration:', e2); });
+            }
             // Merge with defaults in case new actions were added
-            setMappings({ ...getDefaultMappings(), ...data.mappings });
+            setMappings({ ...getDefaultMappings(), ...dbMappings });
           }
         } catch (e) {
           console.error('Failed to load keyboard settings from Supabase:', e);

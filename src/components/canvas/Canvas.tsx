@@ -141,6 +141,10 @@ export function Canvas({
 
   useWheelZoom(svgRef, onZoomAtPoint);
 
+  const handleSelectMode = useCallback(() => {
+    onSetTool('select');
+  }, [onSetTool]);
+
   useCanvasKeyboardShortcuts({
     selectedShapes,
     hasSelection,
@@ -153,6 +157,7 @@ export function Canvas({
     onMirrorHorizontal,
     onMirrorVertical,
     onToggleGrid,
+    onSelectMode: handleSelectMode,
   });
 
   const { setDragState } = useShapeDrag({

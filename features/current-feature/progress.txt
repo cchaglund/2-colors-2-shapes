@@ -298,3 +298,34 @@ Restructured transform/selection handles and made all handle styling theme-drive
 - Typecheck passes clean, dev server starts clean
 - Handle size (--sel-handle-size) CSS var defined per theme but not consumed in JS — handles use BASE_HANDLE_SIZE=10 constant for canvas-coordinate math; the visual size difference (7-10px) is subtle and the theme distinction comes primarily from shape (radius), color, and stroke
 - `resizeCorner` field in DragState still typed as `string` — accepts midpoint IDs without changes
+
+## PANEL-1: Collapsible Side Panels — DONE (already complete from LAYOUT-2 + LAYOUT-3)
+
+All PANEL-1 requirements already implemented: AnimatePresence spring animations (stiffness 400, damping 20), multi-step exit animation, toggle buttons (wrench icon top-left, layers+count top-right), absolute positioning over canvas, localStorage persistence via useSidebarState.
+
+### Files changed
+- `features/current-feature/PRD.json` — marked passes: true
+
+## SHORTCUT-1: Default Key Remapping — DONE
+
+Remapped defaults: V→selectMode, M→mirrorHorizontal, Shift+M→mirrorVertical. Old H/V bindings replaced.
+
+### Key decisions
+- Added `selectMode` to KeyboardActionId type + KEYBOARD_ACTIONS array (category: navigation, remappable)
+- V key now handled by keyboard shortcuts system (useCanvasKeyboardShortcuts) not hardcoded in useStampMode
+- Escape kept as hardcoded universal cancel in useStampMode (not remappable — Esc is always escape)
+- Settings version bumped 1→2 with migration: only remaps if user was on old defaults (H→M, V→Shift+M), preserves custom bindings
+- Supabase migration: detects pre-v2 by absence of `selectMode` key, applies same migration + persists
+
+### Files changed
+- `src/constants/keyboardActions.ts` — added `selectMode` to type + KEYBOARD_ACTIONS, changed mirrorH default KeyH→KeyM, mirrorV default KeyV→KeyM+shift
+- `src/hooks/ui/useKeyboardSettings.ts` — CURRENT_VERSION 1→2, migrateV1ToV2() for localStorage + Supabase paths
+- `src/hooks/canvas/useCanvasKeyboardShortcuts.ts` — added onSelectMode callback, selectMode binding check (first in handler)
+- `src/hooks/canvas/useStampMode.ts` — removed hardcoded V key, kept only Escape
+- `src/components/canvas/Canvas.tsx` — wired handleSelectMode→onSetTool('select') to keyboard shortcuts hook
+- `features/current-feature/PRD.json` — marked passes: true
+
+### Blockers / notes
+- Typecheck passes clean
+- selectMode appears in KeyboardSettingsModal under "Canvas Navigation" alongside Pan
+- toggleGrid (category: 'view') not shown in settings modal — pre-existing gap, not introduced here

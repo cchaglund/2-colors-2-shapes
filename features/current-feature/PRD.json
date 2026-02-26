@@ -199,7 +199,7 @@
       "Canvas area does not resize or shift when panels open/close",
       "Panel open/closed state persists across page reloads"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "INFO-1",
@@ -433,6 +433,6 @@
       "Keyboard settings modal reflects the new defaults",
       "User can still rebind all shortcuts via the keyboard settings modal"
     ],
-    "passes": false
+    "passes": true
   }
 ]
