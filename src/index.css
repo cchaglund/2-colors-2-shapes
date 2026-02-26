@@ -132,7 +132,10 @@
     --sel-handle-stroke: #FF3366;
     --sel-rotate-color: #33CCFF;
     --sel-hover-fill: rgba(255, 51, 102, 0.1);
-    --pattern-image: radial-gradient(circle, rgba(255, 51, 102, 0.08) 1px, transparent 1px);
+    --pattern-image:
+      radial-gradient(circle, rgba(255, 51, 102, 0.08) 1px, transparent 1px),
+      radial-gradient(circle, rgba(51, 204, 255, 0.06) 1px, transparent 1px);
+    --pattern-size: 20px 20px, 33px 33px;
     --pattern-opacity: 1;
     color: var(--color-text-primary);
     background-color: var(--color-bg-primary);
@@ -176,7 +179,10 @@
     --sel-handle-stroke: #FF3366;
     --sel-rotate-color: #33CCFF;
     --sel-hover-fill: rgba(255, 51, 102, 0.15);
-    --pattern-image: radial-gradient(circle, rgba(255, 51, 102, 0.06) 1px, transparent 1px);
+    --pattern-image:
+      radial-gradient(circle, rgba(255, 51, 102, 0.06) 1px, transparent 1px),
+      radial-gradient(circle, rgba(51, 204, 255, 0.04) 1px, transparent 1px);
+    --pattern-size: 20px 20px, 33px 33px;
     --pattern-opacity: 1;
     color: var(--color-text-primary);
     background-color: var(--color-bg-primary);
@@ -601,7 +607,13 @@ html.theme-transitioning *::after {
 
 /* ── Background pattern overlay ──
  * Applied via ::after on elements that want the theme's dot/circle pattern.
+ * Uses isolation: isolate so z-index: -1 stays behind content but above the bg.
  */
+.theme-pattern {
+  position: relative;
+  isolation: isolate;
+}
+
 .theme-pattern::after {
   content: '';
   position: absolute;
@@ -610,7 +622,7 @@ html.theme-transitioning *::after {
   background-size: var(--pattern-size);
   opacity: var(--pattern-opacity);
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
 }
 
 /* Custom checkered background pattern for canvas container */

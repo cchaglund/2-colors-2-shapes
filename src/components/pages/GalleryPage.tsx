@@ -291,12 +291,12 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
     : 'Loading winners...';
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-(--color-bg-primary)">
+    <div className="min-h-screen p-4 md:p-8 bg-(--color-bg-primary) theme-pattern">
       <div className="max-w-4xl mx-auto h-[90vh] flex flex-col">
         {/* Header */}
         <div className="mb-6">
           <BackToCanvasLink/>
-          <h1 className="text-2xl font-bold mb-2 text-(--color-text-primary)">
+          <h1 className="text-2xl font-bold mb-2 text-(--color-text-primary) font-display">
             Gallery
           </h1>
         </div>

@@ -95,7 +95,7 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-(--color-bg-primary)">
+    <div className="min-h-screen p-4 md:p-8 bg-(--color-bg-primary) theme-pattern">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6">
@@ -112,7 +112,7 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
             {/* Navigation buttons - only show when viewing by date (own submissions) */}
             {date && <SubmissionNavigation adjacentDates={adjacentDates} />}
           </div>
-          <h1 className="text-xl font-semibold mb-1 text-(--color-text-primary)">
+          <h1 className="text-xl font-semibold mb-1 text-(--color-text-primary) font-display">
             {formattedDate}
           </h1>
           <div className="flex items-center gap-2 text-[13px]">

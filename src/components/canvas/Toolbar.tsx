@@ -159,7 +159,7 @@ export function Toolbar({
           {/* Daily Word */}
           <div className="">
             <Label>Inspiration<InfoTooltip text="This is just for inspiration, feel free to ignore it" /></Label>
-            <p className="m-0 text-base font-medium text-(--color-text-primary) capitalize">"{challenge.word}"</p>
+            <p className="m-0 text-lg font-medium text-(--color-text-primary) capitalize font-display">"{challenge.word}"</p>
           </div>
 
         </div>

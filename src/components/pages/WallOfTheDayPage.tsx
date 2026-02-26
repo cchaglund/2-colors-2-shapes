@@ -33,12 +33,12 @@ export function WallOfTheDayPage({ date }: WallOfTheDayPageProps) {
   }, [date]);
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-(--color-bg-primary)">
+    <div className="min-h-screen p-4 md:p-8 bg-(--color-bg-primary) theme-pattern">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <BackToCanvasLink />
-          <h1 className="text-2xl font-bold mb-2 text-(--color-text-primary)">
+          <h1 className="text-2xl font-bold mb-2 text-(--color-text-primary) font-display">
             Wall of the Day
           </h1>
           <p className="text-(--color-text-secondary)">{formattedDate}</p>

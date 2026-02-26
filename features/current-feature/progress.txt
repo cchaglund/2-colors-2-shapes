@@ -53,3 +53,30 @@ Implemented full CSS custom properties-based theming: 4 themes (A/B/C/D) × 2 mo
 - TypeScript typecheck passes clean (TS 5.7; project targets 5.9 but 5.7 catches all real errors)
 - ColorTester.tsx (admin) still has hardcoded red/green — intentional, it's a color testing tool
 - `toggleDarkMode` removed from prop chain (App → CanvasEditorPage → Toolbar → ThemeToggle) — mode selection UI handles light/dark/system directly via onSetMode
+
+## THEME-2: Theme A (Pop Art) — DONE
+
+Theme A CSS vars already defined in THEME-1. This task addressed three gaps:
+
+### Key decisions
+- Cyan (#33CCFF) added to dot pattern overlay (pink+cyan dual-layer dots at 20px/33px grids = pop art feel)
+- `font-display` class applied to h1 headings + inspiration word → Lilita One shows in Theme A, no-op for B/C/D (same as body font)
+- `theme-pattern` class applied to page backgrounds (Gallery, Submission Detail, Winners Day, User Profile, Wall of the Day)
+- `.theme-pattern` CSS fixed: isolation:isolate + z-index:-1 so pattern renders behind content
+- Canvas editor page excluded from theme-pattern (has checkered canvas bg)
+- Inspiration word bumped from text-base to text-lg for better display font impact
+
+### Files changed
+- `src/index.css` — Theme A light+dark: dual-layer pattern-image (pink+cyan), --pattern-size override; .theme-pattern: isolation:isolate, z-index:-1
+- `src/components/canvas/Toolbar.tsx` — inspiration word: +font-display, text-base→text-lg
+- `src/components/pages/GalleryPage.tsx` — h1: +font-display; outer div: +theme-pattern
+- `src/components/pages/WinnersDayPage.tsx` — same pattern
+- `src/components/pages/SubmissionDetailPage.tsx` — same
+- `src/components/pages/UserProfilePage.tsx` — same
+- `src/components/pages/WallOfTheDayPage.tsx` — same
+- `features/current-feature/PRD.json` — marked passes: true
+
+### Blockers / notes
+- VM filesystem corrupts large npm files during install; tests/lint still can't run
+- TypeScript typecheck passes clean (TS 5.8.3 manually extracted from tarball)
+- Dev server crashes on first CSS request (lightningcss/oxide binary compat issues)

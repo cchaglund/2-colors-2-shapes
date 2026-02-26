@@ -110,7 +110,7 @@
       "Light mode uses lighter background with the same accent colors",
       "Dark mode uses the deep purple background"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "THEME-3",
