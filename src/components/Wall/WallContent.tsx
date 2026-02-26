@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useWallOfTheDay, type SortMode } from '../../hooks/challenge/useWallOfTheDay';
 import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
 import { useCalendarMonth } from '../../hooks/challenge/useCalendarMonth';
@@ -106,18 +106,6 @@ export function WallContent({
     }
   }, [viewType, fetchSubmissionCounts]);
 
-  // Format date for display (used in empty state)
-  const formattedDate = useMemo(() => {
-    const d = new Date(date + 'T00:00:00Z');
-    return d.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      timeZone: 'UTC',
-    });
-  }, [date]);
-
   // Format submission time for tooltip
   const formatTime = (createdAt: string) => {
     const d = new Date(createdAt);
@@ -158,22 +146,6 @@ export function WallContent({
         </p>
         <p className="text-[12px] text-(--color-text-tertiary)">{error}</p>
       </div>
-    );
-  }
-
-  // Empty state - only in grid view when can view (calendar always shows)
-  if (submissions.length === 0 && viewType === 'grid' && canViewCurrentDay) {
-    return (
-      <WallEmptyState
-        showNavigation={showNavigation}
-        adjacentDates={adjacentDates}
-        onDateChange={onDateChange}
-        formattedDate={formattedDate}
-        todayDate={todayDate}
-        isToday={isToday}
-        viewType={viewType}
-        onViewTypeChange={setViewType}
-      />
     );
   }
 
@@ -248,6 +220,8 @@ export function WallContent({
       {viewType === 'grid' && (
         !canViewCurrentDay ? (
           <WallLockedState/>
+        ) : submissions.length === 0 && canViewCurrentDay ? (
+          <WallEmptyState />
         ) : challenge ? (
           <>
             {/* Grid of submissions */}

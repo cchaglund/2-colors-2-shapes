@@ -20,3 +20,12 @@
 - make sure voting works properly
 - moving shapes with arrow buttons seems to be jumping too much, should be 1px per press
 - when holding two fingers on trackpad and moving them you should pan the canvas (right now it's just scrolling the page)
+
+
+Design:
+
+Things i like:
+- Layers show the actual shape. And also, the text is like "Circle 3", instead of just "A3"
+- the animation when the shape pops into existance
+- how the pro tools is hidden - but also very pretty ui for the buttons - big and they have a text descript
+- the header bar with the inspiration word, and the gallery and login in the right
