@@ -275,7 +275,7 @@
       "Footer shows 'Total submissions: N' and medal counts",
       "Month navigation arrows (< >) switch months"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "GALLERY-3",

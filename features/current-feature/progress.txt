@@ -498,3 +498,27 @@ Centered semi-transparent prompt text on empty canvas in select mode, with hydra
 ### Blockers / notes
 - Typecheck passes clean; lint/tests fail (pre-existing VM binary compat)
 - Text reappears correctly when all shapes deleted + in select mode (reactive to shapes.length)
+
+## GALLERY-2: My Submissions Tab — DONE
+
+Nearly complete from prior calendar infrastructure work. Only gap: "Create!" CTA on today's cell when no submission.
+
+### Key decisions
+- Today's empty cell shows accent-colored "Create!" text linking to "/" (canvas editor)
+- Cell made clickable (isClickable includes isToday even without submission)
+- todayCreateHref takes priority over standard href for today's empty cell
+
+### Verification
+- Calendar grid Mon-Sun ✓ (CalendarGrid.tsx)
+- Submission thumbnails fill cells ✓ (SubmissionThumbnail fill prop)
+- Day number as badge ✓ (CalendarCell artFill mode)
+- Empty days muted with X indicator ✓ (tertiary color, 40% opacity)
+- Today accent border ✓ (ring-2 ring-inset ring-accent)
+- Today "Create!" CTA when no submission ✓ (NEW — accent text linking to /)
+- Footer totals + medal trophies ✓ (CalendarStats)
+- Month nav arrows ✓ (ContentNavigation)
+- Typecheck passes clean
+
+### Files changed
+- `src/components/Calendar/CalendarDayCell.tsx` — added "Create!" CTA for today's empty cell, made today clickable → "/"
+- `features/current-feature/PRD.json` — marked passes: true

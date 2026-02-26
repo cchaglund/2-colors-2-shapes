@@ -59,9 +59,10 @@ export function CalendarDayCell({
       );
     }
 
-    const isClickable = !isFuture && !!submission;
     const hasArt = !!submission && !!challenge;
+    const isClickable = !isFuture && (!!submission || isToday);
     const hasRank = hasArt && ranking !== undefined && ranking >= 1 && ranking <= 3 ? (ranking as 1 | 2 | 3) : undefined;
+    const todayCreateHref = isToday && !submission ? '/' : undefined;
 
     const cellContent = (
       <CalendarCell
@@ -71,8 +72,8 @@ export function CalendarDayCell({
         hasContent={hasArt}
         artFill={hasArt}
         rankOutline={hasRank}
-        href={isClickable ? href : undefined}
-        onClick={isClickable && !href && onClick ? () => onClick(day) : undefined}
+        href={isClickable ? (todayCreateHref ?? href) : undefined}
+        onClick={isClickable && !href && !todayCreateHref && onClick ? () => onClick(day) : undefined}
         className="group"
         data-testid="calendar-day-cell"
         data-date={dateStr}
@@ -92,6 +93,8 @@ export function CalendarDayCell({
             backgroundColorIndex={submission.background_color_index}
             fill
           />
+        ) : isToday && !submission ? (
+          <span className="text-xs font-semibold text-(--color-accent)">Create!</span>
         ) : !isFuture && !hideEmptyDayIcon ? (
           <svg
             className="w-6 h-6 text-(--color-text-tertiary) opacity-40"
