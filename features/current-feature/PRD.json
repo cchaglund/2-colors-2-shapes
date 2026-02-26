@@ -335,7 +335,7 @@
       "Export card has 'Copy Link' button with link icon",
       "'Like' button below artwork with heart icon and text"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "ANIM-1",

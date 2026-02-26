@@ -178,7 +178,7 @@ export function SubmissionDetailPage({ date, submissionId, themeMode, onSetTheme
 
             {/* Info sidebar */}
             <div className="space-y-3 w-full md:w-72">
-              <ChallengeDetailsCard challenge={challenge} />
+              <ChallengeDetailsCard challenge={challenge} submissionShapes={submission.shapes} />
               {rankInfo && <RankingCard rankInfo={rankInfo} />}
               <SubmissionStatsCard submission={submission} />
               <ExportActionsCard

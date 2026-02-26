@@ -55,7 +55,7 @@ export function LikeButton({ submissionId, submissionUserId, initialLikeCount }:
         aria-label={isLiked ? 'Unlike submission' : 'Like submission'}
         aria-pressed={isLiked}
         className={`
-          inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-[13px] font-medium transition-colors
+          inline-flex items-center gap-1.5 px-4 py-2 rounded-(--radius-pill) text-[13px] font-medium transition-colors
           ${showDisabledStyle
             ? 'cursor-not-allowed opacity-50'
             : 'cursor-pointer'
@@ -80,6 +80,7 @@ export function LikeButton({ submissionId, submissionUserId, initialLikeCount }:
         >
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
         </svg>
+        <span>{isLiked ? 'Liked' : 'Like'}</span>
         {displayCount !== null && (
           <span>{displayCount}</span>
         )}

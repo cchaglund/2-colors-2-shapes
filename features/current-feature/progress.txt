@@ -556,6 +556,32 @@ Both tabs had identical gaps: no final_rank data fetched, no trophy badges on ca
 - `src/components/canvas/CanvasEditorPage.tsx` — removed unused openFriendsModal (typecheck fix)
 - `features/current-feature/PRD.json` — marked GALLERY-4 + GALLERY-5 passes: true
 
+## SUBMISSION-1: Submission Detail Page Redesign — DONE
+
+Most of the page already implemented from prior work (TopBar, two-column layout, info cards, like button). Two gaps filled:
+
+### Key decisions
+- ChallengeDetailsCard: added `submissionShapes` prop → counts shapes by type, displays "×N" next to each challenge shape icon
+- LikeButton: changed `rounded-md` → `rounded-(--radius-pill)` for pill shape; added "Like"/"Liked" text label next to heart icon
+
+### Verification
+- TopBar: logo+theme left, "Submission" center, "< Gallery" back right ✓
+- Date as large heading (e.g. "Tuesday, February 24, 2026") ✓
+- Metadata: @username · Submission · FollowButton ✓
+- Two-column: artwork left, stacked info cards right ✓
+- Challenge card: inspiration word + color swatches + shapes with ×count ✓ (NEW)
+- Ranking card: TrophyBadge + #N/total + "Winner of the day!" ✓
+- Stats card: shapes count + submitted date ✓
+- Export card: Copy Link + Download PNG/SVG ✓
+- Like button: heart icon + "Like"/"Liked" text, pill style ✓ (NEW)
+- Typecheck passes clean
+
+### Files changed
+- `src/components/submission/ChallengeDetailsCard.tsx` — added submissionShapes prop, shape count display
+- `src/components/submission/LikeButton.tsx` — pill shape, "Like"/"Liked" text
+- `src/components/pages/SubmissionDetailPage.tsx` — pass submission.shapes to ChallengeDetailsCard
+- `features/current-feature/PRD.json` — marked passes: true
+
 ### Blockers / notes
 - Tests/lint fail (pre-existing VM binary compat); typecheck passes clean
 - Trophy badge appears over card top-right, outside the SubmissionThumbnail href wrapper — clicking card still works
