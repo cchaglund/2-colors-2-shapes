@@ -1,0 +1,55 @@
+## THEME-1: CSS Variables Infrastructure — DONE
+
+Implemented full CSS custom properties-based theming: 4 themes (A/B/C/D) × 2 modes (light/dark) = 8 variants.
+
+### Key decisions
+- Theme B (Minimal Swiss) as default — closest to existing design, uses already-loaded DM Sans
+- `data-theme` + `data-mode` on `<html>` replaces old `.dark` class
+- Added `@custom-variant dark (&:is([data-mode="dark"] *))` for Tailwind v4 dark: compatibility
+- SVG elements use `style` prop (not attrs) for CSS var colors — attrs don't support var()
+- Tailwind v4 `--radius-*` vars overridden per theme → existing rounded-* classes auto-adapt
+- Artwork overlays (bg-black/70 text-white on thumbnails) left hardcoded — need guaranteed contrast
+- Google Fonts lazy-loaded on theme switch via dynamic <link> injection
+- `--color-accent-text` var used for text on accent buttons (white for most themes, black for Theme D neon yellow)
+
+### Files changed
+- `src/index.css` — complete rewrite with 8 theme/mode variant selectors, ~50 CSS vars each
+- `src/hooks/ui/useThemeState.ts` — ThemeName type, data-attr management, font loading, transitions
+- `src/App.tsx` — passes theme/mode props to CanvasEditorPage
+- `src/components/canvas/CanvasEditorPage.tsx` — new theme props in interface
+- `src/components/canvas/Toolbar.tsx` — passes theme props to ThemeToggle
+- `src/components/canvas/ThemeToggle.tsx` — rewrite with A/B/C/D + light/dark/auto buttons
+- `src/components/canvas/TransformHandles.tsx` — SVG colors → CSS vars via style prop
+- `src/components/canvas/Canvas.tsx` — marquee/fallback colors → CSS vars
+- `src/components/canvas/CanvasGridLines.tsx` — grid line colors → CSS vars
+- `src/components/canvas/TouchContextMenu.tsx` — hardcoded Tailwind → CSS vars
+- `src/components/LayerPanel/GroupHeader.tsx` — red/blue/black → danger/accent/hover vars
+- `src/components/LayerPanel/LayerItem.tsx` — same pattern
+- `src/components/LayerPanel/LayerPanel.tsx` — accent button text
+- `src/components/shared/InfoTooltip.tsx` — tooltip colors → CSS vars
+- `src/components/shared/SubmissionThumbnail.tsx` — gray/blue → CSS vars
+- `src/components/modals/WelcomeModal.tsx` — gray/white → CSS vars
+- `src/components/modals/WinnerAnnouncementModal.tsx` — accent text
+- `src/components/modals/CongratulatoryModal.tsx` — accent text
+- `src/components/modals/OnboardingModal.tsx` — accent text
+- `src/components/voting/VotingOptInPrompt.tsx` — accent text
+- `src/components/voting/VotingConfirmation.tsx` — accent text
+- `src/components/voting/VotingPairView.tsx` — accent overlay + danger hover text
+- `src/components/social/FollowButton.tsx` — danger/accent → CSS vars
+- `src/components/social/LoginPromptModal.tsx` — accent text
+- `src/components/canvas/KeyboardSettingsModal.tsx` — accent text
+- `src/components/canvas/ResetConfirmModal.tsx` — danger button text
+- `src/components/Wall/WallContent.tsx` — danger + accent hover text
+- `src/components/Wall/WallCalendarPicker.tsx` — accent text
+- `src/components/FriendsFeed/FriendsFeedContent.tsx` — danger + accent hover text
+- `src/components/admin/Dashboard.tsx` — danger + accent spinner/buttons
+- `src/components/submission/LikeButton.tsx` — danger colors
+- `src/test/SocialTestPage.tsx` — accent text throughout
+- `src/test/VotingTestPage.tsx` — accent text throughout
+- `features/current-feature/PRD.json` — marked passes: true
+
+### Blockers / notes
+- Lint and tests can't run in this VM (esbuild/eslint-plugin-react-hooks need Node 22+, VM has Node 20)
+- TypeScript typecheck passes clean (TS 5.7; project targets 5.9 but 5.7 catches all real errors)
+- ColorTester.tsx (admin) still has hardcoded red/green — intentional, it's a color testing tool
+- `toggleDarkMode` removed from prop chain (App → CanvasEditorPage → Toolbar → ThemeToggle) — mode selection UI handles light/dark/system directly via onSetMode

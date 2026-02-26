@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import logoSvg from '../../assets/logo.svg';
 import type { DailyChallenge } from '../../types';
-import type { ThemeMode } from '../../hooks/ui/useThemeState';
+import type { ThemeMode, ThemeName } from '../../hooks/ui/useThemeState';
 import type { Profile } from '../../hooks/auth/useProfile';
 import { ThemeToggle } from './ThemeToggle';
 import { ShapeIcon } from '../shared/ShapeIcon';
@@ -31,6 +31,8 @@ interface ToolbarProps {
   onStartResize: (e: React.MouseEvent) => void;
   themeMode: ThemeMode;
   onSetThemeMode: (mode: ThemeMode) => void;
+  themeName: ThemeName;
+  onSetThemeName: (name: ThemeName) => void;
   // Save functionality
   isLoggedIn: boolean;
   onSave?: () => void;
@@ -65,6 +67,8 @@ export function Toolbar({
   onStartResize,
   themeMode,
   onSetThemeMode,
+  themeName,
+  onSetThemeName,
   isLoggedIn,
   onSave,
   isSaving,
@@ -225,7 +229,7 @@ export function Toolbar({
                   {challenge.colors.map((color, colorIndex) => (
                     <button
                       key={colorIndex}
-                      className="w-7 h-7 rounded-md cursor-pointer text-[16px] font-medium text-white/90 transition-all hover:scale-105 border border-(--color-border-light) flex items-center justify-center"
+                      className="w-7 h-7 rounded-md cursor-pointer text-[16px] font-medium text-(--color-accent-text)/90 transition-all hover:scale-105 border border-(--color-border-light) flex items-center justify-center"
                       style={{ backgroundColor: color, textShadow: '0 1px 1px rgba(0,0,0,0.2)' }}
                       onClick={() => onAddShape(shapeIndex, colorIndex)}
                       title={`Add ${shapeData.name} with ${color}`}
@@ -243,7 +247,7 @@ export function Toolbar({
         <div className="py-4 border-b border-(--color-border-light)">
           {isLoggedIn && onSave ? (
             <button
-              className="w-full py-2 px-3 text-white border-none rounded-md cursor-pointer text-[13px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-(--color-accent) hover:bg-(--color-accent-hover)"
+              className="w-full py-2 px-3 text-(--color-accent-text) border-none rounded-md cursor-pointer text-[13px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-(--color-accent) hover:bg-(--color-accent-hover)"
               onClick={onSave}
               disabled={isSaving || hasSubmittedToday}
             >
@@ -258,7 +262,7 @@ export function Toolbar({
             </button>
           ) : (
             <button
-              className="w-full py-2 px-3 text-white border-none rounded-md cursor-pointer text-[13px] font-medium transition-colors bg-(--color-accent) hover:bg-(--color-accent-hover)"
+              className="w-full py-2 px-3 text-(--color-accent-text) border-none rounded-md cursor-pointer text-[13px] font-medium transition-colors bg-(--color-accent) hover:bg-(--color-accent-hover)"
               onClick={() => setLoginModalVariant('save')}
             >
               Save Creation
@@ -360,7 +364,12 @@ export function Toolbar({
 
         {/* Theme Toggle */}
         <div className="py-4">
-          <ThemeToggle mode={themeMode} onSetMode={onSetThemeMode} />
+          <ThemeToggle
+            mode={themeMode}
+            onSetMode={onSetThemeMode}
+            theme={themeName}
+            onSetTheme={onSetThemeName}
+          />
         </div>
       </div>
     </div>

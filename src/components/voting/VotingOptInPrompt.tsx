@@ -27,7 +27,7 @@ export function VotingOptInPrompt({ onOptIn, onSkip }: VotingOptInPromptProps) {
         </button>
         <button
           onClick={onOptIn}
-          className="flex-1 px-4 py-2 bg-(--color-accent) text-white rounded-md text-[13px] font-medium hover:bg-(--color-accent-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 cursor-pointer"
+          className="flex-1 px-4 py-2 bg-(--color-accent) text-(--color-accent-text) rounded-md text-[13px] font-medium hover:bg-(--color-accent-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 cursor-pointer"
         >
           Yes, include me!
         </button>

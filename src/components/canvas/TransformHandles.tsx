@@ -189,7 +189,7 @@ export function TransformVisualLayer({ shape, zoom = 1 }: { shape: Shape; zoom?:
     ...props,
     ...(outlineD && { d: outlineD }),
     fill: 'none',
-    stroke: '#000',
+    stroke: 'var(--color-text-primary)',
     strokeWidth: dashStrokeWidth,
     strokeDasharray: `${5 * scale},${5 * scale}`,
   };
@@ -209,7 +209,7 @@ export function TransformVisualLayer({ shape, zoom = 1 }: { shape: Shape; zoom?:
         width={viewBox.width}
         height={viewBox.height}
         fill="none"
-        stroke="#0066ff"
+        style={{ stroke: 'var(--sel-border)' }}
         strokeWidth={strokeWidth}
       />
 
@@ -221,8 +221,7 @@ export function TransformVisualLayer({ shape, zoom = 1 }: { shape: Shape; zoom?:
           y={corner.y - handleSize / 2}
           width={handleSize}
           height={handleSize}
-          fill="white"
-          stroke="#0066ff"
+          style={{ fill: 'var(--sel-handle-fill)', stroke: 'var(--sel-border)' }}
           strokeWidth={strokeWidth}
         />
       ))}
@@ -235,15 +234,14 @@ export function TransformVisualLayer({ shape, zoom = 1 }: { shape: Shape; zoom?:
             y1={handle.y1}
             x2={handle.x2}
             y2={handle.y2}
-            stroke="#0066ff"
+            style={{ stroke: 'var(--sel-border)' }}
             strokeWidth={strokeWidth}
           />
           <circle
             cx={handle.cx}
             cy={handle.cy}
             r={rotateRadius}
-            fill="white"
-            stroke="#0066ff"
+            style={{ fill: 'var(--sel-handle-fill)', stroke: 'var(--sel-border)' }}
             strokeWidth={strokeWidth}
           />
         </g>
@@ -286,7 +284,7 @@ export function MultiSelectTransformLayer({
       ...props,
       ...(outlineD && { d: outlineD }),
       fill: 'none',
-      stroke: '#000',
+      stroke: 'var(--color-text-primary)',
       strokeWidth: dashStrokeWidth,
       strokeDasharray: `${5 * scale},${5 * scale}`,
     };
@@ -306,7 +304,7 @@ export function MultiSelectTransformLayer({
           width={viewBox.width}
           height={viewBox.height}
           fill="none"
-          stroke="#0066ff"
+          style={{ stroke: 'var(--sel-border)' }}
           strokeWidth={strokeWidth}
         />
 
@@ -318,8 +316,7 @@ export function MultiSelectTransformLayer({
             y={corner.y - handleSize / 2}
             width={handleSize}
             height={handleSize}
-            fill="white"
-            stroke="#0066ff"
+            style={{ fill: 'var(--sel-handle-fill)', stroke: 'var(--sel-border)' }}
             strokeWidth={strokeWidth}
           />
         ))}
@@ -332,15 +329,14 @@ export function MultiSelectTransformLayer({
               y1={handle.y1}
               x2={handle.x2}
               y2={handle.y2}
-              stroke="#0066ff"
+              style={{ stroke: 'var(--sel-border)' }}
               strokeWidth={strokeWidth}
             />
             <circle
               cx={handle.cx}
               cy={handle.cy}
               r={rotateRadius}
-              fill="white"
-              stroke="#0066ff"
+              style={{ fill: 'var(--sel-handle-fill)', stroke: 'var(--sel-border)' }}
               strokeWidth={strokeWidth}
             />
           </g>
@@ -370,7 +366,7 @@ export function MultiSelectTransformLayer({
             ...props,
             ...(outlineD && { d: outlineD }),
             fill: 'none',
-            stroke: '#000',
+            stroke: 'var(--color-text-primary)',
             strokeWidth: dashStrokeWidth,
             strokeDasharray: `${5 * scale},${5 * scale}`,
           };
@@ -392,7 +388,7 @@ export function MultiSelectTransformLayer({
         width={bounds.width}
         height={bounds.height}
         fill="none"
-        stroke="#0066ff"
+        style={{ stroke: 'var(--sel-border)' }}
         strokeWidth={strokeWidth}
       />
 
@@ -404,8 +400,7 @@ export function MultiSelectTransformLayer({
           y={bounds.y + corner.y - handleSize / 2}
           width={handleSize}
           height={handleSize}
-          fill="white"
-          stroke="#0066ff"
+          style={{ fill: 'var(--sel-handle-fill)', stroke: 'var(--sel-border)' }}
           strokeWidth={strokeWidth}
         />
       ))}
@@ -418,15 +413,14 @@ export function MultiSelectTransformLayer({
             y1={bounds.y + handle.y1}
             x2={bounds.x + handle.x2}
             y2={bounds.y + handle.y2}
-            stroke="#0066ff"
+            style={{ stroke: 'var(--sel-border)' }}
             strokeWidth={strokeWidth}
           />
           <circle
             cx={bounds.x + handle.cx}
             cy={bounds.y + handle.cy}
             r={rotateRadius}
-            fill="white"
-            stroke="#0066ff"
+            style={{ fill: 'var(--sel-handle-fill)', stroke: 'var(--sel-border)' }}
             strokeWidth={strokeWidth}
           />
         </g>
@@ -459,7 +453,7 @@ export function HoverHighlightLayer({ shapes, zoom = 1 }: { shapes: Shape[]; zoo
               width={viewBox.width}
               height={viewBox.height}
               fill="none"
-              stroke="#ff9500"
+              style={{ stroke: 'var(--color-accent)' }}
               strokeWidth={strokeWidth}
               strokeDasharray={`${dashLength},${dashLength}`}
             />

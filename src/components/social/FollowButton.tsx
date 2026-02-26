@@ -94,7 +94,7 @@ export function FollowButton({ targetUserId, size = 'md' }: FollowButtonProps) {
         onMouseLeave={() => setIsHovered(false)}
         className={`${sizeClasses} font-medium rounded-md cursor-pointer transition-colors ${
           isHovered
-            ? 'bg-red-500/10 text-red-500 border border-red-500/30'
+            ? 'bg-(--color-danger)/10 text-(--color-danger) border border-(--color-danger)/30'
             : 'bg-(--color-bg-tertiary) text-(--color-text-secondary) border border-(--color-border)'
         }`}
       >
@@ -107,7 +107,7 @@ export function FollowButton({ targetUserId, size = 'md' }: FollowButtonProps) {
   return (
     <button
       onClick={handleClick}
-      className={`${sizeClasses} font-medium rounded-md cursor-pointer transition-colors bg-(--color-accent) hover:bg-(--color-accent-hover) text-white`}
+      className={`${sizeClasses} font-medium rounded-md cursor-pointer transition-colors bg-(--color-accent) hover:bg-(--color-accent-hover) text-(--color-accent-text)`}
     >
       Follow
     </button>

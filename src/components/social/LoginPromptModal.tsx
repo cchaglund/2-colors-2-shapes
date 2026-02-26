@@ -40,7 +40,7 @@ export function LoginPromptModal({
       <div className="flex flex-col gap-3">
         <button
           onClick={handleLogin}
-          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-md cursor-pointer text-[13px] font-medium transition-colors bg-(--color-accent) text-white border-none hover:bg-(--color-accent-hover)"
+          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-md cursor-pointer text-[13px] font-medium transition-colors bg-(--color-accent) text-(--color-accent-text) border-none hover:bg-(--color-accent-hover)"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">
             <path

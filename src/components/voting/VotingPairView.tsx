@@ -34,7 +34,7 @@ export function VotingPairView({
         </p>
         <div className="flex justify-center">
           <button
-            className="py-2 px-4 border border-(--color-border) rounded-md cursor-pointer text-[13px] font-medium transition-colors bg-(--color-bg-primary) text-(--color-danger) hover:bg-(--color-danger) hover:text-white hover:border-(--color-danger)"
+            className="py-2 px-4 border border-(--color-border) rounded-md cursor-pointer text-[13px] font-medium transition-colors bg-(--color-bg-primary) text-(--color-danger) hover:bg-(--color-danger) hover:text-(--color-accent-text) hover:border-(--color-danger)"
             onClick={onSkipVoting}
           >
             Skip participation
@@ -94,7 +94,7 @@ export function VotingPairView({
               backgroundColorIndex={currentPair.submissionA.background_color_index}
               size={260}
             />
-            <div className="absolute inset-0 flex items-center justify-center bg-(--color-accent)/85 text-white text-[13px] font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute inset-0 flex items-center justify-center bg-(--color-accent)/85 text-(--color-accent-text) text-[13px] font-medium opacity-0 group-hover:opacity-100 transition-opacity">
               Choose this one
             </div>
           </button>
@@ -111,7 +111,7 @@ export function VotingPairView({
               backgroundColorIndex={currentPair.submissionB.background_color_index}
               size={260}
             />
-            <div className="absolute inset-0 flex items-center justify-center bg-(--color-accent)/85 text-white text-[13px] font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute inset-0 flex items-center justify-center bg-(--color-accent)/85 text-(--color-accent-text) text-[13px] font-medium opacity-0 group-hover:opacity-100 transition-opacity">
               Choose this one
             </div>
           </button>

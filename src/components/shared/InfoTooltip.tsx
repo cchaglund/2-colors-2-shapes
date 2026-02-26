@@ -51,7 +51,7 @@ export function Tooltip({ text, children, capitalize }: TooltipProps) {
             style={floatingStyles}
             {...getFloatingProps()}
             className={cn(
-              "max-w-xs px-2.5 py-1.5 text-[11px] text-white bg-neutral-800 rounded-md z-50",
+              "max-w-xs px-2.5 py-1.5 text-[11px] text-(--color-bg-primary) bg-(--color-text-primary) rounded-md z-50",
               { "capitalize": capitalize }
             )}
           >
@@ -67,7 +67,7 @@ export function InfoTooltip({ text }: { text: string }) {
   return (
     <Tooltip text={text}>
       <span
-        className="lowercase align-middle inline-flex items-center justify-center w-4 h-4 ml-1.5 text-xs rounded-full bg-(--color-border) text-(--color-text-tertiary) cursor-help hover:bg-(--color-accent) hover:text-white transition-colors"
+        className="lowercase align-middle inline-flex items-center justify-center w-4 h-4 ml-1.5 text-xs rounded-full bg-(--color-border) text-(--color-text-tertiary) cursor-help hover:bg-(--color-accent) hover:text-(--color-accent-text) transition-colors"
         aria-label="More information"
       >
         i

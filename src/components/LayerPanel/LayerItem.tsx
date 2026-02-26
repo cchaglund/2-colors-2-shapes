@@ -49,7 +49,7 @@ export function LayerItem({
         draggedId === shape.id ? 'opacity-50' : ''
       } ${
         dropTargetIndex === index && draggedId !== shape.id
-          ? 'border-t-2 border-blue-500'
+          ? 'border-t-2 border-(--color-accent)'
           : ''
       } ${
         isSelected ? 'bg-(--color-selected)' : 'hover:bg-(--color-hover)'
@@ -72,7 +72,7 @@ export function LayerItem({
       />
       {editingId === shape.id ? (
         <input
-          className="flex-1 text-sm py-0.5 px-1 border border-blue-600 rounded outline-none min-w-0 bg-(--color-bg-primary) text-(--color-text-primary)"
+          className="flex-1 text-sm py-0.5 px-1 border border-(--color-accent) rounded outline-none min-w-0 bg-(--color-bg-primary) text-(--color-text-primary)"
           value={editValue}
           onChange={(e) => onEditValueChange(e.target.value)}
           onBlur={onFinishEditing}
@@ -118,7 +118,7 @@ export function LayerItem({
             ⬇
           </button>
           <button
-            className="w-7 h-7 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center text-red-600 disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border)"
+            className="w-7 h-7 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center text-(--color-danger) disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border)"
             title="Delete"
             onClick={(e) => {
               e.stopPropagation();
@@ -176,7 +176,7 @@ export function LayerItem({
             ⬇⬇
           </button>
           <button
-            className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center text-red-600 ml-1 hover:bg-red-50 disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border)"
+            className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center text-(--color-danger) ml-1 hover:bg-(--color-danger)/5 disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border)"
             title="Delete"
             onClick={(e) => {
               e.stopPropagation();

@@ -51,7 +51,7 @@ export function GroupHeader({
       className={`group relative flex items-center gap-2 p-2 rounded cursor-grab transition-colors ${
         isDragging ? 'opacity-50' : ''
       } ${
-        isDropTarget ? 'border-t-2 border-blue-500' : ''
+        isDropTarget ? 'border-t-2 border-(--color-accent)' : ''
       } ${
         allSelected
           ? 'bg-(--color-selected)'
@@ -76,7 +76,7 @@ export function GroupHeader({
 
       {/* Collapse/expand toggle */}
       <button
-        className="w-5 h-5 flex items-center justify-center text-xs rounded hover:bg-black/10 text-(--color-text-secondary)"
+        className="w-5 h-5 flex items-center justify-center text-xs rounded hover:bg-(--color-hover) text-(--color-text-secondary)"
         onClick={(e) => {
           e.stopPropagation();
           onToggleGroupCollapsed(group.id);
@@ -94,7 +94,7 @@ export function GroupHeader({
       {/* Group name */}
       {editingGroupId === group.id ? (
         <input
-          className="flex-1 text-sm py-0.5 px-1 border border-blue-600 rounded outline-none min-w-0 font-medium bg-(--color-bg-primary) text-(--color-text-primary)"
+          className="flex-1 text-sm py-0.5 px-1 border border-(--color-accent) rounded outline-none min-w-0 font-medium bg-(--color-bg-primary) text-(--color-text-primary)"
           value={editValue}
           onChange={(e) => onEditValueChange(e.target.value)}
           onBlur={onFinishEditing}
@@ -143,7 +143,7 @@ export function GroupHeader({
             ⬇
           </button>
           <button
-            className="w-7 h-7 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center text-red-600 bg-(--color-bg-primary) border border-(--color-border)"
+            className="w-7 h-7 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center text-(--color-danger) bg-(--color-bg-primary) border border-(--color-border)"
             title="Delete group and shapes"
             onClick={(e) => {
               e.stopPropagation();
@@ -200,7 +200,7 @@ export function GroupHeader({
             ⬇⬇
           </button>
           <button
-            className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center text-red-600 ml-1 hover:bg-red-50 bg-(--color-bg-primary) border border-(--color-border)"
+            className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center text-(--color-danger) ml-1 hover:bg-(--color-danger)/5 bg-(--color-bg-primary) border border-(--color-border)"
             title="Delete group and shapes"
             onClick={(e) => {
               e.stopPropagation();

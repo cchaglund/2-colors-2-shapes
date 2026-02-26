@@ -97,7 +97,7 @@ export function SubmissionThumbnail({
     <div className="flex flex-col items-center gap-1">
       {svg}
       {showNickname && nickname && (
-        <span className="text-xs text-gray-600 truncate max-w-full">
+        <span className="text-xs text-(--color-text-secondary) truncate max-w-full">
           {nickname}
         </span>
       )}
@@ -108,7 +108,7 @@ export function SubmissionThumbnail({
     return (
       <a
         href={href}
-        className="cursor-pointer hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+        className="cursor-pointer hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 rounded"
       >
         {content}
       </a>
@@ -120,7 +120,7 @@ export function SubmissionThumbnail({
       <button
         type="button"
         onClick={onClick}
-        className="cursor-pointer hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+        className="cursor-pointer hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 rounded"
       >
         {content}
       </button>

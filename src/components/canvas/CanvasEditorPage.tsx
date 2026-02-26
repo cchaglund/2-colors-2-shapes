@@ -18,7 +18,7 @@ import { useCanvasState } from '../../hooks/canvas/useCanvasState';
 import { UndoRedoToast } from './UndoRedoToast';
 import { useViewportState } from '../../hooks/canvas/useViewportState';
 import { useSidebarState } from '../../hooks/ui/useSidebarState';
-import type { ThemeMode } from '../../hooks/ui/useThemeState';
+import type { ThemeMode, ThemeName } from '../../hooks/ui/useThemeState';
 import { useGridState } from '../../hooks/canvas/useGridState';
 import { useOffCanvasState } from '../../hooks/canvas/useOffCanvasState';
 import { useAuth } from '../../hooks/auth/useAuth';
@@ -43,9 +43,11 @@ interface CanvasEditorPageProps {
   todayDate: string;
   themeMode: ThemeMode;
   onSetThemeMode: (mode: ThemeMode) => void;
+  themeName: ThemeName;
+  onSetThemeName: (name: ThemeName) => void;
 }
 
-export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMode }: CanvasEditorPageProps) {
+export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMode, themeName, onSetThemeName }: CanvasEditorPageProps) {
   // Modal states
   const {
     showKeyboardSettings,
@@ -380,6 +382,8 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
               onStartResize={startResizeLeft}
               themeMode={themeMode}
               onSetThemeMode={onSetThemeMode}
+              themeName={themeName}
+              onSetThemeName={onSetThemeName}
               isLoggedIn={!!user}
               onSave={handleSave}
               isSaving={saving}

@@ -465,7 +465,7 @@ export function Canvas({
           y={0}
           width={CANVAS_SIZE}
           height={CANVAS_SIZE}
-          fill={backgroundColor || '#ffffff'}
+          fill={backgroundColor || 'var(--color-bg-elevated)'}
           onMouseDown={(e) => !isSpacePressed && startMarqueeAt(e.clientX, e.clientY)}
         />
 
@@ -545,8 +545,7 @@ export function Canvas({
             y={Math.min(marqueeState.startY, marqueeState.currentY)}
             width={Math.abs(marqueeState.currentX - marqueeState.startX)}
             height={Math.abs(marqueeState.currentY - marqueeState.startY)}
-            fill="rgba(59, 130, 246, 0.1)"
-            stroke="rgba(59, 130, 246, 0.6)"
+            style={{ fill: 'var(--sel-hover-fill)', stroke: 'var(--sel-border)' }}
             strokeWidth={1 / viewport.zoom}
             strokeDasharray={`${4 / viewport.zoom} ${2 / viewport.zoom}`}
             pointerEvents="none"

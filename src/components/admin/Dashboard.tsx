@@ -33,7 +33,7 @@ export function Dashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-(--color-bg-primary)">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-(--color-accent) mx-auto mb-4"></div>
           <p className="text-(--color-text-secondary)">Loading...</p>
         </div>
       </div>
@@ -53,7 +53,7 @@ export function Dashboard() {
           </p>
           <button
             onClick={signInWithGoogle}
-            className="px-6 py-3 bg-(--color-accent) text-white rounded-lg hover:bg-(--color-accent-hover) transition-colors font-medium"
+            className="px-6 py-3 bg-(--color-accent) text-(--color-accent-text) rounded-lg hover:bg-(--color-accent-hover) transition-colors font-medium"
           >
             Sign in with Google
           </button>
@@ -75,7 +75,7 @@ export function Dashboard() {
           </p>
           <a
             href="/"
-            className="px-6 py-3 bg-(--color-accent) text-white rounded-lg hover:bg-(--color-accent-hover) transition-colors font-medium inline-block"
+            className="px-6 py-3 bg-(--color-accent) text-(--color-accent-text) rounded-lg hover:bg-(--color-accent-hover) transition-colors font-medium inline-block"
           >
             Go to Home
           </a>
@@ -89,7 +89,7 @@ export function Dashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-(--color-bg-primary)">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-(--color-accent) mx-auto mb-4"></div>
           <p className="text-(--color-text-secondary)">Loading dashboard stats...</p>
         </div>
       </div>
@@ -101,13 +101,13 @@ export function Dashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-(--color-bg-primary)">
         <div className="text-center p-8 rounded-xl bg-(--color-bg-secondary)">
-          <h1 className="text-2xl font-bold mb-4 text-red-500">Error</h1>
+          <h1 className="text-2xl font-bold mb-4 text-(--color-danger)">Error</h1>
           <p className="mb-6 text-(--color-text-secondary)">
             {statsError}
           </p>
           <button
             onClick={fetchStats}
-            className="px-6 py-3 bg-(--color-accent) text-white rounded-lg hover:bg-(--color-accent-hover) transition-colors font-medium"
+            className="px-6 py-3 bg-(--color-accent) text-(--color-accent-text) rounded-lg hover:bg-(--color-accent-hover) transition-colors font-medium"
           >
             Retry
           </button>
@@ -213,7 +213,7 @@ export function Dashboard() {
         <div className="mt-8 text-center">
           <button
             onClick={fetchStats}
-            className="px-6 py-2 bg-(--color-accent) text-white rounded-lg hover:bg-(--color-accent-hover) transition-colors"
+            className="px-6 py-2 bg-(--color-accent) text-(--color-accent-text) rounded-lg hover:bg-(--color-accent-hover) transition-colors"
           >
             Refresh Stats
           </button>

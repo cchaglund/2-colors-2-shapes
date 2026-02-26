@@ -340,7 +340,7 @@ export function LayerPanel({
           <button
             className={`w-full px-2 py-2 text-[11px] rounded-md cursor-pointer transition-colors my-3 border ${
               isMultiSelectMode
-                ? 'bg-(--color-accent) text-white border-(--color-accent)'
+                ? 'bg-(--color-accent) text-(--color-accent-text) border-(--color-accent)'
                 : 'bg-transparent text-(--color-text-secondary) border-(--color-border)'
             }`}
             onClick={() => setIsMultiSelectMode(!isMultiSelectMode)}

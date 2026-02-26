@@ -241,7 +241,7 @@ export function WallCalendarPicker({
                   aspect-square rounded-md p-1 flex flex-col items-center justify-center gap-0.5
                   transition-colors text-xs
                   ${isFuture ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer hover:bg-(--color-bg-tertiary)'}
-                  ${isSelected ? 'bg-(--color-accent) text-white' : ''}
+                  ${isSelected ? 'bg-(--color-accent) text-(--color-accent-text)' : ''}
                   ${isToday && !isSelected ? 'ring-1 ring-(--color-accent)' : ''}
                   ${!isSelected && !isFuture ? 'text-(--color-text-primary)' : ''}
                 `}

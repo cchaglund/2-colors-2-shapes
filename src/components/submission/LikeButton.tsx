@@ -61,7 +61,7 @@ export function LikeButton({ submissionId, submissionUserId, initialLikeCount }:
             : 'cursor-pointer'
           }
           ${isLiked
-            ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20'
+            ? 'bg-(--color-danger)/10 text-(--color-danger) hover:bg-(--color-danger)/20'
             : 'bg-(--color-bg-tertiary) text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-hover)'
           }
           focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-1 focus:ring-offset-(--color-bg-primary)

@@ -233,7 +233,7 @@ export function FriendsFeedContent({
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-        <p className="text-[13px] text-red-500 mb-2">
+        <p className="text-[13px] text-(--color-danger) mb-2">
           Failed to load submissions
         </p>
         <p className="text-[12px] text-(--color-text-tertiary)">{error}</p>
@@ -398,7 +398,7 @@ export function FriendsFeedContent({
                 <div className="flex justify-center pt-4">
                   <button
                     onClick={loadMore}
-                    className="px-4 py-2 text-[13px] font-medium text-(--color-accent) border border-(--color-accent) rounded-md hover:bg-(--color-accent) hover:text-white transition-colors"
+                    className="px-4 py-2 text-[13px] font-medium text-(--color-accent) border border-(--color-accent) rounded-md hover:bg-(--color-accent) hover:text-(--color-accent-text) transition-colors"
                   >
                     Load more submissions
                   </button>

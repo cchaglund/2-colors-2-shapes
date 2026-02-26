@@ -17,8 +17,8 @@ import { useAppRoute, isStandaloneRoute } from './hooks/useAppRoute';
 import { useThemeState } from './hooks/ui/useThemeState';
 
 function App() {
-  // Apply theme globally so all pages respect dark mode
-  const { mode: themeMode, setMode: setThemeMode } = useThemeState();
+  // Apply theme globally so all pages respect the selected theme + dark mode
+  const { mode: themeMode, setMode: setThemeMode, theme: themeName, setTheme: setThemeName } = useThemeState();
 
   // Resolve current route from URL params
   const route = useAppRoute();
@@ -59,7 +59,7 @@ function App() {
   if (route.type === 'submission-by-date') return <FollowsProvider><SubmissionDetailPage date={route.date} /></FollowsProvider>;
 
   // Default: canvas editor
-  return <CanvasEditorPage challenge={challenge} todayDate={todayDate} themeMode={themeMode} onSetThemeMode={setThemeMode} />;
+  return <CanvasEditorPage challenge={challenge} todayDate={todayDate} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} />;
 }
 
 export default App;

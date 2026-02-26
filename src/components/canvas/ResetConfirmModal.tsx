@@ -34,7 +34,7 @@ export function ResetConfirmModal({ onConfirm, onCancel }: ResetConfirmModalProp
           Cancel
         </button>
         <button
-          className="px-5 py-2 rounded-md cursor-pointer text-[13px] font-medium transition-colors text-white bg-(--color-danger) border border-(--color-danger) hover:bg-(--color-danger-hover)"
+          className="px-5 py-2 rounded-md cursor-pointer text-[13px] font-medium transition-colors text-(--color-accent-text) bg-(--color-danger) border border-(--color-danger) hover:bg-(--color-danger-hover)"
           onClick={onConfirm}
         >
           Reset

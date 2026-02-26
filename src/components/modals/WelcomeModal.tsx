@@ -27,7 +27,7 @@ export function WelcomeModal({ onDismiss, challenge }: WelcomeModalProps) {
                 style={{ backgroundColor: color }}
               />
             ))}
-            <div className="w-px h-5 bg-gray-200 mx-1" />
+            <div className="w-px h-5 bg-(--color-border) mx-1" />
             <span className="text-(--color-text-tertiary)">
               <ShapeIcon type={challenge.shapes[0].type} size={22} />
             </span>
@@ -44,7 +44,7 @@ export function WelcomeModal({ onDismiss, challenge }: WelcomeModalProps) {
         </p>
       </div>
 
-      <div className='border border-gray-200 my-10 w-[70%] mx-auto'></div>
+      <div className='border border-(--color-border) my-10 w-[70%] mx-auto'></div>
 
       <div className="flex items-center gap-6 mb-6">
         <p className="text-[25px]">
@@ -88,7 +88,7 @@ export function WelcomeModal({ onDismiss, challenge }: WelcomeModalProps) {
 
       <button
         onClick={onDismiss}
-        className="w-full mt-6 px-4 py-2 text-white rounded-md text-[13px] font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 bg-(--color-accent) hover:bg-(--color-accent-hover) cursor-pointer"
+        className="w-full mt-6 px-4 py-2 text-(--color-accent-text) rounded-md text-[13px] font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 bg-(--color-accent) hover:bg-(--color-accent-hover) cursor-pointer"
       >
         Start creating
       </button>

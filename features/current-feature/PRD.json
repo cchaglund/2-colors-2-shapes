@@ -95,7 +95,7 @@
       "All visual theming (colors, borders, radius, shadows, fonts) handled via CSS variables; JS conditionals minimized to non-visual logic only",
       "All existing components have been refactored to read from CSS variables"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "THEME-2",

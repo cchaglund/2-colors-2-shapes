@@ -90,7 +90,7 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
         <button
           type="submit"
           disabled={submitting || !nickname}
-          className="w-full px-4 py-2 bg-(--color-accent) text-white rounded-md text-[13px] font-medium hover:bg-(--color-accent-hover) disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+          className="w-full px-4 py-2 bg-(--color-accent) text-(--color-accent-text) rounded-md text-[13px] font-medium hover:bg-(--color-accent-hover) disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
         >
           {submitting ? 'Saving...' : 'Continue'}
         </button>

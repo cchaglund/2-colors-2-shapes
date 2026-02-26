@@ -110,7 +110,7 @@ export function CongratulatoryModal({
 
       <button
         onClick={handleDismiss}
-        className="w-full px-4 py-2 bg-(--color-accent) text-white text-[13px] rounded-md font-medium hover:bg-(--color-accent-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2"
+        className="w-full px-4 py-2 bg-(--color-accent) text-(--color-accent-text) text-[13px] rounded-md font-medium hover:bg-(--color-accent-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2"
       >
         Yay!
       </button>
