@@ -407,3 +407,22 @@ Deleted orphaned ActionToolbar.tsx and removed dead `handleRotateShapes` code.
 ### Blockers / notes
 - Tests/lint can't run in VM (binary compat issues, pre-existing)
 - No orphaned toolbar UI remains from old design
+
+## ZOOM-1: Zoom Controls Relocation and Range — DONE
+
+Zoom controls already at bottom-right (LAYOUT-4). Extended range + added 1:1 reset button.
+
+### Key decisions
+- MIN_ZOOM 0.1→0.25, MAX_ZOOM 5→4 per PRD (0.25x–4x range)
+- Added "1:1" reset button separated by vertical divider, disabled at 100% (same as % display)
+- Outer container uses `rounded-(--radius-pill)` for theme-responsive pill shape (was hardcoded rounded-lg)
+- Kept existing button order (−, %, +) and appended 1:1 — more intuitive than PRD's listed order
+
+### Files changed
+- `src/hooks/canvas/useViewportState.ts` — MIN_ZOOM 0.1→0.25, MAX_ZOOM 5→4
+- `src/components/canvas/ZoomControls.tsx` — added 1:1 button + divider, pill border radius
+- `features/current-feature/PRD.json` — marked passes: true
+
+### Blockers / notes
+- Typecheck passes clean; lint/tests fail (pre-existing VM binary compat)
+- handleZoomIn/Out in CanvasEditorPage uses ±0.1 step — works fine within new 0.25–4 range

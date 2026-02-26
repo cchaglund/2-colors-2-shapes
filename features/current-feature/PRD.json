@@ -228,7 +228,7 @@
       "Zoom range extends from 0.25x (25%) to 4x (400%)",
       "Buttons disable at min/max zoom"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "USER-1",

@@ -21,7 +21,7 @@ export function ZoomControls({
   const isDefaultZoom = Math.abs(zoom - 1) < 0.001;
 
   return (
-    <div className="flex items-center gap-1 backdrop-blur-sm rounded-lg shadow-md px-2 py-1 bg-(--color-overlay) border border-(--color-border)">
+    <div className="flex items-center gap-1 backdrop-blur-sm rounded-(--radius-pill) shadow-md px-2 py-1 bg-(--color-overlay) border border-(--color-border)">
       <button
         className="w-7 h-7 flex items-center justify-center rounded disabled:opacity-40 disabled:cursor-not-allowed font-medium text-(--color-text-primary) hover:enabled:bg-(--color-hover) transition-colors"
         onClick={onZoomOut}
@@ -51,6 +51,21 @@ export function ZoomControls({
         title="Zoom in"
       >
         +
+      </button>
+
+      <div className="w-px h-4 bg-(--color-border)" />
+
+      <button
+        className={`h-7 px-2 flex items-center justify-center rounded text-xs font-medium transition-colors ${
+          isDefaultZoom
+            ? 'cursor-default text-(--color-text-tertiary) opacity-40'
+            : 'cursor-pointer text-(--color-text-primary) hover:bg-(--color-hover)'
+        }`}
+        onClick={onResetZoom}
+        disabled={isDefaultZoom}
+        title="Reset zoom to 100%"
+      >
+        1:1
       </button>
     </div>
   );
