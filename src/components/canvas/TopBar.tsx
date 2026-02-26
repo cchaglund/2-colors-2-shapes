@@ -2,6 +2,7 @@ import logoSvg from '../../assets/logo.svg';
 import type { ThemeMode, ThemeName } from '../../hooks/ui/useThemeState';
 import type { Profile } from '../../hooks/auth/useProfile';
 import { useAuth } from '../../hooks/auth/useAuth';
+import { UserMenuDropdown } from './UserMenuDropdown';
 
 // --- Theme Pill (dark mode toggle + divider + A/B/C/D) ---
 
@@ -187,7 +188,7 @@ function DefaultRightContent({
   profile?: Profile | null;
   profileLoading?: boolean;
 }) {
-  const { user, loading: authLoading, signInWithGoogle } = useAuth();
+  const { user, loading: authLoading, signInWithGoogle, signOut } = useAuth();
 
   const saveLabel = isSaving
     ? 'Saving...'
@@ -245,12 +246,7 @@ function DefaultRightContent({
       {authLoading || profileLoading ? (
         <div className="h-8 px-3 flex items-center text-xs text-(--color-text-tertiary)">...</div>
       ) : user && profile ? (
-        <button className="h-8 px-3 rounded-(--radius-pill) border border-(--color-border) text-xs font-medium transition-colors bg-transparent text-(--color-text-secondary) hover:bg-(--color-hover) flex items-center gap-2">
-          {profile.avatar_url && (
-            <img src={profile.avatar_url} alt="" className="w-5 h-5 rounded-full" />
-          )}
-          <span className="max-w-20 truncate">{profile.onboarding_complete ? profile.nickname : 'New user'}</span>
-        </button>
+        <UserMenuDropdown profile={profile} onSignOut={signOut} />
       ) : (
         <button
           className="h-8 px-3 rounded-(--radius-pill) border border-(--color-border) text-xs font-medium transition-colors bg-transparent text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary)"

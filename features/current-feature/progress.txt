@@ -447,3 +447,27 @@ Spring scale animation (0→1) for newly placed shapes using motion/react.
 ### Blockers / notes
 - Typecheck passes clean; lint/tests fail (pre-existing VM binary compat)
 - Duplicate shapes (via D key) also animate if ≤3 shapes added — acceptable side effect
+
+## USER-1: User Menu Dropdown — DONE
+
+User menu dropdown in TopBar: avatar+name+chevron trigger, spring-animated dropdown with follows data, add-by-nickname, logout.
+
+### Key decisions
+- `UserMenuDropdown` component created as self-contained dropdown with own FollowsProvider (lazy — only fetches follows when dropdown opens)
+- Avatar circle shows user initial letter when no avatar_url, accent-colored background
+- Dropdown content: header (large avatar + name + N following · N followers), Following/Followers tabs with accent underline, scrollable friends list, "Add by nickname" input + accent Add button, Log out button
+- "Add by nickname" searches Supabase profiles by ilike match, then calls follow() from useFollows
+- Click-outside + Escape close handlers, chevron rotates on open
+- Spring animation (stiffness 400, damping 25) for dropdown entrance, 0.15s fade exit
+- When logged out: "Log in" pill button (unchanged from existing behavior)
+- Dropdown z-50 within TopBar's z-30 stacking context — renders above canvas panels (z-20)
+
+### Files changed
+- `src/components/canvas/UserMenuDropdown.tsx` — NEW: dropdown component with AvatarCircle, trigger, FollowsProvider-wrapped content
+- `src/components/canvas/TopBar.tsx` — import UserMenuDropdown, replace static user button with dropdown, added signOut to useAuth destructure
+- `features/current-feature/PRD.json` — marked passes: true
+
+### Blockers / notes
+- Typecheck passes clean; lint/tests fail (pre-existing VM binary compat)
+- FriendRow not reused — dropdown uses simpler inline rows (avatar initial circle + nickname) to avoid FollowButton complexity in narrow dropdown
+- Friend list rows navigate to user profile on click (same pattern as FriendsModal)

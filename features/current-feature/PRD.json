@@ -245,7 +245,7 @@
       "When logged out: 'Log in' pill button shown instead of avatar/name",
       "Clicking outside the dropdown closes it"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "GALLERY-1",
