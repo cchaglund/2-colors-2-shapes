@@ -152,7 +152,7 @@
       "Borders are heavier than other themes (3-4px)",
       "Overall aesthetic is raw, brutalist, high-contrast"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "THEME-6",

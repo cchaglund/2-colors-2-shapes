@@ -119,3 +119,24 @@ All CSS vars + font loading + pattern already complete from prior work. No code 
 ### Blockers / notes
 - No code changes needed — THEME-1 infrastructure + THEME-2/3 generic fixes covered all Theme C requirements
 - Could not visually verify in browser (Playwright network isolation from Vite dev server)
+
+## THEME-5: Theme D (Brutalist) — DONE
+
+All CSS vars + font loading already complete from THEME-1 infrastructure. No code gaps found.
+
+### Verification
+- CSS vars: neon yellow #CCFF00 accent, black/white stark bgs, heavy borders — light+dark ✓
+- Space Mono font: configured in THEME_FONT_URLS (400/700), lazy-loaded on switch ✓
+- Radii: all 0px (zero rounding) ✓
+- Shadows: thick offsets (6px card, 4px btn, 10px modal) with solid black (light) or neon glow (dark) ✓
+- Borders: 3px standard, 4px heavy ✓
+- Pattern: none (--pattern-image: none, --pattern-opacity: 0) ✓
+- Selection: neon yellow borders, black fill, neon stroke, square handles (--sel-handle-size: 10px) ✓
+- Typecheck: passes clean
+
+### Files changed
+- `features/current-feature/PRD.json` — marked passes: true
+
+### Blockers / notes
+- No code changes needed — THEME-1 infrastructure covered all Theme D requirements
+- Same VM limitations (no lint/tests)
