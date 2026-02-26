@@ -223,3 +223,28 @@ Stamp mode: click canvas to place shapes, drag to size, ghost cursor follows mou
 ### Blockers / notes
 - Spring animation for newly placed shapes (ANIM-1) not implemented here — separate PRD item
 - Typecheck passes clean; lint/tests can't run in VM
+
+## LAYOUT-2: Left Tools Panel — DONE
+
+Replaced wide 300px left sidebar (Toolbar) with slim 52px vertical icon-only tools panel (ToolsPanel).
+
+### Key decisions
+- 52px fixed width, no resize handle (icon-only panel doesn't need resizing)
+- All icons inline SVG, 18x18, matching ActionToolbar style
+- ToolButton with hover tooltip appearing to the right (since panel is on left edge)
+- Bring forward/send backward: iterate selected shapes sorted by z-index to avoid collision
+- Rotation buttons removed per PRD (keyboard + handles only)
+- Active state for grid/off-canvas toggles via `active` prop on ToolButton
+- Wrench icon for collapsed toggle button (40x40, top-left)
+- Old Toolbar component not deleted — REMOVE-1 handles final cleanup
+- ActionToolbar not deleted — REMOVE-2 handles that (but it's now redundant)
+
+### Files changed
+- `src/components/canvas/ToolsPanel.tsx` — NEW: slim vertical icon-only tools panel
+- `src/components/canvas/CanvasEditorPage.tsx` — replaced Toolbar with ToolsPanel in left sidebar, added handleBringForward/handleSendBackward, removed leftWidth/startResizeLeft usage, removed ActionToolbar
+- `features/current-feature/PRD.json` — marked passes: true
+
+### Blockers / notes
+- VM can't run lint/tests/build (binary compat); typecheck passes clean
+- `handleRotateShapes` now unused in CanvasEditorPage (was only passed to ActionToolbar) — REMOVE-2 cleanup
+- `openKeyboardSettings` no longer triggered from UI (old Toolbar "Customize" removed) — INFO-1 will add new trigger

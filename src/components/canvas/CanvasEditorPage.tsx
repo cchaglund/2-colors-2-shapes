@@ -1,10 +1,9 @@
 import { useCallback, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Canvas } from './Canvas';
-import { Toolbar } from './Toolbar';
 import { LayerPanel } from '../LayerPanel';
 import { ZoomControls } from './ZoomControls';
-import { ActionToolbar } from './ActionToolbar';
+import { ToolsPanel } from './ToolsPanel';
 import { BottomToolbar, type EditorTool } from './BottomToolbar';
 import { TopBar, InspirationCenter } from './TopBar';
 import { OnboardingModal } from '../modals/OnboardingModal';
@@ -159,11 +158,9 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
   const {
     leftOpen,
     rightOpen,
-    leftWidth,
     rightWidth,
     toggleLeft,
     toggleRight,
-    startResizeLeft,
     startResizeRight,
   } = useSidebarState();
 
@@ -191,6 +188,23 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
     mirrorHorizontal,
     mirrorVertical,
   });
+
+  // Bring forward / send backward (z-ordering from tools panel)
+  const handleBringForward = useCallback(() => {
+    const sorted = [...canvasState.selectedShapeIds]
+      .map(id => canvasState.shapes.find(s => s.id === id))
+      .filter(Boolean)
+      .sort((a, b) => b!.zIndex - a!.zIndex);
+    sorted.forEach(shape => moveLayer(shape!.id, 'up'));
+  }, [canvasState.selectedShapeIds, canvasState.shapes, moveLayer]);
+
+  const handleSendBackward = useCallback(() => {
+    const sorted = [...canvasState.selectedShapeIds]
+      .map(id => canvasState.shapes.find(s => s.id === id))
+      .filter(Boolean)
+      .sort((a, b) => a!.zIndex - b!.zIndex);
+    sorted.forEach(shape => moveLayer(shape!.id, 'down'));
+  }, [canvasState.selectedShapeIds, canvasState.shapes, moveLayer]);
 
   // Save submission
   const { saveStatus, handleSave } = useSaveSubmission({
@@ -333,29 +347,58 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
           </div>
         </main>
 
-        {/* Action toolbar at top */}
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
-          <ActionToolbar
-            keyMappings={keyMappings}
-            hasSelection={canvasState.selectedShapeIds.size > 0}
-            canUndo={canUndo}
-            canRedo={canRedo}
-            onUndo={undo}
-            onRedo={redo}
-            onDuplicate={handleDuplicate}
-            onDelete={deleteSelectedShapes}
-            onMoveUp={() => handleMoveShapes(0, -1)}
-            onMoveDown={() => handleMoveShapes(0, 1)}
-            onMoveLeft={() => handleMoveShapes(-1, 0)}
-            onMoveRight={() => handleMoveShapes(1, 0)}
-            onRotateClockwise={() => handleRotateShapes(1)}
-            onRotateCounterClockwise={() => handleRotateShapes(-1)}
-            onSizeIncrease={() => handleResizeShapes(5)}
-            onSizeDecrease={() => handleResizeShapes(-5)}
-            onMirrorHorizontal={handleMirrorHorizontal}
-            onMirrorVertical={handleMirrorVertical}
-          />
-        </div>
+        {/* Left tools panel collapsed toggle */}
+        {!leftOpen && (
+          <button
+            className="absolute left-3 top-3 z-20 w-10 h-10 flex items-center justify-center cursor-pointer transition-colors rounded-(--radius-sm) bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) shadow-sm"
+            onClick={toggleLeft}
+            title="Show Tools"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+            </svg>
+          </button>
+        )}
+
+        {/* Left tools panel */}
+        <AnimatePresence>
+          {leftOpen && (
+            <motion.div
+              key="left-tools"
+              initial={{ x: '-100%' }}
+              animate={{ x: 0, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
+              exit={{ x: [0, '3%', '-100%'], transition: { duration: 0.4, times: [0, 0.15, 1], ease: ['easeOut', [0.55, 0, 1, 0.2]] } }}
+              className="absolute top-0 left-0 h-full z-20 shadow-lg"
+              style={{ width: 52 }}
+            >
+              <ToolsPanel
+                keyMappings={keyMappings}
+                hasSelection={canvasState.selectedShapeIds.size > 0}
+                canUndo={canUndo}
+                canRedo={canRedo}
+                showGrid={showGrid}
+                showOffCanvas={showOffCanvas}
+                onClose={toggleLeft}
+                onUndo={undo}
+                onRedo={redo}
+                onDuplicate={handleDuplicate}
+                onDelete={deleteSelectedShapes}
+                onMoveUp={() => handleMoveShapes(0, -1)}
+                onMoveDown={() => handleMoveShapes(0, 1)}
+                onMoveLeft={() => handleMoveShapes(-1, 0)}
+                onMoveRight={() => handleMoveShapes(1, 0)}
+                onSizeIncrease={() => handleResizeShapes(5)}
+                onSizeDecrease={() => handleResizeShapes(-5)}
+                onMirrorHorizontal={handleMirrorHorizontal}
+                onMirrorVertical={handleMirrorVertical}
+                onBringForward={handleBringForward}
+                onSendBackward={handleSendBackward}
+                onToggleGrid={toggleGrid}
+                onToggleOffCanvas={toggleOffCanvas}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Stamp mode hint text */}
         {editorTool.startsWith('stamp-') && (
@@ -391,55 +434,6 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
           />
         </div>
 
-        {/* Left sidebar collapsed toggle */}
-        {!leftOpen && (
-          <button
-            className="absolute left-0 top-4 z-20 px-1.5 py-3 cursor-pointer transition-colors border-r border-y border-(--color-border) rounded-r-md bg-(--color-bg-primary) hover:bg-(--color-hover)"
-            onClick={toggleLeft}
-            title="Show Toolbar"
-          >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <polyline points="4 2 8 6 4 10" />
-            </svg>
-          </button>
-        )}
-
-        {/* Left sidebar overlay */}
-        <AnimatePresence>
-          {leftOpen && (
-            <motion.div
-              key="left-sidebar"
-              initial={{ x: '-100%' }}
-              animate={{ x: 0, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
-              exit={{ x: [0, '3%', '-100%'], transition: { duration: 0.4, times: [0, 0.15, 1], ease: ['easeOut', [0.55, 0, 1, 0.2]] } }}
-              className="absolute top-0 left-0 h-full z-20 shadow-lg"
-              style={{ width: leftWidth }}
-            >
-              <Toolbar
-                challenge={challenge}
-                backgroundColorIndex={canvasState.backgroundColorIndex}
-                selectedShapeIds={canvasState.selectedShapeIds}
-                onAddShape={addShape}
-                onSetBackground={setBackgroundColor}
-                onChangeShapeColor={(colorIndex) => {
-                  const updates = new Map<string, { colorIndex: number }>();
-                  canvasState.selectedShapeIds.forEach((id) => {
-                    updates.set(id, { colorIndex });
-                  });
-                  updateShapes(updates, true, 'Change color');
-                }}
-                onToggle={toggleLeft}
-                onStartResize={startResizeLeft}
-                keyMappings={keyMappings}
-                onOpenKeyboardSettings={openKeyboardSettings}
-                showGrid={showGrid}
-                onToggleGrid={toggleGrid}
-                showOffCanvas={showOffCanvas}
-                onToggleOffCanvas={toggleOffCanvas}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Right sidebar collapsed toggle */}
         {!rightOpen && (

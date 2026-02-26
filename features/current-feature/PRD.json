@@ -28,7 +28,7 @@
       "Grid and off-canvas toggles show active/inactive state",
       "Mirror H/V, move, and size buttons require a shape to be selected"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "LAYOUT-3",
