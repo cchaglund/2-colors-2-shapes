@@ -214,7 +214,7 @@
       "Clicking outside the popover closes it",
       "Popover animates in (scale/fade)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "ZOOM-1",
@@ -259,7 +259,7 @@
       "Theme changes apply consistently across the gallery page",
       "Gallery page uses the same theme as the canvas editor (shared state)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "GALLERY-2",

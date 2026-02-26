@@ -355,3 +355,33 @@ Deleted orphaned Toolbar.tsx (old 300px left sidebar). All functions already mig
 ### Blockers / notes
 - ActionToolbar.tsx also orphaned — REMOVE-2 will handle that
 - INFO-1 ('?' popover for keyboard shortcuts) still pending — last REMOVE-1 verification step depends on it
+
+## GALLERY-1: Gallery Top Bar and Tab Structure — DONE (already complete from prior work)
+
+All GALLERY-1 requirements already implemented: TopBar with logo+theme toggles left, 'Gallery' center, '< Back to canvas' right. CalendarViewToggle pill-style tab bar with 4 tabs (My Submissions, Winners, Wall, Friends), active tab highlighted with `bg-(--color-selected)`. Theme applied via CSS vars throughout.
+
+### Files changed
+- `features/current-feature/PRD.json` — marked passes: true
+
+## INFO-1: Keyboard Shortcuts Popover — DONE
+
+30x30 '?' button in bottom-left corner of canvas editor. Opens animated popover listing all keyboard shortcuts.
+
+### Key decisions
+- Shortcuts read from `keyMappings` (user's actual bindings, not hardcoded) via `formatKeyBinding()`
+- Movement keys (↑↓←→) condensed into single row; rotation (,/.) condensed into single row
+- Static entries added for non-remappable shortcuts: Esc (exit stamp), Shift+Click (multi-select), Space+Drag (pan), Ctrl/⌘+Scroll (zoom)
+- Esc appended to selectMode binding display ("V / Esc") since Esc is hardcoded in useStampMode
+- Mac detection for Ctrl vs ⌘ label on zoom shortcut
+- "Customize shortcuts" footer button closes popover and opens KeyboardSettingsModal via `openKeyboardSettings`
+- AnimatePresence scale+fade animation (0.15s), popover anchored bottom-left above trigger
+- Click-outside and Escape-key close handlers
+
+### Files changed
+- `src/components/canvas/KeyboardShortcutsPopover.tsx` — NEW: popover component with '?' trigger
+- `src/components/canvas/CanvasEditorPage.tsx` — import + render KeyboardShortcutsPopover in bottom-left of canvas area
+- `features/current-feature/PRD.json` — marked passes: true
+
+### Blockers / notes
+- Typecheck passes clean; dev server starts without compilation errors
+- Could not visually verify in browser (Supabase network isolation prevents app rendering)

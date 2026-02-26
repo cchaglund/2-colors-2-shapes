@@ -6,6 +6,7 @@ import { ZoomControls } from './ZoomControls';
 import { ToolsPanel } from './ToolsPanel';
 import { BottomToolbar, type EditorTool } from './BottomToolbar';
 import { TopBar, InspirationCenter } from './TopBar';
+import { KeyboardShortcutsPopover } from './KeyboardShortcutsPopover';
 import { OnboardingModal } from '../modals/OnboardingModal';
 import { WelcomeModal } from '../modals/WelcomeModal';
 import { FollowsProvider } from '../../contexts/FollowsContext';
@@ -432,6 +433,13 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
           />
         </div>
 
+        {/* Keyboard shortcuts popover — bottom left */}
+        <div className="absolute bottom-4 left-4 z-10">
+          <KeyboardShortcutsPopover
+            keyMappings={keyMappings}
+            onOpenSettings={openKeyboardSettings}
+          />
+        </div>
 
         {/* Right layers panel collapsed toggle */}
         {!rightOpen && (
