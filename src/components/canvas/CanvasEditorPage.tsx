@@ -158,10 +158,8 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
   const {
     leftOpen,
     rightOpen,
-    rightWidth,
     toggleLeft,
     toggleRight,
-    startResizeRight,
   } = useSidebarState();
 
   // Theme state (received from App)
@@ -435,16 +433,21 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
         </div>
 
 
-        {/* Right sidebar collapsed toggle */}
+        {/* Right layers panel collapsed toggle */}
         {!rightOpen && (
           <button
-            className="absolute right-0 top-4 z-20 px-1.5 py-3 cursor-pointer transition-colors border-l border-y border-(--color-border) rounded-l-md bg-(--color-bg-primary) hover:bg-(--color-hover)"
+            className="absolute right-3 top-3 z-20 flex items-center gap-1.5 px-2 py-1.5 cursor-pointer transition-colors border border-(--color-border) rounded-(--radius-sm) bg-(--color-bg-primary) hover:bg-(--color-hover) shadow-sm"
             onClick={toggleRight}
             title="Show Layers"
           >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <polyline points="8 2 4 6 8 10" />
+            <svg className="text-(--color-text-secondary)" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="12 2 2 7 12 12 22 7 12 2" />
+              <polyline points="2 17 12 22 22 17" />
+              <polyline points="2 12 12 17 22 12" />
             </svg>
+            <span className="text-[11px] font-medium text-(--color-text-secondary) leading-none">
+              {canvasState.shapes.length}
+            </span>
           </button>
         )}
 
@@ -457,7 +460,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
               animate={{ x: 0, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
               exit={{ x: [0, '-3%', '100%'], transition: { duration: 0.4, times: [0, 0.15, 1], ease: ['easeOut', [0.55, 0, 1, 0.2]] } }}
               className="absolute top-0 right-0 h-full z-20 shadow-lg"
-              style={{ width: rightWidth }}
+              style={{ width: 240 }}
             >
               <LayerPanel
                 shapes={canvasState.shapes}
@@ -480,7 +483,6 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
                 onToggleGroupVisibility={toggleGroupVisibility}
                 onSelectGroup={selectGroup}
                 onToggle={toggleRight}
-                onStartResize={startResizeRight}
                 onHoverShape={setHoveredShapeIds}
               />
             </motion.div>

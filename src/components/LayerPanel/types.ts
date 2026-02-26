@@ -22,7 +22,6 @@ export interface LayerPanelProps {
   onToggleGroupVisibility: (groupId: string) => void;
   onSelectGroup: (groupId: string, options?: { toggle?: boolean }) => void;
   onToggle: () => void;
-  onStartResize: (e: React.MouseEvent) => void;
   onHoverShape: (ids: Set<string> | null) => void;
 }
 
@@ -97,4 +96,5 @@ export interface GroupHeaderProps {
   onGroupDragOver: (e: React.DragEvent, topLevelIndex: number) => void;
   onGroupDrop: (e: React.DragEvent, targetTopLevelIndex: number) => void;
   onHoverShape: (ids: Set<string> | null) => void;
+  onUngroupShapes: (shapeIds: string[]) => void;
 }

@@ -32,6 +32,7 @@ export function GroupHeader({
   onGroupDragOver,
   onGroupDrop,
   onHoverShape,
+  onUngroupShapes,
 }: GroupHeaderProps) {
   // Check if all shapes in group are selected
   const allSelected = shapesInGroup.every((s) => selectedShapeIds.has(s.id));
@@ -116,6 +117,22 @@ export function GroupHeader({
           </span>
         </span>
       )}
+
+      {/* Ungroup icon button */}
+      <button
+        className="w-5 h-5 flex items-center justify-center shrink-0 bg-transparent border-none cursor-pointer rounded text-(--color-text-tertiary) hover:text-(--color-text-primary) hover:bg-(--color-hover) transition-colors"
+        onClick={(e) => {
+          e.stopPropagation();
+          onUngroupShapes(shapesInGroup.map(s => s.id));
+        }}
+        title="Ungroup"
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="2" width="8" height="8" rx="1" />
+          <rect x="14" y="14" width="8" height="8" rx="1" />
+          <path d="M14 7h3M7 14v3" />
+        </svg>
+      </button>
 
       {/* Group actions - always visible on touch, hover-only on desktop */}
       {isTouchDevice ? (

@@ -46,7 +46,7 @@
       "When closed, a toggle button in top-right shows the layer count (e.g. '3')",
       "Panel does not push canvas layout — it overlays"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "LAYOUT-4",

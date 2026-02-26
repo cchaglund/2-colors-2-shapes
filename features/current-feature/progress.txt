@@ -248,3 +248,28 @@ Replaced wide 300px left sidebar (Toolbar) with slim 52px vertical icon-only too
 - VM can't run lint/tests/build (binary compat); typecheck passes clean
 - `handleRotateShapes` now unused in CanvasEditorPage (was only passed to ActionToolbar) — REMOVE-2 cleanup
 - `openKeyboardSettings` no longer triggered from UI (old Toolbar "Customize" removed) — INFO-1 will add new trigger
+
+## LAYOUT-3: Right Layers Panel — DONE
+
+Replaced 300px resizable right sidebar with compact 240px fixed-width floating layers panel.
+
+### Key decisions
+- Fixed 240px width, no resize handle (compact panel doesn't need resizing)
+- Header redesigned: layers stack icon + "Layers" text + count badge + group icon button (4-square grid) + X close button
+- Group/Ungroup text buttons removed from body; group = icon button in header, ungroup = icon button per group header row
+- Ungroup icon on each GroupHeader directly — more discoverable than header-level button requiring shape selection
+- Close button changed from chevron to X icon (clearer intent)
+- Collapsed toggle: layers icon + shape count badge in top-right corner (was plain chevron arrow)
+- `onStartResize` removed from LayerPanelProps (no longer resizable)
+
+### Files changed
+- `src/components/LayerPanel/types.ts` — removed `onStartResize`, added `onUngroupShapes` to GroupHeaderProps
+- `src/components/LayerPanel/LayerPanel.tsx` — removed resize handle, redesigned header, removed Group/Ungroup text buttons, removed dead code
+- `src/components/LayerPanel/GroupHeader.tsx` — added ungroup icon button per group row
+- `src/components/canvas/CanvasEditorPage.tsx` — fixed width 240px, updated collapsed toggle with layers icon + count, removed rightWidth/startResizeRight usage
+- `features/current-feature/PRD.json` — marked passes: true
+
+### Blockers / notes
+- Layer row action buttons kept as hover-reveal on desktop, always-visible on touch — 240px too narrow for all 5 inline
+- Typecheck + dev server start clean
+- `useSidebarState` still exports rightWidth/startResizeRight — harmless, REMOVE-1 can clean later
