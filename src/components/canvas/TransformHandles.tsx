@@ -202,14 +202,14 @@ export function TransformVisualLayer({ shape, zoom = 1 }: { shape: Shape; zoom?:
       {element === 'polygon' && <polygon {...outlineProps} />}
       {element === 'path' && <path {...outlineProps} />}
 
-      {/* Bounding box (blue solid) */}
+      {/* Bounding box — solid or dashed per theme (--sel-dash) */}
       <rect
         x={0}
         y={0}
         width={viewBox.width}
         height={viewBox.height}
         fill="none"
-        style={{ stroke: 'var(--sel-border)' }}
+        style={{ stroke: 'var(--sel-border)', strokeDasharray: 'var(--sel-dash)' }}
         strokeWidth={strokeWidth}
       />
 
@@ -297,14 +297,14 @@ export function MultiSelectTransformLayer({
         {element === 'polygon' && <polygon {...outlineProps} />}
         {element === 'path' && <path {...outlineProps} />}
 
-        {/* Bounding box (blue solid) */}
+        {/* Bounding box — solid or dashed per theme (--sel-dash) */}
         <rect
           x={0}
           y={0}
           width={viewBox.width}
           height={viewBox.height}
           fill="none"
-          style={{ stroke: 'var(--sel-border)' }}
+          style={{ stroke: 'var(--sel-border)', strokeDasharray: 'var(--sel-dash)' }}
           strokeWidth={strokeWidth}
         />
 
@@ -381,14 +381,14 @@ export function MultiSelectTransformLayer({
           );
         })}
 
-      {/* Combined bounding box (blue solid - same as single selection) */}
+      {/* Combined bounding box — solid or dashed per theme (--sel-dash) */}
       <rect
         x={bounds.x}
         y={bounds.y}
         width={bounds.width}
         height={bounds.height}
         fill="none"
-        style={{ stroke: 'var(--sel-border)' }}
+        style={{ stroke: 'var(--sel-border)', strokeDasharray: 'var(--sel-dash)' }}
         strokeWidth={strokeWidth}
       />
 

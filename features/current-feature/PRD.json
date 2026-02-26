@@ -124,7 +124,7 @@
       "Selection overlay uses dashed border pattern instead of solid",
       "Overall aesthetic is clean, minimal, professional"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "THEME-4",

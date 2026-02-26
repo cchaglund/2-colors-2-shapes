@@ -80,3 +80,20 @@ Theme A CSS vars already defined in THEME-1. This task addressed three gaps:
 - VM filesystem corrupts large npm files during install; tests/lint still can't run
 - TypeScript typecheck passes clean (TS 5.8.3 manually extracted from tarball)
 - Dev server crashes on first CSS request (lightningcss/oxide binary compat issues)
+
+## THEME-3: Theme B (Minimal Swiss) — DONE
+
+CSS vars for Theme B already defined in THEME-1 (colors, fonts, radii, shadows). Only gap: `--sel-dash: 4 4` existed but wasn't consumed by TransformHandles.tsx — bounding box always rendered solid.
+
+### Key decisions
+- Applied `strokeDasharray: 'var(--sel-dash)'` via style prop on SVG bounding box rects
+- `stroke-dasharray: 0` (themes A/C/D) = solid per SVG spec (sum of dashes = 0 → treated as none)
+- `stroke-dasharray: 4 4` (theme B) = dashed
+- Dashes don't zoom-scale (fixed canvas coords); acceptable for now, THEME-7 can refine
+
+### Files changed
+- `src/components/canvas/TransformHandles.tsx` — added `strokeDasharray: 'var(--sel-dash)'` to 3 bounding box rects (TransformVisualLayer, MultiSelectTransformLayer single + multi)
+- `features/current-feature/PRD.json` — marked passes: true
+
+### Blockers / notes
+- Same VM limitations as before (no lint/tests, typecheck passes clean)
