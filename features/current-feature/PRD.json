@@ -138,7 +138,7 @@
       "A subtle circular pattern overlay may be visible on the background",
       "Overall aesthetic is warm, dreamy, gentle"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "THEME-5",

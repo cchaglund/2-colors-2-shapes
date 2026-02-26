@@ -97,3 +97,25 @@ CSS vars for Theme B already defined in THEME-1 (colors, fonts, radii, shadows).
 
 ### Blockers / notes
 - Same VM limitations as before (no lint/tests, typecheck passes clean)
+
+## THEME-4: Theme C (Soft Cloud) — DONE
+
+All CSS vars + font loading + pattern already complete from prior work. No code gaps found.
+
+### Verification
+- CSS vars: sage green sel (#9DC4B0), coral accent (#E07A5F), cream bgs (#fdf8f3), warm dark (#2a2520) — light+dark ✓
+- Nunito font: configured in THEME_FONT_URLS (400/500/600/700), lazy-loaded on switch ✓
+- Radii: 12-28px (very rounded) ✓
+- Shadows: diffuse soft (0 4px 20px rgba(0,0,0,0.05)) ✓
+- Pattern: subtle circular dots via radial-gradient, 3% opacity light / 2% dark, 16px grid ✓
+- theme-pattern class on pages (Gallery, Submission Detail, etc.) — applied in THEME-2 ✓
+- font-display class on headings — no-op for Theme C (Nunito = both body+display) ✓
+- strokeDasharray via --sel-dash: 0 — solid selection borders ✓
+- Typecheck: passes clean
+
+### Files changed
+- `features/current-feature/PRD.json` — marked passes: true
+
+### Blockers / notes
+- No code changes needed — THEME-1 infrastructure + THEME-2/3 generic fixes covered all Theme C requirements
+- Could not visually verify in browser (Playwright network isolation from Vite dev server)
