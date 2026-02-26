@@ -11,7 +11,7 @@ interface UseShapeActionsOptions {
 }
 
 /**
- * Hook for shape movement, rotation, resize, and mirror actions
+ * Hook for shape movement, resize, and mirror actions
  */
 export function useShapeActions({
   shapes,
@@ -34,18 +34,6 @@ export function useShapeActions({
         updates.set(shape.id, { x: shape.x + dx, y: shape.y + dy });
       });
       updateShapes(updates, true, 'Move');
-    },
-    [selectedShapes, updateShapes]
-  );
-
-  const handleRotateShapes = useCallback(
-    (dRotation: number) => {
-      if (selectedShapes.length === 0) return;
-      const updates = new Map<string, { rotation: number }>();
-      selectedShapes.forEach((shape) => {
-        updates.set(shape.id, { rotation: shape.rotation + dRotation });
-      });
-      updateShapes(updates, true, 'Rotate');
     },
     [selectedShapes, updateShapes]
   );
@@ -88,7 +76,6 @@ export function useShapeActions({
   return {
     selectedShapes,
     handleMoveShapes,
-    handleRotateShapes,
     handleDuplicate,
     handleMirrorHorizontal,
     handleMirrorVertical,

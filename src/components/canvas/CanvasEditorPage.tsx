@@ -174,7 +174,6 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
   // Shape actions (move, rotate, resize, mirror, duplicate)
   const {
     handleMoveShapes,
-    handleRotateShapes,
     handleDuplicate,
     handleMirrorHorizontal,
     handleMirrorVertical,

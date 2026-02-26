@@ -385,3 +385,25 @@ All GALLERY-1 requirements already implemented: TopBar with logo+theme toggles l
 ### Blockers / notes
 - Typecheck passes clean; dev server starts without compilation errors
 - Could not visually verify in browser (Supabase network isolation prevents app rendering)
+
+## REMOVE-2: Old Action Toolbar — DONE
+
+Deleted orphaned ActionToolbar.tsx and removed dead `handleRotateShapes` code.
+
+### Verification
+- ActionToolbar.tsx had zero imports — completely dead since LAYOUT-2 replaced it with ToolsPanel ✓
+- Undo, redo, duplicate, delete, move, size, mirror, bring forward, send backward → all in ToolsPanel ✓
+- Rotation → keyboard shortcuts (,/.) + drag handles only, no button ✓
+- Grid/off-canvas toggles → ToolsPanel ✓
+- `handleRotateShapes` was unused — rotation handled by useCanvasKeyboardShortcuts (direct onUpdateShapes) + TransformHandles (mouse drag) ✓
+- Typecheck: passes clean
+
+### Files changed
+- `src/components/canvas/ActionToolbar.tsx` — DELETED (359 lines dead code)
+- `src/components/canvas/CanvasEditorPage.tsx` — removed unused `handleRotateShapes` destructuring
+- `src/hooks/canvas/useShapeActions.ts` — removed `handleRotateShapes` function + export, updated JSDoc
+- `features/current-feature/PRD.json` — marked passes: true
+
+### Blockers / notes
+- Tests/lint can't run in VM (binary compat issues, pre-existing)
+- No orphaned toolbar UI remains from old design

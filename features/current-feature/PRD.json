@@ -405,7 +405,7 @@
       "Grid lines and off-canvas toggles are in the left tools panel (moved from old sidebar)",
       "No orphaned toolbar UI remains from the old design"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "STAMP-2",
