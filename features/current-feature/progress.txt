@@ -329,3 +329,29 @@ Remapped defaults: V→selectMode, M→mirrorHorizontal, Shift+M→mirrorVertica
 - Typecheck passes clean
 - selectMode appears in KeyboardSettingsModal under "Canvas Navigation" alongside Pan
 - toggleGrid (category: 'view') not shown in settings modal — pre-existing gap, not introduced here
+
+## REMOVE-1: Old Sidebar Content — DONE
+
+Deleted orphaned Toolbar.tsx (old 300px left sidebar). All functions already migrated in prior work.
+
+### Verification
+- Toolbar.tsx had zero imports across codebase — completely dead code since LAYOUT-2 replaced it with ToolsPanel
+- Logo/branding → TopBar ✓
+- Auth/login → TopBar ✓
+- Gallery link → TopBar ✓
+- Inspiration word → TopBar (InspirationCenter) ✓
+- Background + shape colors → BottomToolbar ✓
+- Shape adding → BottomToolbar stamp mode ✓
+- Save/Submit + Reset → TopBar ✓
+- Theme toggle → TopBar (ThemePill) ✓
+- Grid/off-canvas toggles → ToolsPanel ✓
+- Keyboard shortcuts info → INFO-1 (separate pending task, '?' popover)
+- Typecheck passes clean
+
+### Files changed
+- `src/components/canvas/Toolbar.tsx` — DELETED (234 lines of dead code)
+- `features/current-feature/PRD.json` — marked passes: true
+
+### Blockers / notes
+- ActionToolbar.tsx also orphaned — REMOVE-2 will handle that
+- INFO-1 ('?' popover for keyboard shortcuts) still pending — last REMOVE-1 verification step depends on it
