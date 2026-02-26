@@ -184,7 +184,7 @@
       "Rotation handle and stem color is theme-specific",
       "Theme D handles appear angular/square; Theme C handles appear softer/rounder"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "PANEL-1",

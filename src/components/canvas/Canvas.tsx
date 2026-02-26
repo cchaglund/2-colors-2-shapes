@@ -1,4 +1,4 @@
-import { useRef, useCallback, useMemo } from 'react';
+import { useRef, useState, useCallback, useMemo } from 'react';
 import type { Shape, ShapeGroup, DailyChallenge, ViewportState } from '../../types';
 import { CANVAS_SIZE } from '../../types/canvas';
 import { getShapeDimensions } from '../../utils/shapes';
@@ -200,6 +200,9 @@ export function Canvas({
     onAddShape,
     onSetTool,
   });
+
+  // Track which transform handle is hovered for visual feedback (1.3x scale)
+  const [hoveredHandleId, setHoveredHandleId] = useState<string | null>(null);
 
   // Event handlers that need to set drag state
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
@@ -548,6 +551,7 @@ export function Canvas({
                 onMoveStart={handleMoveStart}
                 onResizeStart={handleResizeStart}
                 onRotateStart={handleRotateStart}
+                onHandleHover={setHoveredHandleId}
               />
             )}
           </g>
@@ -560,6 +564,7 @@ export function Canvas({
             bounds={selectionBounds!}
             zoom={viewport.zoom}
             showIndividualOutlines={true}
+            hoveredHandleId={hoveredHandleId}
           />
         )}
 
@@ -572,6 +577,7 @@ export function Canvas({
                 zoom={viewport.zoom}
                 onResizeStart={handleMultiResizeStart}
                 onRotateStart={handleMultiRotateStart}
+                onHandleHover={setHoveredHandleId}
               />
             )}
             <MultiSelectTransformLayer
@@ -579,6 +585,7 @@ export function Canvas({
               bounds={selectionBounds}
               zoom={viewport.zoom}
               showIndividualOutlines={true}
+              hoveredHandleId={hoveredHandleId}
             />
           </>
         )}

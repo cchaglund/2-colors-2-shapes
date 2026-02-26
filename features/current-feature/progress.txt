@@ -273,3 +273,28 @@ Replaced 300px resizable right sidebar with compact 240px fixed-width floating l
 - Layer row action buttons kept as hover-reveal on desktop, always-visible on touch — 240px too narrow for all 5 inline
 - Typecheck + dev server start clean
 - `useSidebarState` still exports rightWidth/startResizeRight — harmless, REMOVE-1 can clean later
+
+## THEME-7: Selection Handle Theming & Restructuring — DONE
+
+Restructured transform/selection handles and made all handle styling theme-driven via CSS variables.
+
+### Key decisions
+- Resize handles: 4 corners → 8 (nw, n, ne, e, se, s, sw, w); midpoint handles work with existing resize logic since it uses grab-position vectors, not corner IDs
+- Rotation handles: 4 sides → 1 top center only with visible stem line from bounding box edge
+- `--sel-handle-radius` CSS var: 50% (circular) for A/C, 15% (barely rounded) for B, 0 (square) for D — applied via SVG `rx`/`ry` style props
+- Handle fill uses `--sel-handle-fill` + `--sel-handle-stroke` (was using `--sel-border` for stroke)
+- Rotation handle/stem uses `--sel-rotate-color` (was defined but unused, now consumed)
+- Hover 1.3x: React state `hoveredHandleId` in Canvas.tsx, passed from interaction layer (onMouseEnter/Leave) to visual layer; visual handles use CSS `transform: scale(1.3)` with `transformBox: fill-box` + `transformOrigin: center` + 0.15s transition
+- Multi-select individual outlines: changed from shape-traced dashed outline (using element/props from getShapeSVGData) to minimal dashed bounding-box rects using `--sel-border` color at 60% opacity — simpler, more "minimal" per PRD
+- Extracted `buildShapeTransform()` helper to DRY up repeated transform string construction (was duplicated 6+ times)
+- `getEffectiveCursor()` extended with midpoint vectors (n, e, s, w) for correct cursor orientation
+
+### Files changed
+- `src/index.css` — added `--sel-handle-radius` to all 5 theme blocks (A=50%, B=15%, C=50%, D=0, fallback=15%)
+- `src/components/canvas/TransformHandles.tsx` — major rewrite: getCorners→getResizeHandles (8 handles), getRotationHandles→getRotationHandle (1 handle), theme CSS vars on all visual elements, hover scale via props, buildShapeTransform helper, minimal multi-select outlines
+- `src/components/canvas/Canvas.tsx` — added useState import, hoveredHandleId state, passed onHandleHover/hoveredHandleId to transform layers
+
+### Blockers / notes
+- Typecheck passes clean, dev server starts clean
+- Handle size (--sel-handle-size) CSS var defined per theme but not consumed in JS — handles use BASE_HANDLE_SIZE=10 constant for canvas-coordinate math; the visual size difference (7-10px) is subtle and the theme distinction comes primarily from shape (radius), color, and stroke
+- `resizeCorner` field in DragState still typed as `string` — accepts midpoint IDs without changes

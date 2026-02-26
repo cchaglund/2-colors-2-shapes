@@ -90,6 +90,7 @@
     --border-width: 2px;
     --border-width-heavy: 3px;
     --sel-handle-size: 8px;
+    --sel-handle-radius: 50%;
     --sel-dash: 0;
     --pattern-size: 20px 20px;
   }
@@ -207,6 +208,7 @@
     --border-width: 1px;
     --border-width-heavy: 2px;
     --sel-handle-size: 7px;
+    --sel-handle-radius: 15%;
     --sel-dash: 4 4;
     --pattern-size: 0;
   }
@@ -318,6 +320,7 @@
     --border-width: 1px;
     --border-width-heavy: 2px;
     --sel-handle-size: 9px;
+    --sel-handle-radius: 50%;
     --sel-dash: 0;
     --pattern-size: 16px 16px;
   }
@@ -428,6 +431,7 @@
     --border-width: 3px;
     --border-width-heavy: 4px;
     --sel-handle-size: 10px;
+    --sel-handle-radius: 0;
     --sel-dash: 0;
     --pattern-size: 0;
   }
@@ -534,6 +538,7 @@
     --border-width: 1px;
     --border-width-heavy: 2px;
     --sel-handle-size: 7px;
+    --sel-handle-radius: 15%;
     --sel-dash: 4 4;
     --pattern-size: 0;
     --color-accent: #E63322;
