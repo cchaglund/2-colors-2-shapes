@@ -1,14 +1,6 @@
-import { useState } from 'react';
-import logoSvg from '../../assets/logo.svg';
 import type { DailyChallenge } from '../../types';
-import type { ThemeMode, ThemeName } from '../../hooks/ui/useThemeState';
-import type { Profile } from '../../hooks/auth/useProfile';
-import { ThemeToggle } from './ThemeToggle';
 import { ShapeIcon } from '../shared/ShapeIcon';
-import { AuthButton } from '../social/AuthButton';
-import { LoginPromptModal } from '../social/LoginPromptModal';
 import { type KeyMappings, formatKeyBinding } from '../../constants/keyboardActions';
-import { InfoTooltip } from '../shared/InfoTooltip';
 
 // Section label - consistent typography
 function Label({ children }: { children: React.ReactNode }) {
@@ -26,27 +18,11 @@ interface ToolbarProps {
   onAddShape: (shapeIndex: number, colorIndex: number) => void;
   onSetBackground: (colorIndex: number | null) => void;
   onChangeShapeColor: (colorIndex: number) => void;
-  onReset: () => void;
   onToggle: () => void;
   onStartResize: (e: React.MouseEvent) => void;
-  themeMode: ThemeMode;
-  onSetThemeMode: (mode: ThemeMode) => void;
-  themeName: ThemeName;
-  onSetThemeName: (name: ThemeName) => void;
-  // Save functionality
-  isLoggedIn: boolean;
-  onSave?: () => void;
-  isSaving?: boolean;
-  saveStatus?: 'idle' | 'saved' | 'error';
-  hasSubmittedToday?: boolean;
-  // Friends modal
-  onOpenFriendsModal?: () => void;
   // Keyboard settings
   keyMappings: KeyMappings;
   onOpenKeyboardSettings?: () => void;
-  // Profile for AuthButton
-  profile?: Profile | null;
-  profileLoading?: boolean;
   // Grid toggle
   showGrid?: boolean;
   onToggleGrid?: () => void;
@@ -62,29 +38,15 @@ export function Toolbar({
   onAddShape,
   onSetBackground,
   onChangeShapeColor,
-  onReset,
   onToggle,
   onStartResize,
-  themeMode,
-  onSetThemeMode,
-  themeName,
-  onSetThemeName,
-  isLoggedIn,
-  onSave,
-  isSaving,
-  saveStatus,
-  hasSubmittedToday,
-  onOpenFriendsModal,
   keyMappings,
   onOpenKeyboardSettings,
-  profile,
-  profileLoading,
   showGrid,
   onToggleGrid,
   showOffCanvas,
   onToggleOffCanvas,
 }: ToolbarProps) {
-  const [loginModalVariant, setLoginModalVariant] = useState<'save' | 'friends' | null>(null);
   const hasSelection = selectedShapeIds.size > 0;
 
   return (
@@ -101,12 +63,8 @@ export function Toolbar({
       <div className="flex-1 overflow-y-auto px-4">
         {/* Header with collapse */}
         <div className="flex items-center justify-between py-3 border-b border-(--color-border-light)">
-          <span className="flex items-center gap-2 text-[13px] font-medium text-(--color-text-primary)">
-            <img src={logoSvg} alt="" width="28" height="28" />
-            <span className="flex flex-col leading-tight">
-              <span>3 Colors</span>
-              <span>2 Shapes</span>
-            </span>
+          <span className="text-[13px] font-medium text-(--color-text-primary)">
+            Toolbox
           </span>
           <button
             className="w-6 h-6 flex items-center justify-center bg-transparent border-none cursor-pointer rounded transition-colors text-(--color-text-tertiary) hover:text-(--color-text-secondary) hover:bg-(--color-hover)"
@@ -117,51 +75,6 @@ export function Toolbar({
               <polyline points="8 2 4 6 8 10" />
             </svg>
           </button>
-        </div>
-
-        {/* Account Section */}
-        <div className="py-4 border-b border-(--color-border-light)">
-          <Label>Account</Label>
-          <AuthButton profile={profile} profileLoading={profileLoading} />
-
-          <a
-            href="/?view=gallery"
-            className="w-full mt-2 py-2 px-3 border border-(--color-border) rounded-md cursor-pointer text-[13px] font-medium transition-colors flex items-center justify-center gap-2 bg-transparent text-(--color-text-primary) hover:bg-(--color-hover) no-underline"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
-            Gallery
-          </a>
-
-          {onOpenFriendsModal && (
-            <button
-              className="w-full mt-2 py-2 px-3 border border-(--color-border) rounded-md cursor-pointer text-[13px] font-medium transition-colors flex items-center justify-center gap-2 bg-transparent text-(--color-text-primary) hover:bg-(--color-hover)"
-              onClick={isLoggedIn ? onOpenFriendsModal : () => setLoginModalVariant('friends')}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-              </svg>
-              Friends
-            </button>
-          )}
-        </div>
-
-        {/* Today's Challenge Section */}
-        <div className="py-4 border-b border-(--color-border-light)">
-
-          {/* Daily Word */}
-          <div className="">
-            <Label>Inspiration<InfoTooltip text="This is just for inspiration, feel free to ignore it" /></Label>
-            <p className="m-0 text-lg font-medium text-(--color-text-primary) capitalize font-display">"{challenge.word}"</p>
-          </div>
-
         </div>
 
         {/* Background Section */}
@@ -243,53 +156,6 @@ export function Toolbar({
           </div>
         </div>
 
-        {/* Actions Section */}
-        <div className="py-4 border-b border-(--color-border-light)">
-          {isLoggedIn && onSave ? (
-            <button
-              className="w-full py-2 px-3 text-(--color-accent-text) border-none rounded-md cursor-pointer text-[13px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-(--color-accent) hover:bg-(--color-accent-hover)"
-              onClick={onSave}
-              disabled={isSaving || hasSubmittedToday}
-            >
-              {isSaving 
-                ? 'Saving...' 
-                : saveStatus === 'saved' 
-                  ? 'Saved' 
-                  : hasSubmittedToday
-                    ? 'Submitted'
-                    : 'Save Creation'
-                }
-            </button>
-          ) : (
-            <button
-              className="w-full py-2 px-3 text-(--color-accent-text) border-none rounded-md cursor-pointer text-[13px] font-medium transition-colors bg-(--color-accent) hover:bg-(--color-accent-hover)"
-              onClick={() => setLoginModalVariant('save')}
-            >
-              Save Creation
-            </button>
-          )}
-          {saveStatus === 'error' && (
-            <p className="mt-1 mb-0 text-[11px] text-(--color-danger)">Failed to save. Try again.</p>
-          )}
-
-          <button
-            className="w-full py-2 px-3 border border-(--color-border) rounded-md cursor-pointer text-[13px] font-medium transition-colors text-(--color-text-secondary) hover:text-(--color-danger) hover:border-(--color-danger) hover:bg-transparent mt-2"
-            onClick={onReset}
-          >
-            Reset Canvas
-          </button>
-        </div>
-
-        {loginModalVariant && (
-          <LoginPromptModal
-            onClose={() => setLoginModalVariant(null)}
-            {...(loginModalVariant === 'friends' && {
-              title: 'Follow Your Friends',
-              message: 'To follow other users you must first log in.',
-            })}
-          />
-        )}
-
         {/* View Section */}
         <div className="py-4 border-b border-(--color-border-light)">
           <Label>View</Label>
@@ -331,7 +197,7 @@ export function Toolbar({
         </div>
 
         {/* Controls Section */}
-        <div className="py-4 border-b border-(--color-border-light)">
+        <div className="py-4">
           <div className="flex items-center justify-between mb-2">
             <Label>Controls</Label>
             {onOpenKeyboardSettings && (
@@ -360,16 +226,6 @@ export function Toolbar({
             <li>Ctrl/⌘ + scroll to zoom</li>
             <li>Hold {keyMappings.pan ? formatKeyBinding(keyMappings.pan) : 'Space'} + drag to pan</li>
           </ul>
-        </div>
-
-        {/* Theme Toggle */}
-        <div className="py-4">
-          <ThemeToggle
-            mode={themeMode}
-            onSetMode={onSetThemeMode}
-            theme={themeName}
-            onSetTheme={onSetThemeName}
-          />
         </div>
       </div>
     </div>

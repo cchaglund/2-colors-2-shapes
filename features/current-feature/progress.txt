@@ -140,3 +140,32 @@ All CSS vars + font loading already complete from THEME-1 infrastructure. No cod
 ### Blockers / notes
 - No code changes needed — THEME-1 infrastructure covered all Theme D requirements
 - Same VM limitations (no lint/tests)
+
+## LAYOUT-1: Top Bar — DONE
+
+Created fixed 56px top bar replacing sidebar header. Layout restructured from single h-screen to flex-col (TopBar + canvas area).
+
+### Key decisions
+- TopBar is flexible component: accepts `centerContent` + `rightContent` props for page-specific content
+- Canvas editor: center = InspirationCenter (label + word), right = Reset/Submit/Gallery/Login buttons
+- Gallery page: center = "Gallery" title, right = "< Back to canvas" link
+- Submission page: center = "Submission" title, right = nav arrows + "< Gallery" link
+- ThemePill: grouped pill with sun/moon toggle + divider + A/B/C/D buttons, active theme filled with accent
+- Sidebars now position relative to canvas area wrapper (below top bar), not full viewport
+- Toolbar slimmed: removed logo, account, gallery, friends, inspiration, save/reset, theme toggle — kept bg colors, shape colors, add shape, view toggles, controls
+- TopBar z-30 > sidebars z-20 > floating toolbars z-10
+- Theme props passed from App.tsx → GalleryPage and SubmissionDetailPage
+
+### Files changed
+- `src/components/canvas/TopBar.tsx` — NEW: TopBar + ThemePill + InspirationCenter components
+- `src/components/canvas/Toolbar.tsx` — removed logo/account/gallery/friends/inspiration/save/reset/theme sections + their props
+- `src/components/canvas/CanvasEditorPage.tsx` — flex-col layout, TopBar at top, canvas area in flex-1 relative wrapper
+- `src/components/pages/GalleryPage.tsx` — TopBar with Gallery center + Back to canvas right
+- `src/components/pages/SubmissionDetailPage.tsx` — TopBar with Submission center + Gallery back right
+- `src/App.tsx` — passes theme props to GalleryPage and SubmissionDetailPage
+- `features/current-feature/PRD.json` — marked passes: true
+
+### Blockers / notes
+- Playwright can't reach local Vite dev server (network isolation) — no visual verification
+- TypeScript typecheck passes clean
+- BackToCanvasLink component still used by other pages (WinnersDayPage, UserProfilePage, etc.) — not removed

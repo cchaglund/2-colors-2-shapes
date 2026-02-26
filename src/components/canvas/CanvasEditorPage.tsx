@@ -5,6 +5,7 @@ import { Toolbar } from './Toolbar';
 import { LayerPanel } from '../LayerPanel';
 import { ZoomControls } from './ZoomControls';
 import { ActionToolbar } from './ActionToolbar';
+import { TopBar, InspirationCenter } from './TopBar';
 import { OnboardingModal } from '../modals/OnboardingModal';
 import { WelcomeModal } from '../modals/WelcomeModal';
 import { FollowsProvider } from '../../contexts/FollowsContext';
@@ -263,48 +264,68 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
   const showOnboarding = user && profile && !profile.onboarding_complete;
 
   return (
-    <div className="relative h-screen overflow-hidden">
+    <div className="flex flex-col h-screen overflow-hidden">
       {showWelcome && <WelcomeModal onDismiss={dismissWelcome} challenge={challenge} />}
       {showOnboarding && <OnboardingModal onComplete={updateNickname} />}
 
-      {/* Canvas fills full viewport */}
-      <main
-        className="w-full h-full flex items-center justify-center canvas-bg-checkered overflow-auto relative"
-        onMouseDown={handleBackgroundMouseDown}
-      >
-        <div className="overflow-visible p-16 canvas-wrapper">
-          <Canvas
-            shapes={canvasState.shapes}
-            groups={canvasState.groups}
-            selectedShapeIds={canvasState.selectedShapeIds}
-            backgroundColor={backgroundColor}
-            challenge={challenge}
-            viewport={viewport}
-            keyMappings={keyMappings}
-            showGrid={showGrid}
-            showOffCanvas={showOffCanvas}
-            onSelectShape={selectShape}
-            onSelectShapes={selectShapes}
-            onUpdateShape={updateShape}
-            onUpdateShapes={updateShapes}
-            onCommitToHistory={commitToHistory}
-            onDuplicateShapes={duplicateShapes}
-            onDeleteSelectedShapes={deleteSelectedShapes}
-            onUndo={undo}
-            onRedo={redo}
-            onMirrorHorizontal={mirrorHorizontal}
-            onMirrorVertical={mirrorVertical}
-            onZoomAtPoint={zoomAtPoint}
-            onSetZoomAtPoint={setZoomAtPoint}
-            onPan={setPan}
-            onToggleGrid={toggleGrid}
-            hoveredShapeIds={hoveredShapeIds}
-            marqueeStartRef={marqueeStartRef}
-          />
-        </div>
+      {/* Top bar */}
+      <TopBar
+        themeMode={themeMode}
+        onSetThemeMode={onSetThemeMode}
+        themeName={themeName}
+        onSetThemeName={onSetThemeName}
+        centerContent={<InspirationCenter word={challenge.word} />}
+        onReset={handleReset}
+        onSave={handleSave}
+        isSaving={saving}
+        saveStatus={saveStatus}
+        hasSubmittedToday={hasSubmittedToday}
+        isLoggedIn={!!user}
+        profile={profile}
+        profileLoading={profileLoading}
+      />
+
+      {/* Canvas area wrapper (everything below top bar) */}
+      <div className="flex-1 relative overflow-hidden">
+        {/* Canvas fills area */}
+        <main
+          className="w-full h-full flex items-center justify-center canvas-bg-checkered overflow-auto"
+          onMouseDown={handleBackgroundMouseDown}
+        >
+          <div className="overflow-visible p-16 canvas-wrapper">
+            <Canvas
+              shapes={canvasState.shapes}
+              groups={canvasState.groups}
+              selectedShapeIds={canvasState.selectedShapeIds}
+              backgroundColor={backgroundColor}
+              challenge={challenge}
+              viewport={viewport}
+              keyMappings={keyMappings}
+              showGrid={showGrid}
+              showOffCanvas={showOffCanvas}
+              onSelectShape={selectShape}
+              onSelectShapes={selectShapes}
+              onUpdateShape={updateShape}
+              onUpdateShapes={updateShapes}
+              onCommitToHistory={commitToHistory}
+              onDuplicateShapes={duplicateShapes}
+              onDeleteSelectedShapes={deleteSelectedShapes}
+              onUndo={undo}
+              onRedo={redo}
+              onMirrorHorizontal={mirrorHorizontal}
+              onMirrorVertical={mirrorVertical}
+              onZoomAtPoint={zoomAtPoint}
+              onSetZoomAtPoint={setZoomAtPoint}
+              onPan={setPan}
+              onToggleGrid={toggleGrid}
+              hoveredShapeIds={hoveredShapeIds}
+              marqueeStartRef={marqueeStartRef}
+            />
+          </div>
+        </main>
 
         {/* Action toolbar at top */}
-        <div className="absolute top-4 left-1/2 -translate-x-1/2">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
           <ActionToolbar
             keyMappings={keyMappings}
             hasSelection={canvasState.selectedShapeIds.size > 0}
@@ -328,7 +349,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
         </div>
 
         {/* Zoom controls overlay */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
           <ZoomControls
             zoom={viewport.zoom}
             onZoomIn={handleZoomIn}
@@ -338,123 +359,119 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
             maxZoom={maxZoom}
           />
         </div>
-      </main>
 
-      {/* Left sidebar collapsed toggle */}
-      {!leftOpen && (
-        <button
-          className="absolute left-0 top-4 z-20 px-1.5 py-3 cursor-pointer transition-colors border-r border-y border-(--color-border) rounded-r-md bg-(--color-bg-primary) hover:bg-(--color-hover)"
-          onClick={toggleLeft}
-          title="Show Toolbar"
-        >
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <polyline points="4 2 8 6 4 10" />
-          </svg>
-        </button>
-      )}
-
-      {/* Left sidebar overlay */}
-      <AnimatePresence>
-        {leftOpen && (
-          <motion.div
-            key="left-sidebar"
-            initial={{ x: '-100%' }}
-            animate={{ x: 0, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
-            exit={{ x: [0, '3%', '-100%'], transition: { duration: 0.4, times: [0, 0.15, 1], ease: ['easeOut', [0.55, 0, 1, 0.2]] } }}
-            className="absolute top-0 left-0 h-full z-20 shadow-lg"
-            style={{ width: leftWidth }}
+        {/* Left sidebar collapsed toggle */}
+        {!leftOpen && (
+          <button
+            className="absolute left-0 top-4 z-20 px-1.5 py-3 cursor-pointer transition-colors border-r border-y border-(--color-border) rounded-r-md bg-(--color-bg-primary) hover:bg-(--color-hover)"
+            onClick={toggleLeft}
+            title="Show Toolbar"
           >
-            <Toolbar
-              challenge={challenge}
-              backgroundColorIndex={canvasState.backgroundColorIndex}
-              selectedShapeIds={canvasState.selectedShapeIds}
-              onAddShape={addShape}
-              onSetBackground={setBackgroundColor}
-              onChangeShapeColor={(colorIndex) => {
-                const updates = new Map<string, { colorIndex: number }>();
-                canvasState.selectedShapeIds.forEach((id) => {
-                  updates.set(id, { colorIndex });
-                });
-                updateShapes(updates, true, 'Change color');
-              }}
-              onReset={handleReset}
-              onToggle={toggleLeft}
-              onStartResize={startResizeLeft}
-              themeMode={themeMode}
-              onSetThemeMode={onSetThemeMode}
-              themeName={themeName}
-              onSetThemeName={onSetThemeName}
-              isLoggedIn={!!user}
-              onSave={handleSave}
-              isSaving={saving}
-              saveStatus={saveStatus}
-              hasSubmittedToday={hasSubmittedToday}
-              onOpenFriendsModal={openFriendsModal}
-              keyMappings={keyMappings}
-              onOpenKeyboardSettings={openKeyboardSettings}
-              profile={profile}
-              profileLoading={profileLoading}
-              showGrid={showGrid}
-              onToggleGrid={toggleGrid}
-              showOffCanvas={showOffCanvas}
-              onToggleOffCanvas={toggleOffCanvas}
-            />
-          </motion.div>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <polyline points="4 2 8 6 4 10" />
+            </svg>
+          </button>
         )}
-      </AnimatePresence>
 
-      {/* Right sidebar collapsed toggle */}
-      {!rightOpen && (
-        <button
-          className="absolute right-0 top-4 z-20 px-1.5 py-3 cursor-pointer transition-colors border-l border-y border-(--color-border) rounded-l-md bg-(--color-bg-primary) hover:bg-(--color-hover)"
-          onClick={toggleRight}
-          title="Show Layers"
-        >
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <polyline points="8 2 4 6 8 10" />
-          </svg>
-        </button>
-      )}
+        {/* Left sidebar overlay */}
+        <AnimatePresence>
+          {leftOpen && (
+            <motion.div
+              key="left-sidebar"
+              initial={{ x: '-100%' }}
+              animate={{ x: 0, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
+              exit={{ x: [0, '3%', '-100%'], transition: { duration: 0.4, times: [0, 0.15, 1], ease: ['easeOut', [0.55, 0, 1, 0.2]] } }}
+              className="absolute top-0 left-0 h-full z-20 shadow-lg"
+              style={{ width: leftWidth }}
+            >
+              <Toolbar
+                challenge={challenge}
+                backgroundColorIndex={canvasState.backgroundColorIndex}
+                selectedShapeIds={canvasState.selectedShapeIds}
+                onAddShape={addShape}
+                onSetBackground={setBackgroundColor}
+                onChangeShapeColor={(colorIndex) => {
+                  const updates = new Map<string, { colorIndex: number }>();
+                  canvasState.selectedShapeIds.forEach((id) => {
+                    updates.set(id, { colorIndex });
+                  });
+                  updateShapes(updates, true, 'Change color');
+                }}
+                onToggle={toggleLeft}
+                onStartResize={startResizeLeft}
+                keyMappings={keyMappings}
+                onOpenKeyboardSettings={openKeyboardSettings}
+                showGrid={showGrid}
+                onToggleGrid={toggleGrid}
+                showOffCanvas={showOffCanvas}
+                onToggleOffCanvas={toggleOffCanvas}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      {/* Right sidebar overlay */}
-      <AnimatePresence>
-        {rightOpen && (
-          <motion.div
-            key="right-sidebar"
-            initial={{ x: '100%' }}
-            animate={{ x: 0, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
-            exit={{ x: [0, '-3%', '100%'], transition: { duration: 0.4, times: [0, 0.15, 1], ease: ['easeOut', [0.55, 0, 1, 0.2]] } }}
-            className="absolute top-0 right-0 h-full z-20 shadow-lg"
-            style={{ width: rightWidth }}
+        {/* Right sidebar collapsed toggle */}
+        {!rightOpen && (
+          <button
+            className="absolute right-0 top-4 z-20 px-1.5 py-3 cursor-pointer transition-colors border-l border-y border-(--color-border) rounded-l-md bg-(--color-bg-primary) hover:bg-(--color-hover)"
+            onClick={toggleRight}
+            title="Show Layers"
           >
-            <LayerPanel
-              shapes={canvasState.shapes}
-              groups={canvasState.groups}
-              selectedShapeIds={canvasState.selectedShapeIds}
-              challenge={challenge}
-              onSelectShape={selectShape}
-              onMoveLayer={moveLayer}
-              onMoveGroup={moveGroup}
-              onReorderLayers={reorderLayers}
-              onReorderGroup={reorderGroup}
-              onDeleteShape={deleteShape}
-              onRenameShape={(id, name) => updateShape(id, { name }, true, 'Rename')}
-              onCreateGroup={createGroup}
-              onDeleteGroup={deleteGroup}
-              onUngroupShapes={ungroupShapes}
-              onRenameGroup={renameGroup}
-              onToggleGroupCollapsed={toggleGroupCollapsed}
-              onToggleShapeVisibility={toggleShapeVisibility}
-              onToggleGroupVisibility={toggleGroupVisibility}
-              onSelectGroup={selectGroup}
-              onToggle={toggleRight}
-              onStartResize={startResizeRight}
-              onHoverShape={setHoveredShapeIds}
-            />
-          </motion.div>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <polyline points="8 2 4 6 8 10" />
+            </svg>
+          </button>
         )}
-      </AnimatePresence>
 
+        {/* Right sidebar overlay */}
+        <AnimatePresence>
+          {rightOpen && (
+            <motion.div
+              key="right-sidebar"
+              initial={{ x: '100%' }}
+              animate={{ x: 0, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
+              exit={{ x: [0, '-3%', '100%'], transition: { duration: 0.4, times: [0, 0.15, 1], ease: ['easeOut', [0.55, 0, 1, 0.2]] } }}
+              className="absolute top-0 right-0 h-full z-20 shadow-lg"
+              style={{ width: rightWidth }}
+            >
+              <LayerPanel
+                shapes={canvasState.shapes}
+                groups={canvasState.groups}
+                selectedShapeIds={canvasState.selectedShapeIds}
+                challenge={challenge}
+                onSelectShape={selectShape}
+                onMoveLayer={moveLayer}
+                onMoveGroup={moveGroup}
+                onReorderLayers={reorderLayers}
+                onReorderGroup={reorderGroup}
+                onDeleteShape={deleteShape}
+                onRenameShape={(id, name) => updateShape(id, { name }, true, 'Rename')}
+                onCreateGroup={createGroup}
+                onDeleteGroup={deleteGroup}
+                onUngroupShapes={ungroupShapes}
+                onRenameGroup={renameGroup}
+                onToggleGroupCollapsed={toggleGroupCollapsed}
+                onToggleShapeVisibility={toggleShapeVisibility}
+                onToggleGroupVisibility={toggleGroupVisibility}
+                onSelectGroup={selectGroup}
+                onToggle={toggleRight}
+                onStartResize={startResizeRight}
+                onHoverShape={setHoveredShapeIds}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {toast && (
+          <UndoRedoToast
+            key={toast.key}
+            message={toast.message}
+            onDismiss={dismissToast}
+          />
+        )}
+      </div>
+
+      {/* Modals (render above everything) */}
       {showResetConfirm && (
         <ResetConfirmModal onConfirm={confirmReset} onCancel={cancelReset} />
       )}
@@ -469,7 +486,6 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
         />
       )}
 
-      {/* Congratulatory modal (user placed top 3) then winner announcement */}
       {showWinnerAnnouncement && !winnerLoading && (
         <>
           {userPlacement && !congratsDismissed ? (
@@ -497,7 +513,6 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
         </>
       )}
 
-      {/* Voting modal - shows after saving a submission */}
       {showVotingModal && user && (
         <VotingModal
           userId={user.id}
@@ -508,19 +523,10 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
         />
       )}
 
-      {/* Friends modal */}
       {showFriendsModal && (
         <FollowsProvider>
           <FriendsModal onClose={closeFriendsModal} />
         </FollowsProvider>
-      )}
-
-      {toast && (
-        <UndoRedoToast
-          key={toast.key}
-          message={toast.message}
-          onDismiss={dismissToast}
-        />
       )}
     </div>
   );

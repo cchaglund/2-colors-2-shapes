@@ -14,16 +14,21 @@ import { CalendarDayCell } from '../Calendar/CalendarDayCell';
 import { CalendarStats } from '../Calendar/CalendarStats';
 import { WallTab } from '../Calendar/tabs/WallTab';
 import { FriendsFeedTab } from '../Calendar/tabs/FriendsFeedTab';
-import { BackToCanvasLink } from '../shared/BackToCanvasLink';
+import { TopBar } from '../canvas/TopBar';
+import type { ThemeMode, ThemeName } from '../../hooks/ui/useThemeState';
 
 interface GalleryPageProps {
   tab?: string;
   year?: number;
   month?: number;
   date?: string;
+  themeMode: ThemeMode;
+  onSetThemeMode: (mode: ThemeMode) => void;
+  themeName: ThemeName;
+  onSetThemeName: (name: ThemeName) => void;
 }
 
-export function GalleryPage({ tab: initialTab, year: initialYear, month: initialMonth, date: initialDate }: GalleryPageProps) {
+export function GalleryPage({ tab: initialTab, year: initialYear, month: initialMonth, date: initialDate, themeMode, onSetThemeMode, themeName, onSetThemeName }: GalleryPageProps) {
   const { user } = useAuth();
   const todayStr = useMemo(() => getTodayDateUTC(), []);
   const { loadMySubmissions, loading, hasSubmittedToday: submittedToday, hasCheckedSubmission } = useSubmissions(user?.id, todayStr);
@@ -291,15 +296,29 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
     : 'Loading winners...';
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-(--color-bg-primary) theme-pattern">
-      <div className="max-w-4xl mx-auto h-[90vh] flex flex-col">
-        {/* Header */}
-        <div className="mb-6">
-          <BackToCanvasLink/>
-          <h1 className="text-2xl font-bold mb-2 text-(--color-text-primary) font-display">
-            Gallery
-          </h1>
-        </div>
+    <div className="h-screen flex flex-col overflow-hidden bg-(--color-bg-primary)">
+      <TopBar
+        themeMode={themeMode}
+        onSetThemeMode={onSetThemeMode}
+        themeName={themeName}
+        onSetThemeName={onSetThemeName}
+        centerContent={
+          <span className="text-sm font-semibold text-(--color-text-primary) font-display">Gallery</span>
+        }
+        rightContent={
+          <a
+            href="/"
+            className="h-8 px-3 rounded-(--radius-pill) border border-(--color-border) text-xs font-medium transition-colors bg-transparent text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) no-underline flex items-center gap-1"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            Back to canvas
+          </a>
+        }
+      />
+      <div className="flex-1 overflow-auto p-4 md:p-8 theme-pattern">
+        <div className="max-w-4xl mx-auto flex flex-col" style={{ minHeight: 'calc(100vh - 8rem)' }}>
 
         {/* Tab toggle */}
         <CalendarViewToggle
@@ -380,6 +399,7 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
             />
           </>
         )}
+        </div>
       </div>
     </div>
   );

@@ -35,7 +35,7 @@ function App() {
       case 'social-test': return <SocialTestPage />;
       case 'dashboard': return <Dashboard />;
       case 'color-tester': return <ColorTester />;
-      case 'gallery': return <FollowsProvider><GalleryPage tab={route.tab} year={route.year} month={route.month} date={route.date} /></FollowsProvider>;
+      case 'gallery': return <FollowsProvider><GalleryPage tab={route.tab} year={route.year} month={route.month} date={route.date} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} /></FollowsProvider>;
       case 'wall-of-the-day': return <WallOfTheDayPage date={route.date} />;
       case 'profile': return <FollowsProvider><UserProfilePage userId={route.userId} /></FollowsProvider>;
     }
@@ -55,8 +55,8 @@ function App() {
 
   // Render challenge-dependent pages
   if (route.type === 'winners-day') return <WinnersDayPage date={route.date} />;
-  if (route.type === 'submission-by-id') return <FollowsProvider><SubmissionDetailPage submissionId={route.id} /></FollowsProvider>;
-  if (route.type === 'submission-by-date') return <FollowsProvider><SubmissionDetailPage date={route.date} /></FollowsProvider>;
+  if (route.type === 'submission-by-id') return <FollowsProvider><SubmissionDetailPage submissionId={route.id} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} /></FollowsProvider>;
+  if (route.type === 'submission-by-date') return <FollowsProvider><SubmissionDetailPage date={route.date} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} /></FollowsProvider>;
 
   // Default: canvas editor
   return <CanvasEditorPage challenge={challenge} todayDate={todayDate} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} />;

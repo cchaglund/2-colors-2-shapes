@@ -11,7 +11,7 @@
       "Sidebar no longer contains logo, account info, or gallery link",
       "Top bar persists on Gallery and Submission Detail pages (with contextual changes to center/right content)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "LAYOUT-2",
