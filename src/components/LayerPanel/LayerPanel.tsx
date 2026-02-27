@@ -295,7 +295,7 @@ export function LayerPanel({
           <polyline points="2 17 12 22 22 17" />
           <polyline points="2 12 12 17 22 12" />
         </svg>
-        <span className="text-[13px] font-medium text-(--color-text-primary)">Layers</span>
+        <span className="text-[13px] font-bold text-(--color-text-primary)">Layers</span>
         {/* Count badge */}
         <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-(--color-bg-tertiary) text-(--color-text-secondary) leading-none">
           {shapes.length}
@@ -405,7 +405,6 @@ export function LayerPanel({
                   editValue={editValue}
                   draggedId={draggedId}
                   dropTargetIndex={dropTargetIndex}
-                  isTouchDevice={isTouchDevice}
                   isTopLayer={isTopLayer(item.shape)}
                   isBottomLayer={isBottomLayer(item.shape)}
                   layerHint={getLayerHint()}

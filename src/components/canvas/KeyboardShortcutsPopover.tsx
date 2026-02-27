@@ -83,39 +83,43 @@ export function KeyboardShortcutsPopover({ keyMappings, onOpenSettings }: Keyboa
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 8 }}
             transition={{ duration: 0.15 }}
-            className="absolute bottom-full left-0 mb-2 w-[280px] rounded-(--radius-md) border border-(--color-border) bg-(--color-surface) shadow-(--modal-shadow) overflow-hidden"
+            className="absolute bottom-full left-0 mb-2 w-[260px] overflow-hidden"
+            style={{
+              background: 'var(--color-card-bg)',
+              border: 'var(--border-width, 2px) solid var(--color-border)',
+              borderRadius: 'var(--radius-lg)',
+              boxShadow: 'var(--shadow-card)',
+            }}
           >
             {/* Header */}
-            <div className="px-3 py-2 border-b border-(--color-border-light) flex items-center gap-2">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-(--color-text-secondary) shrink-0">
-                <rect x="2" y="4" width="20" height="16" rx="2" />
-                <path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10" />
-              </svg>
-              <span className="text-xs font-semibold text-(--color-text-primary)">Keyboard Shortcuts</span>
+            <div className="px-4 pt-3.5 pb-2.5">
+              <span className="text-[11px] font-bold uppercase tracking-wide text-(--color-text-primary)">Keyboard Shortcuts</span>
             </div>
 
             {/* Shortcuts list */}
-            <div className="px-3 py-2 max-h-[320px] overflow-y-auto">
-              <table className="w-full text-[11px]">
-                <tbody>
-                  {shortcuts.map(({ key, action }) => (
-                    <tr key={action}>
-                      <td className="py-[3px] pr-3 text-(--color-text-secondary) whitespace-nowrap font-mono">{key}</td>
-                      <td className="py-[3px] text-(--color-text-primary)">{action}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="px-4 pb-3 max-h-[320px] overflow-y-auto">
+              {shortcuts.map(({ key, action }) => (
+                <div key={action} className="flex justify-between items-center py-[3px]">
+                  <span
+                    className="text-[10px] font-semibold whitespace-nowrap px-1.5 py-px rounded-(--radius-sm) bg-(--color-selected) text-(--color-text-primary)"
+                  >{key}</span>
+                  <span className="text-[10px] font-medium text-(--color-text-tertiary)">{action}</span>
+                </div>
+              ))}
             </div>
 
             {/* Footer */}
-            <div className="px-3 py-2 border-t border-(--color-border-light)">
+            <div className="px-4 pb-3.5 pt-2.5 border-t border-(--color-border-light)">
               <button
                 onClick={() => {
                   setOpen(false);
                   onOpenSettings();
                 }}
-                className="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 text-[11px] font-medium cursor-pointer transition-colors rounded-(--radius-sm) border border-(--color-border) text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary)"
+                className="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 text-[10px] font-semibold cursor-pointer transition-colors text-(--color-text-tertiary) hover:bg-(--color-hover) hover:text-(--color-text-primary)"
+                style={{
+                  border: 'var(--border-width, 2px) solid var(--color-border-light)',
+                  borderRadius: 'var(--radius-sm)',
+                }}
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="3" />

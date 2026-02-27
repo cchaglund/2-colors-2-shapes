@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import type { Shape, ShapeGroup, CanvasState, DailyChallenge } from '../../types';
-import { generateId } from '../../utils/shapes';
+import type { Shape, ShapeGroup, CanvasState, DailyChallenge, ShapeType } from '../../types';
+import { generateId, SHAPE_NAMES } from '../../utils/shapes';
 
 type SetCanvasState = (
   updater: CanvasState | ((prev: CanvasState) => CanvasState),
@@ -11,6 +11,12 @@ type SetCanvasState = (
 /** Shift all shapes with zIndex > insertAfterZ up by `count` positions. */
 function shiftZIndicesAbove(shapes: Shape[], insertAfterZ: number, count: number): Shape[] {
   return shapes.map((s) => s.zIndex > insertAfterZ ? { ...s, zIndex: s.zIndex + count } : s);
+}
+
+/** Generate a descriptive name like "Circle 1", "Semicircle 2" using per-type count. */
+function generateShapeName(type: ShapeType, existingShapes: Shape[]): string {
+  const typeCount = existingShapes.filter(s => s.type === type).length + 1;
+  return `${SHAPE_NAMES[type]} ${typeCount}`;
 }
 
 /** Helper to ensure all shapes have unique, sequential zIndices. */
@@ -39,9 +45,8 @@ export function useShapeOperations(
       setCanvasState((prev) => {
         const maxZIndex = Math.max(0, ...prev.shapes.map((s) => s.zIndex));
 
-        const shapeLetter = shapeIndex === 0 ? 'A' : 'B';
-        const totalCount = prev.shapes.length + 1;
-        const defaultName = `${shapeLetter}${totalCount}`;
+        const shapeType = challenge.shapes[shapeIndex].type;
+        const defaultName = generateShapeName(shapeType, prev.shapes);
 
         const size = options?.size ?? 100;
         const x = options?.x != null ? options.x - size / 2 : 350;
@@ -75,17 +80,13 @@ export function useShapeOperations(
         const shape = prev.shapes.find((s) => s.id === id);
         if (!shape) return prev;
 
-        const totalCount = prev.shapes.length + 1;
-        const shapeIndex = challenge ? challenge.shapes.findIndex(s => s.type === shape.type) : 0;
-        const shapeLetter = shapeIndex === 0 ? 'A' : 'B';
-
         // Shift everything above the original up by 1, then slot the duplicate directly above
         const shiftedShapes = shiftZIndicesAbove(prev.shapes, shape.zIndex, 1);
 
         const newShape: Shape = {
           ...shape,
           id: generateId(),
-          name: `${shapeLetter}${totalCount}`,
+          name: generateShapeName(shape.type, prev.shapes),
           x: shape.x + 20,
           y: shape.y + 20,
           zIndex: shape.zIndex + 1,
@@ -117,16 +118,11 @@ export function useShapeOperations(
         if (shapesToDuplicate.length === 0) return prev;
 
         let currentShapes = prev.shapes;
-        let currentCount = prev.shapes.length;
         const newShapes: Shape[] = [];
         const newSelectedIds: string[] = [];
         let cumulativeShift = 0;
 
         for (const shape of shapesToDuplicate) {
-          currentCount++;
-          const shapeIndex = challenge ? challenge.shapes.findIndex(s => s.type === shape.type) : 0;
-          const shapeLetter = shapeIndex === 0 ? 'A' : 'B';
-
           // Account for prior shifts when computing this shape's effective position
           const effectiveOrigZ = shape.zIndex + cumulativeShift;
 
@@ -138,10 +134,13 @@ export function useShapeOperations(
             }
           }
 
+          // Count existing + already-created duplicates of same type for naming
+          const allShapes = [...currentShapes, ...newShapes];
+
           const newShape: Shape = {
             ...shape,
             id: generateId(),
-            name: `${shapeLetter}${currentCount}`,
+            name: generateShapeName(shape.type, allShapes),
             x: shape.x + 20,
             y: shape.y + 20,
             zIndex: effectiveOrigZ + 1,

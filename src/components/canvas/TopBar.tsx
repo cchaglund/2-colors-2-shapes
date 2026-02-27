@@ -3,6 +3,7 @@ import type { ThemeMode, ThemeName } from '../../hooks/ui/useThemeState';
 import type { Profile } from '../../hooks/auth/useProfile';
 import { useAuth } from '../../hooks/auth/useAuth';
 import { UserMenuDropdown } from './UserMenuDropdown';
+import { PillButton } from '../shared/PillButton';
 
 // --- Theme Pill (dark mode toggle + divider + A/B/C/D) ---
 
@@ -72,7 +73,7 @@ function ThemePill({
       {THEMES.map((t) => (
         <button
           key={t}
-          className={`flex items-center justify-center w-7 h-full text-xs font-semibold uppercase transition-colors ${
+          className={`flex items-center justify-center w-7 h-full text-xs font-bold uppercase transition-colors ${
             theme === t
               ? 'bg-(--color-accent) text-(--color-accent-text)'
               : 'text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-hover)'
@@ -127,7 +128,7 @@ export function TopBar({
   profileLoading,
 }: TopBarProps) {
   return (
-    <header className="h-14 flex items-center justify-between px-4 bg-(--color-bg-primary) shrink-0 z-30 relative" style={{ borderBottom: 'var(--border-width, 2px) solid var(--color-border)' }}>
+    <header className="h-14 flex items-center justify-between px-4 bg-(--color-card-bg) shrink-0 z-30 relative" style={{ borderBottom: 'var(--border-width, 2px) solid var(--color-border)' }}>
       {/* Left group: logo + theme pill */}
       <div className="flex items-center gap-3">
         <a href="/" className="flex items-center gap-2 no-underline text-(--color-text-primary)">
@@ -202,49 +203,45 @@ function DefaultRightContent({
     <>
       {/* Reset */}
       {onReset && (
-        <button
-          className="h-8 px-3 rounded-(--radius-pill) text-xs font-medium transition-colors bg-(--color-card-bg) text-(--color-text-secondary) hover:text-(--color-danger) hover:border-(--color-danger) cursor-pointer"
-          style={{ border: 'var(--border-width, 2px) solid var(--color-border)', boxShadow: 'var(--shadow-btn)' }}
+        <PillButton
+          variant="secondary"
+          className="hover:text-(--color-danger)"
           onClick={onReset}
           title="Reset canvas"
         >
           Reset
-        </button>
+        </PillButton>
       )}
 
       {/* Submit */}
       {onSave && isLoggedIn ? (
-        <button
-          className="h-8 px-4 rounded-(--radius-pill) text-xs font-medium transition-colors bg-(--color-accent) text-(--color-accent-text) hover:bg-(--color-accent-hover) disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-          style={{ border: 'var(--border-width, 2px) solid var(--color-border)', boxShadow: 'var(--shadow-btn)' }}
+        <PillButton
+          variant="primary"
+          className="px-4 font-bold disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={onSave}
           disabled={isSaving || hasSubmittedToday}
           title={hasSubmittedToday ? 'Already submitted today' : 'Submit your creation'}
         >
           {saveLabel}
-        </button>
+        </PillButton>
       ) : onSave ? (
-        <button
-          className="h-8 px-4 rounded-(--radius-pill) text-xs font-medium transition-colors bg-(--color-accent) text-(--color-accent-text) hover:bg-(--color-accent-hover) cursor-pointer"
-          style={{ border: 'var(--border-width, 2px) solid var(--color-border)', boxShadow: 'var(--shadow-btn)' }}
+        <PillButton
+          variant="primary"
+          className="px-4 font-bold"
           onClick={onSave}
           title="Sign in to submit"
         >
           Submit!
-        </button>
+        </PillButton>
       ) : null}
 
       {/* Divider */}
       <div className="w-px h-5 bg-(--color-border) mx-1" />
 
       {/* Gallery */}
-      <a
-        href="/?view=gallery"
-        className="h-8 px-3 rounded-(--radius-pill) text-xs font-medium transition-colors bg-(--color-card-bg) text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) no-underline flex items-center"
-        style={{ border: 'var(--border-width, 2px) solid var(--color-border)', boxShadow: 'var(--shadow-btn)' }}
-      >
+      <PillButton as="a" variant="ghost" href="/?view=gallery">
         Gallery
-      </a>
+      </PillButton>
 
       {/* Login / User menu */}
       <UserMenuDropdown
@@ -264,7 +261,7 @@ export function InspirationCenter({ word }: { word: string }) {
   return (
     <div className="flex flex-col items-center leading-tight">
       <span className="text-[10px] uppercase tracking-widest text-(--color-accent)">Today&apos;s Inspiration</span>
-      <span className="text-base font-semibold text-(--color-text-primary) capitalize font-display">&ldquo;{word}&rdquo;</span>
+      <span className="text-[20px] font-semibold text-(--color-text-primary) capitalize font-display">{word}</span>
     </div>
   );
 }

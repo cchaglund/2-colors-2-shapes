@@ -9,7 +9,7 @@ const THEME_KEY = 'theme-name';
 /** Google Fonts URLs per theme (loaded on demand) */
 const THEME_FONT_URLS: Record<ThemeName, string[]> = {
   a: [
-    'https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap',
+    'https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap',
     'https://fonts.googleapis.com/css2?family=Lilita+One&display=swap',
   ],
   b: [], // DM Sans is self-hosted

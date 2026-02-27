@@ -48,7 +48,6 @@ export interface LayerItemProps {
   editValue: string;
   draggedId: string | null;
   dropTargetIndex: number | null;
-  isTouchDevice: boolean;
   isTopLayer: boolean;
   isBottomLayer: boolean;
   layerHint: string;

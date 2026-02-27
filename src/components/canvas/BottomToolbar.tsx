@@ -55,23 +55,27 @@ function ColorSwatch({
   selected,
   onClick,
   title,
+  small,
 }: {
   color: string;
   selected: boolean;
   onClick: () => void;
   title?: string;
+  small?: boolean;
 }) {
   return (
     <button
-      className={`w-7 h-7 cursor-pointer transition-all shrink-0 ${
-        selected ? 'scale-115' : 'hover:scale-105'
-      }`}
+      className={`cursor-pointer transition-all shrink-0 ${
+        small ? 'w-[22px] h-[22px]' : 'w-7 h-7'
+      } ${selected ? 'scale-115' : 'hover:scale-105'}`}
       style={{
         backgroundColor: color,
         borderRadius: 'var(--radius-sm)',
         border: selected
           ? 'var(--border-width, 2px) solid var(--color-border)'
-          : 'var(--border-width, 2px) solid transparent',
+          : small
+            ? 'var(--border-width, 2px) solid var(--color-border-light)'
+            : 'var(--border-width, 2px) solid transparent',
       }}
       onClick={onClick}
       title={title ?? color}
@@ -98,6 +102,7 @@ interface BottomToolbarProps {
   activeTool: EditorTool;
   selectedColorIndex: number;
   backgroundColorIndex: number | null;
+  selectedColor: string;
   onSetTool: (tool: EditorTool) => void;
   onSetSelectedColor: (index: number) => void;
   onSetBackground: (index: number | null) => void;
@@ -108,6 +113,7 @@ export function BottomToolbar({
   activeTool,
   selectedColorIndex,
   backgroundColorIndex,
+  selectedColor,
   onSetTool,
   onSetSelectedColor,
   onSetBackground,
@@ -146,7 +152,13 @@ export function BottomToolbar({
               onClick={() => onSetTool(activeTool === toolId ? 'select' : toolId)}
               title={shape.name}
             >
-              <ShapeIcon type={shape.type} size={18} />
+              <ShapeIcon
+                type={shape.type}
+                size={16}
+                fill={selectedColor}
+                stroke="var(--color-border)"
+                strokeWidth={1.5}
+              />
             </ToolButton>
           );
         })}
@@ -175,6 +187,7 @@ export function BottomToolbar({
           color={color}
           selected={backgroundColorIndex === i}
           onClick={() => onSetBackground(i)}
+          small
         />
       ))}
       <ColorSwatch
@@ -182,6 +195,7 @@ export function BottomToolbar({
         selected={backgroundColorIndex === null}
         onClick={() => onSetBackground(null)}
         title="Default (cream)"
+        small
       />
     </motion.div>
   );

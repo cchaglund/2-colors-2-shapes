@@ -148,10 +148,10 @@ function ToolButton({ icon, label, shortcut, onClick, disabled, active }: ToolBu
   return (
     <div className="relative">
       <button
-        className={`w-10 h-10 flex items-center justify-center rounded-(--radius-sm) transition-colors
+        className={`w-10 h-10 flex items-center justify-center rounded-(--radius-sm) transition-all border border-(--color-border-light)
           ${active
-            ? 'bg-(--color-selected) text-(--color-text-primary)'
-            : 'text-(--color-text-secondary) hover:enabled:bg-(--color-hover) hover:enabled:text-(--color-text-primary)'
+            ? 'bg-(--color-selected) text-(--color-text-primary) border-(--color-border)!'
+            : 'text-(--color-text-secondary) hover:enabled:bg-(--color-hover) hover:enabled:text-(--color-text-primary) hover:enabled:border-(--color-border)'
           }
           disabled:opacity-40 disabled:cursor-not-allowed`}
         onClick={onClick}

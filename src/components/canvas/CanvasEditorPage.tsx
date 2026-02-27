@@ -305,7 +305,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
       <div className="flex-1 relative overflow-hidden">
         {/* Canvas fills area */}
         <main
-          className="w-full h-full flex items-center justify-center canvas-bg-checkered overflow-auto"
+          className="w-full h-full flex items-center justify-center bg-(--color-checkered-bg) overflow-auto"
           onMouseDown={handleBackgroundMouseDown}
         >
           <div className="overflow-visible p-16 canvas-wrapper">
@@ -409,7 +409,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
         {/* Stamp mode hint text */}
         {editorTool.startsWith('stamp-') && (
           <div className="absolute bottom-18 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
-            <span className="text-xs text-(--color-text-secondary) bg-(--color-surface)/80 backdrop-blur-sm px-3 py-1 rounded-(--radius-pill) border border-(--color-border-light)">
+            <span className="text-[11px] font-semibold px-3.5 py-1" style={{ color: 'var(--color-text-secondary)', background: 'var(--color-card-bg)', border: 'var(--border-width, 2px) solid var(--color-border-light)', borderRadius: 'var(--radius-pill)', boxShadow: 'var(--shadow-card)', fontFamily: 'var(--font-body)' }}>
               Click to place · Drag to size · Esc to select
             </span>
           </div>
@@ -422,6 +422,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
             activeTool={editorTool}
             selectedColorIndex={selectedColorIndex}
             backgroundColorIndex={canvasState.backgroundColorIndex}
+            selectedColor={challenge.colors[selectedColorIndex]}
             onSetTool={setEditorTool}
             onSetSelectedColor={setSelectedColorIndex}
             onSetBackground={setBackgroundColor}
@@ -441,7 +442,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
         </div>
 
         {/* Keyboard shortcuts popover — bottom left */}
-        <div className="absolute bottom-4 left-4 z-10">
+        <div className="absolute bottom-4 left-4 z-30">
           <KeyboardShortcutsPopover
             keyMappings={keyMappings}
             onOpenSettings={openKeyboardSettings}

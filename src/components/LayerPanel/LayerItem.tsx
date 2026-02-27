@@ -1,5 +1,6 @@
 import type { LayerItemProps } from './types';
 import { VisibilityToggle } from './VisibilityToggle';
+import { ShapeIcon } from '../shared/ShapeIcon';
 
 /**
  * Renders a shape layer item in the layer panel
@@ -15,7 +16,6 @@ export function LayerItem({
   editValue,
   draggedId,
   dropTargetIndex,
-  isTouchDevice,
   isTopLayer,
   isBottomLayer,
   layerHint,
@@ -37,6 +37,7 @@ export function LayerItem({
   const isSelected = selectedShapeIds.has(shape.id);
   const isVisible = shape.visible !== false;
   const isEffectivelyVisible = isVisible && groupVisible;
+  const shapeColor = challenge.colors[shape.colorIndex];
 
   return (
     <li
@@ -45,7 +46,7 @@ export function LayerItem({
       onDragEnd={onDragEnd}
       onDragOver={(e) => onDragOver(e, index, groupId)}
       onDrop={(e) => onDrop(e, index, groupId)}
-      className={`group relative flex items-center gap-2 p-2 rounded cursor-grab transition-colors ${
+      className={`relative flex items-center gap-1.5 py-1.5 px-2 rounded cursor-grab transition-colors ${
         draggedId === shape.id ? 'opacity-50' : ''
       } ${
         dropTargetIndex === index && draggedId !== shape.id
@@ -66,13 +67,19 @@ export function LayerItem({
           onToggleVisibility(shape.id);
         }}
       />
-      <div
-        className="w-5 h-5 rounded shrink-0 border border-(--color-border-light)"
-        style={{ backgroundColor: challenge.colors[shape.colorIndex] }}
-      />
+      {/* Shape thumbnail — colored shape with border */}
+      <div className="w-[18px] h-[18px] shrink-0 flex items-center justify-center">
+        <ShapeIcon
+          type={shape.type}
+          size={18}
+          fill={shapeColor}
+          stroke="var(--color-border)"
+          strokeWidth={1.5}
+        />
+      </div>
       {editingId === shape.id ? (
         <input
-          className="flex-1 text-sm py-0.5 px-1 border border-(--color-accent) rounded outline-none min-w-0 bg-(--color-bg-primary) text-(--color-text-primary)"
+          className="flex-1 text-[11px] py-0.5 px-1 border border-(--color-accent) rounded outline-none min-w-0 bg-(--color-bg-primary) text-(--color-text-primary)"
           value={editValue}
           onChange={(e) => onEditValueChange(e.target.value)}
           onBlur={onFinishEditing}
@@ -82,7 +89,7 @@ export function LayerItem({
         />
       ) : (
         <span
-          className="flex-1 text-sm overflow-hidden text-ellipsis whitespace-nowrap cursor-text text-(--color-text-primary)"
+          className="flex-1 text-[11px] font-semibold overflow-hidden text-ellipsis whitespace-nowrap cursor-text text-(--color-text-primary) capitalize"
           onDoubleClick={(e) => {
             e.stopPropagation();
             onStartEditing(shape);
@@ -91,102 +98,41 @@ export function LayerItem({
           {shape.name}
         </span>
       )}
-      {/* Action buttons - always visible on touch, hover-only on desktop */}
-      {isTouchDevice ? (
-        // Touch devices: always show a simplified set of buttons
-        <div className="flex gap-0.5 shrink-0 ml-auto">
-          <button
-            className="w-7 h-7 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary)"
-            title="Move up"
-            disabled={isTopLayer}
-            onClick={(e) => {
-              e.stopPropagation();
-              onMoveLayer(shape.id, 'up');
-            }}
-          >
-            ⬆
-          </button>
-          <button
-            className="w-7 h-7 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary)"
-            title="Move down"
-            disabled={isBottomLayer}
-            onClick={(e) => {
-              e.stopPropagation();
-              onMoveLayer(shape.id, 'down');
-            }}
-          >
-            ⬇
-          </button>
-          <button
-            className="w-7 h-7 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center text-(--color-danger) disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border)"
-            title="Delete"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDeleteShape(shape.id);
-            }}
-          >
-            ✕
-          </button>
-        </div>
-      ) : (
-        // Desktop: show on hover with full set of buttons
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity rounded p-0.5 shadow-sm bg-(--color-overlay)">
-          <button
-            className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary) hover:enabled:bg-(--color-hover)"
-            title="Bring to front"
-            disabled={isTopLayer}
-            onClick={(e) => {
-              e.stopPropagation();
-              onMoveLayer(shape.id, 'top');
-            }}
-          >
-            ⬆⬆
-          </button>
-          <button
-            className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary) hover:enabled:bg-(--color-hover)"
-            title="Move up"
-            disabled={isTopLayer}
-            onClick={(e) => {
-              e.stopPropagation();
-              onMoveLayer(shape.id, 'up');
-            }}
-          >
-            ⬆
-          </button>
-          <button
-            className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary) hover:enabled:bg-(--color-hover)"
-            title="Move down"
-            disabled={isBottomLayer}
-            onClick={(e) => {
-              e.stopPropagation();
-              onMoveLayer(shape.id, 'down');
-            }}
-          >
-            ⬇
-          </button>
-          <button
-            className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary) hover:enabled:bg-(--color-hover)"
-            title="Send to back"
-            disabled={isBottomLayer}
-            onClick={(e) => {
-              e.stopPropagation();
-              onMoveLayer(shape.id, 'bottom');
-            }}
-          >
-            ⬇⬇
-          </button>
-          <button
-            className="w-6 h-6 p-0 rounded cursor-pointer text-[10px] flex items-center justify-center text-(--color-danger) ml-1 hover:bg-(--color-danger)/5 disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border)"
-            title="Delete"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDeleteShape(shape.id);
-            }}
-          >
-            ✕
-          </button>
-        </div>
-      )}
+      {/* Action buttons — always visible */}
+      <div className="flex gap-0.5 shrink-0 ml-auto">
+        <button
+          className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded"
+          title="Move up"
+          disabled={isTopLayer}
+          onClick={(e) => {
+            e.stopPropagation();
+            onMoveLayer(shape.id, 'up');
+          }}
+        >
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+        </button>
+        <button
+          className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded"
+          title="Move down"
+          disabled={isBottomLayer}
+          onClick={(e) => {
+            e.stopPropagation();
+            onMoveLayer(shape.id, 'down');
+          }}
+        >
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <button
+          className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center text-(--color-accent) rounded"
+          title="Delete"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDeleteShape(shape.id);
+          }}
+        >
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
     </li>
   );
 }
