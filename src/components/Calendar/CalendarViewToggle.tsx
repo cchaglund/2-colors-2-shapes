@@ -1,5 +1,6 @@
 import type { ViewMode } from './types';
 import { ViewToggle } from '../shared/ViewToggle';
+import { useIsDesktop } from '../../hooks/ui/useBreakpoint';
 
 interface CalendarViewToggleProps {
   effectiveViewMode: ViewMode;
@@ -12,8 +13,10 @@ export function CalendarViewToggle({
   user,
   onSetViewMode,
 }: CalendarViewToggleProps) {
+  const isDesktop = useIsDesktop();
+
   const options = [
-    { value: 'my-submissions' as ViewMode, label: 'My Submissions', disabled: !user, disabledTitle: 'Sign in to view my submissions' },
+    { value: 'my-submissions' as ViewMode, label: isDesktop ? 'My Submissions' : 'Mine', disabled: !user, disabledTitle: 'Sign in to view my submissions' },
     { value: 'winners' as ViewMode, label: 'Winners' },
     { value: 'wall' as ViewMode, label: 'Wall' },
     { value: 'friends' as ViewMode, label: 'Friends', disabled: !user, disabledTitle: 'Sign in to view friends' },

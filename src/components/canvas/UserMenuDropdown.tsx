@@ -1,10 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { Profile } from '../../hooks/auth/useProfile';
+import type { ThemeMode, ThemeName } from '../../hooks/ui/useThemeState';
 import { FollowsProvider } from '../../contexts/FollowsContext';
 import { useFollows } from '../../hooks/social/useFollows';
+import { useIsDesktop } from '../../hooks/ui/useBreakpoint';
 import { supabase } from '../../lib/supabase';
 import { PillButton } from '../shared/PillButton';
+
+const THEMES: ThemeName[] = ['a', 'b', 'c', 'd'];
 
 interface UserMenuDropdownProps {
   profile: Profile | null;
@@ -12,11 +16,16 @@ interface UserMenuDropdownProps {
   isLoggedIn: boolean;
   onSignIn: () => void;
   onSignOut: () => void;
+  themeMode?: ThemeMode;
+  onSetThemeMode?: (mode: ThemeMode) => void;
+  themeName?: ThemeName;
+  onSetThemeName?: (name: ThemeName) => void;
 }
 
-export function UserMenuDropdown({ profile, loading, isLoggedIn, onSignIn, onSignOut }: UserMenuDropdownProps) {
+export function UserMenuDropdown({ profile, loading, isLoggedIn, onSignIn, onSignOut, themeMode, onSetThemeMode, themeName, onSetThemeName }: UserMenuDropdownProps) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const isDesktop = useIsDesktop();
 
   // Close on click outside
   useEffect(() => {
@@ -88,13 +97,18 @@ export function UserMenuDropdown({ profile, loading, isLoggedIn, onSignIn, onSig
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -4 }}
             transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-            className="absolute top-full right-0 mt-2 w-[280px] rounded-(--radius-md) border border-(--color-border) bg-(--color-surface) shadow-(--modal-shadow) overflow-hidden z-50"
+            className="absolute top-full right-0 mt-2 w-[280px] max-w-[calc(100vw-2rem)] rounded-(--radius-md) border border-(--color-border) bg-(--color-surface) shadow-(--modal-shadow) overflow-hidden z-50"
           >
             <FollowsProvider>
               <UserMenuContent
                 profile={profile}
                 onSignOut={() => { setOpen(false); onSignOut(); }}
                 onClose={() => setOpen(false)}
+                isDesktop={isDesktop}
+                themeMode={themeMode}
+                onSetThemeMode={onSetThemeMode}
+                themeName={themeName}
+                onSetThemeName={onSetThemeName}
               />
             </FollowsProvider>
           </motion.div>
@@ -110,10 +124,20 @@ function UserMenuContent({
   profile,
   onSignOut,
   onClose,
+  isDesktop,
+  themeMode,
+  onSetThemeMode,
+  themeName,
+  onSetThemeName,
 }: {
   profile: Profile;
   onSignOut: () => void;
   onClose: () => void;
+  isDesktop: boolean;
+  themeMode?: ThemeMode;
+  onSetThemeMode?: (mode: ThemeMode) => void;
+  themeName?: ThemeName;
+  onSetThemeName?: (name: ThemeName) => void;
 }) {
   const { following, followers, followingCount, followersCount, loading, follow } = useFollows();
   const [activeTab, setActiveTab] = useState<'following' | 'followers'>('following');
@@ -261,6 +285,57 @@ function UserMenuContent({
           <div className="text-(--text-xs) text-(--color-danger) mt-1">{addError}</div>
         )}
       </div>
+
+      {/* Mobile-only: Gallery link + theme switcher */}
+      {!isDesktop && (
+        <div className="px-3 py-2 border-t border-(--color-border-light) flex flex-col gap-2">
+          <a
+            href="/?view=gallery"
+            onClick={onClose}
+            className="flex items-center gap-2 px-2 py-1.5 text-(--text-xs) font-medium text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-hover) rounded-(--radius-sm) transition-colors no-underline"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
+            </svg>
+            Gallery
+          </a>
+          {themeMode !== undefined && onSetThemeMode && themeName && onSetThemeName && (
+            <div className="flex items-center gap-1 px-2">
+              <button
+                className="flex items-center justify-center w-7 h-7 rounded-(--radius-sm) transition-colors text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-hover) cursor-pointer"
+                onClick={() => {
+                  const isDark = themeMode === 'dark' || (themeMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                  onSetThemeMode(isDark ? 'light' : 'dark');
+                }}
+                title="Toggle dark mode"
+              >
+                {(themeMode === 'dark' || (themeMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches))
+                  ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg>
+                  : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
+                }
+              </button>
+              <div className="w-px h-4 bg-(--color-border) mx-0.5" />
+              {THEMES.map((t) => (
+                <button
+                  key={t}
+                  className={`flex items-center justify-center w-7 h-7 text-(--text-xs) font-bold uppercase transition-colors rounded-(--radius-sm) cursor-pointer ${
+                    themeName === t
+                      ? 'bg-(--color-accent) text-(--color-accent-text)'
+                      : 'text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-hover)'
+                  }`}
+                  onClick={() => onSetThemeName(t)}
+                  title={`Theme ${t.toUpperCase()}`}
+                >
+                  {t.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Log out */}
       <div className="px-3 py-2 border-t border-(--color-border-light)">

@@ -4,6 +4,7 @@ import type { Profile } from '../../hooks/auth/useProfile';
 import { useAuth } from '../../hooks/auth/useAuth';
 import { UserMenuDropdown } from './UserMenuDropdown';
 import { PillButton } from '../shared/PillButton';
+import { useIsDesktop } from '../../hooks/ui/useBreakpoint';
 
 // --- Theme Pill (dark mode toggle + divider + A/B/C/D) ---
 
@@ -128,29 +129,33 @@ export function TopBar({
   profileLoading,
 }: TopBarProps) {
   return (
-    <header className="h-14 flex items-center justify-between px-4 bg-(--color-card-bg) shrink-0 z-30 relative" style={{ borderBottom: 'var(--border-width, 2px) solid var(--color-border)' }}>
+    <header className="h-14 flex items-center justify-between px-4 bg-(--color-card-bg) shrink-0 z-30 relative" style={{ borderBottom: 'var(--border-width, 2px) solid var(--color-border)', paddingLeft: 'max(1rem, env(safe-area-inset-left))', paddingRight: 'max(1rem, env(safe-area-inset-right))', paddingTop: 'env(safe-area-inset-top)' }}>
       {/* Left group: logo + theme pill */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 md:gap-3 shrink-0">
         <a href="/" className="flex items-center gap-2 no-underline text-(--color-text-primary)">
           <img src={logoSvg} alt="" width="24" height="24" />
-          <span className="text-(--text-base) font-semibold">2colors</span>
+          <span className="hidden md:inline text-(--text-base) font-semibold">2colors</span>
         </a>
 
-        <ThemePill
-          mode={themeMode}
-          onSetMode={onSetThemeMode}
-          theme={themeName}
-          onSetTheme={onSetThemeName}
-        />
+        <div className="hidden md:block">
+          <ThemePill
+            mode={themeMode}
+            onSetMode={onSetThemeMode}
+            theme={themeName}
+            onSetTheme={onSetThemeName}
+          />
+        </div>
       </div>
 
-      {/* Center group */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-        {centerContent}
-      </div>
+      {/* Center group — absolute centered, hidden on mobile to prevent overlap */}
+      {centerContent && (
+        <div className="hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          {centerContent}
+        </div>
+      )}
 
       {/* Right group */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
         {rightContent ?? (
           <DefaultRightContent
             onReset={onReset}
@@ -161,6 +166,10 @@ export function TopBar({
             isLoggedIn={isLoggedIn}
             profile={profile}
             profileLoading={profileLoading}
+            themeMode={themeMode}
+            onSetThemeMode={onSetThemeMode}
+            themeName={themeName}
+            onSetThemeName={onSetThemeName}
           />
         )}
       </div>
@@ -179,6 +188,10 @@ function DefaultRightContent({
   isLoggedIn,
   profile,
   profileLoading,
+  themeMode,
+  onSetThemeMode,
+  themeName,
+  onSetThemeName,
 }: {
   onReset?: () => void;
   onSave?: () => void;
@@ -188,8 +201,13 @@ function DefaultRightContent({
   isLoggedIn?: boolean;
   profile?: Profile | null;
   profileLoading?: boolean;
+  themeMode: ThemeMode;
+  onSetThemeMode: (mode: ThemeMode) => void;
+  themeName: ThemeName;
+  onSetThemeName: (name: ThemeName) => void;
 }) {
   const { user, loading: authLoading, signInWithGoogle, signOut } = useAuth();
+  const isDesktop = useIsDesktop();
 
   const saveLabel = isSaving
     ? 'Saving...'
@@ -201,7 +219,7 @@ function DefaultRightContent({
 
   return (
     <>
-      {/* Reset */}
+      {/* Reset — icon-only on mobile */}
       {onReset && (
         <PillButton
           variant="secondary"
@@ -209,7 +227,12 @@ function DefaultRightContent({
           onClick={onReset}
           title="Reset canvas"
         >
-          Reset
+          {isDesktop ? 'Reset' : (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="1 4 1 10 7 10" />
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+            </svg>
+          )}
         </PillButton>
       )}
 
@@ -235,13 +258,13 @@ function DefaultRightContent({
         </PillButton>
       ) : null}
 
-      {/* Divider */}
-      <div className="w-px h-5 bg-(--color-border) mx-1" />
-
-      {/* Gallery */}
-      <PillButton as="a" variant="ghost" href="/?view=gallery">
-        Gallery
-      </PillButton>
+      {/* Divider + Gallery — hidden on mobile (available in UserMenuDropdown) */}
+      <div className="hidden md:block w-px h-5 bg-(--color-border) mx-1" />
+      <div className="hidden md:block">
+        <PillButton as="a" variant="ghost" href="/?view=gallery">
+          Gallery
+        </PillButton>
+      </div>
 
       {/* Login / User menu */}
       <UserMenuDropdown
@@ -250,6 +273,10 @@ function DefaultRightContent({
         isLoggedIn={!!user}
         onSignIn={signInWithGoogle}
         onSignOut={signOut}
+        themeMode={themeMode}
+        onSetThemeMode={onSetThemeMode}
+        themeName={themeName}
+        onSetThemeName={onSetThemeName}
       />
     </>
   );
@@ -259,9 +286,9 @@ function DefaultRightContent({
 
 export function InspirationCenter({ word }: { word: string }) {
   return (
-    <div className="flex flex-col items-center leading-tight">
-      <span className="text-(--text-xs) uppercase tracking-widest text-(--color-accent)">Today&apos;s Inspiration</span>
-      <span className="text-(--text-xl) font-semibold text-(--color-text-primary) capitalize font-display">{word}</span>
+    <div className="flex flex-col items-center leading-tight min-w-0">
+      <span className="hidden md:block text-(--text-xs) uppercase tracking-widest text-(--color-accent)">Today&apos;s Inspiration</span>
+      <span className="text-(--text-sm) md:text-(--text-xl) font-semibold text-(--color-text-primary) capitalize font-display truncate max-w-full">{word}</span>
     </div>
   );
 }

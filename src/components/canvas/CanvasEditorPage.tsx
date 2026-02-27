@@ -30,6 +30,8 @@ import { useWelcomeModal } from '../../hooks/ui/useWelcomeModal';
 import { useKeyboardSettings } from '../../hooks/ui/useKeyboardSettings';
 import { useWinnerAnnouncement } from '../../hooks/ui/useWinnerAnnouncement';
 import { useShapeActions } from '../../hooks/canvas/useShapeActions';
+import { useIsTouchDevice } from '../../hooks/ui/useIsTouchDevice';
+import { useIsDesktop } from '../../hooks/ui/useBreakpoint';
 
 import { useAppModals } from '../../hooks/ui/useAppModals';
 import { useSaveSubmission } from '../../hooks/submission/useSaveSubmission';
@@ -252,6 +254,9 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
     }
   }, [user, challenge]);
 
+  const isTouchDevice = useIsTouchDevice();
+  const isDesktop = useIsDesktop();
+
   // Editor tool mode (select vs stamp) and selected color for new shapes
   const [editorTool, setEditorTool] = useState<EditorTool>('select');
   const [selectedColorIndex, setSelectedColorIndex] = useState<number>(0);
@@ -308,7 +313,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
           className="w-full h-full flex items-center justify-center bg-(--color-checkered-bg) overflow-auto"
           onMouseDown={handleBackgroundMouseDown}
         >
-          <div className="overflow-visible p-16 canvas-wrapper">
+          <div className="overflow-visible p-4 md:p-16 canvas-wrapper">
             <Canvas
               shapes={canvasState.shapes}
               groups={canvasState.groups}
@@ -408,7 +413,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
 
         {/* Stamp mode hint text */}
         {editorTool.startsWith('stamp-') && (
-          <div className="absolute bottom-18 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
+          <div className="absolute bottom-20 md:bottom-18 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
             <span className="text-(--text-xs) font-semibold px-3.5 py-1" style={{ color: 'var(--color-text-secondary)', background: 'var(--color-card-bg)', border: 'var(--border-width, 2px) solid var(--color-border-light)', borderRadius: 'var(--radius-pill)', boxShadow: 'var(--shadow-card)', fontFamily: 'var(--font-body)' }}>
               Click to place · Drag to size · Esc to select
             </span>
@@ -429,8 +434,8 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
           />
         </div>
 
-        {/* Zoom controls — bottom right */}
-        <div className="absolute bottom-4 right-4 z-10">
+        {/* Zoom controls — bottom right (raised on mobile to avoid BottomToolbar) */}
+        <div className="absolute bottom-18 md:bottom-4 right-4 z-10">
           <ZoomControls
             zoom={viewport.zoom}
             onZoomIn={handleZoomIn}
@@ -441,23 +446,26 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
           />
         </div>
 
-        {/* Keyboard shortcuts popover — bottom left */}
-        <div className="absolute bottom-4 left-4 z-30">
-          <KeyboardShortcutsPopover
-            keyMappings={keyMappings}
-            onOpenSettings={openKeyboardSettings}
-          />
-        </div>
+        {/* Keyboard shortcuts popover — bottom left (hidden on touch devices) */}
+        {!isTouchDevice && (
+          <div className="absolute bottom-4 left-4 z-30">
+            <KeyboardShortcutsPopover
+              keyMappings={keyMappings}
+              onOpenSettings={openKeyboardSettings}
+            />
+          </div>
+        )}
 
         {/* Right layers panel collapsed toggle */}
         {!rightOpen && (
           <button
-            className="absolute right-3 top-3 z-20 flex items-center gap-1.5 h-10 px-3.5 cursor-pointer transition-colors rounded-(--radius-md) bg-(--color-card-bg) hover:bg-(--color-hover) text-(--color-text-secondary)"
+            className={`absolute z-20 flex items-center gap-1.5 h-10 px-3.5 cursor-pointer transition-colors rounded-(--radius-md) bg-(--color-card-bg) hover:bg-(--color-hover) text-(--color-text-secondary) ${
+              isDesktop ? 'right-3 top-3' : 'right-3 bottom-30'
+            }`}
             style={{ border: 'var(--border-width, 2px) solid var(--color-border)', boxShadow: 'var(--shadow-btn)' }}
             onClick={toggleRight}
             title="Show Layers"
-            aria-label={`Open layers`}
-            aria-description="Open layers"
+            aria-label="Open layers"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="12 2 2 7 12 12 22 7 12 2" />
@@ -470,16 +478,25 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
           </button>
         )}
 
-        {/* Right layers panel */}
+        {/* Right layers panel — side panel on desktop, bottom sheet on mobile */}
         <AnimatePresence>
           {rightOpen && (
             <motion.div
               key="right-sidebar"
-              initial={{ x: 40, opacity: 0 }}
-              animate={{ x: 0, opacity: 1, transition: { type: 'spring', stiffness: 400, damping: 30 } }}
-              exit={{ x: 40, opacity: 0, transition: { duration: 0.2 } }}
-              className="absolute top-3 right-3 z-20"
-              style={{ width: 240 }}
+              initial={isDesktop ? { x: 40, opacity: 0 } : { y: 100, opacity: 0 }}
+              animate={isDesktop
+                ? { x: 0, opacity: 1, transition: { type: 'spring', stiffness: 400, damping: 30 } }
+                : { y: 0, opacity: 1, transition: { type: 'spring', stiffness: 400, damping: 30 } }
+              }
+              exit={isDesktop
+                ? { x: 40, opacity: 0, transition: { duration: 0.2 } }
+                : { y: 100, opacity: 0, transition: { duration: 0.2 } }
+              }
+              className={isDesktop
+                ? 'absolute top-3 right-3 z-20'
+                : 'absolute bottom-18 left-0 right-0 z-20 max-h-[50vh]'
+              }
+              style={isDesktop ? { width: 240 } : undefined}
             >
               <LayerPanel
                 shapes={canvasState.shapes}

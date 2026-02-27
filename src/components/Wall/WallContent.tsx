@@ -211,7 +211,7 @@ export function WallContent({
           <div
             className="grid gap-4"
             style={{
-              gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
             }}
           >
             {submissions.map((submission) => (

@@ -66,7 +66,7 @@ function ColorSwatch({
   return (
     <button
       className={`cursor-pointer transition-all shrink-0 ${
-        small ? 'w-[22px] h-[22px]' : 'w-7 h-7'
+        small ? 'w-5 h-5 md:w-[22px] md:h-[22px]' : 'w-6 h-6 md:w-7 md:h-7'
       } ${selected ? 'scale-115' : 'hover:scale-105'}`}
       style={{
         backgroundColor: color,
@@ -84,12 +84,12 @@ function ColorSwatch({
 }
 
 function Divider() {
-  return <div className="w-px h-6 bg-(--color-border-light) mx-1 shrink-0" />;
+  return <div className="w-px h-6 bg-(--color-border-light) mx-0.5 md:mx-1 shrink-0" />;
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <span className="text-(--text-xs) font-bold uppercase tracking-wide text-(--color-text-tertiary) px-1 shrink-0">
+    <span className="hidden md:inline text-(--text-xs) font-bold uppercase tracking-wide text-(--color-text-tertiary) px-1 shrink-0">
       {children}
     </span>
   );
@@ -126,12 +126,13 @@ export function BottomToolbar({
         opacity: 1,
         transition: { type: 'spring', stiffness: 400, damping: 25 },
       }}
-      className="flex items-center h-12 gap-1.5 px-4 backdrop-blur-sm"
+      className="flex items-center h-12 gap-1 md:gap-1.5 px-2 md:px-4 backdrop-blur-sm"
       style={{
         background: 'var(--color-card-bg)',
         border: 'var(--border-width, 2px) solid var(--color-border)',
         borderRadius: 'var(--radius-xl)',
         boxShadow: 'var(--shadow-card)',
+        marginBottom: 'env(safe-area-inset-bottom)',
       }}
     >
       {/* Tool mode: Select + shape buttons (grouped in tray) */}

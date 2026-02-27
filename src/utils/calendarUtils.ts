@@ -1,4 +1,5 @@
 export const DAYS_OF_WEEK = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+export const DAYS_OF_WEEK_SHORT = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 export const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',

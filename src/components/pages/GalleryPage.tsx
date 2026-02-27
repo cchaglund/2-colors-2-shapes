@@ -308,7 +308,7 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
         rightContent={
           <a
             href="/"
-            className="h-8 px-3 rounded-(--radius-pill) text-(--text-xs) font-medium transition-colors text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) no-underline flex items-center gap-1"
+            className="h-9 md:h-8 px-2 md:px-3 rounded-(--radius-pill) text-(--text-xs) font-medium transition-colors text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) no-underline flex items-center gap-1"
             style={{
               background: 'var(--color-selected)',
               border: 'var(--border-width, 2px) solid var(--color-border)',
@@ -318,7 +318,7 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6" />
             </svg>
-            Back to canvas
+            <span className="hidden md:inline">Back to canvas</span>
           </a>
         }
       />

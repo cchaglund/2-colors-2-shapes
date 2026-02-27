@@ -16,7 +16,7 @@ export function BackToCanvasLink() {
             >
                 <polyline points="15 18 9 12 15 6" />
             </svg>
-            Back to canvas
+            <span className="hidden md:inline">Back to canvas</span>
         </a>
     );
 };

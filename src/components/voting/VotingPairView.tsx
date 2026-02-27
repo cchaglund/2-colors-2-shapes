@@ -1,5 +1,6 @@
 import { InfoTooltip } from '../shared/InfoTooltip';
 import { SubmissionThumbnail } from '../shared/SubmissionThumbnail';
+import { useIsDesktop } from '../../hooks/ui/useBreakpoint';
 import type { VotingPairViewProps } from './types';
 
 function formatDate(dateStr: string) {
@@ -22,10 +23,13 @@ export function VotingPairView({
   onSkip,
   onSkipVoting,
 }: VotingPairViewProps) {
+  const isDesktop = useIsDesktop();
+  const thumbnailSize = isDesktop ? 260 : undefined; // undefined = full width
+
   return (
     <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-(--radius-lg) w-full max-w-3xl">
       {/* Header banner */}
-      <div className="px-6 py-5 border-b border-(--color-border-light) bg-(--color-bg-tertiary)">
+      <div className="px-4 py-4 md:px-6 md:py-5 border-b border-(--color-border-light) bg-(--color-bg-tertiary)">
         <h2 className="text-center text-(--text-xl) font-semibold text-(--color-text-primary) mb-2">
           Your art has been saved!
         </h2>
@@ -43,7 +47,7 @@ export function VotingPairView({
       </div>
 
       {/* Main content */}
-      <div className="p-6">
+      <div className="p-4 md:p-6">
         <div className="flex justify-between items-start mb-4">
           <div>
             <h3 id="voting-title" className="text-(--text-lg) font-semibold text-(--color-text-primary) flex items-center gap-1">
@@ -80,19 +84,19 @@ export function VotingPairView({
           Which of these two submissions do you prefer?
         </p>
 
-        {/* Side by side comparison */}
-        <div className="flex justify-center gap-4 mb-6">
+        {/* Side by side comparison (stacks vertically on mobile) */}
+        <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-6">
           <button
             onClick={() => onVote(currentPair.submissionA.id)}
             disabled={submitting}
-            className="cursor-pointer group relative border border-(--color-border) rounded-(--radius-lg) overflow-hidden hover:border-(--color-accent) transition-all focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="cursor-pointer group relative border border-(--color-border) rounded-(--radius-lg) overflow-hidden hover:border-(--color-accent) transition-all focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto"
           >
             <SubmissionThumbnail
               shapes={currentPair.submissionA.shapes}
               groups={currentPair.submissionA.groups}
               challenge={challenge}
               backgroundColorIndex={currentPair.submissionA.background_color_index}
-              size={260}
+              size={thumbnailSize}
             />
             <div className="absolute inset-0 flex items-center justify-center bg-(--color-accent)/85 text-(--color-accent-text) text-(--text-sm) font-medium opacity-0 group-hover:opacity-100 transition-opacity">
               Choose this one
@@ -102,14 +106,14 @@ export function VotingPairView({
           <button
             onClick={() => onVote(currentPair.submissionB.id)}
             disabled={submitting}
-            className="cursor-pointer group relative border border-(--color-border) rounded-(--radius-lg) overflow-hidden hover:border-(--color-accent) transition-all focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="cursor-pointer group relative border border-(--color-border) rounded-(--radius-lg) overflow-hidden hover:border-(--color-accent) transition-all focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto"
           >
             <SubmissionThumbnail
               shapes={currentPair.submissionB.shapes}
               groups={currentPair.submissionB.groups}
               challenge={challenge}
               backgroundColorIndex={currentPair.submissionB.background_color_index}
-              size={260}
+              size={thumbnailSize}
             />
             <div className="absolute inset-0 flex items-center justify-center bg-(--color-accent)/85 text-(--color-accent-text) text-(--text-sm) font-medium opacity-0 group-hover:opacity-100 transition-opacity">
               Choose this one

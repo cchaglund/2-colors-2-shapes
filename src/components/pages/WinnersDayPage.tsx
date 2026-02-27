@@ -148,7 +148,7 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
                     <h2 className="text-(--text-base) font-medium mb-4 text-(--color-text-tertiary)">
                       {winners.length > 1 ? '1st Place (Tie)' : '1st Place'}
                     </h2>
-                    <div className={`flex justify-center ${winners.length > 1 ? 'gap-6' : ''}`}>
+                    <div className={`flex flex-wrap justify-center ${winners.length > 1 ? 'gap-4 md:gap-6' : ''}`}>
                       {winners.map((winner) => (
                         <WinnerCard
                           key={winner.submission_id}
@@ -164,7 +164,7 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
 
                 {/* 2nd and 3rd place */}
                 {(runnerUps.length > 0 || thirdPlaces.length > 0) && (
-                  <div className="flex justify-center gap-8">
+                  <div className="flex flex-wrap justify-center gap-4 md:gap-8">
                     {runnerUps.map((entry) => (
                       <WinnerCard
                         key={entry.submission_id}

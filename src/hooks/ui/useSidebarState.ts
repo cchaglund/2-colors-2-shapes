@@ -14,13 +14,15 @@ const MIN_WIDTH = 150;
 const MAX_WIDTH = 400;
 
 function loadState(): SidebarState {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
       return {
-        leftOpen: parsed.leftOpen ?? true,
-        rightOpen: parsed.rightOpen ?? true,
+        leftOpen: isMobile ? false : (parsed.leftOpen ?? true),
+        rightOpen: isMobile ? false : (parsed.rightOpen ?? true),
         leftWidth: parsed.leftWidth ?? DEFAULT_LEFT_WIDTH,
         rightWidth: parsed.rightWidth ?? DEFAULT_RIGHT_WIDTH,
       };
@@ -29,8 +31,8 @@ function loadState(): SidebarState {
     // Ignore parse errors
   }
   return {
-    leftOpen: true,
-    rightOpen: true,
+    leftOpen: !isMobile,
+    rightOpen: !isMobile,
     leftWidth: DEFAULT_LEFT_WIDTH,
     rightWidth: DEFAULT_RIGHT_WIDTH,
   };

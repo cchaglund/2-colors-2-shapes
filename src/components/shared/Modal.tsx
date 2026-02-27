@@ -89,7 +89,7 @@ export function Modal({
     >
       <div
         ref={modalRef}
-        className={`p-6 w-full ${size} mx-4 ${className}`}
+        className={`p-4 md:p-6 w-full ${size} mx-4 max-h-[90vh] overflow-y-auto ${className}`}
         style={{
           background: 'var(--color-modal-bg)',
           border: 'var(--border-width, 2px) solid var(--color-border)',
