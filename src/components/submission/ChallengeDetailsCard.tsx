@@ -9,7 +9,15 @@ interface ChallengeDetailsCardProps {
 
 export function ChallengeDetailsCard({ challenge, submissionShapes }: ChallengeDetailsCardProps) {
   return (
-    <div className="border rounded-lg p-4 bg-(--color-bg-primary) border-(--color-border)">
+    <div
+      className="p-5"
+      style={{
+        background: 'var(--color-card-bg)',
+        border: 'var(--border-width, 2px) solid var(--color-border-light)',
+        borderRadius: 'var(--radius-lg)',
+        boxShadow: 'var(--shadow-btn)',
+      }}
+    >
 
       {/* Daily Word */}
       <div className="mb-4">

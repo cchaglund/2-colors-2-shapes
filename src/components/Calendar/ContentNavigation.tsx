@@ -8,6 +8,23 @@ interface ContentNavigationProps {
   showToday?: boolean;
 }
 
+const navBtnStyle: React.CSSProperties = {
+  width: 32,
+  height: 32,
+  background: 'var(--color-card-bg)',
+  border: 'var(--border-width, 2px) solid var(--color-border-light)',
+  borderRadius: 'var(--radius-md)',
+};
+
+const todayBtnStyle: React.CSSProperties = {
+  background: 'var(--color-selected)',
+  border: 'var(--border-width, 2px) solid var(--color-border-light)',
+  borderRadius: 'var(--radius-pill)',
+  padding: '4px 12px',
+  fontSize: 11,
+  fontWeight: 600,
+};
+
 export function ContentNavigation({
   label,
   onPrev,
@@ -22,7 +39,8 @@ export function ContentNavigation({
         <button
           onClick={onPrev}
           disabled={!canGoPrev}
-          className="p-2 rounded-md cursor-pointer transition-colors hover:bg-(--color-bg-secondary) text-(--color-text-primary) disabled:opacity-30 disabled:cursor-not-allowed"
+          className="flex items-center justify-center cursor-pointer transition-all text-(--color-text-primary) disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-80"
+          style={navBtnStyle}
           aria-label="Previous"
         >
           <svg
@@ -40,13 +58,14 @@ export function ContentNavigation({
         </button>
 
         <div className='relative'>
-          <span className="text-lg font-semibold min-w-40 text-center text-(--color-text-primary)">
+          <span className="text-lg font-bold min-w-40 text-center text-(--color-text-primary) font-display">
             {label}
           </span>
           {showToday && (
             <button
               onClick={onToday}
-              className="absolute -right-19 -top-0.5 px-3 py-1 text-sm rounded-md cursor-pointer border border-(--color-border) transition-colors hover:bg-(--color-bg-secondary) text-(--color-text-secondary)"
+              className="absolute -right-19 -top-0.5 cursor-pointer transition-all text-(--color-text-primary) hover:opacity-80"
+              style={todayBtnStyle}
             >
               Today
             </button>
@@ -56,7 +75,8 @@ export function ContentNavigation({
         <button
           onClick={onNext}
           disabled={!canGoNext}
-          className="p-2 rounded-md cursor-pointer transition-colors hover:bg-(--color-bg-secondary) text-(--color-text-primary) disabled:opacity-30 disabled:cursor-not-allowed"
+          className="flex items-center justify-center cursor-pointer transition-all text-(--color-text-primary) disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-80"
+          style={navBtnStyle}
           aria-label="Next"
         >
           <svg

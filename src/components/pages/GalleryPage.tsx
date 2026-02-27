@@ -308,7 +308,12 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
         rightContent={
           <a
             href="/"
-            className="h-8 px-3 rounded-(--radius-pill) border border-(--color-border) text-xs font-medium transition-colors bg-transparent text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) no-underline flex items-center gap-1"
+            className="h-8 px-3 rounded-(--radius-pill) text-xs font-medium transition-colors text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) no-underline flex items-center gap-1"
+            style={{
+              background: 'var(--color-selected)',
+              border: 'var(--border-width, 2px) solid var(--color-border)',
+              boxShadow: 'var(--shadow-btn)',
+            }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6" />

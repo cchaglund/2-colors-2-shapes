@@ -89,7 +89,13 @@ export function Modal({
     >
       <div
         ref={modalRef}
-        className={`bg-(--color-bg-primary) border border-(--color-border) rounded-lg p-6 w-full ${size} mx-4 ${className}`}
+        className={`p-6 w-full ${size} mx-4 ${className}`}
+        style={{
+          background: 'var(--color-modal-bg)',
+          border: 'var(--border-width, 2px) solid var(--color-border)',
+          borderRadius: 'var(--radius-lg)',
+          boxShadow: 'var(--shadow-modal)',
+        }}
       >
         {children}
       </div>

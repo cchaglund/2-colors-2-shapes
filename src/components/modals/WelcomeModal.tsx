@@ -1,5 +1,6 @@
 import type { DailyChallenge } from '../../types';
 import { Modal } from '../shared/Modal';
+import { PillButton } from '../shared/PillButton';
 import { ShapeIcon } from '../shared/ShapeIcon';
 
 interface WelcomeModalProps {
@@ -86,12 +87,9 @@ export function WelcomeModal({ onDismiss, challenge }: WelcomeModalProps) {
         </p>
       </div>
 
-      <button
-        onClick={onDismiss}
-        className="w-full mt-6 px-4 py-2 text-(--color-accent-text) rounded-md text-[13px] font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 bg-(--color-accent) hover:bg-(--color-accent-hover) cursor-pointer"
-      >
+      <PillButton variant="primary" fullWidth onClick={onDismiss} className="mt-6">
         Start creating
-      </button>
+      </PillButton>
     </Modal>
   );
 }

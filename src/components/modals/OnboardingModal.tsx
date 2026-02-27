@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Modal } from '../shared/Modal';
+import { PillButton } from '../shared/PillButton';
 
 interface OnboardingModalProps {
   onComplete: (nickname: string) => Promise<{ success: boolean; error?: string }>;
@@ -77,7 +78,8 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
             placeholder="Enter your nickname"
             maxLength={15}
             autoFocus
-            className="w-full px-3 py-2 bg-(--color-bg-secondary) border border-(--color-border) rounded-md text-[13px] text-(--color-text-primary) placeholder-(--color-text-tertiary) focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:border-transparent"
+            className="w-full px-3 py-2 bg-(--color-bg-secondary) rounded-(--radius-md) text-[13px] text-(--color-text-primary) placeholder-(--color-text-tertiary) focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:border-transparent"
+            style={{ border: 'var(--border-width, 2px) solid var(--color-border)' }}
           />
           <div className="flex justify-between mt-1">
             <span className="text-[11px] text-(--color-danger)">{error || ''}</span>
@@ -87,13 +89,15 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
           </div>
         </div>
 
-        <button
+        <PillButton
+          variant="primary"
+          fullWidth
           type="submit"
           disabled={submitting || !nickname}
-          className="w-full px-4 py-2 bg-(--color-accent) text-(--color-accent-text) rounded-md text-[13px] font-medium hover:bg-(--color-accent-hover) disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+          className="disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {submitting ? 'Saving...' : 'Continue'}
-        </button>
+        </PillButton>
       </form>
     </Modal>
   );

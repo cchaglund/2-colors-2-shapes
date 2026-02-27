@@ -55,17 +55,21 @@ export function LikeButton({ submissionId, submissionUserId, initialLikeCount }:
         aria-label={isLiked ? 'Unlike submission' : 'Like submission'}
         aria-pressed={isLiked}
         className={`
-          inline-flex items-center gap-1.5 px-4 py-2 rounded-(--radius-pill) text-[13px] font-medium transition-colors
+          inline-flex items-center gap-1.5 px-4 py-2 rounded-(--radius-pill) text-[13px] font-medium transition-all
           ${showDisabledStyle
             ? 'cursor-not-allowed opacity-50'
             : 'cursor-pointer'
           }
           ${isLiked
-            ? 'bg-(--color-danger)/10 text-(--color-danger) hover:bg-(--color-danger)/20'
-            : 'bg-(--color-bg-tertiary) text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-hover)'
+            ? 'text-(--color-danger)'
+            : 'text-(--color-text-secondary) hover:text-(--color-text-primary)'
           }
           focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-1 focus:ring-offset-(--color-bg-primary)
         `}
+        style={{
+          background: isLiked ? 'transparent' : 'transparent',
+          border: 'var(--border-width, 2px) solid var(--color-border-light)',
+        }}
       >
         {/* Heart icon - filled when liked, outlined when not */}
         <svg

@@ -4,6 +4,7 @@ import type { RankingEntry } from '../../types';
 import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
 import { WinnerCard } from '../submission/WinnerCard';
 import { Modal } from '../shared/Modal';
+import { PillButton } from '../shared/PillButton';
 
 const CONFETTI_DURATION_MS = 6_000;
 const CONFETTI_INTERVAL_MS = 300;
@@ -108,12 +109,9 @@ export function CongratulatoryModal({
         />
       </div>
 
-      <button
-        onClick={handleDismiss}
-        className="w-full px-4 py-2 bg-(--color-accent) text-(--color-accent-text) text-[13px] rounded-md font-medium hover:bg-(--color-accent-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2"
-      >
+      <PillButton variant="primary" fullWidth onClick={handleDismiss}>
         Yay!
-      </button>
+      </PillButton>
     </Modal>
   );
 }

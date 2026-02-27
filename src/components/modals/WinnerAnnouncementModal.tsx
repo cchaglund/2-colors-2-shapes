@@ -2,6 +2,7 @@ import type { RankingEntry } from '../../types';
 import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
 import { WinnerCard } from '../submission/WinnerCard';
 import { Modal } from '../shared/Modal';
+import { PillButton } from '../shared/PillButton';
 
 interface WinnerAnnouncementModalProps {
   challengeDate: string;
@@ -99,12 +100,9 @@ export function WinnerAnnouncementModal({
         </div>
       ) : null}
 
-      <button
-        onClick={onDismiss}
-        className="w-full px-4 py-2 bg-(--color-accent) text-(--color-accent-text) text-[13px] rounded-md font-medium hover:bg-(--color-accent-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2"
-      >
+      <PillButton variant="primary" fullWidth onClick={onDismiss}>
         Awesome!
-      </button>
+      </PillButton>
     </Modal>
   );
 }

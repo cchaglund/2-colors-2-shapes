@@ -6,6 +6,7 @@ import { useCalendarChallenges } from '../../hooks/challenge/useCalendarChalleng
 import { WallSortControls } from '../Wall/WallSortControls';
 import { SubmissionThumbnail } from '../shared/SubmissionThumbnail';
 import { TrophyBadge } from '../shared/TrophyBadge';
+import { ViewToggle } from '../shared/ViewToggle';
 import { ContentNavigation } from '../Calendar/ContentNavigation';
 import { ContentCalendarGrid } from '../Calendar/ContentCalendarGrid';
 import { useAuth } from '../../hooks/auth/useAuth';
@@ -259,28 +260,14 @@ export function FriendsFeedContent({
 
       {/* View toggle and sort controls */}
       <div className="flex items-center justify-between">
-        <div className="flex rounded-md p-0.5 border border-(--color-border) bg-(--color-bg-tertiary)">
-          <button
-            onClick={() => setViewType('grid')}
-            className={`px-3 py-1.5 rounded text-[13px] font-medium transition-colors ${
-              viewType === 'grid'
-                ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
-                : 'bg-transparent text-(--color-text-secondary) border border-transparent'
-            }`}
-          >
-            Grid
-          </button>
-          <button
-            onClick={() => setViewType('calendar')}
-            className={`px-3 py-1.5 rounded text-[13px] font-medium transition-colors ${
-              viewType === 'calendar'
-                ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
-                : 'bg-transparent text-(--color-text-secondary) border border-transparent'
-            }`}
-          >
-            Calendar
-          </button>
-        </div>
+        <ViewToggle
+          options={[
+            { value: 'grid' as ViewType, label: 'Grid' },
+            { value: 'calendar' as ViewType, label: 'Calendar' },
+          ]}
+          activeValue={viewType}
+          onChange={setViewType}
+        />
 
         {/* Sort controls - only show in grid view */}
         {viewType === 'grid' && (
@@ -370,13 +357,13 @@ export function FriendsFeedContent({
               <div
                 className="grid gap-4"
                 style={{
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
                 }}
               >
                 {submissions.map((submission) => (
                   <div
                     key={submission.id}
-                    className="relative flex flex-col items-center"
+                    className="relative"
                     title={`Submitted at ${formatTime(submission.created_at)}`}
                   >
                     {submission.final_rank !== undefined && submission.final_rank >= 1 && submission.final_rank <= 3 && (
@@ -389,15 +376,12 @@ export function FriendsFeedContent({
                       groups={submission.groups}
                       challenge={challenge}
                       backgroundColorIndex={submission.background_color_index}
-                      size={140}
+                      card={true}
                       showNickname={true}
                       nickname={submission.nickname}
                       href={onSubmissionClick ? undefined : getSubmissionHref(submission.id)}
                       onClick={onSubmissionClick ? () => onSubmissionClick(submission.id) : undefined}
                     />
-                    <span className="text-[10px] text-(--color-text-tertiary)">
-                      {formatTime(submission.created_at)}
-                    </span>
                   </div>
                 ))}
               </div>
@@ -407,7 +391,13 @@ export function FriendsFeedContent({
                 <div className="flex justify-center pt-4">
                   <button
                     onClick={loadMore}
-                    className="px-4 py-2 text-[13px] font-medium text-(--color-accent) border border-(--color-accent) rounded-md hover:bg-(--color-accent) hover:text-(--color-accent-text) transition-colors"
+                    className="px-4 py-2 text-[13px] font-medium transition-colors cursor-pointer"
+                    style={{
+                      color: 'var(--color-accent)',
+                      border: 'var(--border-width, 2px) solid var(--color-accent)',
+                      borderRadius: 'var(--radius-pill)',
+                      background: 'transparent',
+                    }}
                   >
                     Load more submissions
                   </button>

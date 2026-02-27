@@ -6,61 +6,66 @@ interface CalendarViewToggleProps {
   onSetViewMode: (mode: ViewMode) => void;
 }
 
+const tabStyle = {
+  active: {
+    background: 'var(--color-card-bg)',
+    border: 'var(--border-width, 2px) solid var(--color-border)',
+    borderRadius: 'var(--radius-md)',
+    boxShadow: 'var(--shadow-btn)',
+  } as React.CSSProperties,
+  inactive: {
+    background: 'transparent',
+    border: '1px solid transparent',
+    borderRadius: 'var(--radius-md)',
+    boxShadow: 'none',
+  } as React.CSSProperties,
+};
+
 export function CalendarViewToggle({
   effectiveViewMode,
   user,
   onSetViewMode,
 }: CalendarViewToggleProps) {
+  const tabs: { mode: ViewMode; label: string; requiresAuth: boolean }[] = [
+    { mode: 'my-submissions', label: 'My Submissions', requiresAuth: true },
+    { mode: 'winners', label: 'Winners', requiresAuth: false },
+    { mode: 'wall', label: 'Wall', requiresAuth: false },
+    { mode: 'friends', label: 'Friends', requiresAuth: true },
+  ];
+
   return (
-    <div className="flex rounded-md p-0.5 mb-7 border border-(--color-border) bg-(--color-bg-tertiary)">
-      <button
-        onClick={() => onSetViewMode('my-submissions')}
-        disabled={!user}
-        className={`flex-1 px-4 py-1.5 rounded text-[13px] font-medium transition-colors ${
-          !user ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-        } ${
-          effectiveViewMode === 'my-submissions'
-            ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
-            : 'bg-transparent text-(--color-text-secondary) border border-transparent'
-        }`}
-        title={!user ? 'Sign in to view your submissions' : undefined}
-      >
-        My Submissions
-      </button>
-      <button
-        onClick={() => onSetViewMode('winners')}
-        className={`flex-1 px-4 py-1.5 rounded text-[13px] font-medium transition-colors cursor-pointer ${
-          effectiveViewMode === 'winners'
-            ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
-            : 'bg-transparent text-(--color-text-secondary) border border-transparent'
-        }`}
-      >
-        Winners
-      </button>
-      <button
-        onClick={() => onSetViewMode('wall')}
-        className={`flex-1 px-4 py-1.5 rounded text-[13px] font-medium transition-colors cursor-pointer ${
-          effectiveViewMode === 'wall'
-            ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
-            : 'bg-transparent text-(--color-text-secondary) border border-transparent'
-        }`}
-      >
-        Wall
-      </button>
-      <button
-        onClick={() => onSetViewMode('friends')}
-        disabled={!user}
-        className={`flex-1 px-4 py-1.5 rounded text-[13px] font-medium transition-colors ${
-          !user ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-        } ${
-          effectiveViewMode === 'friends'
-            ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
-            : 'bg-transparent text-(--color-text-secondary) border border-transparent'
-        }`}
-        title={!user ? 'Sign in to see friends\' submissions' : undefined}
-      >
-        Friends
-      </button>
+    <div
+      className="flex mb-7"
+      style={{
+        background: 'var(--color-selected)',
+        border: 'var(--border-width, 2px) solid var(--color-border-light)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 3,
+      }}
+    >
+      {tabs.map(({ mode, label, requiresAuth }) => {
+        const isActive = effectiveViewMode === mode;
+        const isDisabled = requiresAuth && !user;
+
+        return (
+          <button
+            key={mode}
+            onClick={() => onSetViewMode(mode)}
+            disabled={isDisabled}
+            className={`flex-1 px-4 py-2 text-[13px] transition-all ${
+              isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+            } ${
+              isActive
+                ? 'text-(--color-text-primary) font-bold'
+                : 'text-(--color-text-secondary) font-semibold'
+            }`}
+            style={isActive ? tabStyle.active : tabStyle.inactive}
+            title={isDisabled ? `Sign in to view ${label.toLowerCase()}` : undefined}
+          >
+            {label}
+          </button>
+        );
+      })}
     </div>
   );
 }

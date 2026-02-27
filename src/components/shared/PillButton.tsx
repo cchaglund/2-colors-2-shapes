@@ -1,16 +1,17 @@
 import type { ComponentPropsWithoutRef, ElementType, ReactNode } from 'react';
 
 /**
- * Pill-shaped button used across the canvas editor UI.
+ * Pill-shaped button used across the UI.
  *
- * Variants (matching the design exploration):
+ * Variants:
  * - secondary: white/surface bg + shadow (Reset, user menu trigger)
- * - primary:   accent bg + shadow (Submit)
- * - ghost:     selected/tinted bg, no shadow (Gallery)
+ * - primary:   accent bg + shadow (Submit, modal CTAs)
+ * - ghost:     selected/tinted bg, no shadow (Gallery, subtle actions)
  * - inverse:   dark bg (text-primary as bg), shadow (Log in)
+ * - danger:    danger bg + shadow (destructive actions)
  */
 
-export type PillButtonVariant = 'secondary' | 'primary' | 'ghost' | 'inverse';
+export type PillButtonVariant = 'secondary' | 'primary' | 'ghost' | 'inverse' | 'danger';
 
 const variantClasses: Record<PillButtonVariant, string> = {
   secondary:
@@ -20,20 +21,24 @@ const variantClasses: Record<PillButtonVariant, string> = {
   ghost:
     'bg-(--color-selected) text-(--color-text-primary) hover:bg-(--color-selected-hover)',
   inverse: '',
+  danger:
+    'bg-(--color-danger) text-(--color-accent-text) hover:bg-(--color-danger-hover)',
 };
 
 /** Variants that get the btn-shadow */
-const shadowVariants = new Set<PillButtonVariant>(['secondary', 'primary', 'inverse']);
+const shadowVariants = new Set<PillButtonVariant>(['secondary', 'primary', 'inverse', 'danger']);
 
 type PillButtonProps<T extends ElementType = 'button'> = {
   variant?: PillButtonVariant;
   as?: T;
+  fullWidth?: boolean;
   children: ReactNode;
 } & Omit<ComponentPropsWithoutRef<T>, 'as' | 'children'>;
 
 export function PillButton<T extends ElementType = 'button'>({
   variant = 'secondary',
   as,
+  fullWidth = false,
   className = '',
   style,
   children,
@@ -51,7 +56,7 @@ export function PillButton<T extends ElementType = 'button'>({
 
   return (
     <Tag
-      className={`h-8 px-3 rounded-(--radius-pill) text-xs font-semibold transition-colors cursor-pointer inline-flex items-center no-underline ${variantClasses[variant]} ${className}`}
+      className={`h-8 px-3 rounded-(--radius-pill) text-xs font-semibold transition-colors cursor-pointer inline-flex items-center justify-center no-underline ${fullWidth ? 'w-full' : ''} ${variantClasses[variant]} ${className}`}
       style={{
         border: 'var(--border-width, 2px) solid var(--color-border)',
         ...(hasShadow ? { boxShadow: 'var(--shadow-btn)' } : {}),
