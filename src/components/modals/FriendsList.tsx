@@ -24,14 +24,14 @@ export function FriendsList({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="w-5 h-5 border-2 border-(--color-accent) border-t-transparent rounded-full animate-spin" />
+        <div className="w-5 h-5 border-2 border-(--color-accent) border-t-transparent rounded-(--radius-pill) animate-spin" />
       </div>
     );
   }
 
   if (users.length === 0) {
     return (
-      <div className="text-center py-8 text-[13px] text-(--color-text-secondary)">
+      <div className="text-center py-8 text-(--text-sm) text-(--color-text-secondary)">
         {emptyStateMessages[listType]}
       </div>
     );

@@ -67,7 +67,7 @@ export function KeyboardShortcutsPopover({ keyMappings, onOpenSettings }: Keyboa
       {/* Trigger button */}
       <button
         onClick={() => setOpen(prev => !prev)}
-        className="w-[30px] h-[30px] flex items-center justify-center cursor-pointer transition-colors rounded-(--radius-md) bg-(--color-card-bg) text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) text-sm font-bold"
+        className="w-[30px] h-[30px] flex items-center justify-center cursor-pointer transition-colors rounded-(--radius-md) bg-(--color-card-bg) text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) text-(--text-base) font-bold"
         style={{ border: 'var(--border-width, 2px) solid var(--color-border)', boxShadow: 'var(--shadow-btn)' }}
         title="Keyboard shortcuts"
         aria-label="Keyboard shortcuts"
@@ -93,7 +93,7 @@ export function KeyboardShortcutsPopover({ keyMappings, onOpenSettings }: Keyboa
           >
             {/* Header */}
             <div className="px-4 pt-3.5 pb-2.5">
-              <span className="text-[11px] font-bold uppercase tracking-wide text-(--color-text-primary)">Keyboard Shortcuts</span>
+              <span className="text-(--text-xs) font-bold uppercase tracking-wide text-(--color-text-primary)">Keyboard Shortcuts</span>
             </div>
 
             {/* Shortcuts list */}
@@ -101,9 +101,9 @@ export function KeyboardShortcutsPopover({ keyMappings, onOpenSettings }: Keyboa
               {shortcuts.map(({ key, action }) => (
                 <div key={action} className="flex justify-between items-center py-[3px]">
                   <span
-                    className="text-[10px] font-semibold whitespace-nowrap px-1.5 py-px rounded-(--radius-sm) bg-(--color-selected) text-(--color-text-primary)"
+                    className="text-(--text-xs) font-semibold whitespace-nowrap px-1.5 py-px rounded-(--radius-sm) bg-(--color-selected) text-(--color-text-primary)"
                   >{key}</span>
-                  <span className="text-[10px] font-medium text-(--color-text-tertiary)">{action}</span>
+                  <span className="text-(--text-xs) font-medium text-(--color-text-tertiary)">{action}</span>
                 </div>
               ))}
             </div>
@@ -115,7 +115,7 @@ export function KeyboardShortcutsPopover({ keyMappings, onOpenSettings }: Keyboa
                   setOpen(false);
                   onOpenSettings();
                 }}
-                className="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 text-[10px] font-semibold cursor-pointer transition-colors text-(--color-text-tertiary) hover:bg-(--color-hover) hover:text-(--color-text-primary)"
+                className="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 text-(--text-xs) font-semibold cursor-pointer transition-colors text-(--color-text-tertiary) hover:bg-(--color-hover) hover:text-(--color-text-primary)"
                 style={{
                   border: 'var(--border-width, 2px) solid var(--color-border-light)',
                   borderRadius: 'var(--radius-sm)',

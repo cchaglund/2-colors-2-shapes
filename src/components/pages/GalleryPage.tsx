@@ -303,12 +303,12 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
         themeName={themeName}
         onSetThemeName={onSetThemeName}
         centerContent={
-          <span className="text-sm font-semibold text-(--color-text-primary) font-display">Gallery</span>
+          <span className="text-(--text-base) font-semibold text-(--color-text-primary) font-display">Gallery</span>
         }
         rightContent={
           <a
             href="/"
-            className="h-8 px-3 rounded-(--radius-pill) text-xs font-medium transition-colors text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) no-underline flex items-center gap-1"
+            className="h-8 px-3 rounded-(--radius-pill) text-(--text-xs) font-medium transition-colors text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) no-underline flex items-center gap-1"
             style={{
               background: 'var(--color-selected)',
               border: 'var(--border-width, 2px) solid var(--color-border)',

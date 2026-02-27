@@ -41,7 +41,7 @@ export function UserMenuDropdown({ profile, loading, isLoggedIn, onSignIn, onSig
   }, [open]);
 
   if (loading) {
-    return <div className="h-8 px-3 flex items-center text-xs text-(--color-text-tertiary)">...</div>;
+    return <div className="h-8 px-3 flex items-center text-(--text-xs) text-(--color-text-tertiary)">...</div>;
   }
 
   if (!isLoggedIn || !profile) {
@@ -64,9 +64,9 @@ export function UserMenuDropdown({ profile, loading, isLoggedIn, onSignIn, onSig
         onClick={() => setOpen(prev => !prev)}
       >
         {profile.avatar_url ? (
-          <img src={profile.avatar_url} alt="" className="w-5 h-5 rounded-full" />
+          <img src={profile.avatar_url} alt="" className="w-5 h-5 rounded-(--radius-pill)" />
         ) : (
-          <div className="w-5 h-5 rounded-full bg-(--color-accent) text-(--color-accent-text) flex items-center justify-center text-[10px] font-semibold leading-none">
+          <div className="w-5 h-5 rounded-(--radius-pill) bg-(--color-accent) text-(--color-accent-text) flex items-center justify-center text-(--text-xs) font-semibold leading-none">
             {initial}
           </div>
         )}
@@ -172,17 +172,17 @@ function UserMenuContent({
       <div className="px-4 py-3 border-b border-(--color-border-light)">
         <div className="flex items-center gap-3">
           {profile.avatar_url ? (
-            <img src={profile.avatar_url} alt="" className="w-10 h-10 rounded-full shrink-0" />
+            <img src={profile.avatar_url} alt="" className="w-10 h-10 rounded-(--radius-pill) shrink-0" />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-(--color-accent) text-(--color-accent-text) flex items-center justify-center text-base font-semibold shrink-0">
+            <div className="w-10 h-10 rounded-(--radius-pill) bg-(--color-accent) text-(--color-accent-text) flex items-center justify-center text-(--text-lg) font-semibold shrink-0">
               {initial}
             </div>
           )}
           <div className="min-w-0">
-            <div className="text-sm font-semibold text-(--color-text-primary) truncate">
+            <div className="text-(--text-base) font-semibold text-(--color-text-primary) truncate">
               {profile.nickname || 'New user'}
             </div>
-            <div className="text-[11px] text-(--color-text-secondary)">
+            <div className="text-(--text-xs) text-(--color-text-secondary)">
               {loading ? '...' : `${followingCount} following · ${followersCount} followers`}
             </div>
           </div>
@@ -194,7 +194,7 @@ function UserMenuContent({
         {(['following', 'followers'] as const).map(tab => (
           <button
             key={tab}
-            className={`flex-1 px-3 py-2 text-[11px] font-medium transition-colors cursor-pointer relative ${
+            className={`flex-1 px-3 py-2 text-(--text-xs) font-medium transition-colors cursor-pointer relative ${
               activeTab === tab
                 ? 'text-(--color-accent)'
                 : 'text-(--color-text-secondary) hover:text-(--color-text-primary)'
@@ -203,7 +203,7 @@ function UserMenuContent({
           >
             {tab === 'following' ? `Following (${followingCount})` : `Followers (${followersCount})`}
             {activeTab === tab && (
-              <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-(--color-accent) rounded-full" />
+              <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-(--color-accent) rounded-(--radius-pill)" />
             )}
           </button>
         ))}
@@ -213,20 +213,20 @@ function UserMenuContent({
       <div className="flex-1 overflow-y-auto min-h-0">
         {loading ? (
           <div className="flex items-center justify-center py-6">
-            <div className="w-4 h-4 border-2 border-(--color-accent) border-t-transparent rounded-full animate-spin" />
+            <div className="w-4 h-4 border-2 border-(--color-accent) border-t-transparent rounded-(--radius-pill) animate-spin" />
           </div>
         ) : friends.length === 0 ? (
-          <div className="text-center py-6 text-[11px] text-(--color-text-secondary)">
+          <div className="text-center py-6 text-(--text-xs) text-(--color-text-secondary)">
             {activeTab === 'following' ? 'Not following anyone yet' : 'No followers yet'}
           </div>
         ) : (
           friends.map(friend => (
             <button
               key={friend.id}
-              className="w-full flex items-center gap-2 px-4 py-2 text-[12px] text-(--color-text-primary) hover:bg-(--color-hover) transition-colors cursor-pointer text-left"
+              className="w-full flex items-center gap-2 px-4 py-2 text-(--text-sm) text-(--color-text-primary) hover:bg-(--color-hover) transition-colors cursor-pointer text-left"
               onClick={() => handleNavigateToProfile(friend.id)}
             >
-              <div className="w-6 h-6 rounded-full bg-(--color-accent)/20 text-(--color-accent) flex items-center justify-center text-[10px] font-semibold shrink-0 leading-none">
+              <div className="w-6 h-6 rounded-(--radius-pill) bg-(--color-accent)/20 text-(--color-accent) flex items-center justify-center text-(--text-xs) font-semibold shrink-0 leading-none">
                 {(friend.nickname || 'U')[0].toUpperCase()}
               </div>
               <span className="truncate">@{friend.nickname}</span>
@@ -244,21 +244,21 @@ function UserMenuContent({
             onChange={e => { setAddNickname(e.target.value); setAddStatus('idle'); }}
             onKeyDown={e => { if (e.key === 'Enter') handleAddByNickname(); }}
             placeholder="Add by nickname..."
-            className="flex-1 min-w-0 px-2 py-1.5 text-[11px] bg-(--color-bg-secondary) border border-(--color-border) rounded-(--radius-sm) text-(--color-text-primary) placeholder:text-(--color-text-secondary) focus:outline-none focus:ring-1 focus:ring-(--color-accent)"
+            className="flex-1 min-w-0 px-2 py-1.5 text-(--text-xs) bg-(--color-bg-secondary) border border-(--color-border) rounded-(--radius-sm) text-(--color-text-primary) placeholder:text-(--color-text-secondary) focus:outline-none focus:ring-1 focus:ring-(--color-accent)"
           />
           <button
             onClick={handleAddByNickname}
             disabled={!addNickname.trim() || addStatus === 'loading'}
-            className="px-3 py-1.5 text-[11px] font-medium rounded-(--radius-sm) bg-(--color-accent) text-(--color-accent-text) hover:bg-(--color-accent-hover) disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+            className="px-3 py-1.5 text-(--text-xs) font-medium rounded-(--radius-sm) bg-(--color-accent) text-(--color-accent-text) hover:bg-(--color-accent-hover) disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
           >
             {addStatus === 'loading' ? '...' : 'Add'}
           </button>
         </div>
         {addStatus === 'success' && (
-          <div className="text-[10px] text-green-600 mt-1">Followed!</div>
+          <div className="text-(--text-xs) text-(--color-accent) mt-1">Followed!</div>
         )}
         {addStatus === 'error' && (
-          <div className="text-[10px] text-(--color-danger) mt-1">{addError}</div>
+          <div className="text-(--text-xs) text-(--color-danger) mt-1">{addError}</div>
         )}
       </div>
 
@@ -266,7 +266,7 @@ function UserMenuContent({
       <div className="px-3 py-2 border-t border-(--color-border-light)">
         <button
           onClick={onSignOut}
-          className="w-full flex items-center gap-2 px-2 py-1.5 text-[11px] font-medium text-(--color-text-secondary) hover:text-(--color-danger) hover:bg-(--color-hover) rounded-(--radius-sm) transition-colors cursor-pointer"
+          className="w-full flex items-center gap-2 px-2 py-1.5 text-(--text-xs) font-medium text-(--color-text-secondary) hover:text-(--color-danger) hover:bg-(--color-hover) rounded-(--radius-sm) transition-colors cursor-pointer"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />

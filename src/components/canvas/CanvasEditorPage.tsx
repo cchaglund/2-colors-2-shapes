@@ -347,7 +347,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
         {/* Empty canvas prompt — only after hydration to avoid flash */}
         {hydrated && canvasState.shapes.length === 0 && editorTool === 'select' && (
           <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
-            <p className="text-base text-(--color-text-secondary) opacity-50 select-none">
+            <p className="text-(--text-lg) text-(--color-text-secondary) opacity-50 select-none">
               Pick a shape below to start creating.
             </p>
           </div>
@@ -409,7 +409,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
         {/* Stamp mode hint text */}
         {editorTool.startsWith('stamp-') && (
           <div className="absolute bottom-18 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
-            <span className="text-[11px] font-semibold px-3.5 py-1" style={{ color: 'var(--color-text-secondary)', background: 'var(--color-card-bg)', border: 'var(--border-width, 2px) solid var(--color-border-light)', borderRadius: 'var(--radius-pill)', boxShadow: 'var(--shadow-card)', fontFamily: 'var(--font-body)' }}>
+            <span className="text-(--text-xs) font-semibold px-3.5 py-1" style={{ color: 'var(--color-text-secondary)', background: 'var(--color-card-bg)', border: 'var(--border-width, 2px) solid var(--color-border-light)', borderRadius: 'var(--radius-pill)', boxShadow: 'var(--shadow-card)', fontFamily: 'var(--font-body)' }}>
               Click to place · Drag to size · Esc to select
             </span>
           </div>
@@ -464,7 +464,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
               <polyline points="2 17 12 22 22 17" />
               <polyline points="2 12 12 17 22 12" />
             </svg>
-            <span className="text-[11px] font-semibold leading-none">
+            <span className="text-(--text-xs) font-semibold leading-none">
               {canvasState.shapes.length}
             </span>
           </button>

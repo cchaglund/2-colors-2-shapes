@@ -38,7 +38,7 @@ export function ContentCalendarDayCell({
         const { darker, lighter } = getDarkerLighterColors(challenge.colors);
         return (
           <span
-            className="text-[21px] font-semibold rounded-full min-w-10 h-10 flex items-center justify-center"
+            className="text-(--text-2xl) font-semibold rounded-(--radius-pill) min-w-10 h-10 flex items-center justify-center"
             style={{ backgroundColor: darker, color: lighter }}
           >
             {count}

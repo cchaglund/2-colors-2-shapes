@@ -48,7 +48,7 @@ export function SubmissionThumbnail({
   const displayLikeCount = likeCount !== undefined && likeCount > 9999 ? '9999+' : likeCount;
 
   const likeCountOverlay = showLikeCount && likeCount !== undefined && likeCount > 0 && (
-    <div className="absolute bottom-1 right-1 flex items-center gap-0.5 bg-black/60 text-white text-[10px] font-medium rounded px-1 py-0.5">
+    <div className="absolute bottom-1 right-1 flex items-center gap-0.5 bg-(--color-overlay) text-(--color-accent-text) text-(--text-xs) font-medium rounded-(--radius-sm) px-1 py-0.5">
       <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none">
         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
       </svg>
@@ -79,7 +79,7 @@ export function SubmissionThumbnail({
       boxShadow: isHovered ? 'var(--shadow-card)' : 'var(--shadow-btn)',
       overflow: 'hidden',
       transition: 'transform 0.15s, box-shadow 0.15s',
-      transform: isHovered ? 'translateY(-3px)' : 'translateY(0)',
+      transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
     };
 
     const cardInner = (
@@ -96,8 +96,8 @@ export function SubmissionThumbnail({
           {likeCountOverlay}
         </div>
         {showNickname && nickname && (
-          <div style={{ padding: '8px 10px' }}>
-            <span className="truncate block" style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-text-primary)' }}>
+          <div style={{ padding: 'var(--space-2) var(--space-3)' }}>
+            <span className="truncate block text-(--text-sm) font-bold text-(--color-text-primary)">
               {nickname}
             </span>
           </div>
@@ -141,7 +141,7 @@ export function SubmissionThumbnail({
         width={fill ? '100%' : size}
         height={fill ? '100%' : size}
         viewBox={`0 0 ${CANVAS_SIZE} ${CANVAS_SIZE}`}
-        className={fill ? '' : 'rounded-sm'}
+        className={fill ? '' : 'rounded-(--radius-sm)'}
       >
         <rect x={0} y={0} width={CANVAS_SIZE} height={CANVAS_SIZE} fill={backgroundColor} />
         {renderShapes()}
@@ -158,7 +158,7 @@ export function SubmissionThumbnail({
     <div className="flex flex-col items-center gap-1">
       {svg}
       {showNickname && nickname && (
-        <span className="text-xs text-(--color-text-secondary) truncate max-w-full">
+        <span className="text-(--text-xs) text-(--color-text-secondary) truncate max-w-full">
           {nickname}
         </span>
       )}
@@ -169,7 +169,7 @@ export function SubmissionThumbnail({
     return (
       <a
         href={href}
-        className="cursor-pointer hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 rounded"
+        className="cursor-pointer hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 rounded-(--radius-sm)"
       >
         {content}
       </a>
@@ -181,7 +181,7 @@ export function SubmissionThumbnail({
       <button
         type="button"
         onClick={onClick}
-        className="cursor-pointer hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 rounded"
+        className="cursor-pointer hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 rounded-(--radius-sm)"
       >
         {content}
       </button>

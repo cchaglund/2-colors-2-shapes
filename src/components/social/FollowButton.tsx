@@ -37,8 +37,8 @@ export function FollowButton({ targetUserId, size = 'md' }: FollowButtonProps) {
   };
 
   const sizeClasses = size === 'sm'
-    ? 'px-2.5 py-1 text-[10px]'
-    : 'px-3 py-1.5 text-[12px]';
+    ? 'px-2.5 py-1 text-(--text-xs)'
+    : 'px-3 py-1.5 text-(--text-sm)';
 
   const pillStyle: React.CSSProperties = {
     borderRadius: 'var(--radius-pill)',

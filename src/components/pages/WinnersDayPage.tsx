@@ -80,7 +80,7 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
                   }
                 }}
                 disabled={!adjacentDates.prev}
-                className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 bg-(--color-bg-tertiary) text-(--color-text-primary)"
+                className="px-3 py-1.5 rounded-(--radius-md) text-(--text-base) font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 bg-(--color-bg-tertiary) text-(--color-text-primary)"
               >
                 <svg
                   width="14"
@@ -105,7 +105,7 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
                   }
                 }}
                 disabled={!adjacentDates.next}
-                className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 bg-(--color-bg-tertiary) text-(--color-text-primary)"
+                className="px-3 py-1.5 rounded-(--radius-md) text-(--text-base) font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 bg-(--color-bg-tertiary) text-(--color-text-primary)"
               >
                 Next
                 <svg
@@ -123,7 +123,7 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
               </button>
             </div>
           </div>
-          <h1 className="text-2xl font-bold mb-2 text-(--color-text-primary) font-display">
+          <h1 className="text-(--text-2xl) font-bold mb-2 text-(--color-text-primary) font-display">
             {formattedDate}
           </h1>
           <p className="text-(--color-text-secondary)">
@@ -145,7 +145,7 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
                 
                 {winners.length > 0 && (
                   <div className="text-center">
-                    <h2 className="text-sm font-medium mb-4 text-(--color-text-tertiary)">
+                    <h2 className="text-(--text-base) font-medium mb-4 text-(--color-text-tertiary)">
                       {winners.length > 1 ? '1st Place (Tie)' : '1st Place'}
                     </h2>
                     <div className={`flex justify-center ${winners.length > 1 ? 'gap-6' : ''}`}>
@@ -191,31 +191,31 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
 
           {/* Challenge details sidebar */}
           <div className="w-full md:w-75 space-y-4">
-            <div className="border rounded-xl p-4 bg-(--color-bg-primary) border-(--color-border)">
-              <h2 className="text-sm font-semibold mb-3 text-(--color-text-primary)">
+            <div className="border rounded-(--radius-xl) p-4 bg-(--color-bg-primary) border-(--color-border)">
+              <h2 className="text-(--text-base) font-semibold mb-3 text-(--color-text-primary)">
                 Challenge Details
               </h2>
 
               {/* Daily Word */}
               <div className="mb-4">
-                <span className="text-xs text-(--color-text-tertiary)">
+                <span className="text-(--text-xs) text-(--color-text-tertiary)">
                   Inspiration
                 </span>
-                <p className="mt-1 text-base font-medium italic text-(--color-text-primary)">
+                <p className="mt-1 text-(--text-lg) font-medium italic text-(--color-text-primary)">
                   "{challenge.word}"
                 </p>
               </div>
 
               {/* Colors */}
               <div className="mb-4">
-                <span className="text-xs text-(--color-text-tertiary)">
+                <span className="text-(--text-xs) text-(--color-text-tertiary)">
                   Colors
                 </span>
                 <div className="flex gap-2 mt-1">
                   {challenge.colors.map((color, i) => (
                     <div
                       key={i}
-                      className="w-8 h-8 rounded-md border border-(--color-border)"
+                      className="w-8 h-8 rounded-(--radius-md) border border-(--color-border)"
                       style={{ backgroundColor: color }}
                       title={color}
                     />
@@ -225,7 +225,7 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
 
               {/* Shapes */}
               <div>
-                <span className="text-xs text-(--color-text-tertiary)">
+                <span className="text-(--text-xs) text-(--color-text-tertiary)">
                   Shapes
                 </span>
                 <div className="flex flex-wrap gap-2 mt-1">
@@ -234,7 +234,7 @@ export function WinnersDayPage({ date }: WinnersDayPageProps) {
                     return (
                       <div
                         key={i}
-                        className="rounded-md p-1 flex items-center justify-center bg-(--color-bg-tertiary)"
+                        className="rounded-(--radius-md) p-1 flex items-center justify-center bg-(--color-bg-tertiary)"
                         title={shapeData.name}
                       >
                         <svg width={40} height={40} viewBox="0 0 32 32">

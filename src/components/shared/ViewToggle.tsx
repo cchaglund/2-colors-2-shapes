@@ -19,20 +19,20 @@ interface ViewToggleProps<T extends string> {
 
 const sizeConfig = {
   sm: {
-    fontSize: 'text-[11px]',
+    fontSize: 'text-(--text-xs)',
     buttonRadius: '--radius-sm',
     containerRadius: '--radius-md',
-    containerPadding: 2,
+    containerPadding: 'var(--space-1)',
     activeBorder: '--color-border-light',
     activeFontWeight: 'font-bold',
     inactiveFontWeight: 'font-bold',
     buttonPadding: 'px-3.5 py-1',
   },
   md: {
-    fontSize: 'text-[13px]',
+    fontSize: 'text-(--text-sm)',
     buttonRadius: '--radius-md',
     containerRadius: '--radius-lg',
-    containerPadding: 3,
+    containerPadding: 'var(--space-1)',
     activeBorder: '--color-border',
     activeFontWeight: 'font-bold',
     inactiveFontWeight: 'font-semibold',
@@ -59,7 +59,7 @@ export function ViewToggle<T extends string>({
 
   const inactiveStyle: React.CSSProperties = {
     background: 'transparent',
-    border: '1px solid transparent',
+    border: 'var(--border-width, 2px) solid transparent',
     borderRadius: `var(${config.buttonRadius})`,
     boxShadow: 'none',
   };

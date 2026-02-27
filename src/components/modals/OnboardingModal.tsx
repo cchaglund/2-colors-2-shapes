@@ -55,10 +55,10 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
       ariaLabelledBy="onboarding-title"
       dataTestId="onboarding-modal"
     >
-      <h2 id="onboarding-title" className="text-lg font-semibold text-(--color-text-primary) mb-2">
+      <h2 id="onboarding-title" className="text-(--text-xl) font-semibold text-(--color-text-primary) mb-2">
         Welcome!
       </h2>
-      <p className="text-[13px] text-(--color-text-secondary) mb-6">
+      <p className="text-(--text-sm) text-(--color-text-secondary) mb-6">
         Choose a nickname to display in the gallery. This will be visible to other users.
       </p>
 
@@ -66,7 +66,7 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
         <div className="mb-4">
           <label
             htmlFor="nickname"
-            className="block text-[13px] font-medium text-(--color-text-primary) mb-1"
+            className="block text-(--text-sm) font-medium text-(--color-text-primary) mb-1"
           >
             Nickname
           </label>
@@ -78,12 +78,12 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
             placeholder="Enter your nickname"
             maxLength={15}
             autoFocus
-            className="w-full px-3 py-2 bg-(--color-bg-secondary) rounded-(--radius-md) text-[13px] text-(--color-text-primary) placeholder-(--color-text-tertiary) focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:border-transparent"
+            className="w-full px-3 py-2 bg-(--color-bg-secondary) rounded-(--radius-md) text-(--text-sm) text-(--color-text-primary) placeholder-(--color-text-tertiary) focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:border-transparent"
             style={{ border: 'var(--border-width, 2px) solid var(--color-border)' }}
           />
           <div className="flex justify-between mt-1">
-            <span className="text-[11px] text-(--color-danger)">{error || ''}</span>
-            <span className="text-[11px] text-(--color-text-tertiary)">
+            <span className="text-(--text-xs) text-(--color-danger)">{error || ''}</span>
+            <span className="text-(--text-xs) text-(--color-text-tertiary)">
               {nickname.length}/15
             </span>
           </div>

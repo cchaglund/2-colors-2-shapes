@@ -22,7 +22,7 @@ export function WallLockedState() {
     >
       <a
         href="/"
-        className="text-[13px] text-(--color-accent) hover:underline"
+        className="text-(--text-sm) text-(--color-accent) hover:underline"
       >
         ← Back to canvas
       </a>

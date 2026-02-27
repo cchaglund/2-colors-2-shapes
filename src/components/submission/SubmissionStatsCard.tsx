@@ -8,10 +8,10 @@ interface SubmissionStatsCardProps {
 export function SubmissionStatsCard({ submission }: SubmissionStatsCardProps) {
   return (
     <Card>
-      <h2 className="text-sm font-semibold mb-3 text-(--color-text-primary)">
+      <h2 className="text-(--text-base) font-semibold mb-3 text-(--color-text-primary)">
         Submission Stats
       </h2>
-      <div className="space-y-2 text-sm">
+      <div className="space-y-2 text-(--text-base)">
         <div className="flex justify-between">
           <span className="text-(--color-text-tertiary)">Shapes used</span>
           <span className="text-(--color-text-primary)">{submission.shapes.length}</span>

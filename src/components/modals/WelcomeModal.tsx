@@ -13,7 +13,7 @@ export function WelcomeModal({ onDismiss, challenge }: WelcomeModalProps) {
     <Modal onClose={onDismiss} ariaLabelledBy="welcome-title" dataTestId="welcome-modal">
       <h2
         id="welcome-title"
-        className="text-xl font-semibold text-(--color-text-primary) mb-5 text-center"
+        className="text-(--text-xl) font-semibold text-(--color-text-primary) mb-5 text-center"
       >
         Welcome to 3 Colors 2 Shapes!
       </h2>
@@ -24,7 +24,7 @@ export function WelcomeModal({ onDismiss, challenge }: WelcomeModalProps) {
             {challenge.colors.map((color, i) => (
               <div
                 key={i}
-                className="w-6 h-6 rounded-full border border-(--color-border)"
+                className="w-6 h-6 rounded-(--radius-pill) border border-(--color-border)"
                 style={{ backgroundColor: color }}
               />
             ))}
@@ -48,41 +48,41 @@ export function WelcomeModal({ onDismiss, challenge }: WelcomeModalProps) {
       <div className='border border-(--color-border) my-10 w-[70%] mx-auto'></div>
 
       <div className="flex items-center gap-6 mb-6">
-        <p className="text-[25px]">
+        <p className="text-(--text-2xl)">
           🧠
         </p>
 
-        <p className="text-[14px] text-(--color-text-secondary) italic">
+        <p className="text-(--text-base) text-(--color-text-secondary) italic">
           Challenge your creativity — have fun expressing yourself in a simple and playful way
         </p>
       </div>
 
       <div className="flex items-center gap-6 mb-6">
-        <p className="text-[25px]">
+        <p className="text-(--text-2xl)">
           🌎
         </p>
 
-        <p className="text-[14px] text-(--color-text-secondary) italic">
+        <p className="text-(--text-base) text-(--color-text-secondary) italic">
           Compete daily — Submit your art and join the community in voting for their favorites (optional, no pressure!)
         </p>
       </div>
 
       <div className="flex items-center gap-6 mb-6">
-        <p className="text-[25px]">
+        <p className="text-(--text-2xl)">
           🥳
         </p>
 
-        <p className="text-[14px] text-(--color-text-secondary) italic">
+        <p className="text-(--text-base) text-(--color-text-secondary) italic">
           Follow your friends — See what your friends are creating and show them some love
         </p>
       </div>
 
       <div className="flex items-center gap-6 mb-6">
-        <p className="text-[25px]">
+        <p className="text-(--text-2xl)">
           🖼️
         </p>
 
-        <p className="text-[14px] text-(--color-text-secondary) italic">
+        <p className="text-(--text-base) text-(--color-text-secondary) italic">
           Collect your creations — Your daily art is saved in your profile, so you can look back on your creative journey over time
         </p>
       </div>

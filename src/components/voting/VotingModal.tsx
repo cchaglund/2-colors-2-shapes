@@ -139,7 +139,7 @@ export function VotingModal({
     // Main voting UI
     if (loading || !currentPair || !challenge) {
       return (
-        <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-xl p-6 w-full max-w-3xl mx-auto shadow-xl">
+        <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-(--radius-xl) p-6 w-full max-w-3xl mx-auto shadow-(--shadow-modal)">
           <div className="flex items-center justify-center h-64">
             <div className="text-(--color-text-secondary)">Loading...</div>
           </div>

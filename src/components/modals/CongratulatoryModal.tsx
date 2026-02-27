@@ -93,10 +93,10 @@ export function CongratulatoryModal({
   return (
     <Modal onClose={handleDismiss} ariaLabelledBy="congrats-title" dataTestId="congratulatory-modal">
       <div className="text-center mb-5">
-        <h2 id="congrats-title" className="text-lg font-semibold text-(--color-text-primary) mb-0.5">
+        <h2 id="congrats-title" className="text-(--text-xl) font-semibold text-(--color-text-primary) mb-0.5">
           {heading}
         </h2>
-        <p className="text-[13px] text-(--color-text-secondary)">{subtext}</p>
+        <p className="text-(--text-sm) text-(--color-text-secondary)">{subtext}</p>
       </div>
 
       <div className="flex justify-center mb-5">

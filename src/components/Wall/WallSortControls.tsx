@@ -67,7 +67,7 @@ export function WallSortControls({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-1.5 text-[12px] font-semibold cursor-pointer transition-all text-(--color-text-primary) hover:opacity-80"
+        className="inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-1.5 text-(--text-sm) font-semibold cursor-pointer transition-all text-(--color-text-primary) hover:opacity-80"
         style={triggerStyle}
       >
         {SORT_LABELS[sortMode]}
@@ -100,7 +100,7 @@ export function WallSortControls({
                 key={mode}
                 onClick={() => handleSelect(mode)}
                 disabled={isDisabled}
-                className={`w-full text-left px-3 py-1.5 text-[13px] transition-colors ${
+                className={`w-full text-left px-3 py-1.5 text-(--text-sm) transition-colors ${
                   isDisabled
                     ? 'opacity-50 cursor-not-allowed text-(--color-text-tertiary)'
                     : 'cursor-pointer hover:bg-(--color-bg-secondary)'

@@ -29,7 +29,7 @@ export function ContentCalendarGrid({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="w-6 h-6 border-2 border-(--color-border) border-t-(--color-accent) rounded-full animate-spin" />
+        <div className="w-6 h-6 border-2 border-(--color-border) border-t-(--color-accent) rounded-(--radius-pill) animate-spin" />
       </div>
     );
   }

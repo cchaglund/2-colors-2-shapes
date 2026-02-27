@@ -108,14 +108,14 @@ export function SubmissionDetailPage({ date, submissionId, themeMode, onSetTheme
         themeName={themeName}
         onSetThemeName={onSetThemeName}
         centerContent={
-          <span className="text-sm font-semibold text-(--color-text-primary) font-display">Submission</span>
+          <span className="text-(--text-base) font-semibold text-(--color-text-primary) font-display">Submission</span>
         }
         rightContent={
           <div className="flex items-center gap-2">
             {date && <SubmissionNavigation adjacentDates={adjacentDates} />}
             <a
               href="/?view=gallery"
-              className="h-8 px-3 rounded-(--radius-pill) text-xs font-medium transition-colors text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) no-underline flex items-center gap-1"
+              className="h-8 px-3 rounded-(--radius-pill) text-(--text-xs) font-medium transition-colors text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) no-underline flex items-center gap-1"
               style={{
                 background: 'var(--color-selected)',
                 border: 'var(--border-width, 2px) solid var(--color-border)',
@@ -137,7 +137,7 @@ export function SubmissionDetailPage({ date, submissionId, themeMode, onSetTheme
             <h1 className="text-xl font-semibold mb-1 text-(--color-text-primary) font-display">
               {formattedDate}
             </h1>
-            <div className="flex items-center gap-2 text-[13px]">
+            <div className="flex items-center gap-2 text-(--text-sm)">
               {nickname && submission?.user_id ? (
                 <>
                   <a

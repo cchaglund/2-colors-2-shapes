@@ -16,7 +16,7 @@ export function CalendarStats({
   winners,
 }: CalendarStatsProps) {
   return (
-    <div className="mt-auto pt-4 border-t flex items-center justify-between text-sm border-(--color-border) text-(--color-text-secondary)">
+    <div className="mt-auto pt-4 border-t flex items-center justify-between text-(--text-base) border-(--color-border) text-(--color-text-secondary)">
       {effectiveViewMode === 'my-submissions' ? (
         <>
           <span>Total submissions: {submissions.length}</span>
@@ -34,17 +34,17 @@ export function CalendarStats({
               <div className="flex items-center gap-4">
                 {trophyCounts[1] > 0 && (
                   <span className="flex items-center gap-1">
-                    <TrophyBadge rank={1} size="sm" /> ×{trophyCounts[1]}
+                    <TrophyBadge rank={1} /> ×{trophyCounts[1]}
                   </span>
                 )}
                 {trophyCounts[2] > 0 && (
                   <span className="flex items-center gap-1">
-                    <TrophyBadge rank={2} size="sm" /> ×{trophyCounts[2]}
+                    <TrophyBadge rank={2} /> ×{trophyCounts[2]}
                   </span>
                 )}
                 {trophyCounts[3] > 0 && (
                   <span className="flex items-center gap-1">
-                    <TrophyBadge rank={3} size="sm" /> ×{trophyCounts[3]}
+                    <TrophyBadge rank={3} /> ×{trophyCounts[3]}
                   </span>
                 )}
               </div>

@@ -46,7 +46,7 @@ export function LayerItem({
       onDragEnd={onDragEnd}
       onDragOver={(e) => onDragOver(e, index, groupId)}
       onDrop={(e) => onDrop(e, index, groupId)}
-      className={`relative flex items-center gap-1.5 py-1.5 px-2 rounded cursor-grab transition-colors ${
+      className={`relative flex items-center gap-1.5 py-1.5 px-2 rounded-(--radius-sm) cursor-grab transition-colors ${
         draggedId === shape.id ? 'opacity-50' : ''
       } ${
         dropTargetIndex === index && draggedId !== shape.id
@@ -79,7 +79,7 @@ export function LayerItem({
       </div>
       {editingId === shape.id ? (
         <input
-          className="flex-1 text-[11px] py-0.5 px-1 border border-(--color-accent) rounded outline-none min-w-0 bg-(--color-bg-primary) text-(--color-text-primary)"
+          className="flex-1 text-(--text-xs) py-0.5 px-1 border border-(--color-accent) rounded-(--radius-sm) outline-none min-w-0 bg-(--color-bg-primary) text-(--color-text-primary)"
           value={editValue}
           onChange={(e) => onEditValueChange(e.target.value)}
           onBlur={onFinishEditing}
@@ -89,7 +89,7 @@ export function LayerItem({
         />
       ) : (
         <span
-          className="flex-1 text-[11px] font-semibold overflow-hidden text-ellipsis whitespace-nowrap cursor-text text-(--color-text-primary) capitalize"
+          className="flex-1 text-(--text-xs) font-semibold overflow-hidden text-ellipsis whitespace-nowrap cursor-text text-(--color-text-primary) capitalize"
           onDoubleClick={(e) => {
             e.stopPropagation();
             onStartEditing(shape);
@@ -101,7 +101,7 @@ export function LayerItem({
       {/* Action buttons — always visible */}
       <div className="flex gap-0.5 shrink-0 ml-auto">
         <button
-          className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded"
+          className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded-(--radius-sm)"
           title="Move up"
           disabled={isTopLayer}
           onClick={(e) => {
@@ -112,7 +112,7 @@ export function LayerItem({
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
         </button>
         <button
-          className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded"
+          className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded-(--radius-sm)"
           title="Move down"
           disabled={isBottomLayer}
           onClick={(e) => {
@@ -123,7 +123,7 @@ export function LayerItem({
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <button
-          className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center text-(--color-accent) rounded"
+          className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center text-(--color-accent) rounded-(--radius-sm)"
           title="Delete"
           onClick={(e) => {
             e.stopPropagation();

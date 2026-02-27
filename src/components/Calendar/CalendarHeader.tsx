@@ -5,12 +5,12 @@ interface CalendarHeaderProps {
 export function CalendarHeader({ onClose }: CalendarHeaderProps) {
   return (
     <div className="flex items-center justify-between mb-4">
-      <h2 className="text-lg font-semibold text-(--color-text-primary)">
+      <h2 className="text-(--text-xl) font-semibold text-(--color-text-primary)">
         Gallery
       </h2>
       <button
         onClick={onClose}
-        className="w-8 h-8 flex items-center justify-center rounded-md cursor-pointer transition-colors hover:bg-(--color-hover) bg-(--color-bg-tertiary) text-(--color-text-secondary)"
+        className="w-8 h-8 flex items-center justify-center rounded-(--radius-md) cursor-pointer transition-colors hover:bg-(--color-hover) bg-(--color-bg-tertiary) text-(--color-text-secondary)"
         aria-label="Close calendar"
       >
         <svg

@@ -12,7 +12,7 @@ export function Card({ children, className = '', style, ...rest }: CardProps) {
         background: 'var(--color-card-bg)',
         border: 'var(--border-width, 2px) solid var(--color-border-light)',
         borderRadius: 'var(--radius-lg)',
-        boxShadow: 'var(--shadow-btn)',
+        boxShadow: 'var(--shadow-card)',
         ...style,
       }}
       {...rest}

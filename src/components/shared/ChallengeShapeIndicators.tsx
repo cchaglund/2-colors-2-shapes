@@ -24,7 +24,7 @@ export function ChallengeShapeIndicators({
   shapes,
   size = 12,
   gap = 2,
-  color = '#6b7280', // gray-500
+  color = 'currentColor',
 }: ChallengeShapeIndicatorsProps) {
   return (
     <div className="flex items-center" style={{ gap }}>

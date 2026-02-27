@@ -14,20 +14,20 @@ export function ChallengeDetailsCard({ challenge, submissionShapes }: ChallengeD
 
       {/* Daily Word */}
       <div className="mb-4">
-        <span className="text-[11px] text-(--color-text-tertiary) uppercase tracking-wide">Inspiration</span>
-        <p className="mt-1 text-[14px] font-medium text-(--color-text-primary) capitalize">
+        <span className="text-(--text-xs) text-(--color-text-tertiary) uppercase tracking-wide">Inspiration</span>
+        <p className="mt-1 text-(--text-base) font-medium text-(--color-text-primary) capitalize">
           "{challenge.word}"
         </p>
       </div>
 
       {/* Colors */}
       <div className="mb-4">
-        <span className="text-[11px] text-(--color-text-tertiary) uppercase tracking-wide">Colors</span>
+        <span className="text-(--text-xs) text-(--color-text-tertiary) uppercase tracking-wide">Colors</span>
         <div className="flex gap-2 mt-1.5">
           {challenge.colors.map((color, i) => (
             <div
               key={i}
-              className="w-7 h-7 rounded-md border border-(--color-border-light)"
+              className="w-7 h-7 rounded-(--radius-md) border border-(--color-border-light)"
               style={{ backgroundColor: color }}
               title={color}
             />
@@ -37,7 +37,7 @@ export function ChallengeDetailsCard({ challenge, submissionShapes }: ChallengeD
 
       {/* Shapes */}
       <div>
-        <span className="text-[11px] text-(--color-text-tertiary) uppercase tracking-wide">Shapes</span>
+        <span className="text-(--text-xs) text-(--color-text-tertiary) uppercase tracking-wide">Shapes</span>
         <div className="flex flex-wrap gap-2 mt-1.5">
           {challenge.shapes.map((shapeData, i) => {
             const { element, props } = getShapeSVGData(shapeData.type, 28);
@@ -47,7 +47,7 @@ export function ChallengeDetailsCard({ challenge, submissionShapes }: ChallengeD
             return (
               <div
                 key={i}
-                className="rounded-md p-1.5 flex items-center gap-1.5 bg-(--color-bg-tertiary)"
+                className="rounded-(--radius-md) p-1.5 flex items-center gap-1.5 bg-(--color-bg-tertiary)"
                 title={shapeData.name}
               >
                 <svg width={32} height={32} viewBox="0 0 28 28">
@@ -65,7 +65,7 @@ export function ChallengeDetailsCard({ challenge, submissionShapes }: ChallengeD
                   )}
                 </svg>
                 {count !== undefined && (
-                  <span className="text-xs font-medium text-(--color-text-secondary)">×{count}</span>
+                  <span className="text-(--text-xs) font-medium text-(--color-text-secondary)">×{count}</span>
                 )}
               </div>
             );

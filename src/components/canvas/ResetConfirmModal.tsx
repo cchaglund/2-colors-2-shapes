@@ -20,11 +20,11 @@ export function ResetConfirmModal({ onConfirm, onCancel }: ResetConfirmModalProp
     >
       <h3
         id="reset-confirm-title"
-        className="m-0 mb-3 text-lg font-semibold text-(--color-text-primary)"
+        className="m-0 mb-3 text-(--text-xl) font-semibold text-(--color-text-primary)"
       >
         Reset Canvas?
       </h3>
-      <p className="m-0 mb-5 text-[13px] text-(--color-text-secondary)">
+      <p className="m-0 mb-5 text-(--text-sm) text-(--color-text-secondary)">
         This will delete all shapes and cannot be undone.
       </p>
       <div className="flex gap-3 justify-center">

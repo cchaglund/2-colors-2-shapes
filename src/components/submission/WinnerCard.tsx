@@ -34,9 +34,9 @@ export function WinnerCard({
     >
       <div className="relative">
         <div className="absolute -top-3 -right-3 z-10">
-          <TrophyBadge rank={entry.rank as 1 | 2 | 3} size={"md"} />
+          <TrophyBadge rank={entry.rank as 1 | 2 | 3} />
         </div>
-        <div className="rounded-xl p-2 shadow-lg" style={{ backgroundColor: bgColor }}>
+        <div className="rounded-(--radius-xl) p-2 shadow-(--shadow-card)" style={{ backgroundColor: bgColor }}>
           <SubmissionThumbnail
             shapes={entry.shapes}
             groups={entry.groups}
@@ -46,7 +46,7 @@ export function WinnerCard({
           />
         </div>
       </div>
-      <p className="mt-2 text-[13px] font-medium text-(--color-text-primary)">@{entry.nickname}</p>
+      <p className="mt-2 text-(--text-sm) font-medium text-(--color-text-primary)">@{entry.nickname}</p>
     </button>
   );
 }

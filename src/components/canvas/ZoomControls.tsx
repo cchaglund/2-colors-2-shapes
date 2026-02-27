@@ -8,7 +8,7 @@ interface ZoomControlsProps {
 }
 
 const btnBase =
-  'h-[30px] flex items-center justify-center font-semibold text-[10px] transition-colors cursor-pointer disabled:opacity-35 disabled:cursor-default';
+  'h-[30px] flex items-center justify-center font-semibold text-(--text-xs) transition-colors cursor-pointer disabled:opacity-35 disabled:cursor-default';
 
 export function ZoomControls({
   zoom,

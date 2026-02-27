@@ -138,10 +138,10 @@ export function WallContent({
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-        <p className="text-[13px] text-(--color-danger) mb-2">
+        <p className="text-(--text-sm) text-(--color-danger) mb-2">
           Failed to load submissions
         </p>
-        <p className="text-[12px] text-(--color-text-tertiary)">{error}</p>
+        <p className="text-(--text-sm) text-(--color-text-tertiary)">{error}</p>
       </div>
     );
   }

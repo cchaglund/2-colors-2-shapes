@@ -46,12 +46,12 @@ export function WinnerAnnouncementModal({
   return (
     <Modal onClose={onDismiss} size="max-w-140" ariaLabelledBy="winner-title" dataTestId="winner-announcement-modal">
       <div className="text-center mb-5">
-        <h2 id="winner-title" className="text-lg font-semibold text-(--color-text-primary) mb-0.5">
+        <h2 id="winner-title" className="text-(--text-xl) font-semibold text-(--color-text-primary) mb-0.5">
           Winners of {formatDate(challengeDate)}
         </h2>
-        <p className="text-[13px] text-(--color-text-secondary)">Word of the day was "{challenge.word}"</p>
+        <p className="text-(--text-sm) text-(--color-text-secondary)">Word of the day was "{challenge.word}"</p>
         {winners.length > 1 && (
-          <p className="text-[11px] text-(--color-text-tertiary) mt-0.5">
+          <p className="text-(--text-xs) text-(--color-text-tertiary) mt-0.5">
             {winners.length === 3 ? 'Three-way tie!' : winners.length === 2 ? 'Tie for 1st place!' : ''}
           </p>
         )}

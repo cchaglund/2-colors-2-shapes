@@ -105,7 +105,7 @@ export function UserSearchBar({ onNavigateToProfile }: UserSearchBarProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search for artists..."
-          className="w-full pl-10 pr-10 py-2 text-[13px] bg-(--color-bg-secondary) border border-(--color-border) rounded-lg text-(--color-text-primary) placeholder:text-(--color-text-secondary) focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:border-transparent"
+          className="w-full pl-10 pr-10 py-2 text-(--text-sm) bg-(--color-bg-secondary) border border-(--color-border) rounded-(--radius-lg) text-(--color-text-primary) placeholder:text-(--color-text-secondary) focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:border-transparent"
         />
         {query && (
           <button
@@ -124,18 +124,18 @@ export function UserSearchBar({ onNavigateToProfile }: UserSearchBarProps) {
       {/* Search results */}
       {loading && (
         <div className="flex items-center justify-center py-4">
-          <div className="w-5 h-5 border-2 border-(--color-accent) border-t-transparent rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-(--color-accent) border-t-transparent rounded-(--radius-pill) animate-spin" />
         </div>
       )}
 
       {!loading && hasSearched && results.length === 0 && (
-        <div className="text-center py-4 text-[13px] text-(--color-text-secondary)">
+        <div className="text-center py-4 text-(--text-sm) text-(--color-text-secondary)">
           No users found matching '{debouncedQuery}'
         </div>
       )}
 
       {!loading && results.length > 0 && (
-        <div className="divide-y divide-(--color-border) border border-(--color-border) rounded-lg overflow-hidden">
+        <div className="divide-y divide-(--color-border) border border-(--color-border) rounded-(--radius-lg) overflow-hidden">
           {results.map((result) => (
             <FriendRow
               key={result.id}

@@ -125,17 +125,17 @@ export function WallCalendarPicker({
       onClick={onClose}
     >
       <div
-        className="border rounded-lg p-4 w-full max-w-md mx-4 bg-(--color-bg-primary) border-(--color-border)"
+        className="border rounded-(--radius-lg) p-4 w-full max-w-md mx-4 bg-(--color-bg-primary) border-(--color-border)"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-base font-medium text-(--color-text-primary)">
+          <h3 className="text-(--text-lg) font-medium text-(--color-text-primary)">
             Select Date
           </h3>
           <button
             onClick={onClose}
-            className="p-1 rounded-md transition-colors hover:bg-(--color-bg-tertiary) text-(--color-text-secondary)"
+            className="p-1 rounded-(--radius-md) transition-colors hover:bg-(--color-bg-tertiary) text-(--color-text-secondary)"
             aria-label="Close"
           >
             <svg
@@ -158,7 +158,7 @@ export function WallCalendarPicker({
         <div className="flex items-center justify-between mb-4">
           <button
             onClick={goToPreviousMonth}
-            className="p-2 rounded-md cursor-pointer transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary)"
+            className="p-2 rounded-(--radius-md) cursor-pointer transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary)"
             aria-label="Previous month"
           >
             <svg
@@ -176,12 +176,12 @@ export function WallCalendarPicker({
           </button>
 
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-(--color-text-primary)">
+            <span className="text-(--text-base) font-medium text-(--color-text-primary)">
               {MONTHS[currentMonth]} {currentYear}
             </span>
             <button
               onClick={goToToday}
-              className="px-2 py-1 rounded-md cursor-pointer text-xs transition-colors bg-(--color-bg-tertiary) text-(--color-text-secondary)"
+              className="px-2 py-1 rounded-(--radius-md) cursor-pointer text-(--text-xs) transition-colors bg-(--color-bg-tertiary) text-(--color-text-secondary)"
             >
               Today
             </button>
@@ -190,7 +190,7 @@ export function WallCalendarPicker({
           <button
             onClick={goToNextMonth}
             disabled={!canGoNext}
-            className="p-2 rounded-md cursor-pointer transition-colors disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-tertiary) text-(--color-text-primary)"
+            className="p-2 rounded-(--radius-md) cursor-pointer transition-colors disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-tertiary) text-(--color-text-primary)"
             aria-label="Next month"
           >
             <svg
@@ -214,7 +214,7 @@ export function WallCalendarPicker({
           {DAYS_OF_WEEK.map((day) => (
             <div
               key={day}
-              className="text-center py-1 text-xs font-medium text-(--color-text-tertiary)"
+              className="text-center py-1 text-(--text-xs) font-medium text-(--color-text-tertiary)"
             >
               {day}
             </div>
@@ -238,8 +238,8 @@ export function WallCalendarPicker({
                 onClick={() => handleDayClick(day)}
                 disabled={isFuture}
                 className={`
-                  aspect-square rounded-md p-1 flex flex-col items-center justify-center gap-0.5
-                  transition-colors text-xs
+                  aspect-square rounded-(--radius-md) p-1 flex flex-col items-center justify-center gap-0.5
+                  transition-colors text-(--text-xs)
                   ${isFuture ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer hover:bg-(--color-bg-tertiary)'}
                   ${isSelected ? 'bg-(--color-accent) text-(--color-accent-text)' : ''}
                   ${isToday && !isSelected ? 'ring-1 ring-(--color-accent)' : ''}

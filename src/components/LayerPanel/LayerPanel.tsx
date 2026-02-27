@@ -295,9 +295,9 @@ export function LayerPanel({
           <polyline points="2 17 12 22 22 17" />
           <polyline points="2 12 12 17 22 12" />
         </svg>
-        <span className="text-[13px] font-bold text-(--color-text-primary)">Layers</span>
+        <span className="text-(--text-sm) font-bold text-(--color-text-primary)">Layers</span>
         {/* Count badge */}
-        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-(--color-bg-tertiary) text-(--color-text-secondary) leading-none">
+        <span className="text-(--text-xs) font-medium px-1.5 py-0.5 rounded-(--radius-pill) bg-(--color-bg-tertiary) text-(--color-text-secondary) leading-none">
           {shapes.length}
         </span>
 
@@ -336,7 +336,7 @@ export function LayerPanel({
         {/* Multi-select toggle for touch devices */}
         {isTouchDevice && (
           <button
-            className={`w-full px-2 py-2 text-[11px] rounded-md cursor-pointer transition-colors my-2 border ${
+            className={`w-full px-2 py-2 text-(--text-xs) rounded-(--radius-md) cursor-pointer transition-colors my-2 border ${
               isMultiSelectMode
                 ? 'bg-(--color-accent) text-(--color-accent-text) border-(--color-accent)'
                 : 'bg-transparent text-(--color-text-secondary) border-(--color-border)'
@@ -350,7 +350,7 @@ export function LayerPanel({
         {/* Layer list */}
         <div className="py-2">
           {sortedShapes.length === 0 ? (
-            <p className="text-[12px] text-center py-4 text-(--color-text-tertiary)">No shapes yet</p>
+            <p className="text-(--text-sm) text-center py-4 text-(--color-text-tertiary)">No shapes yet</p>
           ) : (
         <ul className="list-none p-0 m-0">
           {layerItems.map((item) => {

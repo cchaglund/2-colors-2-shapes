@@ -66,7 +66,7 @@ export function TouchContextMenu({
     <div
       ref={menuRef}
       style={menuStyle}
-      className="bg-(--color-bg-elevated) rounded-lg shadow-xl border border-(--color-border) py-2 min-w-40 touch-manipulation"
+      className="bg-(--color-bg-elevated) rounded-(--radius-lg) shadow-(--shadow-modal) border border-(--color-border) py-2 min-w-40 touch-manipulation"
     >
       <button className={itemClass} onClick={() => handleAction(onDuplicate)}>
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
