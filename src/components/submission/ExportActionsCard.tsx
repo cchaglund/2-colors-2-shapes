@@ -1,3 +1,5 @@
+import { Card } from '../shared/Card';
+
 const actionBtnStyle: React.CSSProperties = {
   background: 'var(--color-selected)',
   border: 'var(--border-width, 2px) solid var(--color-border-light)',
@@ -18,15 +20,7 @@ export function ExportActionsCard({
   showDownloadButtons = true,
 }: ExportActionsCardProps) {
   return (
-    <div
-      className="p-5"
-      style={{
-        background: 'var(--color-card-bg)',
-        border: 'var(--border-width, 2px) solid var(--color-border-light)',
-        borderRadius: 'var(--radius-lg)',
-        boxShadow: 'var(--shadow-btn)',
-      }}
-    >
+    <Card>
       <h2 className="text-[13px] font-semibold mb-3 text-(--color-text-primary)">
         Export & Share
       </h2>
@@ -71,6 +65,6 @@ export function ExportActionsCard({
           Copy Link
         </button>
       </div>
-    </div>
+    </Card>
   );
 }

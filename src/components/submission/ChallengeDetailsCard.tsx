@@ -1,5 +1,6 @@
 import type { DailyChallenge, Shape } from '../../types';
 import { getShapeSVGData } from '../../utils/shapes';
+import { Card } from '../shared/Card';
 
 interface ChallengeDetailsCardProps {
   challenge: DailyChallenge;
@@ -9,15 +10,7 @@ interface ChallengeDetailsCardProps {
 
 export function ChallengeDetailsCard({ challenge, submissionShapes }: ChallengeDetailsCardProps) {
   return (
-    <div
-      className="p-5"
-      style={{
-        background: 'var(--color-card-bg)',
-        border: 'var(--border-width, 2px) solid var(--color-border-light)',
-        borderRadius: 'var(--radius-lg)',
-        boxShadow: 'var(--shadow-btn)',
-      }}
-    >
+    <Card>
 
       {/* Daily Word */}
       <div className="mb-4">
@@ -79,6 +72,6 @@ export function ChallengeDetailsCard({ challenge, submissionShapes }: ChallengeD
           })}
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

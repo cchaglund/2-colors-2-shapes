@@ -9,6 +9,8 @@ import { WallEmptyState } from './WallEmptyState';
 import { SubmissionThumbnail } from '../shared/SubmissionThumbnail';
 import { TrophyBadge } from '../shared/TrophyBadge';
 import { ViewToggle } from '../shared/ViewToggle';
+import { LoadingSpinner } from '../shared/LoadingSpinner';
+import { LoadMoreButton } from '../shared/LoadMoreButton';
 import { ContentNavigation } from '../Calendar/ContentNavigation';
 import { ContentCalendarGrid } from '../Calendar/ContentCalendarGrid';
 import { formatDate, getDaysInMonth } from '../../utils/calendarUtils';
@@ -129,14 +131,7 @@ export function WallContent({
 
   // Loading state - only for grid view
   if (loading && viewType === 'grid') {
-    return (
-      <div className="flex flex-col items-center justify-center py-16">
-        <div className="w-6 h-6 border-2 border-(--color-border) border-t-(--color-accent) rounded-full animate-spin mb-4" />
-        <p className="text-[13px] text-(--color-text-secondary)">
-          Loading submissions...
-        </p>
-      </div>
-    );
+    return <LoadingSpinner message="Loading submissions..." />;
   }
 
   // Error state
@@ -250,18 +245,7 @@ export function WallContent({
           {/* Load more button */}
           {hasMore && (
             <div className="flex justify-center pt-4">
-              <button
-                onClick={loadMore}
-                className="px-4 py-2 text-[13px] font-medium transition-colors cursor-pointer"
-                style={{
-                  color: 'var(--color-accent)',
-                  border: 'var(--border-width, 2px) solid var(--color-accent)',
-                  borderRadius: 'var(--radius-pill)',
-                  background: 'transparent',
-                }}
-              >
-                Load more submissions
-              </button>
+              <LoadMoreButton onClick={loadMore} />
             </div>
           )}
           </>

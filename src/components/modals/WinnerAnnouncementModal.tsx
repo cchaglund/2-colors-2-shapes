@@ -3,6 +3,7 @@ import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
 import { WinnerCard } from '../submission/WinnerCard';
 import { Modal } from '../shared/Modal';
 import { PillButton } from '../shared/PillButton';
+import { LoadingSpinner } from '../shared/LoadingSpinner';
 
 interface WinnerAnnouncementModalProps {
   challengeDate: string;
@@ -37,10 +38,7 @@ export function WinnerAnnouncementModal({
   if (challengeLoading || !challenge) {
     return (
       <Modal onClose={onDismiss} closeOnBackdropClick={false} dataTestId="winner-announcement-modal">
-        <div className="text-center">
-          <div className="inline-block w-6 h-6 border-2 border-(--color-text-tertiary) border-t-transparent rounded-full animate-spin mb-3" />
-          <p className="text-[13px] text-(--color-text-secondary)">Loading...</p>
-        </div>
+        <LoadingSpinner message="Loading..." inline />
       </Modal>
     );
   }

@@ -1,51 +1,97 @@
-interface ViewToggleProps<T extends string> {
-  options: { value: T; label: string }[];
-  activeValue: T;
-  onChange: (value: T) => void;
+interface ViewToggleOption<T extends string> {
+  value: T;
+  label: string;
+  disabled?: boolean;
+  disabledTitle?: string;
 }
 
-const toggleStyle = {
-  active: {
-    background: 'var(--color-card-bg)',
-    border: 'var(--border-width, 2px) solid var(--color-border-light)',
-    borderRadius: 'var(--radius-sm)',
-    boxShadow: 'var(--shadow-btn)',
-  } as React.CSSProperties,
-  inactive: {
-    background: 'transparent',
-    border: '1px solid transparent',
-    borderRadius: 'var(--radius-sm)',
-    boxShadow: 'none',
-  } as React.CSSProperties,
-};
+interface ViewToggleProps<T extends string> {
+  options: ViewToggleOption<T>[];
+  activeValue: T;
+  onChange: (value: T) => void;
+  /** 'sm' = compact (11px, radius-sm). 'md' = larger (13px, radius-md). Default: 'sm' */
+  size?: 'sm' | 'md';
+  /** When true, buttons get flex-1 to fill available width. Default: false */
+  fullWidth?: boolean;
+  /** Additional className on the root container */
+  className?: string;
+}
+
+const sizeConfig = {
+  sm: {
+    fontSize: 'text-[11px]',
+    buttonRadius: '--radius-sm',
+    containerRadius: '--radius-md',
+    containerPadding: 2,
+    activeBorder: '--color-border-light',
+    activeFontWeight: 'font-bold',
+    inactiveFontWeight: 'font-bold',
+    buttonPadding: 'px-3.5 py-1',
+  },
+  md: {
+    fontSize: 'text-[13px]',
+    buttonRadius: '--radius-md',
+    containerRadius: '--radius-lg',
+    containerPadding: 3,
+    activeBorder: '--color-border',
+    activeFontWeight: 'font-bold',
+    inactiveFontWeight: 'font-semibold',
+    buttonPadding: 'px-4 py-2',
+  },
+} as const;
 
 export function ViewToggle<T extends string>({
   options,
   activeValue,
   onChange,
+  size = 'sm',
+  fullWidth = false,
+  className = '',
 }: ViewToggleProps<T>) {
+  const config = sizeConfig[size];
+
+  const activeStyle: React.CSSProperties = {
+    background: 'var(--color-card-bg)',
+    border: `var(--border-width, 2px) solid var(${config.activeBorder})`,
+    borderRadius: `var(${config.buttonRadius})`,
+    boxShadow: 'var(--shadow-btn)',
+  };
+
+  const inactiveStyle: React.CSSProperties = {
+    background: 'transparent',
+    border: '1px solid transparent',
+    borderRadius: `var(${config.buttonRadius})`,
+    boxShadow: 'none',
+  };
+
   return (
     <div
-      className="flex"
+      className={`flex ${className}`}
       style={{
         background: 'var(--color-selected)',
-        borderRadius: 'var(--radius-md)',
+        borderRadius: `var(${config.containerRadius})`,
         border: 'var(--border-width, 2px) solid var(--color-border-light)',
-        padding: 2,
+        padding: config.containerPadding,
       }}
     >
-      {options.map(({ value, label }) => {
+      {options.map(({ value, label, disabled, disabledTitle }) => {
         const isActive = activeValue === value;
         return (
           <button
             key={value}
             onClick={() => onChange(value)}
-            className={`px-3.5 py-1 text-[11px] transition-all cursor-pointer ${
+            disabled={disabled}
+            title={disabled ? disabledTitle : undefined}
+            className={`${config.buttonPadding} ${config.fontSize} transition-all ${
+              fullWidth ? 'flex-1' : ''
+            } ${
+              disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+            } ${
               isActive
-                ? 'text-(--color-text-primary) font-bold'
-                : 'text-(--color-text-secondary) font-bold'
+                ? `text-(--color-text-primary) ${config.activeFontWeight}`
+                : `text-(--color-text-secondary) ${config.inactiveFontWeight}`
             }`}
-            style={isActive ? toggleStyle.active : toggleStyle.inactive}
+            style={isActive ? activeStyle : inactiveStyle}
           >
             {label}
           </button>

@@ -1,8 +1,9 @@
+import { EmptyState } from '../shared/EmptyState';
 
-export function WallLockedState () {
+export function WallLockedState() {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-      <div className="w-12 h-12 rounded-full bg-(--color-bg-tertiary) flex items-center justify-center mb-4">
+    <EmptyState
+      icon={
         <svg
           width="24"
           height="24"
@@ -16,16 +17,15 @@ export function WallLockedState () {
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
           <path d="M7 11V7a5 5 0 0 1 10 0v4" />
         </svg>
-      </div>
-      <p className="text-[13px] text-(--color-text-secondary) mb-4">
-        Save your art first, in order to see today's submissions
-      </p>
+      }
+      message="Save your art first, in order to see today's submissions"
+    >
       <a
         href="/"
         className="text-[13px] text-(--color-accent) hover:underline"
       >
         ← Back to canvas
       </a>
-    </div>
+    </EmptyState>
   );
 }

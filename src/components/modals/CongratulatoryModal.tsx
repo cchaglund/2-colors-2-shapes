@@ -5,6 +5,7 @@ import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
 import { WinnerCard } from '../submission/WinnerCard';
 import { Modal } from '../shared/Modal';
 import { PillButton } from '../shared/PillButton';
+import { LoadingSpinner } from '../shared/LoadingSpinner';
 
 const CONFETTI_DURATION_MS = 6_000;
 const CONFETTI_INTERVAL_MS = 300;
@@ -81,10 +82,7 @@ export function CongratulatoryModal({
   if (challengeLoading || !challenge) {
     return (
       <Modal onClose={handleDismiss} closeOnBackdropClick={false} dataTestId="congratulatory-modal">
-        <div className="text-center">
-          <div className="inline-block w-6 h-6 border-2 border-(--color-text-tertiary) border-t-transparent rounded-full animate-spin mb-3" />
-          <p className="text-[13px] text-(--color-text-secondary)">Loading...</p>
-        </div>
+        <LoadingSpinner message="Loading..." inline />
       </Modal>
     );
   }

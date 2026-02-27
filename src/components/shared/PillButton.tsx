@@ -1,4 +1,4 @@
-import type { ComponentPropsWithoutRef, ElementType, ReactNode } from 'react';
+import type { ComponentPropsWithoutRef, CSSProperties, ElementType, ReactNode } from 'react';
 
 /**
  * Pill-shaped button used across the UI.
@@ -32,8 +32,10 @@ type PillButtonProps<T extends ElementType = 'button'> = {
   variant?: PillButtonVariant;
   as?: T;
   fullWidth?: boolean;
+  className?: string;
+  style?: CSSProperties;
   children: ReactNode;
-} & Omit<ComponentPropsWithoutRef<T>, 'as' | 'children'>;
+} & Omit<ComponentPropsWithoutRef<T>, 'as' | 'children' | 'className' | 'style'>;
 
 export function PillButton<T extends ElementType = 'button'>({
   variant = 'secondary',
