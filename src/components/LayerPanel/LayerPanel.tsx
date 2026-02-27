@@ -279,10 +279,16 @@ export function LayerPanel({
 
   return (
     <div
-      className="h-full w-full flex flex-col bg-(--color-bg-primary) border-l border-(--color-border)"
+      className="w-full flex flex-col bg-(--color-card-bg)"
+      style={{
+        border: 'var(--border-width, 2px) solid var(--color-border)',
+        borderRadius: 'var(--radius-lg)',
+        boxShadow: 'var(--shadow-card)',
+        maxHeight: 'calc(100vh - 140px)',
+      }}
     >
       {/* Header: layers icon + 'Layers' + count badge + group icon button + close button */}
-      <div className="flex items-center gap-2 px-3 py-2.5 border-b border-(--color-border-light) shrink-0">
+      <div className="flex items-center gap-2 px-3 py-2.5 shrink-0" style={{ borderBottom: 'var(--border-width, 2px) solid var(--color-selected)' }}>
         {/* Layers icon */}
         <svg className="shrink-0 text-(--color-text-secondary)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <polygon points="12 2 2 7 12 12 22 7 12 2" />

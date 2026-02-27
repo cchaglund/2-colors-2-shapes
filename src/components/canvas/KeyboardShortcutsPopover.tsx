@@ -67,7 +67,8 @@ export function KeyboardShortcutsPopover({ keyMappings, onOpenSettings }: Keyboa
       {/* Trigger button */}
       <button
         onClick={() => setOpen(prev => !prev)}
-        className="w-[30px] h-[30px] flex items-center justify-center cursor-pointer transition-colors rounded-(--radius-sm) bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) shadow-sm text-xs font-semibold"
+        className="w-[30px] h-[30px] flex items-center justify-center cursor-pointer transition-colors rounded-(--radius-md) bg-(--color-card-bg) text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) text-sm font-bold"
+        style={{ border: 'var(--border-width, 2px) solid var(--color-border)', boxShadow: 'var(--shadow-btn)' }}
         title="Keyboard shortcuts"
         aria-label="Keyboard shortcuts"
       >

@@ -356,7 +356,8 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
         {/* Left tools panel collapsed toggle */}
         {!leftOpen && (
           <button
-            className="absolute left-3 top-3 z-20 w-10 h-10 flex items-center justify-center cursor-pointer transition-colors rounded-(--radius-sm) bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) shadow-sm"
+            className="absolute left-3 top-3 z-20 w-10 h-10 flex items-center justify-center cursor-pointer transition-colors rounded-(--radius-md) bg-(--color-card-bg) text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary)"
+            style={{ border: 'var(--border-width, 2px) solid var(--color-border)', boxShadow: 'var(--shadow-btn)' }}
             onClick={toggleLeft}
             title="Show Tools"
           >
@@ -371,11 +372,10 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
           {leftOpen && (
             <motion.div
               key="left-tools"
-              initial={{ x: '-100%' }}
-              animate={{ x: 0, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
-              exit={{ x: [0, '3%', '-100%'], transition: { duration: 0.4, times: [0, 0.15, 1], ease: ['easeOut', [0.55, 0, 1, 0.2]] } }}
-              className="absolute top-0 left-0 h-full z-20 shadow-lg"
-              style={{ width: 52 }}
+              initial={{ x: -60, opacity: 0 }}
+              animate={{ x: 0, opacity: 1, transition: { type: 'spring', stiffness: 400, damping: 30 } }}
+              exit={{ x: -60, opacity: 0, transition: { duration: 0.2 } }}
+              className="absolute top-3 left-3 z-20"
             >
               <ToolsPanel
                 keyMappings={keyMappings}
@@ -451,30 +451,33 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
         {/* Right layers panel collapsed toggle */}
         {!rightOpen && (
           <button
-            className="absolute right-3 top-3 z-20 flex items-center gap-1.5 px-2 py-1.5 cursor-pointer transition-colors border border-(--color-border) rounded-(--radius-sm) bg-(--color-bg-primary) hover:bg-(--color-hover) shadow-sm"
+            className="absolute right-3 top-3 z-20 flex items-center gap-1.5 h-10 px-3.5 cursor-pointer transition-colors rounded-(--radius-md) bg-(--color-card-bg) hover:bg-(--color-hover) text-(--color-text-secondary)"
+            style={{ border: 'var(--border-width, 2px) solid var(--color-border)', boxShadow: 'var(--shadow-btn)' }}
             onClick={toggleRight}
             title="Show Layers"
+            aria-label={`Open layers`}
+            aria-description="Open layers"
           >
-            <svg className="text-(--color-text-secondary)" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="12 2 2 7 12 12 22 7 12 2" />
               <polyline points="2 17 12 22 22 17" />
               <polyline points="2 12 12 17 22 12" />
             </svg>
-            <span className="text-[11px] font-medium text-(--color-text-secondary) leading-none">
+            <span className="text-[11px] font-semibold leading-none">
               {canvasState.shapes.length}
             </span>
           </button>
         )}
 
-        {/* Right sidebar overlay */}
+        {/* Right layers panel */}
         <AnimatePresence>
           {rightOpen && (
             <motion.div
               key="right-sidebar"
-              initial={{ x: '100%' }}
-              animate={{ x: 0, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
-              exit={{ x: [0, '-3%', '100%'], transition: { duration: 0.4, times: [0, 0.15, 1], ease: ['easeOut', [0.55, 0, 1, 0.2]] } }}
-              className="absolute top-0 right-0 h-full z-20 shadow-lg"
+              initial={{ x: 40, opacity: 0 }}
+              animate={{ x: 0, opacity: 1, transition: { type: 'spring', stiffness: 400, damping: 30 } }}
+              exit={{ x: 40, opacity: 0, transition: { duration: 0.2 } }}
+              className="absolute top-3 right-3 z-20"
               style={{ width: 240 }}
             >
               <LayerPanel

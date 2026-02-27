@@ -4,10 +4,9 @@ import { formatKeyBinding, getDefaultMappings } from '../../constants/keyboardAc
 
 // --- SVG Icon components (18x18, viewBox 0 0 24 24) ---
 
-const CloseIcon = () => (
+const CollapseIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="18" y1="6" x2="6" y2="18" />
-    <line x1="6" y1="6" x2="18" y2="18" />
+    <polyline points="15 18 9 12 15 6" />
   </svg>
 );
 
@@ -239,12 +238,18 @@ export function ToolsPanel({
 
   return (
     <div
-      className="h-full flex flex-col items-center py-2 px-1.5 bg-(--color-bg-primary) border-r border-(--color-border) overflow-y-auto"
+      className="flex flex-col items-center py-1.5 px-1.5 bg-(--color-card-bg) overflow-y-auto"
+      style={{
+        border: 'var(--border-width, 2px) solid var(--color-border)',
+        borderRadius: 'var(--radius-lg)',
+        boxShadow: 'var(--shadow-card)',
+        maxHeight: 'calc(100vh - 140px)',
+      }}
       onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
     >
       {/* Close */}
-      <ToolButton icon={<CloseIcon />} label="Hide tools" onClick={onClose} />
+      <ToolButton icon={<CollapseIcon />} label="Hide tools" onClick={onClose} />
 
       <Divider />
 

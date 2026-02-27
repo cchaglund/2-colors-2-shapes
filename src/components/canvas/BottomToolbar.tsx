@@ -32,11 +32,16 @@ function ToolButton({
 }) {
   return (
     <button
-      className={`w-9 h-9 flex items-center justify-center rounded-(--radius-sm) transition-all cursor-pointer ${
+      className={`w-[34px] h-[34px] flex items-center justify-center rounded-(--radius-sm) transition-all cursor-pointer ${
         active
-          ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-accent) shadow-sm'
+          ? 'text-(--color-text-primary)'
           : 'bg-transparent text-(--color-text-secondary) border border-transparent hover:bg-(--color-hover) hover:text-(--color-text-primary)'
       }`}
+      style={active ? {
+        background: 'var(--color-card-bg)',
+        border: 'var(--border-width, 2px) solid var(--color-border)',
+        boxShadow: 'var(--shadow-btn)',
+      } : undefined}
       onClick={onClick}
       title={title}
     >
@@ -58,12 +63,16 @@ function ColorSwatch({
 }) {
   return (
     <button
-      className={`w-7 h-7 rounded-md cursor-pointer transition-all border-2 shrink-0 ${
-        selected
-          ? 'border-(--color-accent) scale-110'
-          : 'border-transparent hover:scale-105'
+      className={`w-7 h-7 cursor-pointer transition-all shrink-0 ${
+        selected ? 'scale-115' : 'hover:scale-105'
       }`}
-      style={{ backgroundColor: color }}
+      style={{
+        backgroundColor: color,
+        borderRadius: 'var(--radius-sm)',
+        border: selected
+          ? 'var(--border-width, 2px) solid var(--color-border)'
+          : 'var(--border-width, 2px) solid transparent',
+      }}
       onClick={onClick}
       title={title ?? color}
     />
@@ -71,12 +80,12 @@ function ColorSwatch({
 }
 
 function Divider() {
-  return <div className="w-px h-6 bg-(--color-border) mx-1 shrink-0" />;
+  return <div className="w-px h-6 bg-(--color-border-light) mx-1 shrink-0" />;
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <span className="text-[10px] font-medium uppercase tracking-wide text-(--color-text-tertiary) px-1 shrink-0">
+    <span className="text-[9px] font-bold uppercase tracking-wide text-(--color-text-tertiary) px-1 shrink-0">
       {children}
     </span>
   );
@@ -111,29 +120,37 @@ export function BottomToolbar({
         opacity: 1,
         transition: { type: 'spring', stiffness: 400, damping: 25 },
       }}
-      className="flex items-center h-12 gap-1 px-2 rounded-(--radius-pill) border border-(--color-border) bg-(--color-surface) shadow-(--card-shadow) backdrop-blur-sm"
+      className="flex items-center h-12 gap-1.5 px-4 backdrop-blur-sm"
+      style={{
+        background: 'var(--color-card-bg)',
+        border: 'var(--border-width, 2px) solid var(--color-border)',
+        borderRadius: 'var(--radius-xl)',
+        boxShadow: 'var(--shadow-card)',
+      }}
     >
-      {/* Tool mode: Select + shape buttons */}
-      <ToolButton
-        active={activeTool === 'select'}
-        onClick={() => onSetTool('select')}
-        title="Select (V)"
-      >
-        <CursorIcon />
-      </ToolButton>
-      {challenge.shapes.map((shape, i) => {
-        const toolId = `stamp-${i}` as EditorTool;
-        return (
-          <ToolButton
-            key={shape.type}
-            active={activeTool === toolId}
-            onClick={() => onSetTool(activeTool === toolId ? 'select' : toolId)}
-            title={shape.name}
-          >
-            <ShapeIcon type={shape.type} size={18} />
-          </ToolButton>
-        );
-      })}
+      {/* Tool mode: Select + shape buttons (grouped in tray) */}
+      <div className="flex items-center gap-0.5 p-0.5 rounded-(--radius-md) bg-(--color-selected)">
+        <ToolButton
+          active={activeTool === 'select'}
+          onClick={() => onSetTool('select')}
+          title="Select (V)"
+        >
+          <CursorIcon />
+        </ToolButton>
+        {challenge.shapes.map((shape, i) => {
+          const toolId = `stamp-${i}` as EditorTool;
+          return (
+            <ToolButton
+              key={shape.type}
+              active={activeTool === toolId}
+              onClick={() => onSetTool(activeTool === toolId ? 'select' : toolId)}
+              title={shape.name}
+            >
+              <ShapeIcon type={shape.type} size={18} />
+            </ToolButton>
+          );
+        })}
+      </div>
 
       <Divider />
 

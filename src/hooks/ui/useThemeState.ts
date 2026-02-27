@@ -78,7 +78,7 @@ export function useThemeState() {
     () => loadFromStorage(MODE_KEY, ['light', 'dark', 'system'], 'system')
   );
   const [theme, setThemeState] = useState<ThemeName>(
-    () => loadFromStorage(THEME_KEY, ['a', 'b', 'c', 'd'], 'b')
+    () => loadFromStorage(THEME_KEY, ['a', 'b', 'c', 'd'], 'a')
   );
   const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>(getSystemTheme);
 

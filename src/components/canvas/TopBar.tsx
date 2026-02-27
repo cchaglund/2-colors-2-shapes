@@ -55,7 +55,7 @@ function ThemePill({
   };
 
   return (
-    <div className="flex items-center gap-0 rounded-(--radius-pill) border border-(--color-border) bg-(--color-surface) h-8">
+    <div className="flex items-center gap-0 rounded-(--radius-pill) h-8 bg-(--color-card-bg)" style={{ border: 'var(--border-width, 2px) solid var(--color-border)', boxShadow: 'var(--shadow-btn)' }}>
       {/* Dark mode toggle */}
       <button
         className="flex items-center justify-center w-8 h-full rounded-l-(--radius-pill) transition-colors text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-hover)"
@@ -127,7 +127,7 @@ export function TopBar({
   profileLoading,
 }: TopBarProps) {
   return (
-    <header className="h-14 flex items-center justify-between px-4 border-b border-(--color-border) bg-(--color-bg-primary) shrink-0 z-30 relative">
+    <header className="h-14 flex items-center justify-between px-4 bg-(--color-bg-primary) shrink-0 z-30 relative" style={{ borderBottom: 'var(--border-width, 2px) solid var(--color-border)' }}>
       {/* Left group: logo + theme pill */}
       <div className="flex items-center gap-3">
         <a href="/" className="flex items-center gap-2 no-underline text-(--color-text-primary)">
@@ -203,7 +203,8 @@ function DefaultRightContent({
       {/* Reset */}
       {onReset && (
         <button
-          className="h-8 px-3 rounded-(--radius-pill) border border-(--color-border) text-xs font-medium transition-colors bg-transparent text-(--color-text-secondary) hover:text-(--color-danger) hover:border-(--color-danger)"
+          className="h-8 px-3 rounded-(--radius-pill) text-xs font-medium transition-colors bg-(--color-card-bg) text-(--color-text-secondary) hover:text-(--color-danger) hover:border-(--color-danger) cursor-pointer"
+          style={{ border: 'var(--border-width, 2px) solid var(--color-border)', boxShadow: 'var(--shadow-btn)' }}
           onClick={onReset}
           title="Reset canvas"
         >
@@ -214,7 +215,8 @@ function DefaultRightContent({
       {/* Submit */}
       {onSave && isLoggedIn ? (
         <button
-          className="h-8 px-4 rounded-(--radius-pill) border-none text-xs font-medium transition-colors bg-(--color-accent) text-(--color-accent-text) hover:bg-(--color-accent-hover) disabled:opacity-50 disabled:cursor-not-allowed"
+          className="h-8 px-4 rounded-(--radius-pill) text-xs font-medium transition-colors bg-(--color-accent) text-(--color-accent-text) hover:bg-(--color-accent-hover) disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          style={{ border: 'var(--border-width, 2px) solid var(--color-border)', boxShadow: 'var(--shadow-btn)' }}
           onClick={onSave}
           disabled={isSaving || hasSubmittedToday}
           title={hasSubmittedToday ? 'Already submitted today' : 'Submit your creation'}
@@ -223,7 +225,8 @@ function DefaultRightContent({
         </button>
       ) : onSave ? (
         <button
-          className="h-8 px-4 rounded-(--radius-pill) border-none text-xs font-medium transition-colors bg-(--color-accent) text-(--color-accent-text) hover:bg-(--color-accent-hover)"
+          className="h-8 px-4 rounded-(--radius-pill) text-xs font-medium transition-colors bg-(--color-accent) text-(--color-accent-text) hover:bg-(--color-accent-hover) cursor-pointer"
+          style={{ border: 'var(--border-width, 2px) solid var(--color-border)', boxShadow: 'var(--shadow-btn)' }}
           onClick={onSave}
           title="Sign in to submit"
         >
@@ -237,7 +240,8 @@ function DefaultRightContent({
       {/* Gallery */}
       <a
         href="/?view=gallery"
-        className="h-8 px-3 rounded-(--radius-pill) border border-(--color-border) text-xs font-medium transition-colors bg-transparent text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) no-underline flex items-center"
+        className="h-8 px-3 rounded-(--radius-pill) text-xs font-medium transition-colors bg-(--color-card-bg) text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) no-underline flex items-center"
+        style={{ border: 'var(--border-width, 2px) solid var(--color-border)', boxShadow: 'var(--shadow-btn)' }}
       >
         Gallery
       </a>
@@ -259,7 +263,7 @@ function DefaultRightContent({
 export function InspirationCenter({ word }: { word: string }) {
   return (
     <div className="flex flex-col items-center leading-tight">
-      <span className="text-[10px] uppercase tracking-widest text-(--color-text-tertiary)">Today&apos;s Inspiration</span>
+      <span className="text-[10px] uppercase tracking-widest text-(--color-accent)">Today&apos;s Inspiration</span>
       <span className="text-base font-semibold text-(--color-text-primary) capitalize font-display">&ldquo;{word}&rdquo;</span>
     </div>
   );

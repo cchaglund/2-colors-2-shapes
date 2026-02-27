@@ -46,7 +46,13 @@ export function UserMenuDropdown({ profile, loading, isLoggedIn, onSignIn, onSig
   if (!isLoggedIn || !profile) {
     return (
       <button
-        className="h-8 px-3 rounded-(--radius-pill) border border-(--color-border) text-xs font-medium transition-colors bg-transparent text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) cursor-pointer"
+        className="h-8 px-3 rounded-(--radius-pill) text-xs font-medium transition-colors cursor-pointer"
+        style={{
+          background: 'var(--color-text-primary)',
+          color: 'var(--color-bg-primary)',
+          border: 'var(--border-width, 2px) solid var(--color-border)',
+          boxShadow: 'var(--shadow-btn)',
+        }}
         onClick={onSignIn}
       >
         Log in
@@ -61,7 +67,8 @@ export function UserMenuDropdown({ profile, loading, isLoggedIn, onSignIn, onSig
     <div ref={containerRef} className="relative">
       {/* Trigger: avatar + name + chevron */}
       <button
-        className="h-8 px-3 rounded-(--radius-pill) border border-(--color-border) text-xs font-medium transition-colors bg-transparent text-(--color-text-secondary) hover:bg-(--color-hover) flex items-center gap-2 cursor-pointer"
+        className="h-8 px-3 rounded-(--radius-pill) text-xs font-medium transition-colors bg-(--color-card-bg) text-(--color-text-secondary) hover:bg-(--color-hover) flex items-center gap-2 cursor-pointer"
+        style={{ border: 'var(--border-width, 2px) solid var(--color-border)', boxShadow: 'var(--shadow-btn)' }}
         onClick={() => setOpen(prev => !prev)}
       >
         {profile.avatar_url ? (
