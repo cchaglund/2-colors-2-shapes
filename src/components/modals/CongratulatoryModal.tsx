@@ -1,5 +1,4 @@
 import { useEffect, useRef, useCallback } from 'react';
-import confetti from 'canvas-confetti';
 import type { RankingEntry } from '../../types';
 import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
 import { WinnerCard } from '../submission/WinnerCard';
@@ -36,7 +35,7 @@ export function CongratulatoryModal({
   const { challenge, loading: challengeLoading } = useDailyChallenge(challengeDate);
 
   // Confetti refs and dismiss handler
-  const confettiInstance = useRef<confetti.CreateTypes | null>(null);
+  const confettiInstance = useRef<{ reset: () => void } | null>(null);
   const stopConfetti = useCallback(() => {
     confettiInstance.current?.reset();
     confettiInstance.current = null;
@@ -52,28 +51,33 @@ export function CongratulatoryModal({
     if (challengeLoading) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const instance = confetti.create(undefined, { resize: true });
-    confettiInstance.current = instance;
+    let interval: ReturnType<typeof setInterval>;
+    let timeout: ReturnType<typeof setTimeout>;
 
-    const fireConfetti = () => {
-      instance({
-        particleCount: 30,
-        spread: 70,
-        origin: { x: Math.random(), y: Math.random() * 0.4 },
-        zIndex: 100,
-      });
-    };
+    import('canvas-confetti').then(({ default: confetti }) => {
+      const instance = confetti.create(undefined, { resize: true });
+      confettiInstance.current = instance;
 
-    fireConfetti();
-    const interval = setInterval(fireConfetti, CONFETTI_INTERVAL_MS);
-    const timeout = setTimeout(() => {
-      clearInterval(interval);
-    }, CONFETTI_DURATION_MS);
+      const fireConfetti = () => {
+        instance({
+          particleCount: 30,
+          spread: 70,
+          origin: { x: Math.random(), y: Math.random() * 0.4 },
+          zIndex: 100,
+        });
+      };
+
+      fireConfetti();
+      interval = setInterval(fireConfetti, CONFETTI_INTERVAL_MS);
+      timeout = setTimeout(() => {
+        clearInterval(interval);
+      }, CONFETTI_DURATION_MS);
+    });
 
     return () => {
       clearInterval(interval);
       clearTimeout(timeout);
-      instance.reset();
+      confettiInstance.current?.reset();
       confettiInstance.current = null;
     };
   }, [challengeLoading]);

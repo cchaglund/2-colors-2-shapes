@@ -1,20 +1,32 @@
-import { useMemo } from 'react';
-import { ShapeExplorer } from './components/admin/ShapeExplorer';
-import { ColorTester } from './components/admin/ColorTester';
-import { GalleryPage } from './components/pages/GalleryPage';
-import { SubmissionDetailPage } from './components/pages/SubmissionDetailPage';
-import { WinnersDayPage } from './components/pages/WinnersDayPage';
-import { WallOfTheDayPage } from './components/pages/WallOfTheDayPage';
-import { UserProfilePage } from './components/pages/UserProfilePage';
+import { lazy, Suspense, useMemo } from 'react';
 import { FollowsProvider } from './contexts/FollowsContext';
-import { VotingTestPage } from './test/VotingTestPage';
-import { SocialTestPage } from './test/SocialTestPage';
-import { Dashboard } from './components/admin/Dashboard';
-import { CanvasEditorPage } from './components/canvas/CanvasEditorPage';
 import { getTodayDateUTC } from './utils/dailyChallenge';
 import { useDailyChallenge } from './hooks/challenge/useDailyChallenge';
 import { useAppRoute, isStandaloneRoute } from './hooks/useAppRoute';
 import { useThemeState } from './hooks/ui/useThemeState';
+
+// Route-based code splitting: each page loads only when navigated to
+const ShapeExplorer = lazy(() => import('./components/admin/ShapeExplorer').then(m => ({ default: m.ShapeExplorer })));
+const ColorTester = lazy(() => import('./components/admin/ColorTester').then(m => ({ default: m.ColorTester })));
+const Dashboard = lazy(() => import('./components/admin/Dashboard').then(m => ({ default: m.Dashboard })));
+const GalleryPage = lazy(() => import('./components/pages/GalleryPage').then(m => ({ default: m.GalleryPage })));
+const SubmissionDetailPage = lazy(() => import('./components/pages/SubmissionDetailPage').then(m => ({ default: m.SubmissionDetailPage })));
+const WinnersDayPage = lazy(() => import('./components/pages/WinnersDayPage').then(m => ({ default: m.WinnersDayPage })));
+const WallOfTheDayPage = lazy(() => import('./components/pages/WallOfTheDayPage').then(m => ({ default: m.WallOfTheDayPage })));
+const UserProfilePage = lazy(() => import('./components/pages/UserProfilePage').then(m => ({ default: m.UserProfilePage })));
+const VotingTestPage = lazy(() => import('./test/VotingTestPage').then(m => ({ default: m.VotingTestPage })));
+const SocialTestPage = lazy(() => import('./test/SocialTestPage').then(m => ({ default: m.SocialTestPage })));
+const CanvasEditorPage = lazy(() => import('./components/canvas/CanvasEditorPage').then(m => ({ default: m.CanvasEditorPage })));
+
+function PageSpinner() {
+  return (
+    <div className="flex h-screen items-center justify-center bg-(--color-bg-primary)">
+      <div className="text-center">
+        <div className="inline-block w-8 h-8 border-4 border-(--color-text-secondary) border-t-transparent rounded-full animate-spin" />
+      </div>
+    </div>
+  );
+}
 
 function App() {
   // Apply theme globally so all pages respect the selected theme + dark mode
@@ -29,37 +41,40 @@ function App() {
 
   // Render standalone pages (no challenge data needed)
   if (isStandaloneRoute(route)) {
-    switch (route.type) {
-      case 'explorer': return <ShapeExplorer />;
-      case 'voting-test': return <VotingTestPage />;
-      case 'social-test': return <SocialTestPage />;
-      case 'dashboard': return <Dashboard />;
-      case 'color-tester': return <ColorTester />;
-      case 'gallery': return <FollowsProvider><GalleryPage tab={route.tab} year={route.year} month={route.month} date={route.date} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} /></FollowsProvider>;
-      case 'wall-of-the-day': return <WallOfTheDayPage date={route.date} />;
-      case 'profile': return <FollowsProvider><UserProfilePage userId={route.userId} /></FollowsProvider>;
-    }
+    const page = (() => {
+      switch (route.type) {
+        case 'explorer': return <ShapeExplorer />;
+        case 'voting-test': return <VotingTestPage />;
+        case 'social-test': return <SocialTestPage />;
+        case 'dashboard': return <Dashboard />;
+        case 'color-tester': return <ColorTester />;
+        case 'gallery': return <FollowsProvider><GalleryPage tab={route.tab} year={route.year} month={route.month} date={route.date} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} /></FollowsProvider>;
+        case 'wall-of-the-day': return <WallOfTheDayPage date={route.date} />;
+        case 'profile': return <FollowsProvider><UserProfilePage userId={route.userId} /></FollowsProvider>;
+      }
+    })();
+    return <Suspense fallback={<PageSpinner />}>{page}</Suspense>;
   }
 
   // Show loading spinner while challenge is loading
   if (challengeLoading || !challenge) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-(--color-bg-primary)">
-        <div className="text-center">
-          <div className="inline-block w-8 h-8 border-4 border-(--color-text-secondary) border-t-transparent rounded-full animate-spin mb-4" />
-          <p className="text-(--color-text-secondary)">Loading today's challenge...</p>
-        </div>
-      </div>
-    );
+    return <PageSpinner />;
   }
 
   // Render challenge-dependent pages
-  if (route.type === 'winners-day') return <WinnersDayPage date={route.date} />;
-  if (route.type === 'submission-by-id') return <FollowsProvider><SubmissionDetailPage submissionId={route.id} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} /></FollowsProvider>;
-  if (route.type === 'submission-by-date') return <FollowsProvider><SubmissionDetailPage date={route.date} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} /></FollowsProvider>;
+  let page;
+  if (route.type === 'winners-day') {
+    page = <WinnersDayPage date={route.date} />;
+  } else if (route.type === 'submission-by-id') {
+    page = <FollowsProvider><SubmissionDetailPage submissionId={route.id} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} /></FollowsProvider>;
+  } else if (route.type === 'submission-by-date') {
+    page = <FollowsProvider><SubmissionDetailPage date={route.date} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} /></FollowsProvider>;
+  } else {
+    // Default: canvas editor
+    page = <CanvasEditorPage challenge={challenge} todayDate={todayDate} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} />;
+  }
 
-  // Default: canvas editor
-  return <CanvasEditorPage challenge={challenge} todayDate={todayDate} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} />;
+  return <Suspense fallback={<PageSpinner />}>{page}</Suspense>;
 }
 
 export default App;
