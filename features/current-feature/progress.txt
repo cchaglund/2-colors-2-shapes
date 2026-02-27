@@ -617,3 +617,20 @@ All ANIM-2 requirements already implemented across PANEL-1, THEME-1, USER-1, and
 ### Blockers / notes
 - No code changes needed — prior work covered all requirements
 - Color swatches in BottomToolbar use `hover:scale-105` (qualifies as "scale" hover feedback per PRD)
+
+## ANIM-3: Ghost Cursor — DONE
+
+Two gaps fixed: animated opacity + canvas clipping.
+
+### Key decisions
+- `AnimatePresence` + `motion.g` wraps ghost SVG — `animate={{ opacity: 0.35 }}`, `exit={{ opacity: 0 }}`, 0.15s transition
+- Ghost group wrapped in `<g clipPath="url(#canvas-clip)">` (same clip as shapes, respects showOffCanvas toggle)
+- No changes to useStampMode — ghost still nulled on mousedown, AnimatePresence handles exit animation from last-known position
+
+### Files changed
+- `src/components/canvas/Canvas.tsx` — added motion/react import, wrapped ghost in AnimatePresence+motion.g+clipPath group
+- `features/current-feature/PRD.json` — marked passes: true
+
+### Blockers / notes
+- Typecheck passes clean; tests/lint fail (pre-existing VM binary compat)
+- All PRD items now pass — <promise>COMPLETE</promise>

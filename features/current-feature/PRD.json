@@ -373,7 +373,7 @@
       "Ghost disappears or fades out during a drag-to-size operation",
       "Ghost does not appear outside the canvas area"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "REMOVE-1",

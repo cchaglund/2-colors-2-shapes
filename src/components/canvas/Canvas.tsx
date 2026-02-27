@@ -1,4 +1,5 @@
 import { useRef, useState, useCallback, useMemo } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import type { Shape, ShapeGroup, DailyChallenge, ViewportState } from '../../types';
 import { CANVAS_SIZE } from '../../types/canvas';
 import { getShapeDimensions } from '../../utils/shapes';
@@ -614,19 +615,29 @@ export function Canvas({
           </>
         )}
 
-        {/* Ghost cursor for stamp mode */}
-        {isStampMode && stampGhost && challenge && (
-          <g style={{ opacity: 0.35 }} pointerEvents="none">
-            <SVGShape
-              type={challenge.shapes[stampShapeIndex].type}
-              size={60}
-              x={stampGhost.x - 30}
-              y={stampGhost.y - 30}
-              rotation={0}
-              color={challenge.colors[selectedColorIndex]}
-            />
-          </g>
-        )}
+        {/* Ghost cursor for stamp mode — clipped to canvas, fades in/out */}
+        <g clipPath={showOffCanvas ? undefined : "url(#canvas-clip)"} pointerEvents="none">
+          <AnimatePresence>
+            {isStampMode && stampGhost && challenge && (
+              <motion.g
+                key="stamp-ghost"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.35 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                <SVGShape
+                  type={challenge.shapes[stampShapeIndex].type}
+                  size={60}
+                  x={stampGhost.x - 30}
+                  y={stampGhost.y - 30}
+                  rotation={0}
+                  color={challenge.colors[selectedColorIndex]}
+                />
+              </motion.g>
+            )}
+          </AnimatePresence>
+        </g>
 
         {/* Marquee selection rectangle */}
         {marqueeState && (
