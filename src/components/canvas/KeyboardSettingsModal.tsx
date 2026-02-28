@@ -9,6 +9,7 @@ import {
   bindingFromEvent,
   findConflicts,
 } from '../../constants/keyboardActions';
+import { Button } from '../shared/Button';
 import { Modal } from '../shared/Modal';
 
 interface KeyboardSettingsModalProps {
@@ -220,24 +221,18 @@ export function KeyboardSettingsModal({
 
         {/* Footer */}
         <div className="p-4 border-t flex items-center justify-between border-(--color-border)">
-          <button
-            onClick={handleResetAll}
-            className="px-4 py-2 rounded-(--radius-md) cursor-pointer text-sm font-medium transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary) border border-(--color-border) hover:bg-(--color-hover)"
-          >
+          <Button variant="ghost" onClick={handleResetAll}>
             Reset to Defaults
-          </button>
+          </Button>
           <div className="flex items-center gap-3">
             {syncing && (
               <span className="text-xs text-(--color-text-tertiary)">
                 Saving...
               </span>
             )}
-            <button
-              onClick={onClose}
-              className="px-4 py-2 rounded-(--radius-md) cursor-pointer text-sm font-medium bg-(--color-accent) text-(--color-accent-text) hover:bg-(--color-accent-hover) transition-colors"
-            >
+            <Button variant="primary" onClick={onClose}>
               Done
-            </button>
+            </Button>
           </div>
         </div>
       </Modal>
@@ -269,18 +264,12 @@ export function KeyboardSettingsModal({
             . Replace it?
           </p>
           <div className="flex gap-3 justify-center">
-            <button
-              onClick={() => handleResolveConflict(false)}
-              className="px-4 py-2 rounded-(--radius-md) cursor-pointer text-sm font-medium transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary) border border-(--color-border) hover:bg-(--color-hover)"
-            >
+            <Button variant="ghost" onClick={() => handleResolveConflict(false)}>
               Cancel
-            </button>
-            <button
-              onClick={() => handleResolveConflict(true)}
-              className="px-4 py-2 rounded-(--radius-md) cursor-pointer text-sm font-medium bg-(--color-accent) text-(--color-accent-text) hover:bg-(--color-accent-hover) transition-colors"
-            >
+            </Button>
+            <Button variant="primary" onClick={() => handleResolveConflict(true)}>
               Replace
-            </button>
+            </Button>
           </div>
         </Modal>
       )}

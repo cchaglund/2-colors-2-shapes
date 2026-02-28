@@ -1,3 +1,4 @@
+import { Button } from '../shared/Button';
 import type { VotingOptInPromptProps } from './types';
 
 export function VotingOptInPrompt({ onOptIn, onSkip }: VotingOptInPromptProps) {
@@ -19,18 +20,12 @@ export function VotingOptInPrompt({ onOptIn, onSkip }: VotingOptInPromptProps) {
       <p className="text-sm text-(--color-text-secondary) mb-4">{message}</p>
       <p className="text-xs text-(--color-text-tertiary) mb-6">{message3}</p>
       <div className="flex gap-3">
-        <button
-          onClick={onSkip}
-          className="flex-1 px-4 py-2 border border-(--color-border) text-(--color-text-primary) rounded-(--radius-md) text-sm font-medium hover:bg-(--color-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 cursor-pointer"
-        >
+        <Button variant="secondary" onClick={onSkip} className="flex-1">
           No thanks
-        </button>
-        <button
-          onClick={onOptIn}
-          className="flex-1 px-4 py-2 bg-(--color-accent) text-(--color-accent-text) rounded-(--radius-md) text-sm font-medium hover:bg-(--color-accent-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 cursor-pointer"
-        >
+        </Button>
+        <Button variant="primary" onClick={onOptIn} className="flex-1">
           Yes, include me!
-        </button>
+        </Button>
       </div>
     </div>
   );

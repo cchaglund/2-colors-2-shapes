@@ -1,3 +1,4 @@
+import { Button } from '../shared/Button';
 import { InfoTooltip } from '../shared/InfoTooltip';
 import { SubmissionThumbnail } from '../shared/SubmissionThumbnail';
 import { useIsDesktop } from '../../hooks/ui/useBreakpoint';
@@ -37,12 +38,9 @@ export function VotingPairView({
           Compete for the leaderboard by voting on others' submissions. Vote to participate, or skip if you prefer not to enter today.
         </p>
         <div className="flex justify-center">
-          <button
-            className="py-2 px-4 border border-(--color-border) rounded-(--radius-md) cursor-pointer text-sm font-medium transition-colors bg-(--color-bg-primary) text-(--color-danger) hover:bg-(--color-danger) hover:text-(--color-accent-text) hover:border-(--color-danger)"
-            onClick={onSkipVoting}
-          >
+          <Button variant="danger" onClick={onSkipVoting}>
             Skip participation
-          </button>
+          </Button>
         </div>
       </div>
 
