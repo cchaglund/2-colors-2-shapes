@@ -105,7 +105,7 @@ export function UserSearchBar({ onNavigateToProfile }: UserSearchBarProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search for artists..."
-          className="w-full pl-10 pr-10 py-2 text-(--text-sm) bg-(--color-bg-secondary) border border-(--color-border) rounded-(--radius-lg) text-(--color-text-primary) placeholder:text-(--color-text-secondary) focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:border-transparent"
+          className="w-full pl-10 pr-10 py-2 text-sm bg-(--color-bg-secondary) border border-(--color-border) rounded-(--radius-lg) text-(--color-text-primary) placeholder:text-(--color-text-secondary) focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:border-transparent"
         />
         {query && (
           <button
@@ -129,7 +129,7 @@ export function UserSearchBar({ onNavigateToProfile }: UserSearchBarProps) {
       )}
 
       {!loading && hasSearched && results.length === 0 && (
-        <div className="text-center py-4 text-(--text-sm) text-(--color-text-secondary)">
+        <div className="text-center py-4 text-sm text-(--color-text-secondary)">
           No users found matching '{debouncedQuery}'
         </div>
       )}

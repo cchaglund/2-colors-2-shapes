@@ -30,15 +30,15 @@ export function VotingPairView({
     <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-(--radius-lg) w-full max-w-3xl">
       {/* Header banner */}
       <div className="px-4 py-4 md:px-6 md:py-5 border-b border-(--color-border-light) bg-(--color-bg-tertiary)">
-        <h2 className="text-center text-(--text-xl) font-semibold text-(--color-text-primary) mb-2">
+        <h2 className="text-center text-xl font-semibold text-(--color-text-primary) mb-2">
           Your art has been saved!
         </h2>
-        <p className="text-(--text-sm) text-(--color-text-secondary) text-center max-w-md mx-auto mb-4">
+        <p className="text-sm text-(--color-text-secondary) text-center max-w-md mx-auto mb-4">
           Compete for the leaderboard by voting on others' submissions. Vote to participate, or skip if you prefer not to enter today.
         </p>
         <div className="flex justify-center">
           <button
-            className="py-2 px-4 border border-(--color-border) rounded-(--radius-md) cursor-pointer text-(--text-sm) font-medium transition-colors bg-(--color-bg-primary) text-(--color-danger) hover:bg-(--color-danger) hover:text-(--color-accent-text) hover:border-(--color-danger)"
+            className="py-2 px-4 border border-(--color-border) rounded-(--radius-md) cursor-pointer text-sm font-medium transition-colors bg-(--color-bg-primary) text-(--color-danger) hover:bg-(--color-danger) hover:text-(--color-accent-text) hover:border-(--color-danger)"
             onClick={onSkipVoting}
           >
             Skip participation
@@ -50,20 +50,20 @@ export function VotingPairView({
       <div className="p-4 md:p-6">
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h3 id="voting-title" className="text-(--text-lg) font-semibold text-(--color-text-primary) flex items-center gap-1">
+            <h3 id="voting-title" className="text-lg font-semibold text-(--color-text-primary) flex items-center gap-1">
               Vote on Yesterday's Submissions
               <InfoTooltip text="By voting you submit your artwork for the competition and it will be visible for others to vote on tomorrow. Winners are announced the following day." />
             </h3>
-            <p className="text-(--text-sm) text-(--color-text-secondary)">{formatDate(challengeDate)}</p>
-            <p className="text-(--text-sm) text-(--color-text-tertiary) mt-0.5">
+            <p className="text-sm text-(--color-text-secondary)">{formatDate(challengeDate)}</p>
+            <p className="text-sm text-(--color-text-tertiary) mt-0.5">
               Word of the day was: <span className="font-medium">"{challenge.word}"</span>
             </p>
           </div>
           <div className="text-right">
-            <div className="text-(--text-sm) font-medium text-(--color-text-primary) tabular-nums">
+            <div className="text-sm font-medium text-(--color-text-primary) tabular-nums">
               {voteCount} of {requiredVotes} votes
             </div>
-            <div className="text-(--text-xs) text-(--color-text-tertiary)">
+            <div className="text-xs text-(--color-text-tertiary)">
               {requiredVotes - voteCount > 0
                 ? `${requiredVotes - voteCount} more to enter ranking`
                 : 'Entered in ranking!'}
@@ -80,7 +80,7 @@ export function VotingPairView({
         </div>
 
         {/* Voting guidance */}
-        <p className="text-(--text-sm) text-center font-medium text-(--color-text-secondary) py-4">
+        <p className="text-sm text-center font-medium text-(--color-text-secondary) py-4">
           Which of these two submissions do you prefer?
         </p>
 
@@ -98,7 +98,7 @@ export function VotingPairView({
               backgroundColorIndex={currentPair.submissionA.background_color_index}
               size={thumbnailSize}
             />
-            <div className="absolute inset-0 flex items-center justify-center bg-(--color-accent)/85 text-(--color-accent-text) text-(--text-sm) font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute inset-0 flex items-center justify-center bg-(--color-accent)/85 text-(--color-accent-text) text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
               Choose this one
             </div>
           </button>
@@ -115,7 +115,7 @@ export function VotingPairView({
               backgroundColorIndex={currentPair.submissionB.background_color_index}
               size={thumbnailSize}
             />
-            <div className="absolute inset-0 flex items-center justify-center bg-(--color-accent)/85 text-(--color-accent-text) text-(--text-sm) font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute inset-0 flex items-center justify-center bg-(--color-accent)/85 text-(--color-accent-text) text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
               Choose this one
             </div>
           </button>
@@ -126,7 +126,7 @@ export function VotingPairView({
           <button
             onClick={onSkip}
             disabled={submitting}
-            className="cursor-pointer px-3 py-1.5 text-(--text-sm) text-(--color-text-tertiary) hover:text-(--color-text-secondary) transition-colors disabled:opacity-50"
+            className="cursor-pointer px-3 py-1.5 text-sm text-(--color-text-tertiary) hover:text-(--color-text-secondary) transition-colors disabled:opacity-50"
           >
             Can't decide, skip this pair
           </button>

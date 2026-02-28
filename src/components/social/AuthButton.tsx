@@ -11,7 +11,7 @@ export function AuthButton({ profile, profileLoading = false }: AuthButtonProps)
 
   if (authLoading || profileLoading) {
     return (
-      <div className="text-(--text-sm) text-(--color-text-tertiary)">
+      <div className="text-sm text-(--color-text-tertiary)">
         Loading...
       </div>
     );
@@ -27,12 +27,12 @@ export function AuthButton({ profile, profileLoading = false }: AuthButtonProps)
             className="w-6 h-6 rounded-(--radius-pill)"
           />
         )}
-        <span className="text-(--text-sm) truncate max-w-24 text-(--color-text-primary)">
+        <span className="text-sm truncate max-w-24 text-(--color-text-primary)">
           {profile.onboarding_complete ? profile.nickname : 'New user'}
         </span>
         <button
           onClick={signOut}
-          className="cursor-pointer text-(--text-xs) text-(--color-text-tertiary) hover:text-(--color-text-secondary) transition-colors"
+          className="cursor-pointer text-xs text-(--color-text-tertiary) hover:text-(--color-text-secondary) transition-colors"
         >
           Sign out
         </button>
@@ -43,7 +43,7 @@ export function AuthButton({ profile, profileLoading = false }: AuthButtonProps)
   return (
     <button
       onClick={signInWithGoogle}
-      className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-(--color-bg-primary) border border-(--color-border) rounded-(--radius-md) hover:bg-(--color-hover) transition-colors text-(--text-sm) text-(--color-text-primary) cursor-pointer"
+      className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-(--color-bg-primary) border border-(--color-border) rounded-(--radius-md) hover:bg-(--color-hover) transition-colors text-sm text-(--color-text-primary) cursor-pointer"
     >
       <svg className="w-4 h-4" viewBox="0 0 24 24">
         <path

@@ -21,7 +21,7 @@ export function ExportActionsCard({
 }: ExportActionsCardProps) {
   return (
     <Card>
-      <h2 className="text-(--text-sm) font-semibold mb-3 text-(--color-text-primary)">
+      <h2 className="text-sm font-semibold mb-3 text-(--color-text-primary)">
         Export & Share
       </h2>
       <div className="space-y-1.5">
@@ -29,7 +29,7 @@ export function ExportActionsCard({
           <>
             <button
               onClick={onDownloadPNG}
-              className="w-full px-3 py-2.5 cursor-pointer text-(--text-sm) font-semibold transition-all flex items-center justify-center gap-1.5 text-(--color-text-primary) hover:opacity-80"
+              className="w-full px-3 py-2.5 cursor-pointer text-sm font-semibold transition-all flex items-center justify-center gap-1.5 text-(--color-text-primary) hover:opacity-80"
               style={actionBtnStyle}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -41,7 +41,7 @@ export function ExportActionsCard({
             </button>
             <button
               onClick={onDownloadSVG}
-              className="w-full px-3 py-2.5 cursor-pointer text-(--text-sm) font-semibold transition-all flex items-center justify-center gap-1.5 text-(--color-text-primary) hover:opacity-80"
+              className="w-full px-3 py-2.5 cursor-pointer text-sm font-semibold transition-all flex items-center justify-center gap-1.5 text-(--color-text-primary) hover:opacity-80"
               style={actionBtnStyle}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -55,7 +55,7 @@ export function ExportActionsCard({
         )}
         <button
           onClick={onCopyLink}
-          className="w-full px-3 py-2.5 cursor-pointer text-(--text-sm) font-semibold transition-all flex items-center justify-center gap-1.5 text-(--color-text-primary) hover:opacity-80"
+          className="w-full px-3 py-2.5 cursor-pointer text-sm font-semibold transition-all flex items-center justify-center gap-1.5 text-(--color-text-primary) hover:opacity-80"
           style={actionBtnStyle}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

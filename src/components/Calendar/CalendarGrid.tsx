@@ -17,7 +17,7 @@ export function CalendarGrid({ children, emptySlotCount = 0, className }: Calend
         {dayLabels.map((day, i) => (
           <div
             key={i}
-            className="p-1 md:p-2 text-center text-(--text-xs) font-medium text-(--color-text-secondary) bg-(--color-bg-secondary)"
+            className="p-1 md:p-2 text-center text-xs font-medium text-(--color-text-secondary) bg-(--color-bg-secondary)"
           >
             {day}
           </div>

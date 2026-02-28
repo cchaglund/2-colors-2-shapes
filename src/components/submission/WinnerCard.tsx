@@ -46,7 +46,7 @@ export function WinnerCard({
           />
         </div>
       </div>
-      <p className="mt-2 text-(--text-sm) font-medium text-(--color-text-primary)">@{entry.nickname}</p>
+      <p className="mt-2 text-sm font-medium text-(--color-text-primary)">@{entry.nickname}</p>
     </button>
   );
 }

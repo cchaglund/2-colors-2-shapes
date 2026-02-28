@@ -38,7 +38,7 @@ export function WallOfTheDayPage({ date }: WallOfTheDayPageProps) {
         {/* Header */}
         <div className="mb-6">
           <BackToCanvasLink />
-          <h1 className="text-(--text-2xl) font-bold mb-2 text-(--color-text-primary) font-display">
+          <h1 className="text-2xl font-bold mb-2 text-(--color-text-primary) font-display">
             Wall of the Day
           </h1>
           <p className="text-(--color-text-secondary)">{formattedDate}</p>

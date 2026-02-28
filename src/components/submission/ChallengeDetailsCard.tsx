@@ -14,15 +14,15 @@ export function ChallengeDetailsCard({ challenge, submissionShapes }: ChallengeD
 
       {/* Daily Word */}
       <div className="mb-4">
-        <span className="text-(--text-xs) text-(--color-text-tertiary) uppercase tracking-wide">Inspiration</span>
-        <p className="mt-1 text-(--text-base) font-medium text-(--color-text-primary) capitalize">
+        <span className="text-xs text-(--color-text-tertiary) uppercase tracking-wide">Inspiration</span>
+        <p className="mt-1 text-base font-medium text-(--color-text-primary) capitalize">
           "{challenge.word}"
         </p>
       </div>
 
       {/* Colors */}
       <div className="mb-4">
-        <span className="text-(--text-xs) text-(--color-text-tertiary) uppercase tracking-wide">Colors</span>
+        <span className="text-xs text-(--color-text-tertiary) uppercase tracking-wide">Colors</span>
         <div className="flex gap-2 mt-1.5">
           {challenge.colors.map((color, i) => (
             <div
@@ -37,7 +37,7 @@ export function ChallengeDetailsCard({ challenge, submissionShapes }: ChallengeD
 
       {/* Shapes */}
       <div>
-        <span className="text-(--text-xs) text-(--color-text-tertiary) uppercase tracking-wide">Shapes</span>
+        <span className="text-xs text-(--color-text-tertiary) uppercase tracking-wide">Shapes</span>
         <div className="flex flex-wrap gap-2 mt-1.5">
           {challenge.shapes.map((shapeData, i) => {
             const { element, props } = getShapeSVGData(shapeData.type, 28);
@@ -65,7 +65,7 @@ export function ChallengeDetailsCard({ challenge, submissionShapes }: ChallengeD
                   )}
                 </svg>
                 {count !== undefined && (
-                  <span className="text-(--text-xs) font-medium text-(--color-text-secondary)">×{count}</span>
+                  <span className="text-xs font-medium text-(--color-text-secondary)">×{count}</span>
                 )}
               </div>
             );

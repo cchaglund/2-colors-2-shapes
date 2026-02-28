@@ -1,4 +1,5 @@
 import { lazy, Suspense, useMemo } from 'react';
+import { MotionConfig } from 'motion/react';
 import { FollowsProvider } from './contexts/FollowsContext';
 import { getTodayDateUTC } from './utils/dailyChallenge';
 import { useDailyChallenge } from './hooks/challenge/useDailyChallenge';
@@ -28,7 +29,7 @@ function PageSpinner() {
   );
 }
 
-function App() {
+function AppContent() {
   // Apply theme globally so all pages respect the selected theme + dark mode
   const { mode: themeMode, setMode: setThemeMode, theme: themeName, setTheme: setThemeName } = useThemeState();
 
@@ -75,6 +76,14 @@ function App() {
   }
 
   return <Suspense fallback={<PageSpinner />}>{page}</Suspense>;
+}
+
+function App() {
+  return (
+    <MotionConfig reducedMotion="user">
+      <AppContent />
+    </MotionConfig>
+  );
 }
 
 export default App;

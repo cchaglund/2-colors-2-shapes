@@ -94,7 +94,7 @@ export function CalendarDayCell({
             fill
           />
         ) : isToday && !submission ? (
-          <span className="text-(--text-xs) font-semibold text-(--color-accent)">Create!</span>
+          <span className="text-xs font-semibold text-(--color-accent)">Create!</span>
         ) : !isFuture && !hideEmptyDayIcon ? (
           <svg
             className="w-6 h-6 text-(--color-text-tertiary) opacity-40"
@@ -145,20 +145,20 @@ export function CalendarDayCell({
             backgroundColorIndex={dayWinners[0].background_color_index}
             fill
           />
-          <span className="absolute top-0 right-0.5 z-10 text-(--text-base) leading-none" aria-label="Winner">👑</span>
+          <span className="absolute top-0 right-0.5 z-10 text-base leading-none" aria-label="Winner">👑</span>
           {dayWinners.length > 1 && (
-            <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 z-10 text-(--text-xs) px-1 rounded-(--radius-sm) bg-(--color-overlay) text-(--color-accent-text)">
+            <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 z-10 text-xs px-1 rounded-(--radius-sm) bg-(--color-overlay) text-(--color-accent-text)">
               +{dayWinners.length - 1}
             </div>
           )}
         </>
       ) : !isFuture ? (
         hasResults ? (
-          <div className="text-(--text-xs) text-center text-(--color-text-tertiary)">
+          <div className="text-xs text-center text-(--color-text-tertiary)">
             No winners
           </div>
         ) : (
-          <div className="text-(--text-xs) text-center text-(--color-text-tertiary)">
+          <div className="text-xs text-center text-(--color-text-tertiary)">
             {isToday ? 'Creating...' : 'Voting...'}
           </div>
         )

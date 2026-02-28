@@ -58,7 +58,7 @@ export function CalendarCell({
       {artFill ? (
         <>
           <div className={cn(
-            "absolute  z-10 bg-(--color-overlay) text-(--color-accent-text) text-(--text-xs) font-medium tabular-nums px-1 rounded-(--radius-sm) leading-tight",
+            "absolute  z-10 bg-(--color-overlay) text-(--color-accent-text) text-xs font-medium tabular-nums px-1 rounded-(--radius-sm) leading-tight",
             rankOutline ? "-top-0.5 -left-0.5" : "top-1 left-1"
           )}>
 
@@ -71,7 +71,7 @@ export function CalendarCell({
       ) : (
         <>
           <div
-            className={`absolute top-1 left-1 text-(--text-xs) font-medium tabular-nums ${
+            className={`absolute top-1 left-1 text-xs font-medium tabular-nums ${
               isToday
                 ? 'text-(--color-accent)'
                 : hasContent

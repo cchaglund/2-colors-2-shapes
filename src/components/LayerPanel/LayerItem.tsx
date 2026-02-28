@@ -79,7 +79,7 @@ export function LayerItem({
       </div>
       {editingId === shape.id ? (
         <input
-          className="flex-1 text-(--text-xs) py-0.5 px-1 border border-(--color-accent) rounded-(--radius-sm) outline-none min-w-0 bg-(--color-bg-primary) text-(--color-text-primary)"
+          className="flex-1 text-xs py-0.5 px-1 border border-(--color-accent) rounded-(--radius-sm) outline-none min-w-0 bg-(--color-bg-primary) text-(--color-text-primary)"
           value={editValue}
           onChange={(e) => onEditValueChange(e.target.value)}
           onBlur={onFinishEditing}
@@ -89,7 +89,7 @@ export function LayerItem({
         />
       ) : (
         <span
-          className="flex-1 text-(--text-xs) font-semibold overflow-hidden text-ellipsis whitespace-nowrap cursor-text text-(--color-text-primary) capitalize"
+          className="flex-1 text-xs font-semibold overflow-hidden text-ellipsis whitespace-nowrap cursor-text text-(--color-text-primary) capitalize"
           onDoubleClick={(e) => {
             e.stopPropagation();
             onStartEditing(shape);

@@ -12,7 +12,7 @@ export function EmptyState({ icon, message, children }: EmptyStateProps) {
       <div className="w-12 h-12 rounded-(--radius-pill) bg-(--color-bg-tertiary) flex items-center justify-center mb-4">
         {icon}
       </div>
-      <p className={`text-(--text-sm) text-(--color-text-secondary) ${children ? 'mb-4' : ''}`}>
+      <p className={`text-sm text-(--color-text-secondary) ${children ? 'mb-4' : ''}`}>
         {message}
       </p>
       {children}

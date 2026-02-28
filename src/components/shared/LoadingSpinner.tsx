@@ -15,7 +15,7 @@ export function LoadingSpinner({ message, inline = false }: LoadingSpinnerProps)
         }`}
       />
       {message && (
-        <p className="text-(--text-sm) text-(--color-text-secondary)">{message}</p>
+        <p className="text-sm text-(--color-text-secondary)">{message}</p>
       )}
     </div>
   );

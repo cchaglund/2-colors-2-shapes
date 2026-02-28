@@ -19,7 +19,7 @@ interface ViewToggleProps<T extends string> {
 
 const sizeConfig = {
   sm: {
-    fontSize: 'text-(--text-xs)',
+    fontSize: 'text-xs',
     buttonRadius: '--radius-sm',
     containerRadius: '--radius-md',
     containerPadding: 'var(--space-1)',
@@ -29,7 +29,7 @@ const sizeConfig = {
     buttonPadding: 'px-3.5 py-1',
   },
   md: {
-    fontSize: 'text-(--text-sm)',
+    fontSize: 'text-sm',
     buttonRadius: '--radius-md',
     containerRadius: '--radius-lg',
     containerPadding: 'var(--space-1)',

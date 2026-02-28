@@ -77,7 +77,7 @@ export function GroupHeader({
 
       {/* Collapse/expand toggle */}
       <button
-        className="w-5 h-5 flex items-center justify-center text-(--text-xs) rounded-(--radius-sm) hover:bg-(--color-hover) text-(--color-text-secondary)"
+        className="w-5 h-5 flex items-center justify-center text-xs rounded-(--radius-sm) hover:bg-(--color-hover) text-(--color-text-secondary)"
         onClick={(e) => {
           e.stopPropagation();
           onToggleGroupCollapsed(group.id);
@@ -88,14 +88,14 @@ export function GroupHeader({
       </button>
 
       {/* Group icon */}
-      <div className="w-5 h-5 rounded-(--radius-sm) shrink-0 flex items-center justify-center text-(--text-xs) bg-(--color-bg-tertiary) border border-(--color-border) text-(--color-text-secondary)">
+      <div className="w-5 h-5 rounded-(--radius-sm) shrink-0 flex items-center justify-center text-xs bg-(--color-bg-tertiary) border border-(--color-border) text-(--color-text-secondary)">
         G
       </div>
 
       {/* Group name */}
       {editingGroupId === group.id ? (
         <input
-          className="flex-1 text-(--text-base) py-0.5 px-1 border border-(--color-accent) rounded-(--radius-sm) outline-none min-w-0 font-medium bg-(--color-bg-primary) text-(--color-text-primary)"
+          className="flex-1 text-base py-0.5 px-1 border border-(--color-accent) rounded-(--radius-sm) outline-none min-w-0 font-medium bg-(--color-bg-primary) text-(--color-text-primary)"
           value={editValue}
           onChange={(e) => onEditValueChange(e.target.value)}
           onBlur={onFinishEditing}
@@ -105,14 +105,14 @@ export function GroupHeader({
         />
       ) : (
         <span
-          className="flex-1 text-(--text-base) overflow-hidden text-ellipsis whitespace-nowrap cursor-text font-medium text-(--color-text-primary)"
+          className="flex-1 text-base overflow-hidden text-ellipsis whitespace-nowrap cursor-text font-medium text-(--color-text-primary)"
           onDoubleClick={(e) => {
             e.stopPropagation();
             onStartEditingGroup(group);
           }}
         >
           {group.name}
-          <span className="ml-1 text-(--text-xs) font-normal text-(--color-text-tertiary)">
+          <span className="ml-1 text-xs font-normal text-(--color-text-tertiary)">
             ({shapesInGroup.length})
           </span>
         </span>
@@ -138,7 +138,7 @@ export function GroupHeader({
       {isTouchDevice ? (
         <div className="flex gap-0.5 shrink-0 ml-auto">
           <button
-            className="w-7 h-7 p-0 rounded-(--radius-sm) cursor-pointer text-(--text-xs) flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary)"
+            className="w-7 h-7 p-0 rounded-(--radius-sm) cursor-pointer text-xs flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary)"
             title="Move up"
             disabled={isTop}
             onClick={(e) => {
@@ -149,7 +149,7 @@ export function GroupHeader({
             ⬆
           </button>
           <button
-            className="w-7 h-7 p-0 rounded-(--radius-sm) cursor-pointer text-(--text-xs) flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary)"
+            className="w-7 h-7 p-0 rounded-(--radius-sm) cursor-pointer text-xs flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary)"
             title="Move down"
             disabled={isBottom}
             onClick={(e) => {
@@ -160,7 +160,7 @@ export function GroupHeader({
             ⬇
           </button>
           <button
-            className="w-7 h-7 p-0 rounded-(--radius-sm) cursor-pointer text-(--text-xs) flex items-center justify-center text-(--color-danger) bg-(--color-bg-primary) border border-(--color-border)"
+            className="w-7 h-7 p-0 rounded-(--radius-sm) cursor-pointer text-xs flex items-center justify-center text-(--color-danger) bg-(--color-bg-primary) border border-(--color-border)"
             title="Delete group and shapes"
             onClick={(e) => {
               e.stopPropagation();
@@ -173,7 +173,7 @@ export function GroupHeader({
       ) : (
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity rounded-(--radius-sm) p-0.5 shadow-(--shadow-btn) bg-(--color-overlay)">
           <button
-            className="w-6 h-6 p-0 rounded-(--radius-sm) cursor-pointer text-(--text-xs) flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary) hover:enabled:bg-(--color-hover)"
+            className="w-6 h-6 p-0 rounded-(--radius-sm) cursor-pointer text-xs flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary) hover:enabled:bg-(--color-hover)"
             title="Bring to front"
             disabled={isTop}
             onClick={(e) => {
@@ -184,7 +184,7 @@ export function GroupHeader({
             ⬆⬆
           </button>
           <button
-            className="w-6 h-6 p-0 rounded-(--radius-sm) cursor-pointer text-(--text-xs) flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary) hover:enabled:bg-(--color-hover)"
+            className="w-6 h-6 p-0 rounded-(--radius-sm) cursor-pointer text-xs flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary) hover:enabled:bg-(--color-hover)"
             title="Move up"
             disabled={isTop}
             onClick={(e) => {
@@ -195,7 +195,7 @@ export function GroupHeader({
             ⬆
           </button>
           <button
-            className="w-6 h-6 p-0 rounded-(--radius-sm) cursor-pointer text-(--text-xs) flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary) hover:enabled:bg-(--color-hover)"
+            className="w-6 h-6 p-0 rounded-(--radius-sm) cursor-pointer text-xs flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary) hover:enabled:bg-(--color-hover)"
             title="Move down"
             disabled={isBottom}
             onClick={(e) => {
@@ -206,7 +206,7 @@ export function GroupHeader({
             ⬇
           </button>
           <button
-            className="w-6 h-6 p-0 rounded-(--radius-sm) cursor-pointer text-(--text-xs) flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary) hover:enabled:bg-(--color-hover)"
+            className="w-6 h-6 p-0 rounded-(--radius-sm) cursor-pointer text-xs flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary) hover:enabled:bg-(--color-hover)"
             title="Send to back"
             disabled={isBottom}
             onClick={(e) => {
@@ -217,7 +217,7 @@ export function GroupHeader({
             ⬇⬇
           </button>
           <button
-            className="w-6 h-6 p-0 rounded-(--radius-sm) cursor-pointer text-(--text-xs) flex items-center justify-center text-(--color-danger) ml-1 hover:bg-(--color-danger)/5 bg-(--color-bg-primary) border border-(--color-border)"
+            className="w-6 h-6 p-0 rounded-(--radius-sm) cursor-pointer text-xs flex items-center justify-center text-(--color-danger) ml-1 hover:bg-(--color-danger)/5 bg-(--color-bg-primary) border border-(--color-border)"
             title="Delete group and shapes"
             onClick={(e) => {
               e.stopPropagation();

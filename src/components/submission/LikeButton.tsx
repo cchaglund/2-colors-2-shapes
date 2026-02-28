@@ -55,7 +55,7 @@ export function LikeButton({ submissionId, submissionUserId, initialLikeCount }:
         aria-label={isLiked ? 'Unlike submission' : 'Like submission'}
         aria-pressed={isLiked}
         className={`
-          inline-flex items-center gap-1.5 px-4 py-2 rounded-(--radius-pill) text-(--text-sm) font-medium transition-all
+          inline-flex items-center gap-1.5 px-4 py-2 rounded-(--radius-pill) text-sm font-medium transition-all
           ${showDisabledStyle
             ? 'cursor-not-allowed opacity-50'
             : 'cursor-pointer'

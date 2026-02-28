@@ -209,10 +209,10 @@ export function FriendsFeedContent({
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-        <p className="text-(--text-sm) text-(--color-danger) mb-2">
+        <p className="text-sm text-(--color-danger) mb-2">
           Failed to load submissions
         </p>
-        <p className="text-(--text-sm) text-(--color-text-tertiary)">{error}</p>
+        <p className="text-sm text-(--color-text-tertiary)">{error}</p>
       </div>
     );
   }
@@ -283,7 +283,7 @@ export function FriendsFeedContent({
             }
             message="Save your art first, in order to see friends' submissions for today"
           >
-            <a href="/" className="text-(--text-sm) text-(--color-accent) hover:underline">
+            <a href="/" className="text-sm text-(--color-accent) hover:underline">
               ← Back to canvas
             </a>
           </EmptyState>

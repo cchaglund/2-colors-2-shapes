@@ -31,7 +31,7 @@ export function FriendsList({
 
   if (users.length === 0) {
     return (
-      <div className="text-center py-8 text-(--text-sm) text-(--color-text-secondary)">
+      <div className="text-center py-8 text-sm text-(--color-text-secondary)">
         {emptyStateMessages[listType]}
       </div>
     );

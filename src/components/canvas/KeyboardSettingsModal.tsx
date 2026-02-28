@@ -145,7 +145,7 @@ export function KeyboardSettingsModal({
         <div className="p-4 border-b flex items-center justify-between border-(--color-border)">
           <h2
             id="keyboard-settings-title"
-            className="m-0 text-(--text-xl) font-semibold text-(--color-text-primary)"
+            className="m-0 text-xl font-semibold text-(--color-text-primary)"
           >
             Keyboard Shortcuts
           </h2>
@@ -160,13 +160,13 @@ export function KeyboardSettingsModal({
 
         {/* Content */}
         <div className="p-4 overflow-y-auto flex-1">
-          <p className="mt-0 mb-4 text-(--text-sm) text-(--color-text-secondary)">
+          <p className="mt-0 mb-4 text-sm text-(--color-text-secondary)">
             Click on a shortcut to change it. Press Escape to cancel.
           </p>
 
           {Object.entries(actionsByCategory).map(([category, actions]) => (
             <div key={category} className="mb-6 last:mb-0">
-              <h3 className="m-0 mb-3 text-(--text-xs) uppercase font-medium text-(--color-text-tertiary)">
+              <h3 className="m-0 mb-3 text-xs uppercase font-medium text-(--color-text-tertiary)">
                 {categoryLabels[category as keyof typeof categoryLabels]}
               </h3>
               <div className="space-y-2">
@@ -181,17 +181,17 @@ export function KeyboardSettingsModal({
                       className="flex items-center justify-between py-2 px-3 rounded-(--radius-md) bg-(--color-bg-tertiary)"
                     >
                       <div className="flex-1 min-w-0 pr-4">
-                        <div className="text-(--text-sm) font-medium text-(--color-text-primary)">
+                        <div className="text-sm font-medium text-(--color-text-primary)">
                           {action.label}
                         </div>
-                        <div className="text-(--text-xs) truncate text-(--color-text-tertiary)">
+                        <div className="text-xs truncate text-(--color-text-tertiary)">
                           {action.description}
                         </div>
                       </div>
                       <button
                         onClick={() => handleStartListening(action.id)}
                         disabled={!isRemappable}
-                        className={`px-3 py-1.5 rounded-(--radius-md) text-(--text-xs) font-mono border transition-colors min-w-20 bg-(--color-bg-secondary) border-(--color-border) ${
+                        className={`px-3 py-1.5 rounded-(--radius-md) text-xs font-mono border transition-colors min-w-20 bg-(--color-bg-secondary) border-(--color-border) ${
                           isListening ? 'ring-2 ring-(--color-accent)' : ''
                         } ${
                           binding ? 'text-(--color-text-primary)' : 'text-(--color-text-tertiary)'
@@ -222,19 +222,19 @@ export function KeyboardSettingsModal({
         <div className="p-4 border-t flex items-center justify-between border-(--color-border)">
           <button
             onClick={handleResetAll}
-            className="px-4 py-2 rounded-(--radius-md) cursor-pointer text-(--text-sm) font-medium transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary) border border-(--color-border) hover:bg-(--color-hover)"
+            className="px-4 py-2 rounded-(--radius-md) cursor-pointer text-sm font-medium transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary) border border-(--color-border) hover:bg-(--color-hover)"
           >
             Reset to Defaults
           </button>
           <div className="flex items-center gap-3">
             {syncing && (
-              <span className="text-(--text-xs) text-(--color-text-tertiary)">
+              <span className="text-xs text-(--color-text-tertiary)">
                 Saving...
               </span>
             )}
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-(--radius-md) cursor-pointer text-(--text-sm) font-medium bg-(--color-accent) text-(--color-accent-text) hover:bg-(--color-accent-hover) transition-colors"
+              className="px-4 py-2 rounded-(--radius-md) cursor-pointer text-sm font-medium bg-(--color-accent) text-(--color-accent-text) hover:bg-(--color-accent-hover) transition-colors"
             >
               Done
             </button>
@@ -253,10 +253,10 @@ export function KeyboardSettingsModal({
           closeOnBackdropClick={false}
           dataTestId="keyboard-conflict-modal"
         >
-          <h3 className="m-0 mb-3 text-(--text-xl) font-semibold text-(--color-text-primary)">
+          <h3 className="m-0 mb-3 text-xl font-semibold text-(--color-text-primary)">
             Shortcut Conflict
           </h3>
-          <p className="m-0 mb-4 text-(--text-sm) text-(--color-text-secondary)">
+          <p className="m-0 mb-4 text-sm text-(--color-text-secondary)">
             <span className="font-mono font-medium">
               {formatKeyBinding(pendingConflicts.binding)}
             </span>{' '}
@@ -271,13 +271,13 @@ export function KeyboardSettingsModal({
           <div className="flex gap-3 justify-center">
             <button
               onClick={() => handleResolveConflict(false)}
-              className="px-4 py-2 rounded-(--radius-md) cursor-pointer text-(--text-sm) font-medium transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary) border border-(--color-border) hover:bg-(--color-hover)"
+              className="px-4 py-2 rounded-(--radius-md) cursor-pointer text-sm font-medium transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary) border border-(--color-border) hover:bg-(--color-hover)"
             >
               Cancel
             </button>
             <button
               onClick={() => handleResolveConflict(true)}
-              className="px-4 py-2 rounded-(--radius-md) cursor-pointer text-(--text-sm) font-medium bg-(--color-accent) text-(--color-accent-text) hover:bg-(--color-accent-hover) transition-colors"
+              className="px-4 py-2 rounded-(--radius-md) cursor-pointer text-sm font-medium bg-(--color-accent) text-(--color-accent-text) hover:bg-(--color-accent-hover) transition-colors"
             >
               Replace
             </button>

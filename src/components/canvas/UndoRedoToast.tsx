@@ -28,7 +28,7 @@ export function UndoRedoToast({ message, onDismiss }: UndoRedoToastProps) {
       className={`
         fixed bottom-6 right-6 z-50
         px-3 py-1.5 rounded-(--radius-md)
-        text-(--text-sm) font-medium
+        text-sm font-medium
         bg-(--color-bg-elevated) text-(--color-text-secondary)
         border border-(--color-border)
         shadow-(--shadow-btn)

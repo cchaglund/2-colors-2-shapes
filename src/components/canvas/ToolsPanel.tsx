@@ -164,7 +164,7 @@ function ToolButton({ icon, label, shortcut, onClick, disabled, active }: ToolBu
       </button>
 
       {isHovered && (
-        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1.5 rounded-(--radius-sm) text-(--text-xs) whitespace-nowrap z-50 pointer-events-none bg-(--color-bg-primary) text-(--color-text-primary) border border-(--color-border) shadow-(--shadow-btn)">
+        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1.5 rounded-(--radius-sm) text-xs whitespace-nowrap z-50 pointer-events-none bg-(--color-bg-primary) text-(--color-text-primary) border border-(--color-border) shadow-(--shadow-btn)">
           <div className="font-medium">{label}</div>
           {shortcut && <div className="text-(--color-text-tertiary)">{shortcut}</div>}
         </div>

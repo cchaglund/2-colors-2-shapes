@@ -28,13 +28,13 @@ export function VotingConfirmation({
       {isEntered ? (
         <>
           <div className="text-3xl mb-3">🎉</div>
-          <h2 id="voting-title" className="text-(--text-xl) font-semibold text-(--color-text-primary) mb-1">
+          <h2 id="voting-title" className="text-xl font-semibold text-(--color-text-primary) mb-1">
             Your art has been entered!
           </h2>
-          <p className="text-(--text-sm) text-(--color-text-secondary) mb-2">
+          <p className="text-sm text-(--color-text-secondary) mb-2">
             Tomorrow users will be able to vote on your artwork, with winners announced the following day.
           </p>
-          <p className="text-(--text-sm) text-(--color-text-secondary) mb-5">
+          <p className="text-sm text-(--color-text-secondary) mb-5">
             Thanks for participating!
           </p>
         </>
@@ -45,10 +45,10 @@ export function VotingConfirmation({
               <polyline points="20 6 9 17 4 12" />
             </svg>
           </div>
-          <h2 id="voting-title" className="text-(--text-xl) font-semibold text-(--color-text-primary) mb-1">
+          <h2 id="voting-title" className="text-xl font-semibold text-(--color-text-primary) mb-1">
             Artwork saved!
           </h2>
-          <p className="text-(--text-sm) text-(--color-text-secondary) mb-5">
+          <p className="text-sm text-(--color-text-secondary) mb-5">
             Your artwork has been saved to your gallery.
           </p>
         </>
@@ -80,20 +80,20 @@ export function VotingConfirmation({
         {canContinueVoting && (
           <button
             onClick={onContinue}
-            className="w-full px-4 py-2 border border-(--color-border) text-(--text-sm) text-(--color-text-primary) rounded-(--radius-md) font-medium hover:bg-(--color-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 cursor-pointer"
+            className="w-full px-4 py-2 border border-(--color-border) text-sm text-(--color-text-primary) rounded-(--radius-md) font-medium hover:bg-(--color-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 cursor-pointer"
           >
             Continue Voting
           </button>
         )}
         <button
           onClick={onDone}
-          className="w-full px-4 py-2 bg-(--color-accent) text-(--color-accent-text) text-(--text-sm) rounded-(--radius-md) font-medium hover:bg-(--color-accent-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 cursor-pointer"
+          className="w-full px-4 py-2 bg-(--color-accent) text-(--color-accent-text) text-sm rounded-(--radius-md) font-medium hover:bg-(--color-accent-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 cursor-pointer"
         >
           Done
         </button>
         <a
           href={wallUrl}
-          className="w-full px-4 py-2 border border-(--color-border) text-(--text-sm) text-(--color-text-primary) rounded-(--radius-md) font-medium hover:bg-(--color-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 text-center"
+          className="w-full px-4 py-2 border border-(--color-border) text-sm text-(--color-text-primary) rounded-(--radius-md) font-medium hover:bg-(--color-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 text-center"
         >
           See what others submitted
         </a>

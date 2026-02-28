@@ -2,7 +2,7 @@ export function BackToCanvasLink() {
     return (
         <a
             href="/"
-            className="inline-flex items-center gap-1 text-(--text-base) hover:underline text-(--color-text-secondary) mb-4"
+            className="inline-flex items-center gap-1 text-base hover:underline text-(--color-text-secondary) mb-4"
         >
             <svg
                 width="16"

@@ -110,7 +110,7 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
       <div className="min-h-screen flex items-center justify-center bg-(--color-bg-primary)">
         <div className="text-center">
           <p className="text-(--color-text-secondary) mb-4">Something went wrong</p>
-          <p className="text-(--text-base) text-(--color-text-tertiary) mb-4">{error}</p>
+          <p className="text-base text-(--color-text-tertiary) mb-4">{error}</p>
           <BackToCanvasLink/>
         </div>
       </div>
@@ -145,7 +145,7 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
         <div className="mb-6">
           <a
             href="/"
-            className="inline-flex items-center gap-1 text-(--text-base) hover:underline text-(--color-text-secondary) mb-4"
+            className="inline-flex items-center gap-1 text-base hover:underline text-(--color-text-secondary) mb-4"
           >
             <svg
               width="16"
@@ -165,10 +165,10 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
           {/* Profile header */}
           <div className="flex items-start justify-between gap-4 mb-2">
             <div>
-              <h1 className="text-(--text-2xl) font-bold text-(--color-text-primary) font-display">
+              <h1 className="text-2xl font-bold text-(--color-text-primary) font-display">
                 @{profile?.nickname || 'Anonymous'}
               </h1>
-              <p className="text-(--text-base) text-(--color-text-secondary) mt-1">
+              <p className="text-base text-(--color-text-secondary) mt-1">
                 {profile?.followingCount ?? 0} following · {profile?.followersCount ?? 0} followers
               </p>
             </div>
@@ -214,7 +214,7 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
                   latestWinnersDate=""
                   canView={canViewThisDay}
                   lockedContent={
-                    <div className="text-(--text-xs) text-center text-(--color-text-tertiary) px-1">
+                    <div className="text-xs text-center text-(--color-text-tertiary) px-1">
                       Save your art to see
                     </div>
                   }
@@ -226,7 +226,7 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
         </CalendarGrid>
 
         {/* Stats */}
-        <div className="mt-4 text-(--text-base) text-(--color-text-secondary) text-center">
+        <div className="mt-4 text-base text-(--color-text-secondary) text-center">
           {submissions.length} public {submissions.length === 1 ? 'submission' : 'submissions'}
         </div>
       </div>

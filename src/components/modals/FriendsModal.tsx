@@ -27,7 +27,7 @@ export function FriendsModal({ onClose }: FriendsModalProps) {
         <div className="flex items-center justify-between mb-4">
           <h2
             id="friends-modal-title"
-            className="text-(--text-xl) font-semibold text-(--color-text-primary)"
+            className="text-xl font-semibold text-(--color-text-primary)"
           >
             Friends
           </h2>
@@ -41,7 +41,7 @@ export function FriendsModal({ onClose }: FriendsModalProps) {
             </svg>
           </button>
         </div>
-        <p className="text-(--text-sm) text-(--color-text-secondary) text-center py-8">
+        <p className="text-sm text-(--color-text-secondary) text-center py-8">
           Please sign in to manage friends
         </p>
       </Modal>
@@ -59,7 +59,7 @@ export function FriendsModal({ onClose }: FriendsModalProps) {
       <div className="flex items-center justify-between p-4 border-b border-(--color-border)">
         <h2
           id="friends-modal-title"
-          className="text-(--text-xl) font-semibold text-(--color-text-primary)"
+          className="text-xl font-semibold text-(--color-text-primary)"
         >
           Friends
         </h2>

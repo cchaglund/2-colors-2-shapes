@@ -13,21 +13,21 @@ export function VotingOptInPrompt({ onOptIn, onSkip }: VotingOptInPromptProps) {
           <polyline points="21 15 16 10 5 21" />
         </svg>
       </div>
-      <h2 id="voting-title" className="text-(--text-xl) font-semibold text-(--color-text-primary) mb-2">
+      <h2 id="voting-title" className="text-xl font-semibold text-(--color-text-primary) mb-2">
         Submit for Voting?
       </h2>
-      <p className="text-(--text-sm) text-(--color-text-secondary) mb-4">{message}</p>
-      <p className="text-(--text-xs) text-(--color-text-tertiary) mb-6">{message3}</p>
+      <p className="text-sm text-(--color-text-secondary) mb-4">{message}</p>
+      <p className="text-xs text-(--color-text-tertiary) mb-6">{message3}</p>
       <div className="flex gap-3">
         <button
           onClick={onSkip}
-          className="flex-1 px-4 py-2 border border-(--color-border) text-(--color-text-primary) rounded-(--radius-md) text-(--text-sm) font-medium hover:bg-(--color-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 cursor-pointer"
+          className="flex-1 px-4 py-2 border border-(--color-border) text-(--color-text-primary) rounded-(--radius-md) text-sm font-medium hover:bg-(--color-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 cursor-pointer"
         >
           No thanks
         </button>
         <button
           onClick={onOptIn}
-          className="flex-1 px-4 py-2 bg-(--color-accent) text-(--color-accent-text) rounded-(--radius-md) text-(--text-sm) font-medium hover:bg-(--color-accent-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 cursor-pointer"
+          className="flex-1 px-4 py-2 bg-(--color-accent) text-(--color-accent-text) rounded-(--radius-md) text-sm font-medium hover:bg-(--color-accent-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 cursor-pointer"
         >
           Yes, include me!
         </button>

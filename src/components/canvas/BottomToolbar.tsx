@@ -89,7 +89,7 @@ function Divider() {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <span className="hidden md:inline text-(--text-xs) font-bold uppercase tracking-wide text-(--color-text-tertiary) px-1 shrink-0">
+    <span className="hidden md:inline text-xs font-bold uppercase tracking-wide text-(--color-text-tertiary) px-1 shrink-0">
       {children}
     </span>
   );

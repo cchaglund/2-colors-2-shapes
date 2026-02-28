@@ -16,7 +16,7 @@ export function CalendarStats({
   winners,
 }: CalendarStatsProps) {
   return (
-    <div className="mt-auto pt-4 border-t flex items-center justify-between text-(--text-base) border-(--color-border) text-(--color-text-secondary)">
+    <div className="mt-auto pt-4 border-t flex items-center justify-between text-base border-(--color-border) text-(--color-text-secondary)">
       {effectiveViewMode === 'my-submissions' ? (
         <>
           <span>Total submissions: {submissions.length}</span>

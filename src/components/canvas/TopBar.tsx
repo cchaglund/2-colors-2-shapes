@@ -74,7 +74,7 @@ function ThemePill({
       {THEMES.map((t) => (
         <button
           key={t}
-          className={`flex items-center justify-center w-7 h-full text-(--text-xs) font-bold uppercase transition-colors ${
+          className={`flex items-center justify-center w-7 h-full text-xs font-bold uppercase transition-colors ${
             theme === t
               ? 'bg-(--color-accent) text-(--color-accent-text)'
               : 'text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-hover)'
@@ -134,7 +134,7 @@ export function TopBar({
       <div className="flex items-center gap-2 md:gap-3 shrink-0">
         <a href="/" className="flex items-center gap-2 no-underline text-(--color-text-primary)">
           <img src={logoSvg} alt="" width="24" height="24" />
-          <span className="hidden md:inline text-(--text-base) font-semibold">2colors</span>
+          <span className="hidden md:inline text-base font-semibold">2colors</span>
         </a>
 
         <div className="hidden md:block">
@@ -287,8 +287,8 @@ function DefaultRightContent({
 export function InspirationCenter({ word }: { word: string }) {
   return (
     <div className="flex flex-col items-center leading-tight min-w-0">
-      <span className="hidden md:block text-(--text-xs) uppercase tracking-widest text-(--color-accent)">Today&apos;s Inspiration</span>
-      <span className="text-(--text-sm) md:text-(--text-xl) font-semibold text-(--color-text-primary) capitalize font-display truncate max-w-full">{word}</span>
+      <span className="hidden md:block text-xs uppercase tracking-widest text-(--color-accent)">Today&apos;s Inspiration</span>
+      <span className="text-sm md:text-xl font-semibold text-(--color-text-primary) capitalize font-display truncate max-w-full">{word}</span>
     </div>
   );
 }
