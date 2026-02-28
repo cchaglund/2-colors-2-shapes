@@ -19,7 +19,7 @@ interface CalendarCellProps {
   children: React.ReactNode;
 }
 
-const cellBase = 'aspect-square border-b border-r border-(--color-border) relative transition-all overflow-hidden overflow-visible';
+const cellBase = 'aspect-square rounded-(--radius-md) relative transition-all overflow-hidden';
 
 export function CalendarCell({
   day,
@@ -41,10 +41,10 @@ export function CalendarCell({
   const classes = `
     ${cellBase}
     ${artFill ? '' : 'p-1'}
-    ${hasContent ? 'bg-(--color-bg-tertiary)' : ''}
+    ${hasContent ? 'bg-(--color-bg-tertiary)' : 'bg-(--color-bg-secondary)'}
     ${isInteractive ? 'cursor-pointer hover:ring-1 hover:ring-inset hover:ring-(--color-accent)' : ''}
-    ${disabled ? 'opacity-50 cursor-not-allowed bg-(--color-bg-secondary)' : ''}
-    ${isFuture && !disabled ? 'bg-(--color-bg-secondary) opacity-50' : ''}
+    ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+    ${isFuture && !disabled ? 'opacity-30' : ''}
     ${isToday ? 'ring-2 ring-inset ring-(--color-accent)' : ''}
     ${className}
   `;
@@ -58,10 +58,9 @@ export function CalendarCell({
       {artFill ? (
         <>
           <div className={cn(
-            "absolute  z-10 bg-(--color-overlay) text-(--color-accent-text) text-xs font-medium tabular-nums px-1 rounded-(--radius-sm) leading-tight",
+            "absolute z-10 bg-(--color-overlay) text-(--color-accent-text) text-xs font-medium tabular-nums px-1 rounded-(--radius-sm) leading-tight",
             rankOutline ? "-top-0.5 -left-0.5" : "top-1 left-1"
           )}>
-
             {day}
           </div>
           <div className="absolute inset-0">
@@ -69,9 +68,9 @@ export function CalendarCell({
           </div>
         </>
       ) : (
-        <>
+        <div className="w-full h-full flex flex-col items-center justify-center">
           <div
-            className={`absolute top-1 left-1 text-xs font-medium tabular-nums ${
+            className={`text-xs font-medium tabular-nums mb-1 ${
               isToday
                 ? 'text-(--color-accent)'
                 : hasContent
@@ -81,10 +80,10 @@ export function CalendarCell({
           >
             {day}
           </div>
-          <div className="w-full h-full flex items-center justify-center pt-3">
+          <div className="flex items-center justify-center">
             {children}
           </div>
-        </>
+        </div>
       )}
     </>
   );

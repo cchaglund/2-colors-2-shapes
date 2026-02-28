@@ -107,7 +107,7 @@ export function SubmissionDetailPage({ date, submissionId, themeMode, onSetTheme
         themeName={themeName}
         onSetThemeName={onSetThemeName}
         centerContent={
-          <span className="text-base font-semibold text-(--color-text-primary) font-display">Submission</span>
+          <span className="text-lg font-semibold text-(--color-text-primary) font-display">Submission</span>
         }
         rightContent={
           <div className="flex items-center gap-2">

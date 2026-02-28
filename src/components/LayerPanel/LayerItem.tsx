@@ -54,7 +54,7 @@ export function LayerItem({
           : ''
       } ${
         isSelected ? 'bg-(--color-selected)' : 'hover:bg-(--color-hover)'
-      } ${isInGroup ? 'pl-6' : 'pl-2'} ${!isEffectivelyVisible ? 'opacity-50' : ''}`}
+      } ${!isEffectivelyVisible ? 'opacity-50' : ''}`}
       onClick={(e) => onLayerClick(e, shape.id)}
       onMouseEnter={() => onHoverShape(new Set([shape.id]))}
       onMouseLeave={() => onHoverShape(null)}
@@ -109,21 +109,21 @@ export function LayerItem({
           })()}
         </span>
       )}
-      {/* Action buttons — always visible */}
+      {/* Action buttons: top / up / down / bottom / delete */}
       <div className="flex gap-0.5 shrink-0 ml-auto">
         <button
-          className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded-(--radius-sm)"
-          title="Bring to front"
+          className="w-3.5 h-3.5 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded-(--radius-sm)"
+          title="Move to top"
           disabled={isTopLayer}
           onClick={(e) => {
             e.stopPropagation();
             onMoveLayer(shape.id, 'top');
           }}
         >
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m18 11-6-6-6 6"/><path d="m18 19-6-6-6 6"/></svg>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m18 11-6-6-6 6"/><path d="M5 19h14"/></svg>
         </button>
         <button
-          className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded-(--radius-sm)"
+          className="w-3.5 h-3.5 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded-(--radius-sm)"
           title="Move up"
           disabled={isTopLayer}
           onClick={(e) => {
@@ -134,7 +134,7 @@ export function LayerItem({
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
         </button>
         <button
-          className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded-(--radius-sm)"
+          className="w-3.5 h-3.5 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded-(--radius-sm)"
           title="Move down"
           disabled={isBottomLayer}
           onClick={(e) => {
@@ -145,18 +145,18 @@ export function LayerItem({
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <button
-          className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded-(--radius-sm)"
-          title="Send to back"
+          className="w-3.5 h-3.5 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded-(--radius-sm)"
+          title="Move to bottom"
           disabled={isBottomLayer}
           onClick={(e) => {
             e.stopPropagation();
             onMoveLayer(shape.id, 'bottom');
           }}
         >
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 13 6 6 6-6"/><path d="m6 5 6 6 6-6"/></svg>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 13 6 6 6-6"/><path d="M5 5h14"/></svg>
         </button>
         <button
-          className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center text-(--color-accent) rounded-(--radius-sm)"
+          className="w-3.5 h-3.5 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center text-(--color-accent) rounded-(--radius-sm)"
           title="Delete"
           onClick={(e) => {
             e.stopPropagation();

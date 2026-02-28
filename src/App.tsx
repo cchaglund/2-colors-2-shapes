@@ -31,7 +31,7 @@ function AppContent() {
   const todayDate = useMemo(() => getTodayDateUTC(), []);
   const { challenge, loading: challengeLoading } = useDailyChallenge(todayDate);
 
-  // Render standalone pages (no challenge data needed)
+  // Render standalone pages (fetch their own data, no need to wait for today's challenge)
   if (isStandaloneRoute(route)) {
     const page = (() => {
       switch (route.type) {
@@ -43,30 +43,24 @@ function AppContent() {
         case 'gallery': return <FollowsProvider><GalleryPage tab={route.tab} year={route.year} month={route.month} date={route.date} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} /></FollowsProvider>;
         case 'wall-of-the-day': return <WallOfTheDayPage date={route.date} />;
         case 'profile': return <FollowsProvider><UserProfilePage userId={route.userId} /></FollowsProvider>;
+        case 'winners-day': return <WinnersDayPage date={route.date} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} />;
+        case 'submission-by-id': return <FollowsProvider><SubmissionDetailPage submissionId={route.id} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} /></FollowsProvider>;
+        case 'submission-by-date': return <FollowsProvider><SubmissionDetailPage date={route.date} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} /></FollowsProvider>;
       }
     })();
     return <Suspense fallback={<LoadingSpinner size="lg" fullScreen />}>{page}</Suspense>;
   }
 
-  // Show loading spinner while challenge is loading
+  // Only the canvas editor needs today's challenge loaded first
   if (challengeLoading || !challenge) {
     return <LoadingSpinner size="lg" fullScreen />;
   }
 
-  // Render challenge-dependent pages
-  let page;
-  if (route.type === 'winners-day') {
-    page = <WinnersDayPage date={route.date} />;
-  } else if (route.type === 'submission-by-id') {
-    page = <FollowsProvider><SubmissionDetailPage submissionId={route.id} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} /></FollowsProvider>;
-  } else if (route.type === 'submission-by-date') {
-    page = <FollowsProvider><SubmissionDetailPage date={route.date} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} /></FollowsProvider>;
-  } else {
-    // Default: canvas editor
-    page = <CanvasEditorPage challenge={challenge} todayDate={todayDate} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} />;
-  }
-
-  return <Suspense fallback={<LoadingSpinner size="lg" fullScreen />}>{page}</Suspense>;
+  return (
+    <Suspense fallback={<LoadingSpinner size="lg" fullScreen />}>
+      <CanvasEditorPage challenge={challenge} todayDate={todayDate} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} />
+    </Suspense>
+  );
 }
 
 function App() {

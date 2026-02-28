@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useAuth } from '../../hooks/auth/useAuth';
 import { useSubmissions, type Submission } from '../../hooks/submission/useSubmissions';
 import { getTodayDateUTC, getTwoDaysAgoDateUTC } from '../../utils/dailyChallenge';
@@ -303,7 +304,7 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
         themeName={themeName}
         onSetThemeName={onSetThemeName}
         centerContent={
-          <span className="text-base font-semibold text-(--color-text-primary) font-display">Gallery</span>
+          <span className="text-lg font-semibold text-(--color-text-primary) font-display">Gallery</span>
         }
         rightContent={
           <a
@@ -333,6 +334,14 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
         />
 
         {/* Tab content */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={effectiveViewMode}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.2 }}
+          >
         {effectiveViewMode === 'wall' ? (
           <WallTab
             date={wallDate}
@@ -404,6 +413,8 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
             />
           </>
         )}
+          </motion.div>
+        </AnimatePresence>
         </div>
       </div>
     </div>

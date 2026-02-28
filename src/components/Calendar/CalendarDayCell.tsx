@@ -95,20 +95,6 @@ export function CalendarDayCell({
           />
         ) : isToday && !submission ? (
           <span className="text-xs font-semibold text-(--color-accent)">Create!</span>
-        ) : !isFuture && !hideEmptyDayIcon ? (
-          <svg
-            className="w-6 h-6 text-(--color-text-tertiary) opacity-40"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
         ) : null}
       </CalendarCell>
     );
@@ -145,23 +131,12 @@ export function CalendarDayCell({
             backgroundColorIndex={dayWinners[0].background_color_index}
             fill
           />
-          <span className="absolute top-0 right-0.5 z-10 text-base leading-none" aria-label="Winner">👑</span>
           {dayWinners.length > 1 && (
             <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 z-10 text-xs px-1 rounded-(--radius-sm) bg-(--color-overlay) text-(--color-accent-text)">
               +{dayWinners.length - 1}
             </div>
           )}
         </>
-      ) : !isFuture ? (
-        hasResults ? (
-          <div className="text-xs text-center text-(--color-text-tertiary)">
-            No winners
-          </div>
-        ) : (
-          <div className="text-xs text-center text-(--color-text-tertiary)">
-            {isToday ? 'Creating...' : 'Voting...'}
-          </div>
-        )
       ) : null}
     </CalendarCell>
   );

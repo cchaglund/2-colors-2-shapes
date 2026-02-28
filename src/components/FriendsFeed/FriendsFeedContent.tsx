@@ -307,7 +307,7 @@ export function FriendsFeedContent({
               <div
                 className="grid gap-4"
                 style={{
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
                 }}
               >
                 {submissions.map((submission) => (

@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import type { Shape, ShapeGroup } from '../../types';
 import { useIsTouchDevice } from '../../hooks/ui/useIsTouchDevice';
 import type { LayerPanelProps, LayerItem } from './types';
@@ -116,10 +117,9 @@ export function LayerPanel({
           ids.push(shape.id);
         }
 
-        if (!group.isCollapsed) {
-          for (const shape of shapesInGroup) {
-            items.push({ type: 'shape', shape, belongsToGroupId: group.id });
-          }
+        // Always include children — collapse animation handled in render
+        for (const shape of shapesInGroup) {
+          items.push({ type: 'shape', shape, belongsToGroupId: group.id });
         }
       } else {
         items.push({ type: 'shape', shape: topItem.shape });
@@ -353,82 +353,148 @@ export function LayerPanel({
             <p className="text-sm text-center py-4 text-(--color-text-tertiary)">No shapes yet</p>
           ) : (
         <ul className="list-none p-0 m-0">
-          {layerItems.map((item) => {
-            if (item.type === 'group-header' && item.group && item.shapesInGroup) {
-              return (
-                <GroupHeader
-                  key={`group-${item.group.id}`}
-                  group={item.group}
-                  shapesInGroup={item.shapesInGroup}
-                  selectedShapeIds={selectedShapeIds}
-                  editingGroupId={editingGroupId}
-                  editValue={editValue}
-                  isTouchDevice={isTouchDevice}
-                  isMultiSelectMode={isMultiSelectMode}
-                  modifierKeyHint={modifierKeyHint}
-                  isTop={item.isTopItem ?? false}
-                  isBottom={item.isBottomItem ?? false}
-                  topLevelIndex={item.topLevelIndex ?? 0}
-                  draggedGroupId={draggedGroupId}
-                  dropTargetTopLevelIndex={dropTargetTopLevelIndex}
-                  onGroupClick={handleGroupClick}
-                  onStartEditingGroup={startEditingGroup}
-                  onEditValueChange={setEditValue}
-                  onFinishEditing={finishEditing}
-                  onKeyDown={handleKeyDown}
-                  onToggleGroupCollapsed={onToggleGroupCollapsed}
-                  onToggleGroupVisibility={onToggleGroupVisibility}
-                  onDeleteGroup={onDeleteGroup}
-                  onMoveGroup={onMoveGroup}
-                  onGroupDragStart={handleGroupDragStart}
-                  onGroupDragEnd={handleGroupDragEnd}
-                  onGroupDragOver={handleGroupDragOver}
-                  onGroupDrop={handleGroupDrop}
-                  onHoverShape={onHoverShape}
-                  onUngroupShapes={onUngroupShapes}
-                />
-              );
-            } else if (item.type === 'shape' && item.shape) {
-              const currentIndex = shapeIndex++;
-              const isInGroup = !!item.shape.groupId;
-              const groupId = item.belongsToGroupId || null;
-              return (
-                <LayerItemComponent
-                  key={item.shape.id}
-                  shape={item.shape}
-                  index={currentIndex}
-                  isInGroup={isInGroup}
-                  groupId={groupId}
-                  challenge={challenge}
-                  selectedShapeIds={selectedShapeIds}
-                  editingId={editingId}
-                  editValue={editValue}
-                  draggedId={draggedId}
-                  dropTargetIndex={dropTargetIndex}
-                  isTopLayer={isTopLayer(item.shape)}
-                  isBottomLayer={isBottomLayer(item.shape)}
-                  layerHint={getLayerHint()}
-                  onLayerClick={handleLayerClick}
-                  onStartEditing={startEditing}
-                  onEditValueChange={setEditValue}
-                  onFinishEditing={finishEditing}
-                  onKeyDown={handleKeyDown}
-                  onDragStart={handleDragStart}
-                  onDragEnd={handleDragEnd}
-                  onDragOver={handleDragOver}
-                  onDrop={handleDrop}
-                  onMoveLayer={onMoveLayer}
-                  onDeleteShape={onDeleteShape}
-                  onToggleVisibility={onToggleShapeVisibility}
-                  onHoverShape={onHoverShape}
-                  groupVisible={item.shape.groupId
-                    ? groups.find(g => g.id === item.shape!.groupId)?.visible !== false
-                    : true}
-                />
-              );
+          {(() => {
+            const elements: React.ReactNode[] = [];
+            let i = 0;
+            while (i < layerItems.length) {
+              const item = layerItems[i];
+              if (item.type === 'group-header' && item.group && item.shapesInGroup) {
+                const group = item.group;
+                const isCollapsed = group.isCollapsed;
+                elements.push(
+                  <GroupHeader
+                    key={`group-${group.id}`}
+                    group={group}
+                    shapesInGroup={item.shapesInGroup}
+                    selectedShapeIds={selectedShapeIds}
+                    editingGroupId={editingGroupId}
+                    editValue={editValue}
+                    isTouchDevice={isTouchDevice}
+                    isMultiSelectMode={isMultiSelectMode}
+                    modifierKeyHint={modifierKeyHint}
+                    isTop={item.isTopItem ?? false}
+                    isBottom={item.isBottomItem ?? false}
+                    topLevelIndex={item.topLevelIndex ?? 0}
+                    draggedGroupId={draggedGroupId}
+                    dropTargetTopLevelIndex={dropTargetTopLevelIndex}
+                    onGroupClick={handleGroupClick}
+                    onStartEditingGroup={startEditingGroup}
+                    onEditValueChange={setEditValue}
+                    onFinishEditing={finishEditing}
+                    onKeyDown={handleKeyDown}
+                    onToggleGroupCollapsed={onToggleGroupCollapsed}
+                    onToggleGroupVisibility={onToggleGroupVisibility}
+                    onDeleteGroup={onDeleteGroup}
+                    onMoveGroup={onMoveGroup}
+                    onGroupDragStart={handleGroupDragStart}
+                    onGroupDragEnd={handleGroupDragEnd}
+                    onGroupDragOver={handleGroupDragOver}
+                    onGroupDrop={handleGroupDrop}
+                    onHoverShape={onHoverShape}
+                    onUngroupShapes={onUngroupShapes}
+                  />
+                );
+
+                // Collect consecutive children belonging to this group
+                const groupChildren: LayerItem[] = [];
+                let j = i + 1;
+                while (j < layerItems.length && layerItems[j].type === 'shape' && layerItems[j].belongsToGroupId === group.id) {
+                  groupChildren.push(layerItems[j]);
+                  j++;
+                }
+
+                elements.push(
+                  <AnimatePresence key={`group-children-${group.id}`}>
+                    {!isCollapsed && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        style={{ overflow: 'hidden', paddingLeft: 12 }}
+                      >
+                        {groupChildren.map((child) => {
+                          const shape = child.shape!;
+                          const currentIndex = shapeIndex++;
+                          return (
+                            <LayerItemComponent
+                              key={shape.id}
+                              shape={shape}
+                              index={currentIndex}
+                              isInGroup={true}
+                              groupId={child.belongsToGroupId || null}
+                              challenge={challenge}
+                              selectedShapeIds={selectedShapeIds}
+                              editingId={editingId}
+                              editValue={editValue}
+                              draggedId={draggedId}
+                              dropTargetIndex={dropTargetIndex}
+                              isTopLayer={isTopLayer(shape)}
+                              isBottomLayer={isBottomLayer(shape)}
+                              layerHint={getLayerHint()}
+                              onLayerClick={handleLayerClick}
+                              onStartEditing={startEditing}
+                              onEditValueChange={setEditValue}
+                              onFinishEditing={finishEditing}
+                              onKeyDown={handleKeyDown}
+                              onDragStart={handleDragStart}
+                              onDragEnd={handleDragEnd}
+                              onDragOver={handleDragOver}
+                              onDrop={handleDrop}
+                              onMoveLayer={onMoveLayer}
+                              onDeleteShape={onDeleteShape}
+                              onToggleVisibility={onToggleShapeVisibility}
+                              onHoverShape={onHoverShape}
+                              groupVisible={groups.find(g => g.id === shape.groupId)?.visible !== false}
+                            />
+                          );
+                        })}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                );
+
+                i = j; // Skip past the children we already rendered
+              } else if (item.type === 'shape' && item.shape) {
+                const currentIndex = shapeIndex++;
+                elements.push(
+                  <LayerItemComponent
+                    key={item.shape.id}
+                    shape={item.shape}
+                    index={currentIndex}
+                    isInGroup={false}
+                    groupId={null}
+                    challenge={challenge}
+                    selectedShapeIds={selectedShapeIds}
+                    editingId={editingId}
+                    editValue={editValue}
+                    draggedId={draggedId}
+                    dropTargetIndex={dropTargetIndex}
+                    isTopLayer={isTopLayer(item.shape)}
+                    isBottomLayer={isBottomLayer(item.shape)}
+                    layerHint={getLayerHint()}
+                    onLayerClick={handleLayerClick}
+                    onStartEditing={startEditing}
+                    onEditValueChange={setEditValue}
+                    onFinishEditing={finishEditing}
+                    onKeyDown={handleKeyDown}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                    onMoveLayer={onMoveLayer}
+                    onDeleteShape={onDeleteShape}
+                    onToggleVisibility={onToggleShapeVisibility}
+                    onHoverShape={onHoverShape}
+                    groupVisible={true}
+                  />
+                );
+                i++;
+              } else {
+                i++;
+              }
             }
-            return null;
-          })}
+            return elements;
+          })()}
         </ul>
           )}
         </div>
