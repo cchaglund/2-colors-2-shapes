@@ -214,6 +214,7 @@ export function Canvas({
     isStampMode,
     shapeIndex: stampShapeIndex,
     ghost: stampGhost,
+    preview: stampPreview,
     handleMouseMove: handleStampMouseMove,
     handleMouseLeave: handleStampMouseLeave,
     handleMouseDown: handleStampMouseDown,
@@ -519,13 +520,14 @@ export function Canvas({
           </clipPath>
         </defs>
 
-        {/* Canvas background rect (for when zoomed out) */}
-        <rect
+        {/* Canvas background rect — animated fill for smooth color transitions */}
+        <motion.rect
           x={0}
           y={0}
           width={CANVAS_SIZE}
           height={CANVAS_SIZE}
-          fill={backgroundColor || 'var(--color-bg-elevated)'}
+          animate={{ fill: backgroundColor || 'var(--color-bg-elevated)' }}
+          transition={{ duration: 0.3 }}
           onMouseDown={(e) => {
             if (isStampMode) {
               handleStampMouseDown(e);
@@ -615,10 +617,10 @@ export function Canvas({
           </>
         )}
 
-        {/* Ghost cursor for stamp mode — clipped to canvas, fades in/out */}
+        {/* Ghost cursor + drag preview for stamp mode */}
         <g clipPath={showOffCanvas ? undefined : "url(#canvas-clip)"} pointerEvents="none">
           <AnimatePresence>
-            {isStampMode && stampGhost && challenge && (
+            {isStampMode && stampGhost && !stampPreview && challenge && (
               <motion.g
                 key="stamp-ghost"
                 initial={{ opacity: 0 }}
@@ -631,6 +633,25 @@ export function Canvas({
                   size={60}
                   x={stampGhost.x - 30}
                   y={stampGhost.y - 30}
+                  rotation={0}
+                  color={challenge.colors[selectedColorIndex]}
+                />
+              </motion.g>
+            )}
+            {isStampMode && stampPreview && challenge && (
+              <motion.g
+                key="stamp-preview"
+                initial={{ scale: 0.6, opacity: 0 }}
+                animate={{ scale: 1, opacity: 0.75 }}
+                exit={{ opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                style={{ transformOrigin: `${stampPreview.x}px ${stampPreview.y}px` }}
+              >
+                <SVGShape
+                  type={challenge.shapes[stampShapeIndex].type}
+                  size={stampPreview.size}
+                  x={stampPreview.x - stampPreview.size / 2}
+                  y={stampPreview.y - stampPreview.size / 2}
                   rotation={0}
                   color={challenge.colors[selectedColorIndex]}
                 />

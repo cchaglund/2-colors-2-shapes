@@ -1,0 +1,3 @@
+- Overall, I would like to adjust the feel when loading components/pages. If you look at what it looks like in the Design Exploration repo, when the user clicks between the tabs of the gallery view, like between the Winners tab and the Friends tab, there is a calendar view that loads from top to bottom with this kind of fading-in effect, which looks very pretty.
+
+In the actual working app, when we swap between the tabs, it kind of has this ugly flashing effect where it flashes between the two states and is just jarring and not very pleasant. I would like to make the animations apply to the loading of components and make this delightful and pleasing to the user. 

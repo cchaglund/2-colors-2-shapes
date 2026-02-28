@@ -39,7 +39,7 @@ import { useSubmissionSync } from '../../hooks/submission/useSubmissionSync';
 import { invalidateWallCache } from '../../hooks/challenge/useWallOfTheDay';
 import { getYesterdayDateUTC } from '../../utils/dailyChallenge';
 import { supabase } from '../../lib/supabase';
-import type { DailyChallenge } from '../../types';
+import type { DailyChallenge, Shape } from '../../types';
 import { useMemo } from 'react';
 
 interface CanvasEditorPageProps {
@@ -261,6 +261,18 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
   const [editorTool, setEditorTool] = useState<EditorTool>('select');
   const [selectedColorIndex, setSelectedColorIndex] = useState<number>(0);
 
+  // When a color is clicked, also recolor any selected shapes
+  const handleSetSelectedColor = useCallback((colorIndex: number) => {
+    setSelectedColorIndex(colorIndex);
+    if (canvasState.selectedShapeIds.size > 0) {
+      const updates = new Map<string, Partial<Shape>>();
+      canvasState.selectedShapeIds.forEach(id => {
+        updates.set(id, { colorIndex });
+      });
+      updateShapes(updates, true, 'Change color');
+    }
+  }, [canvasState.selectedShapeIds, updateShapes]);
+
   // Hover highlight state (transient UI, not canvas document state)
   const [hoveredShapeIds, setHoveredShapeIds] = useState<Set<string> | null>(null);
 
@@ -429,7 +441,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
             backgroundColorIndex={canvasState.backgroundColorIndex}
             selectedColor={challenge.colors[selectedColorIndex]}
             onSetTool={setEditorTool}
-            onSetSelectedColor={setSelectedColorIndex}
+            onSetSelectedColor={handleSetSelectedColor}
             onSetBackground={setBackgroundColor}
           />
         </div>
@@ -496,7 +508,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
                 ? 'absolute top-3 right-3 z-20'
                 : 'absolute bottom-18 left-0 right-0 z-20 max-h-[50vh]'
               }
-              style={isDesktop ? { width: 240 } : undefined}
+              style={isDesktop ? { width: 280 } : undefined}
             >
               <LayerPanel
                 shapes={canvasState.shapes}

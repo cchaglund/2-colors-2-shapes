@@ -134,100 +134,63 @@ export function GroupHeader({
         </svg>
       </button>
 
-      {/* Group actions - always visible on touch, hover-only on desktop */}
-      {isTouchDevice ? (
-        <div className="flex gap-0.5 shrink-0 ml-auto">
-          <button
-            className="w-7 h-7 p-0 rounded-(--radius-sm) cursor-pointer text-xs flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary)"
-            title="Move up"
-            disabled={isTop}
-            onClick={(e) => {
-              e.stopPropagation();
-              onMoveGroup(group.id, 'up');
-            }}
-          >
-            ⬆
-          </button>
-          <button
-            className="w-7 h-7 p-0 rounded-(--radius-sm) cursor-pointer text-xs flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary)"
-            title="Move down"
-            disabled={isBottom}
-            onClick={(e) => {
-              e.stopPropagation();
-              onMoveGroup(group.id, 'down');
-            }}
-          >
-            ⬇
-          </button>
-          <button
-            className="w-7 h-7 p-0 rounded-(--radius-sm) cursor-pointer text-xs flex items-center justify-center text-(--color-danger) bg-(--color-bg-primary) border border-(--color-border)"
-            title="Delete group and shapes"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDeleteGroup(group.id);
-            }}
-          >
-            ✕
-          </button>
-        </div>
-      ) : (
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity rounded-(--radius-sm) p-0.5 shadow-(--shadow-btn) bg-(--color-overlay)">
-          <button
-            className="w-6 h-6 p-0 rounded-(--radius-sm) cursor-pointer text-xs flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary) hover:enabled:bg-(--color-hover)"
-            title="Bring to front"
-            disabled={isTop}
-            onClick={(e) => {
-              e.stopPropagation();
-              onMoveGroup(group.id, 'top');
-            }}
-          >
-            ⬆⬆
-          </button>
-          <button
-            className="w-6 h-6 p-0 rounded-(--radius-sm) cursor-pointer text-xs flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary) hover:enabled:bg-(--color-hover)"
-            title="Move up"
-            disabled={isTop}
-            onClick={(e) => {
-              e.stopPropagation();
-              onMoveGroup(group.id, 'up');
-            }}
-          >
-            ⬆
-          </button>
-          <button
-            className="w-6 h-6 p-0 rounded-(--radius-sm) cursor-pointer text-xs flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary) hover:enabled:bg-(--color-hover)"
-            title="Move down"
-            disabled={isBottom}
-            onClick={(e) => {
-              e.stopPropagation();
-              onMoveGroup(group.id, 'down');
-            }}
-          >
-            ⬇
-          </button>
-          <button
-            className="w-6 h-6 p-0 rounded-(--radius-sm) cursor-pointer text-xs flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed bg-(--color-bg-primary) border border-(--color-border) text-(--color-text-primary) hover:enabled:bg-(--color-hover)"
-            title="Send to back"
-            disabled={isBottom}
-            onClick={(e) => {
-              e.stopPropagation();
-              onMoveGroup(group.id, 'bottom');
-            }}
-          >
-            ⬇⬇
-          </button>
-          <button
-            className="w-6 h-6 p-0 rounded-(--radius-sm) cursor-pointer text-xs flex items-center justify-center text-(--color-danger) ml-1 hover:bg-(--color-danger)/5 bg-(--color-bg-primary) border border-(--color-border)"
-            title="Delete group and shapes"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDeleteGroup(group.id);
-            }}
-          >
-            ✕
-          </button>
-        </div>
-      )}
+      {/* Group actions — always visible */}
+      <div className="flex gap-0.5 shrink-0 ml-auto">
+        <button
+          className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded-(--radius-sm)"
+          title="Bring to front"
+          disabled={isTop}
+          onClick={(e) => {
+            e.stopPropagation();
+            onMoveGroup(group.id, 'top');
+          }}
+        >
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m18 11-6-6-6 6"/><path d="m18 19-6-6-6 6"/></svg>
+        </button>
+        <button
+          className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded-(--radius-sm)"
+          title="Move up"
+          disabled={isTop}
+          onClick={(e) => {
+            e.stopPropagation();
+            onMoveGroup(group.id, 'up');
+          }}
+        >
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+        </button>
+        <button
+          className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded-(--radius-sm)"
+          title="Move down"
+          disabled={isBottom}
+          onClick={(e) => {
+            e.stopPropagation();
+            onMoveGroup(group.id, 'down');
+          }}
+        >
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <button
+          className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded-(--radius-sm)"
+          title="Send to back"
+          disabled={isBottom}
+          onClick={(e) => {
+            e.stopPropagation();
+            onMoveGroup(group.id, 'bottom');
+          }}
+        >
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 13 6 6 6-6"/><path d="m6 5 6 6 6-6"/></svg>
+        </button>
+        <button
+          className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center text-(--color-accent) rounded-(--radius-sm)"
+          title="Delete group and shapes"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDeleteGroup(group.id);
+          }}
+        >
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
     </li>
   );
 }

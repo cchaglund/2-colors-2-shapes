@@ -89,17 +89,39 @@ export function LayerItem({
         />
       ) : (
         <span
-          className="flex-1 text-xs font-semibold overflow-hidden text-ellipsis whitespace-nowrap cursor-text text-(--color-text-primary) capitalize"
+          className="flex-1 flex items-baseline min-w-0 cursor-text text-xs font-semibold text-(--color-text-primary) capitalize"
           onDoubleClick={(e) => {
             e.stopPropagation();
             onStartEditing(shape);
           }}
         >
-          {shape.name}
+          {(() => {
+            const match = shape.name.match(/^(.*?)(\s+\d+)$/);
+            if (match) {
+              return (
+                <>
+                  <span className="overflow-hidden text-ellipsis whitespace-nowrap">{match[1]}</span>
+                  <span className="shrink-0 whitespace-nowrap">{match[2]}</span>
+                </>
+              );
+            }
+            return <span className="overflow-hidden text-ellipsis whitespace-nowrap">{shape.name}</span>;
+          })()}
         </span>
       )}
       {/* Action buttons — always visible */}
       <div className="flex gap-0.5 shrink-0 ml-auto">
+        <button
+          className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded-(--radius-sm)"
+          title="Bring to front"
+          disabled={isTopLayer}
+          onClick={(e) => {
+            e.stopPropagation();
+            onMoveLayer(shape.id, 'top');
+          }}
+        >
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m18 11-6-6-6 6"/><path d="m18 19-6-6-6 6"/></svg>
+        </button>
         <button
           className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded-(--radius-sm)"
           title="Move up"
@@ -121,6 +143,17 @@ export function LayerItem({
           }}
         >
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <button
+          className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded-(--radius-sm)"
+          title="Send to back"
+          disabled={isBottomLayer}
+          onClick={(e) => {
+            e.stopPropagation();
+            onMoveLayer(shape.id, 'bottom');
+          }}
+        >
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 13 6 6 6-6"/><path d="m6 5 6 6 6-6"/></svg>
         </button>
         <button
           className="w-3 h-3 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center text-(--color-accent) rounded-(--radius-sm)"

@@ -41,9 +41,9 @@ export function ShapeElement({
 
   return (
     <motion.g
-      initial={{ scale: 0 }}
-      animate={{ scale: 1 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+      initial={{ scale: 0, rotate: -180 }}
+      animate={{ scale: 1, rotate: 0 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 15, mass: 0.8 }}
       style={{ transformOrigin: `${cx}px ${cy}px` }}
     >
       {svgShape}

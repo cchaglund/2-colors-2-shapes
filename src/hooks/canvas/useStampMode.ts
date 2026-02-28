@@ -13,6 +13,12 @@ export interface StampGhost {
   y: number;
 }
 
+export interface StampPreview {
+  x: number;
+  y: number;
+  size: number;
+}
+
 interface UseStampModeOptions {
   editorTool: EditorTool;
   selectedColorIndex: number;
@@ -37,8 +43,10 @@ export function useStampMode({
   const shapeIndex = isStampMode ? parseInt(editorTool.split('-')[1], 10) : -1;
 
   const [ghost, setGhost] = useState<StampGhost | null>(null);
+  const [preview, setPreview] = useState<StampPreview | null>(null);
   const dragRef = useRef<StampDragState | null>(null);
   const ghostRef = useRef<StampGhost | null>(null);
+  const previewRef = useRef<StampPreview | null>(null);
 
   // Track mouse move over SVG for ghost cursor
   const handleMouseMove = useCallback(
@@ -72,7 +80,11 @@ export function useStampMode({
         canvasX: point.x,
         canvasY: point.y,
       };
-      // Hide ghost during potential drag
+      // Show preview shape at click position with default size
+      const p = { x: point.x, y: point.y, size: DEFAULT_STAMP_SIZE };
+      previewRef.current = p;
+      setPreview(p);
+      // Hide ghost during drag
       ghostRef.current = null;
       setGhost(null);
     },
@@ -86,35 +98,40 @@ export function useStampMode({
       return;
     }
 
+    const handleWindowMouseMove = (e: MouseEvent) => {
+      const drag = dragRef.current;
+      if (!drag || !previewRef.current) return;
+      const endPoint = getSVGPoint(e.clientX, e.clientY);
+      const canvasDx = endPoint.x - drag.canvasX;
+      const canvasDy = endPoint.y - drag.canvasY;
+      const canvasDist = Math.sqrt(canvasDx * canvasDx + canvasDy * canvasDy);
+      if (canvasDist > DRAG_THRESHOLD) {
+        const updated = { ...previewRef.current, size: Math.max(MIN_STAMP_SIZE, canvasDist * 2) };
+        previewRef.current = updated;
+        setPreview(updated);
+      }
+    };
+
     const handleWindowMouseUp = (e: MouseEvent) => {
       const drag = dragRef.current;
       if (!drag) return;
       dragRef.current = null;
 
+      // Use preview size if available (drag-to-size), otherwise default
+      const finalSize = previewRef.current?.size ?? DEFAULT_STAMP_SIZE;
       const dx = e.clientX - drag.startClientX;
       const dy = e.clientY - drag.startClientY;
       const clientDist = Math.sqrt(dx * dx + dy * dy);
 
-      if (clientDist < DRAG_THRESHOLD) {
-        // Click-to-place: default size, centered on click
-        onAddShape(shapeIndex, selectedColorIndex, {
-          x: drag.canvasX,
-          y: drag.canvasY,
-          size: DEFAULT_STAMP_SIZE,
-        });
-      } else {
-        // Drag-to-size: use canvas-coordinate distance for size
-        const endPoint = getSVGPoint(e.clientX, e.clientY);
-        const canvasDx = endPoint.x - drag.canvasX;
-        const canvasDy = endPoint.y - drag.canvasY;
-        const canvasDist = Math.sqrt(canvasDx * canvasDx + canvasDy * canvasDy);
-        const size = Math.max(MIN_STAMP_SIZE, canvasDist * 2);
-        onAddShape(shapeIndex, selectedColorIndex, {
-          x: drag.canvasX,
-          y: drag.canvasY,
-          size,
-        });
-      }
+      onAddShape(shapeIndex, selectedColorIndex, {
+        x: drag.canvasX,
+        y: drag.canvasY,
+        size: clientDist < DRAG_THRESHOLD ? DEFAULT_STAMP_SIZE : finalSize,
+      });
+
+      // Clear preview
+      previewRef.current = null;
+      setPreview(null);
 
       // Restore ghost at current mouse position
       const point = getSVGPoint(e.clientX, e.clientY);
@@ -123,8 +140,12 @@ export function useStampMode({
       setGhost(g);
     };
 
+    window.addEventListener('mousemove', handleWindowMouseMove);
     window.addEventListener('mouseup', handleWindowMouseUp);
-    return () => window.removeEventListener('mouseup', handleWindowMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleWindowMouseMove);
+      window.removeEventListener('mouseup', handleWindowMouseUp);
+    };
   }, [isStampMode, shapeIndex, selectedColorIndex, getSVGPoint, onAddShape]);
 
   // Esc to exit stamp mode (V handled via keyboard shortcuts system — selectMode action)
@@ -147,6 +168,7 @@ export function useStampMode({
     isStampMode,
     shapeIndex,
     ghost,
+    preview,
     handleMouseMove,
     handleMouseLeave,
     handleMouseDown,
