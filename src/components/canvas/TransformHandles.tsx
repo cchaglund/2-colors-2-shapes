@@ -249,12 +249,6 @@ export function TransformVisualLayer({
 
   return (
     <g transform={transform} style={{ pointerEvents: 'none' }}>
-      {/* Shape outline (dashed) */}
-      {element === 'ellipse' && <ellipse {...outlineProps} />}
-      {element === 'rect' && <rect {...outlineProps} />}
-      {element === 'polygon' && <polygon {...outlineProps} />}
-      {element === 'path' && <path {...outlineProps} />}
-
       {/* Bounding box — solid or dashed per theme (--sel-dash) */}
       <rect
         x={0}
@@ -265,6 +259,12 @@ export function TransformVisualLayer({
         style={{ stroke: 'var(--sel-border)', strokeDasharray: 'var(--sel-dash)' }}
         strokeWidth={strokeWidth}
       />
+
+      {/* Shape outline (dashed) — rendered after bounding box so it's visible on rect shapes */}
+      {element === 'ellipse' && <ellipse {...outlineProps} />}
+      {element === 'rect' && <rect {...outlineProps} />}
+      {element === 'polygon' && <polygon {...outlineProps} />}
+      {element === 'path' && <path {...outlineProps} />}
 
       {/* Resize handles (8: corners + midpoints) */}
       {resizeHandles.map((handle) => (
@@ -338,12 +338,6 @@ export function MultiSelectTransformLayer({
 
     return (
       <g transform={transform} style={{ pointerEvents: 'none' }}>
-        {/* Shape outline (dashed) */}
-        {element === 'ellipse' && <ellipse {...outlineProps} />}
-        {element === 'rect' && <rect {...outlineProps} />}
-        {element === 'polygon' && <polygon {...outlineProps} />}
-        {element === 'path' && <path {...outlineProps} />}
-
         {/* Bounding box — solid or dashed per theme (--sel-dash) */}
         <rect
           x={0}
@@ -354,6 +348,12 @@ export function MultiSelectTransformLayer({
           style={{ stroke: 'var(--sel-border)', strokeDasharray: 'var(--sel-dash)' }}
           strokeWidth={strokeWidth}
         />
+
+        {/* Shape outline (dashed) — rendered after bounding box so it's visible on rect shapes */}
+        {element === 'ellipse' && <ellipse {...outlineProps} />}
+        {element === 'rect' && <rect {...outlineProps} />}
+        {element === 'polygon' && <polygon {...outlineProps} />}
+        {element === 'path' && <path {...outlineProps} />}
 
         {/* Resize handles (8: corners + midpoints) */}
         {resizeHandles.map((handle) => (
@@ -394,26 +394,30 @@ export function MultiSelectTransformLayer({
 
   return (
     <g style={{ pointerEvents: 'none' }}>
-      {/* Individual shape outlines — minimal dashed per-shape, theme-colored */}
+      {/* Individual shape outlines — shape-specific dashed outlines per-shape */}
       {showIndividualOutlines &&
         shapes.map((shape) => {
-          const { viewBox } = getShapeSVGData(shape.type, shape.size);
+          const { element, props, viewBox, outlineD } = getShapeSVGData(shape.type, shape.size);
           const centerX = viewBox.width / 2;
           const centerY = viewBox.height / 2;
           const transform = buildShapeTransform(shape, centerX, centerY);
 
+          const outlineProps = {
+            ...props,
+            ...(outlineD && { d: outlineD }),
+            fill: 'none',
+            stroke: 'var(--color-text-primary)',
+            strokeWidth: dashStrokeWidth,
+            strokeDasharray: `${5 * scale},${5 * scale}`,
+            opacity: 0.8,
+          };
+
           return (
             <g key={shape.id} transform={transform}>
-              <rect
-                x={0}
-                y={0}
-                width={viewBox.width}
-                height={viewBox.height}
-                fill="none"
-                style={{ stroke: 'var(--sel-border)', strokeDasharray: `${4 * scale} ${4 * scale}` }}
-                strokeWidth={strokeWidth}
-                opacity={0.6}
-              />
+              {element === 'ellipse' && <ellipse {...outlineProps} />}
+              {element === 'rect' && <rect {...outlineProps} />}
+              {element === 'polygon' && <polygon {...outlineProps} />}
+              {element === 'path' && <path {...outlineProps} />}
             </g>
           );
         })}

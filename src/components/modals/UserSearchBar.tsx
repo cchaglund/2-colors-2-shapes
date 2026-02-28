@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/auth/useAuth';
 import { FriendRow } from './FriendRow';
+import { LoadingSpinner } from '../shared/LoadingSpinner';
 
 interface SearchResult {
   id: string;
@@ -123,9 +124,7 @@ export function UserSearchBar({ onNavigateToProfile }: UserSearchBarProps) {
 
       {/* Search results */}
       {loading && (
-        <div className="flex items-center justify-center py-4">
-          <div className="w-5 h-5 border-2 border-(--color-accent) border-t-transparent rounded-(--radius-pill) animate-spin" />
-        </div>
+        <LoadingSpinner size="sm" inline />
       )}
 
       {!loading && hasSearched && results.length === 0 && (

@@ -7,6 +7,7 @@ import { useFollows } from '../../hooks/social/useFollows';
 import { useIsDesktop } from '../../hooks/ui/useBreakpoint';
 import { supabase } from '../../lib/supabase';
 import { PillButton } from '../shared/PillButton';
+import { LoadingSpinner } from '../shared/LoadingSpinner';
 
 const THEMES: ThemeName[] = ['a', 'b', 'c', 'd'];
 
@@ -241,9 +242,7 @@ function UserMenuContent({
       {/* Friend list (scrollable) */}
       <div className="flex-1 overflow-y-auto min-h-0">
         {loading ? (
-          <div className="flex items-center justify-center py-6">
-            <div className="w-4 h-4 border-2 border-(--color-accent) border-t-transparent rounded-(--radius-pill) animate-spin" />
-          </div>
+          <LoadingSpinner size="sm" inline />
         ) : friends.length === 0 ? (
           <div className="text-center py-6 text-xs text-(--color-text-secondary)">
             {activeTab === 'following' ? 'Not following anyone yet' : 'No followers yet'}

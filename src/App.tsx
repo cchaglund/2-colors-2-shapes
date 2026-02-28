@@ -5,6 +5,7 @@ import { getTodayDateUTC } from './utils/dailyChallenge';
 import { useDailyChallenge } from './hooks/challenge/useDailyChallenge';
 import { useAppRoute, isStandaloneRoute } from './hooks/useAppRoute';
 import { useThemeState } from './hooks/ui/useThemeState';
+import { LoadingSpinner } from './components/shared/LoadingSpinner';
 
 // Route-based code splitting: each page loads only when navigated to
 const ShapeExplorer = lazy(() => import('./components/admin/ShapeExplorer').then(m => ({ default: m.ShapeExplorer })));
@@ -18,16 +19,6 @@ const UserProfilePage = lazy(() => import('./components/pages/UserProfilePage').
 const VotingTestPage = lazy(() => import('./test/VotingTestPage').then(m => ({ default: m.VotingTestPage })));
 const SocialTestPage = lazy(() => import('./test/SocialTestPage').then(m => ({ default: m.SocialTestPage })));
 const CanvasEditorPage = lazy(() => import('./components/canvas/CanvasEditorPage').then(m => ({ default: m.CanvasEditorPage })));
-
-function PageSpinner() {
-  return (
-    <div className="flex h-screen items-center justify-center bg-(--color-bg-primary)">
-      <div className="text-center">
-        <div className="inline-block w-8 h-8 border-4 border-(--color-text-secondary) border-t-transparent rounded-full animate-spin" />
-      </div>
-    </div>
-  );
-}
 
 function AppContent() {
   // Apply theme globally so all pages respect the selected theme + dark mode
@@ -54,12 +45,12 @@ function AppContent() {
         case 'profile': return <FollowsProvider><UserProfilePage userId={route.userId} /></FollowsProvider>;
       }
     })();
-    return <Suspense fallback={<PageSpinner />}>{page}</Suspense>;
+    return <Suspense fallback={<LoadingSpinner size="lg" fullScreen />}>{page}</Suspense>;
   }
 
   // Show loading spinner while challenge is loading
   if (challengeLoading || !challenge) {
-    return <PageSpinner />;
+    return <LoadingSpinner size="lg" fullScreen />;
   }
 
   // Render challenge-dependent pages
@@ -75,7 +66,7 @@ function AppContent() {
     page = <CanvasEditorPage challenge={challenge} todayDate={todayDate} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} />;
   }
 
-  return <Suspense fallback={<PageSpinner />}>{page}</Suspense>;
+  return <Suspense fallback={<LoadingSpinner size="lg" fullScreen />}>{page}</Suspense>;
 }
 
 function App() {

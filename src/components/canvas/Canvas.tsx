@@ -158,7 +158,7 @@ export function Canvas({
     marqueeStartRef.current = startMarqueeAt;
   }
 
-  useWheelZoom(svgRef, onZoomAtPoint);
+  useWheelZoom(svgRef, onZoomAtPoint, onPan, viewport);
 
   const handleSelectMode = useCallback(() => {
     onSetTool('select');
@@ -502,7 +502,7 @@ export function Canvas({
         width={CANVAS_SIZE}
         height={CANVAS_SIZE}
         viewBox={`${viewBoxX} ${viewBoxY} ${viewBoxSize} ${viewBoxSize}`}
-        className="border touch-none overflow-visible border-(--color-border)"
+        className="touch-none overflow-visible"
         style={{ cursor: isStampMode ? 'crosshair' : marqueeState ? 'crosshair' : cursorStyle }}
         onMouseDown={handleCanvasMouseDown}
         onMouseMove={isStampMode ? handleStampMouseMove : undefined}
@@ -535,6 +535,18 @@ export function Canvas({
             }
             if (!isSpacePressed) startMarqueeAt(e.clientX, e.clientY);
           }}
+        />
+
+        {/* Canvas boundary — moves with viewBox when panning (Figma-like) */}
+        <rect
+          x={0}
+          y={0}
+          width={CANVAS_SIZE}
+          height={CANVAS_SIZE}
+          fill="none"
+          stroke="var(--color-border)"
+          strokeWidth={2 / viewport.zoom}
+          style={{ pointerEvents: 'none' }}
         />
 
         {/* Render shapes - optionally clipped to canvas bounds */}

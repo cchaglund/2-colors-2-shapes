@@ -15,6 +15,14 @@ export function useCanvasPanning(
   const [isPanning, setIsPanning] = useState(false);
   const panStartRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
 
+  // Keep latest values in refs to avoid effect re-registration on every pan frame
+  const viewportRef = useRef(viewport);
+  viewportRef.current = viewport;
+  const getClientPointRef = useRef(getClientPoint);
+  getClientPointRef.current = getClientPoint;
+  const onPanRef = useRef(onPan);
+  onPanRef.current = onPan;
+
   // Handle spacebar for panning mode
   useEffect(() => {
     const panBinding = keyMappings.pan;
@@ -49,29 +57,28 @@ export function useCanvasPanning(
     };
   }, [keyMappings.pan]);
 
-  // Handle panning when space is pressed
+  // Handle panning when space is pressed — listeners registered once per space press
   useEffect(() => {
     if (!isSpacePressed) return;
 
     const handleMouseDown = (e: MouseEvent) => {
-      if (!isSpacePressed) return;
       e.preventDefault();
       setIsPanning(true);
-      const point = getClientPoint(e.clientX, e.clientY);
+      const point = getClientPointRef.current(e.clientX, e.clientY);
       panStartRef.current = {
         x: point.x,
         y: point.y,
-        panX: viewport.panX,
-        panY: viewport.panY,
+        panX: viewportRef.current.panX,
+        panY: viewportRef.current.panY,
       };
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isPanning || !panStartRef.current) return;
-      const point = getClientPoint(e.clientX, e.clientY);
+      if (!panStartRef.current) return;
+      const point = getClientPointRef.current(e.clientX, e.clientY);
       const dx = point.x - panStartRef.current.x;
       const dy = point.y - panStartRef.current.y;
-      onPan(panStartRef.current.panX + dx, panStartRef.current.panY + dy);
+      onPanRef.current(panStartRef.current.panX + dx, panStartRef.current.panY + dy);
     };
 
     const handleMouseUp = () => {
@@ -88,7 +95,7 @@ export function useCanvasPanning(
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isSpacePressed, isPanning, viewport.panX, viewport.panY, getClientPoint, onPan]);
+  }, [isSpacePressed]);
 
   // Cursor style based on panning state
   const cursorStyle = isSpacePressed ? (isPanning ? 'grabbing' : 'grab') : 'default';

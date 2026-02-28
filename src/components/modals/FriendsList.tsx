@@ -1,4 +1,5 @@
 import { FriendRow } from './FriendRow';
+import { LoadingSpinner } from '../shared/LoadingSpinner';
 import type { FollowUser } from '../../contexts/FollowsContext';
 
 export type FriendsListType = 'following' | 'followers';
@@ -22,11 +23,7 @@ export function FriendsList({
   onNavigateToProfile,
 }: FriendsListProps) {
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="w-5 h-5 border-2 border-(--color-accent) border-t-transparent rounded-(--radius-pill) animate-spin" />
-      </div>
-    );
+    return <LoadingSpinner size="sm" inline />;
   }
 
   if (users.length === 0) {

@@ -12,6 +12,7 @@ import {
 } from 'recharts';
 import { useAuth } from '../../hooks/auth/useAuth';
 import { useAdmin } from '../../hooks/auth/useAdmin';
+import { LoadingSpinner } from '../shared/LoadingSpinner';
 
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
@@ -30,14 +31,7 @@ export function Dashboard() {
 
   // Loading state
   if (authLoading || adminLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-(--color-bg-primary)">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-(--color-accent) mx-auto mb-4"></div>
-          <p className="text-(--color-text-secondary)">Loading...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner size="lg" fullScreen message="Loading..." />;
   }
 
   // Not logged in
@@ -86,14 +80,7 @@ export function Dashboard() {
 
   // Stats loading
   if (statsLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-(--color-bg-primary)">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-(--color-accent) mx-auto mb-4"></div>
-          <p className="text-(--color-text-secondary)">Loading dashboard stats...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner size="lg" fullScreen message="Loading dashboard stats..." />;
   }
 
   // Stats error

@@ -1,38 +1,55 @@
-import { useEffect, type RefObject } from 'react';
+import { useEffect, useRef, type RefObject } from 'react';
+import type { ViewportState } from '../../types';
 import { CANVAS_SIZE } from '../../types/canvas';
 
 /**
- * Hook for handling Ctrl/Cmd + scroll wheel zoom
+ * Hook for handling scroll wheel zoom (Ctrl/Cmd+wheel) and trackpad panning (two-finger scroll)
  */
 export function useWheelZoom(
   svgRef: RefObject<SVGSVGElement | null>,
-  onZoomAtPoint: (delta: number, pointX: number, pointY: number) => void
+  onZoomAtPoint: (delta: number, pointX: number, pointY: number) => void,
+  onPan?: (panX: number, panY: number) => void,
+  viewport?: ViewportState
 ) {
+  // Refs to avoid re-registering listeners when viewport/callbacks change
+  const onPanRef = useRef(onPan);
+  onPanRef.current = onPan;
+  const viewportRef = useRef(viewport);
+  viewportRef.current = viewport;
+  const onZoomRef = useRef(onZoomAtPoint);
+  onZoomRef.current = onZoomAtPoint;
+
   useEffect(() => {
     const svg = svgRef.current;
     if (!svg) return;
 
     const handleWheel = (e: WheelEvent) => {
-      // Check for Ctrl (Windows/Linux) or Meta/Cmd (Mac)
+      // Ctrl/Cmd + wheel → zoom
       if (e.ctrlKey || e.metaKey) {
         e.preventDefault();
         const rect = svg.getBoundingClientRect();
-        // Get position relative to SVG element, normalized to 0-CANVAS_SIZE range
         const point = {
           x: ((e.clientX - rect.left) / rect.width) * CANVAS_SIZE,
           y: ((e.clientY - rect.top) / rect.height) * CANVAS_SIZE,
         };
-        // Normalize wheel delta (different browsers have different values)
         const delta = -Math.sign(e.deltaY);
-        onZoomAtPoint(delta, point.x, point.y);
+        onZoomRef.current(delta, point.x, point.y);
+      } else if (onPanRef.current && viewportRef.current) {
+        // Unmodified wheel → pan (two-finger trackpad scroll)
+        e.preventDefault();
+        const v = viewportRef.current;
+        const panScale = 1 / v.zoom;
+        onPanRef.current(
+          v.panX - e.deltaX * panScale,
+          v.panY - e.deltaY * panScale
+        );
       }
     };
 
-    // Add non-passive event listener to allow preventDefault
     svg.addEventListener('wheel', handleWheel, { passive: false });
 
     return () => {
       svg.removeEventListener('wheel', handleWheel);
     };
-  }, [svgRef, onZoomAtPoint]);
+  }, [svgRef]);
 }

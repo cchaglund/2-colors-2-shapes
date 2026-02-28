@@ -101,7 +101,7 @@ export function LayerItem({
               return (
                 <>
                   <span className="overflow-hidden text-ellipsis whitespace-nowrap">{match[1]}</span>
-                  <span className="shrink-0 whitespace-nowrap">{match[2]}</span>
+                  <span className="shrink-0 whitespace-nowrap ml-0.5">{match[2]}</span>
                 </>
               );
             }

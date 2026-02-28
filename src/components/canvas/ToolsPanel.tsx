@@ -148,7 +148,7 @@ function ToolButton({ icon, label, shortcut, onClick, disabled, active }: ToolBu
   return (
     <div className="relative">
       <button
-        className={`w-10 h-10 flex items-center justify-center rounded-(--radius-sm) transition-all border border-(--color-border-light)
+        className={`w-10 h-10 flex items-center justify-center rounded-(--radius-md) transition-all border border-(--color-border-light)
           ${active
             ? 'bg-(--color-selected) text-(--color-text-primary) border-(--color-border)!'
             : 'text-(--color-text-secondary) hover:enabled:bg-(--color-hover) hover:enabled:text-(--color-text-primary) hover:enabled:border-(--color-border)'
@@ -174,7 +174,7 @@ function ToolButton({ icon, label, shortcut, onClick, disabled, active }: ToolBu
 }
 
 function Divider() {
-  return <div className="h-px w-7 mx-auto my-0.5 bg-(--color-border-light)" />;
+  return <div className="h-0.5 shrink-0 w-5 mx-auto bg-(--color-border-light) rounded-full" />;
 }
 
 // --- Main component ---
@@ -238,7 +238,7 @@ export function ToolsPanel({
 
   return (
     <div
-      className="flex flex-col items-center py-1.5 px-1.5 bg-(--color-card-bg) overflow-y-auto"
+      className="flex flex-col items-center gap-1.5 py-1.5 px-1.5 bg-(--color-card-bg) overflow-y-auto"
       style={{
         border: 'var(--border-width, 2px) solid var(--color-border)',
         borderRadius: 'var(--radius-lg)',
