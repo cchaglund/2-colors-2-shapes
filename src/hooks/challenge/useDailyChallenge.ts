@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { DailyChallenge } from '../../types';
+import type { DailyChallenge, ShapeType } from '../../types';
 import { supabase } from '../../lib/supabase';
+import { SHAPE_NAMES } from '../../utils/shapes/utils';
 
 // =============================================================================
 // Persistent Cache for Challenge Data
@@ -88,6 +89,92 @@ function cacheChallenge(challenge: DailyChallenge): void {
 loadCacheFromStorage();
 
 // =============================================================================
+// Direct DB Access (fast, no edge function cold start)
+// =============================================================================
+// The challenges table has public SELECT RLS. Reading directly from the DB
+// via PostgREST (~100ms) avoids the edge function cold start (~5-30s).
+// The edge function is only needed to GENERATE a new challenge (once per day).
+// =============================================================================
+
+interface ChallengeRow {
+  challenge_date: string;
+  color_1: string;
+  color_2: string;
+  color_3: string | null;
+  shape_1: string;
+  shape_2: string;
+  shape_1_svg: string | null;
+  shape_2_svg: string | null;
+  shape_1_name: string | null;
+  shape_2_name: string | null;
+  word: string;
+}
+
+function rowToChallenge(row: ChallengeRow): DailyChallenge {
+  const shape1Type = row.shape_1 as ShapeType;
+  const shape2Type = row.shape_2 as ShapeType;
+
+  return {
+    date: row.challenge_date,
+    colors: [row.color_1, row.color_2, row.color_3].filter(Boolean) as string[],
+    shapes: [
+      {
+        type: shape1Type,
+        name: row.shape_1_name || SHAPE_NAMES[shape1Type] || shape1Type,
+        svg: row.shape_1_svg || '',
+      },
+      {
+        type: shape2Type,
+        name: row.shape_2_name || SHAPE_NAMES[shape2Type] || shape2Type,
+        svg: row.shape_2_svg || '',
+      },
+    ],
+    word: row.word,
+  };
+}
+
+/** Read a single challenge directly from the DB (fast, ~100ms) */
+async function readChallengeFromDB(date: string): Promise<DailyChallenge | null> {
+  const { data } = await supabase
+    .from('challenges')
+    .select('*')
+    .eq('challenge_date', date)
+    .single();
+
+  return data ? rowToChallenge(data as ChallengeRow) : null;
+}
+
+/** Read multiple challenges directly from the DB (fast, ~100ms) */
+async function readChallengesFromDB(dates: string[]): Promise<DailyChallenge[]> {
+  if (dates.length === 0) return [];
+
+  const { data } = await supabase
+    .from('challenges')
+    .select('*')
+    .in('challenge_date', dates);
+
+  return ((data as ChallengeRow[]) || []).map(rowToChallenge);
+}
+
+/** Call edge function to generate a challenge (slow, only needed once per day) */
+async function generateChallengeViaEdgeFunction(date: string): Promise<DailyChallenge> {
+  const { data, error } = await supabase.functions.invoke('get-daily-challenge', {
+    body: { date },
+  });
+
+  if (error) {
+    throw new Error(error.message || 'Failed to generate challenge');
+  }
+
+  return {
+    date: data.date,
+    colors: data.colors,
+    shapes: data.shapes,
+    word: data.word,
+  };
+}
+
+// =============================================================================
 // Hook and Utilities
 // =============================================================================
 
@@ -143,61 +230,24 @@ export function useDailyChallenge(date: string): UseDailyChallengeReturn {
     abortControllerRef.current = new AbortController();
 
     const fetchPromise = (async (): Promise<DailyChallenge> => {
-      const { data, error: fetchError } = await supabase.functions.invoke(
-        'get-daily-challenge',
-        {
-          body: { date },
-        }
-      );
+      // Try direct DB read first (fast, ~100ms via PostgREST)
+      const fromDB = await readChallengeFromDB(date);
+      if (fromDB) return fromDB;
 
-      if (fetchError) {
-        throw new Error(fetchError.message || 'Failed to fetch challenge');
-      }
-
-      // DEBUG: Override shapes with equilateral triangle and circle
-      // const debugShapes: [import('../types').ChallengeShapeData, import('../types').ChallengeShapeData] = [
-      //   {
-      //     type: 'triangle',
-      //     name: 'Triangle',
-      //     svg: 'M 50 6.699 L 93.301 81.699 L 6.699 81.699 Z',
-      //   },
-      //   {
-      //     type: 'circle',
-      //     name: 'Circle',
-      //     svg: 'M 50 0 A 50 50 0 1 1 50 100 A 50 50 0 1 1 50 0 Z',
-      //   },
-      // ];
-
-      // DEBUG: Override colors (uncomment to force specific colors)
-      // const debugColors = [
-      //   'hsl(270, 100%, 85%)',  // blue
-      //   'hsl(324, 100%, 44%)',  // red
-      //   'hsl(61, 52%, 67%)',   // yellow
-      // ];
-
-      const fetchedChallenge: DailyChallenge = {
-        date: data.date,
-        colors: data.colors,
-        // colors: debugColors,
-        shapes: data.shapes,
-        // shapes: debugShapes,
-        word: data.word,
-      };
-
-      // Cache the result (with persistence)
-      cacheChallenge(fetchedChallenge);
-      return fetchedChallenge;
+      // Not in DB — first visitor today. Call edge function to generate.
+      return generateChallengeViaEdgeFunction(date);
     })();
 
     pendingRequests.set(date, fetchPromise);
 
     try {
       const result = await fetchPromise;
+      // Cache the result (with persistence)
+      cacheChallenge(result);
       setChallenge(result);
     } catch (err) {
       console.error('Failed to fetch challenge:', err);
       setError(err instanceof Error ? err : new Error('Unknown error'));
-      // No fallback - server is the only source of truth
     } finally {
       pendingRequests.delete(date);
       setLoading(false);
@@ -219,7 +269,7 @@ export function useDailyChallenge(date: string): UseDailyChallengeReturn {
   };
 }
 
-// Batch fetch for Calendar - optimized to only fetch uncached dates
+// Batch fetch for Calendar - reads directly from DB, no edge function needed
 export async function fetchChallengesBatch(
   dates: string[]
 ): Promise<Map<string, DailyChallenge>> {
@@ -228,30 +278,29 @@ export async function fetchChallengesBatch(
 
   if (uncachedDates.length === 0) {
     // All cached - no network request needed
-    return new Map(dates.map((d) => [d, challengeCache.get(d)!]));
+    const result = new Map<string, DailyChallenge>();
+    for (const d of dates) {
+      const cached = challengeCache.get(d);
+      if (cached) result.set(d, cached);
+    }
+    return result;
   }
 
-  const { data, error } = await supabase.functions.invoke('get-daily-challenge', {
-    body: { dates: uncachedDates },
-  });
-
-  if (error) {
-    throw new Error(error.message || 'Failed to fetch challenges');
-  }
+  // Read directly from DB (fast, ~100ms via PostgREST)
+  const challenges = await readChallengesFromDB(uncachedDates);
 
   // Cache all fetched challenges (with persistence)
-  for (const challenge of data.challenges) {
-    const c: DailyChallenge = {
-      date: challenge.date,
-      colors: challenge.colors,
-      shapes: challenge.shapes,
-      word: challenge.word,
-    };
-    cacheChallenge(c);
+  for (const challenge of challenges) {
+    cacheChallenge(challenge);
   }
 
-  // Return all requested dates from cache
-  return new Map(dates.map((d) => [d, challengeCache.get(d)!]));
+  // Return all requested dates that have data
+  const result = new Map<string, DailyChallenge>();
+  for (const d of dates) {
+    const cached = challengeCache.get(d);
+    if (cached) result.set(d, cached);
+  }
+  return result;
 }
 
 // Simple sync getter for components that need immediate access
@@ -267,18 +316,16 @@ export async function prefetchChallenge(date: string): Promise<void> {
   }
 
   try {
-    const { data, error } = await supabase.functions.invoke('get-daily-challenge', {
-      body: { date },
-    });
-
-    if (!error && data) {
-      cacheChallenge({
-        date: data.date,
-        colors: data.colors,
-        shapes: data.shapes,
-        word: data.word,
-      });
+    // Try direct DB read first
+    const fromDB = await readChallengeFromDB(date);
+    if (fromDB) {
+      cacheChallenge(fromDB);
+      return;
     }
+
+    // Not in DB — generate via edge function
+    const generated = await generateChallengeViaEdgeFunction(date);
+    cacheChallenge(generated);
   } catch {
     // Silently fail prefetch
   }

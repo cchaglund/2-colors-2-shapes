@@ -27,9 +27,10 @@ function AppContent() {
   // Resolve current route from URL params
   const route = useAppRoute();
 
-  // Fetch today's challenge from server
+  // Only fetch today's challenge for the canvas editor (standalone pages fetch their own)
   const todayDate = useMemo(() => getTodayDateUTC(), []);
-  const { challenge, loading: challengeLoading } = useDailyChallenge(todayDate);
+  const needsChallenge = route.type === 'canvas';
+  const { challenge, loading: challengeLoading } = useDailyChallenge(needsChallenge ? todayDate : '');
 
   // Render standalone pages (fetch their own data, no need to wait for today's challenge)
   if (isStandaloneRoute(route)) {
