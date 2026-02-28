@@ -1,7 +1,8 @@
 import type { ComponentPropsWithoutRef, CSSProperties, ElementType, ReactNode } from 'react';
 
 /**
- * Pill-shaped button used across the UI.
+ * Themed button used across the UI.
+ * Shape adapts to the active theme (rounded in Pop Art/Cloud, sharp in Swiss/Brutalist).
  *
  * Variants:
  * - secondary: white/surface bg + shadow (Reset, user menu trigger)
@@ -11,9 +12,9 @@ import type { ComponentPropsWithoutRef, CSSProperties, ElementType, ReactNode } 
  * - danger:    danger bg + shadow (destructive actions)
  */
 
-export type PillButtonVariant = 'secondary' | 'primary' | 'ghost' | 'inverse' | 'danger';
+export type ButtonVariant = 'secondary' | 'primary' | 'ghost' | 'inverse' | 'danger';
 
-const variantClasses: Record<PillButtonVariant, string> = {
+const variantClasses: Record<ButtonVariant, string> = {
   secondary:
     'bg-(--color-card-bg) text-(--color-text-primary) hover:text-(--color-text-primary)',
   primary:
@@ -26,10 +27,10 @@ const variantClasses: Record<PillButtonVariant, string> = {
 };
 
 /** Variants that get the btn-shadow */
-const shadowVariants = new Set<PillButtonVariant>(['secondary', 'primary', 'inverse', 'danger']);
+const shadowVariants = new Set<ButtonVariant>(['secondary', 'primary', 'inverse', 'danger']);
 
-type PillButtonProps<T extends ElementType = 'button'> = {
-  variant?: PillButtonVariant;
+type ButtonProps<T extends ElementType = 'button'> = {
+  variant?: ButtonVariant;
   as?: T;
   fullWidth?: boolean;
   className?: string;
@@ -37,7 +38,7 @@ type PillButtonProps<T extends ElementType = 'button'> = {
   children: ReactNode;
 } & Omit<ComponentPropsWithoutRef<T>, 'as' | 'children' | 'className' | 'style'>;
 
-export function PillButton<T extends ElementType = 'button'>({
+export function Button<T extends ElementType = 'button'>({
   variant = 'secondary',
   as,
   fullWidth = false,
@@ -45,7 +46,7 @@ export function PillButton<T extends ElementType = 'button'>({
   style,
   children,
   ...rest
-}: PillButtonProps<T>) {
+}: ButtonProps<T>) {
   const Tag = as || 'button';
   const hasShadow = shadowVariants.has(variant);
 

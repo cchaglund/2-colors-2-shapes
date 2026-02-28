@@ -1,6 +1,6 @@
 import type { DailyChallenge } from '../../types';
 import { Modal } from '../shared/Modal';
-import { PillButton } from '../shared/PillButton';
+import { Button } from '../shared/Button';
 import { ShapeIcon } from '../shared/ShapeIcon';
 
 interface WelcomeModalProps {
@@ -87,9 +87,9 @@ export function WelcomeModal({ onDismiss, challenge }: WelcomeModalProps) {
         </p>
       </div>
 
-      <PillButton variant="primary" fullWidth onClick={onDismiss} className="mt-6">
+      <Button variant="primary" fullWidth onClick={onDismiss} className="mt-6">
         Start creating
-      </PillButton>
+      </Button>
     </Modal>
   );
 }

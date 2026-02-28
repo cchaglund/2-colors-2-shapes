@@ -1,5 +1,5 @@
 import { Modal } from '../shared/Modal';
-import { PillButton } from '../shared/PillButton';
+import { Button } from '../shared/Button';
 
 interface ResetConfirmModalProps {
   onConfirm: () => void;
@@ -28,12 +28,12 @@ export function ResetConfirmModal({ onConfirm, onCancel }: ResetConfirmModalProp
         This will delete all shapes and cannot be undone.
       </p>
       <div className="flex gap-3 justify-center">
-        <PillButton variant="ghost" onClick={onCancel}>
+        <Button variant="ghost" onClick={onCancel}>
           Cancel
-        </PillButton>
-        <PillButton variant="danger" onClick={onConfirm}>
+        </Button>
+        <Button variant="danger" onClick={onConfirm}>
           Reset
-        </PillButton>
+        </Button>
       </div>
     </Modal>
   );

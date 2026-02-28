@@ -3,7 +3,7 @@ import type { ThemeMode, ThemeName } from '../../hooks/ui/useThemeState';
 import type { Profile } from '../../hooks/auth/useProfile';
 import { useAuth } from '../../hooks/auth/useAuth';
 import { UserMenuDropdown } from './UserMenuDropdown';
-import { PillButton } from '../shared/PillButton';
+import { Button } from '../shared/Button';
 import { useIsDesktop } from '../../hooks/ui/useBreakpoint';
 
 // --- Theme Pill (dark mode toggle + divider + A/B/C/D) ---
@@ -221,7 +221,7 @@ function DefaultRightContent({
     <>
       {/* Reset — icon-only on mobile */}
       {onReset && (
-        <PillButton
+        <Button
           variant="secondary"
           className="hover:text-(--color-danger)"
           onClick={onReset}
@@ -233,12 +233,12 @@ function DefaultRightContent({
               <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
             </svg>
           )}
-        </PillButton>
+        </Button>
       )}
 
       {/* Submit */}
       {onSave && isLoggedIn ? (
-        <PillButton
+        <Button
           variant="primary"
           className="px-4 font-bold disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={onSave}
@@ -246,24 +246,24 @@ function DefaultRightContent({
           title={hasSubmittedToday ? 'Already submitted today' : 'Submit your creation'}
         >
           {saveLabel}
-        </PillButton>
+        </Button>
       ) : onSave ? (
-        <PillButton
+        <Button
           variant="primary"
           className="px-4 font-bold"
           onClick={onSave}
           title="Sign in to submit"
         >
           Submit!
-        </PillButton>
+        </Button>
       ) : null}
 
       {/* Divider + Gallery — hidden on mobile (available in UserMenuDropdown) */}
       <div className="hidden md:block w-px h-5 bg-(--color-border) mx-1" />
       <div className="hidden md:block">
-        <PillButton as="a" variant="ghost" href="/?view=gallery">
+        <Button as="a" variant="ghost" href="/?view=gallery">
           Gallery
-        </PillButton>
+        </Button>
       </div>
 
       {/* Login / User menu */}

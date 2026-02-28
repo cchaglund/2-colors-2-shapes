@@ -3,7 +3,7 @@ import type { RankingEntry } from '../../types';
 import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
 import { WinnerCard } from '../submission/WinnerCard';
 import { Modal } from '../shared/Modal';
-import { PillButton } from '../shared/PillButton';
+import { Button } from '../shared/Button';
 import { LoadingSpinner } from '../shared/LoadingSpinner';
 
 const CONFETTI_DURATION_MS = 6_000;
@@ -111,9 +111,9 @@ export function CongratulatoryModal({
         />
       </div>
 
-      <PillButton variant="primary" fullWidth onClick={handleDismiss}>
+      <Button variant="primary" fullWidth onClick={handleDismiss}>
         Yay!
-      </PillButton>
+      </Button>
     </Modal>
   );
 }

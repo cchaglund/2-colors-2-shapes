@@ -2,7 +2,7 @@ import type { RankingEntry } from '../../types';
 import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
 import { WinnerCard } from '../submission/WinnerCard';
 import { Modal } from '../shared/Modal';
-import { PillButton } from '../shared/PillButton';
+import { Button } from '../shared/Button';
 import { LoadingSpinner } from '../shared/LoadingSpinner';
 
 interface WinnerAnnouncementModalProps {
@@ -98,9 +98,9 @@ export function WinnerAnnouncementModal({
         </div>
       ) : null}
 
-      <PillButton variant="primary" fullWidth onClick={onDismiss}>
+      <Button variant="primary" fullWidth onClick={onDismiss}>
         Awesome!
-      </PillButton>
+      </Button>
     </Modal>
   );
 }

@@ -6,7 +6,7 @@ import { FollowsProvider } from '../../contexts/FollowsContext';
 import { useFollows } from '../../hooks/social/useFollows';
 import { useIsDesktop } from '../../hooks/ui/useBreakpoint';
 import { supabase } from '../../lib/supabase';
-import { PillButton } from '../shared/PillButton';
+import { Button } from '../shared/Button';
 import { LoadingSpinner } from '../shared/LoadingSpinner';
 
 const THEMES: ThemeName[] = ['a', 'b', 'c', 'd'];
@@ -56,9 +56,9 @@ export function UserMenuDropdown({ profile, loading, isLoggedIn, onSignIn, onSig
 
   if (!isLoggedIn || !profile) {
     return (
-      <PillButton variant="inverse" onClick={onSignIn}>
+      <Button variant="inverse" onClick={onSignIn}>
         Log in
-      </PillButton>
+      </Button>
     );
   }
 
@@ -68,7 +68,7 @@ export function UserMenuDropdown({ profile, loading, isLoggedIn, onSignIn, onSig
   return (
     <div ref={containerRef} className="relative">
       {/* Trigger: avatar + name + chevron */}
-      <PillButton
+      <Button
         variant="secondary"
         className="gap-2"
         onClick={() => setOpen(prev => !prev)}
@@ -88,7 +88,7 @@ export function UserMenuDropdown({ profile, loading, isLoggedIn, onSignIn, onSig
         >
           <polyline points="6 9 12 15 18 9" />
         </svg>
-      </PillButton>
+      </Button>
 
       {/* Dropdown */}
       <AnimatePresence>

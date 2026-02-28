@@ -1,6 +1,6 @@
 import { useAuth } from '../../hooks/auth/useAuth';
 import { Modal } from '../shared/Modal';
-import { PillButton } from '../shared/PillButton';
+import { Button } from '../shared/Button';
 
 interface LoginPromptModalProps {
   onClose: () => void;
@@ -39,7 +39,7 @@ export function LoginPromptModal({
         {message}
       </p>
       <div className="flex flex-col gap-3">
-        <PillButton variant="primary" fullWidth onClick={handleLogin} className="gap-2">
+        <Button variant="primary" fullWidth onClick={handleLogin} className="gap-2">
           <svg className="w-4 h-4" viewBox="0 0 24 24">
             <path
               fill="currentColor"
@@ -59,10 +59,10 @@ export function LoginPromptModal({
             />
           </svg>
           Sign in with Google
-        </PillButton>
-        <PillButton variant="ghost" fullWidth onClick={onClose}>
+        </Button>
+        <Button variant="ghost" fullWidth onClick={onClose}>
           Cancel
-        </PillButton>
+        </Button>
       </div>
     </Modal>
   );

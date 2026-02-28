@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Modal } from '../shared/Modal';
-import { PillButton } from '../shared/PillButton';
+import { Button } from '../shared/Button';
 
 interface OnboardingModalProps {
   onComplete: (nickname: string) => Promise<{ success: boolean; error?: string }>;
@@ -89,7 +89,7 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
           </div>
         </div>
 
-        <PillButton
+        <Button
           variant="primary"
           fullWidth
           type="submit"
@@ -97,7 +97,7 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
           className="disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {submitting ? 'Saving...' : 'Continue'}
-        </PillButton>
+        </Button>
       </form>
     </Modal>
   );
