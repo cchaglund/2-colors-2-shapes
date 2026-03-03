@@ -6,18 +6,6 @@ export type ThemeName = 'a' | 'b' | 'c';
 const MODE_KEY = 'theme-mode';
 const THEME_KEY = 'theme-name';
 
-/** Google Fonts URLs per theme (loaded on demand) */
-const THEME_FONT_URLS: Record<ThemeName, string[]> = {
-  a: [
-    'https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap',
-    'https://fonts.googleapis.com/css2?family=Lilita+One&display=swap',
-  ],
-  b: [], // DM Sans is self-hosted
-  c: [
-    'https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap',
-  ],
-};
-
 function getSystemTheme(): 'light' | 'dark' {
   if (typeof window !== 'undefined' && window.matchMedia) {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -35,20 +23,6 @@ function loadFromStorage<T>(key: string, valid: T[], fallback: T): T {
 
 function saveToStorage(key: string, value: string) {
   try { localStorage.setItem(key, value); } catch { /* ignore */ }
-}
-
-/** Inject <link> for Google Fonts if not already present */
-function loadThemeFonts(theme: ThemeName) {
-  for (const url of THEME_FONT_URLS[theme]) {
-    const id = `theme-font-${theme}-${url.length}`;
-    if (!document.getElementById(id)) {
-      const link = document.createElement('link');
-      link.id = id;
-      link.rel = 'stylesheet';
-      link.href = url;
-      document.head.appendChild(link);
-    }
-  }
 }
 
 /** Apply data-theme and data-mode attributes to <html> */
@@ -93,7 +67,6 @@ export function useThemeState() {
   // Apply theme to DOM whenever theme or mode changes
   useEffect(() => {
     applyThemeToDOM(theme, effectiveTheme);
-    loadThemeFonts(theme);
   }, [theme, effectiveTheme]);
 
   // Persist to localStorage
