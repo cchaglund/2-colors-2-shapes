@@ -20,7 +20,7 @@ export function ShapeIcon({ type, size = 24, fill = 'currentColor', stroke, stro
   const extraProps = { fill, ...(stroke ? { stroke, strokeWidth } : {}) };
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${viewBox.width} ${viewBox.height}`}>
+    <svg width={size} height={size} viewBox={`0 0 ${viewBox.width} ${viewBox.height}`} overflow={stroke ? 'visible' : undefined}>
       {element === 'ellipse' && <ellipse {...props} {...extraProps} />}
       {element === 'rect' && <rect {...props} {...extraProps} />}
       {element === 'polygon' && <polygon {...props} {...extraProps} />}

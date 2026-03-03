@@ -95,9 +95,10 @@ export function BottomToolbar({
             {challenge.shapes.map((shape, shapeIndex) => (
               <button
                 key={`${colorIndex}-${shape.type}`}
-                className="w-8.5 h-8.5 flex items-center justify-center rounded-sm cursor-pointer transition-all duration-150 bg-(--color-card-bg) active:scale-90"
+                className="w-8.5 h-8.5 flex items-center justify-center overflow-visible cursor-pointer transition-all duration-150 bg-(--color-card-bg) active:scale-90"
                 style={{
                   border: 'var(--border-width, 2px) solid var(--color-border-light)',
+                  borderRadius: 'var(--radius-sm)',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = 'var(--color-border)';
