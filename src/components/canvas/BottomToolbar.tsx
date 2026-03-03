@@ -44,7 +44,7 @@ function Divider() {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <span className="hidden md:inline text-xs font-bold uppercase tracking-wide text-(--color-text-tertiary) px-1 shrink-0">
+    <span className="hidden md:inline text-xs leading-none font-bold uppercase tracking-wide text-(--color-text-tertiary) px-1 shrink-0">
       {children}
     </span>
   );
@@ -56,6 +56,7 @@ interface BottomToolbarProps {
   challenge: DailyChallenge;
   selectedColorIndex: number;
   backgroundColorIndex: number | null;
+  hasSelection: boolean;
   onAddShape: (shapeIndex: number, colorIndex: number) => void;
   onSetSelectedColor: (index: number) => void;
   onSetBackground: (index: number | null) => void;
@@ -65,6 +66,7 @@ export function BottomToolbar({
   challenge,
   selectedColorIndex,
   backgroundColorIndex,
+  hasSelection,
   onAddShape,
   onSetSelectedColor,
   onSetBackground,
@@ -126,20 +128,22 @@ export function BottomToolbar({
 
       <Divider />
 
-      {/* Shape color selection — recolors selected shapes */}
+      {/* Shape color selection — recolors selected shapes (only active when a shape is selected) */}
       <SectionLabel>Change</SectionLabel>
       <div
-        className="flex items-center gap-1.5 px-1.5 py-1 rounded-(--radius-md)"
+        className="flex items-center gap-1.5 px-1.5 py-1 rounded-(--radius-md) transition-opacity duration-150"
         style={{
-          background: 'var(--color-selected)',
-          border: 'var(--border-width, 2px) solid var(--color-border-light)',
+          background: hasSelection ? 'var(--color-selected)' : 'transparent',
+          border: `var(--border-width, 2px) solid ${hasSelection ? 'var(--color-border-light)' : 'transparent'}`,
+          opacity: hasSelection ? 1 : 0.35,
+          pointerEvents: hasSelection ? 'auto' : 'none',
         }}
       >
         {challenge.colors.map((color, i) => (
           <ColorSwatch
             key={`color-${i}`}
             color={color}
-            selected={selectedColorIndex === i}
+            selected={hasSelection && selectedColorIndex === i}
             onClick={() => onSetSelectedColor(i)}
           />
         ))}

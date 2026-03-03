@@ -365,7 +365,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
         {hydrated && canvasState.shapes.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
             <p className="text-lg text-(--color-text-secondary) opacity-50 select-none">
-              Pick a shape below to start creating.
+              Add a shape below to start creating.
             </p>
           </div>
         )}
@@ -429,6 +429,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
             challenge={challenge}
             selectedColorIndex={selectedColorIndex}
             backgroundColorIndex={canvasState.backgroundColorIndex}
+            hasSelection={canvasState.selectedShapeIds.size > 0}
             onAddShape={handleAddShape}
             onSetSelectedColor={handleSetSelectedColor}
             onSetBackground={setBackgroundColor}

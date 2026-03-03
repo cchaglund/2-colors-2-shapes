@@ -6,9 +6,14 @@ import { UserMenuDropdown } from './UserMenuDropdown';
 import { Button } from '../shared/Button';
 import { useIsDesktop } from '../../hooks/ui/useBreakpoint';
 
-// --- Theme Pill (dark mode toggle + divider + A/B/C/D) ---
+// --- Theme Pill (dark mode toggle + divider + theme buttons) ---
 
-const THEMES: ThemeName[] = ['a', 'b', 'c'];
+/** Theme metadata for display — accent colors hardcoded so previews work regardless of active theme */
+const THEME_META: { key: ThemeName; label: string; accent: string }[] = [
+  { key: 'a', label: 'Pop', accent: '#FF3366' },
+  { key: 'b', label: 'Swiss', accent: '#E63322' },
+  { key: 'c', label: 'Cloud', accent: '#E07A5F' },
+];
 
 function SunIcon() {
   return (
@@ -77,23 +82,36 @@ function ThemePill({
       </button>
 
       {/* Divider */}
-      <div className="w-px h-4 bg-(--color-border)" />
+      <div className="w-px h-4 bg-(--color-border) mx-0.5" />
 
-      {/* Theme buttons A/B/C/D */}
-      {THEMES.map((t) => (
-        <button
-          key={t}
-          className={`flex items-center justify-center w-7 h-full text-xs font-bold uppercase transition-colors cursor-pointer ${
-            theme === t
-              ? 'bg-(--color-accent) text-(--color-accent-text)'
-              : 'text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-hover)'
-          } ${t === THEMES[THEMES.length - 1] ? 'rounded-r-(--radius-pill)' : ''}`}
-          onClick={() => onSetTheme(t)}
-          title={`Theme ${t.toUpperCase()}`}
-        >
-          {t.toUpperCase()}
-        </button>
-      ))}
+      {/* Theme buttons */}
+      {THEME_META.map(({ key, label, accent }, i) => {
+        const isActive = theme === key;
+        const isLast = i === THEME_META.length - 1;
+        return (
+          <button
+            key={key}
+            className={`flex items-center justify-center gap-1.5 h-full px-2 text-[11px] font-bold tracking-wide transition-colors cursor-pointer ${
+              isActive
+                ? 'text-(--color-text-primary)'
+                : 'text-(--color-text-tertiary) hover:text-(--color-text-primary) hover:bg-(--color-hover)'
+            } ${isLast ? 'rounded-r-(--radius-pill)' : ''}`}
+            onClick={() => onSetTheme(key)}
+            title={`${label} theme`}
+          >
+            <span
+              className="shrink-0 rounded-full transition-all duration-150"
+              style={{
+                width: isActive ? 10 : 8,
+                height: isActive ? 10 : 8,
+                backgroundColor: accent,
+                boxShadow: isActive ? `0 0 0 2px var(--color-card-bg), 0 0 0 3.5px ${accent}` : 'none',
+              }}
+            />
+            {label}
+          </button>
+        );
+      })}
     </div>
   );
 }
