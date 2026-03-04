@@ -1,4 +1,4 @@
-# 3 Colors 2 Shapes
+# shapepaint.com
 
 A daily art challenge app where you create art using only 3 colors and 2 geometric shapes.
 

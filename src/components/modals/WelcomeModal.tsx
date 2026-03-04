@@ -15,7 +15,7 @@ export function WelcomeModal({ onDismiss, challenge }: WelcomeModalProps) {
         id="welcome-title"
         className="text-xl font-semibold text-(--color-text-primary) mb-5 text-center"
       >
-        Welcome to 3 Colors 2 Shapes!
+        Welcome to shapepaint.com!
       </h2>
 
       {challenge && (
