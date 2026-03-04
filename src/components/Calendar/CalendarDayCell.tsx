@@ -2,9 +2,9 @@ import type { DailyChallenge, Shape } from '../../types';
 import type { ViewMode, WinnerEntry } from './types';
 import { SubmissionThumbnail } from '../shared/SubmissionThumbnail';
 import { ChallengeShapeIndicators } from '../shared/ChallengeShapeIndicators';
+import { TrophyBadge } from '../shared/TrophyBadge';
 import { Tooltip } from '../shared/InfoTooltip';
 import { CalendarCell } from './CalendarCell';
-import cn from "classnames";
 
 /** Minimal submission shape needed by CalendarDayCell */
 interface CalendarSubmission {
@@ -71,7 +71,6 @@ export function CalendarDayCell({
         isFuture={isFuture}
         hasContent={hasArt}
         artFill={hasArt}
-        rankOutline={hasRank}
         href={isClickable ? (todayCreateHref ?? href) : undefined}
         onClick={isClickable && !href && !todayCreateHref && onClick ? () => onClick(day) : undefined}
         className="group"
@@ -79,11 +78,13 @@ export function CalendarDayCell({
         data-date={dateStr}
       >
         {hasArt && (
-          <div className={cn(
-            "absolute z-10 hidden group-hover:flex bg-(--color-overlay) rounded-(--radius-sm) px-1 py-0.5",
-            hasRank ? "-top-1 left-6" : "top-0.5 left-7"
-          )}>
+          <div className="absolute z-10 hidden group-hover:flex bg-(--color-overlay) rounded-sm px-1 py-0.5 top-0.5 left-7">
             <ChallengeShapeIndicators shapes={challenge.shapes} size={12} gap={4} color="white" />
+          </div>
+        )}
+        {hasRank && (
+          <div className="absolute top-0.5 right-0.5 z-10">
+            <TrophyBadge rank={hasRank} />
           </div>
         )}
         {hasArt ? (

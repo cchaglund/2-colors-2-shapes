@@ -1,6 +1,3 @@
-import cn from "classnames";
-import { RANK_COLORS } from "../../constants/rankColors";
-
 interface CalendarCellProps {
   day: number;
   isToday: boolean;
@@ -9,8 +6,6 @@ interface CalendarCellProps {
   disabled?: boolean;
   /** When true, children fill entire cell (no padding), day number overlays on art */
   artFill?: boolean;
-  /** Show colored inset outline for trophy rank (1=gold, 2=silver, 3=bronze) */
-  rankOutline?: 1 | 2 | 3;
   href?: string;
   onClick?: () => void;
   className?: string;
@@ -28,7 +23,6 @@ export function CalendarCell({
   hasContent = false,
   disabled = false,
   artFill = false,
-  rankOutline,
   href,
   onClick,
   className = '',
@@ -49,18 +43,11 @@ export function CalendarCell({
     ${className}
   `;
 
-  const borderStyle = rankOutline
-    ? { border: `6px solid ${RANK_COLORS[rankOutline]}` }
-    : undefined;
-
   const content = (
     <>
       {artFill ? (
         <>
-          <div className={cn(
-            "absolute z-10 bg-(--color-overlay) text-(--color-accent-text) text-xs font-medium tabular-nums px-1 rounded-(--radius-sm) leading-tight",
-            rankOutline ? "-top-0.5 -left-0.5" : "top-1 left-1"
-          )}>
+          <div className="absolute z-10 bg-(--color-overlay) text-(--color-accent-text) text-xs font-medium tabular-nums px-1 rounded-sm leading-tight top-1 left-1">
             {day}
           </div>
           <div className="absolute inset-0">
@@ -91,16 +78,16 @@ export function CalendarCell({
   const dataAttrs = { 'data-testid': dataTestId, 'data-date': dataDate };
 
   if (href) {
-    return <a href={href} className={`block ${classes}`} style={borderStyle} {...dataAttrs}>{content}</a>;
+    return <a href={href} className={`block ${classes}`} {...dataAttrs}>{content}</a>;
   }
 
   if (onClick && !disabled) {
-    return <button onClick={onClick} className={classes} style={borderStyle} {...dataAttrs}>{content}</button>;
+    return <button onClick={onClick} className={classes} {...dataAttrs}>{content}</button>;
   }
 
   if (onClick && disabled) {
-    return <button onClick={onClick} disabled className={classes} style={borderStyle} {...dataAttrs}>{content}</button>;
+    return <button onClick={onClick} disabled className={classes} {...dataAttrs}>{content}</button>;
   }
 
-  return <div className={classes} style={borderStyle} {...dataAttrs}>{content}</div>;
+  return <div className={classes} {...dataAttrs}>{content}</div>;
 }
