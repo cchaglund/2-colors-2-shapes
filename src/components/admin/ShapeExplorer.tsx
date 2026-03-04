@@ -1,52 +1,7 @@
 import type { ShapeType } from '../../types';
 import { getShapeSVGData, SHAPE_NAMES } from '../../utils/shapes';
 
-const SHAPE_TYPES: ShapeType[] = [
-  'circle',
-  'square',
-  'triangle',
-  'pentagon',
-  'hexagon',
-  'star',
-  // Sophisticated shapes
-  'rightTriangle',
-  'isoscelesTriangle',
-  'diamond',
-  'trapezoid',
-  'parallelogram',
-  'kite',
-  'heptagon',
-  'cross',
-  'arrow',
-  'semicircle',
-  'quarterCircle',
-  'ellipse',
-  'blade',
-  'lens',
-  'arch',
-  'drop',
-  // Irregular abstract shapes
-  'shard',
-  'wedge',
-  'fan',
-  'hook',
-  'wave',
-  'crescent',
-  'pill',
-  'splinter',
-  'chunk',
-  // Mixed straight/curved shapes
-  'fang',
-  'claw',
-  'fin',
-  'keyhole',
-  'slant',
-  'notch',
-  'spike',
-  'bulge',
-  'scoop',
-  'ridge',
-];
+const SHAPE_TYPES = Object.keys(SHAPE_NAMES) as ShapeType[];
 const SAMPLE_SIZE = 100;
 
 interface ShapePreviewProps {

@@ -3,43 +3,39 @@ import {
   getPolygonPoints,
   getStarPoints,
   getRightTrianglePoints,
-  getIsoscelesTrianglePoints,
-  getDiamondPoints,
   getTrapezoidPoints,
   getParallelogramPoints,
   getKitePoints,
   getCrossPoints,
   getArrowPoints,
-  getShardPoints,
   getWedgePoints,
   getSplinterPoints,
-  getChunkPoints,
 } from './polygons';
 import {
   getSemicirclePath,
   getQuarterCirclePath,
-  getBladePath,
   getLensPath,
   getArchPath,
   getArchOutlinePath,
-  getDropPath,
-  getFanPath,
+  getWavePath,
   HOOK_PATH,
   HOOK_NATIVE_VIEWBOX,
-  getWavePath,
   CRESCENT_PATH,
   CRESCENT_NATIVE_VIEWBOX,
   getPillPath,
   getFangPath,
-  getClawPath,
-  getFinPath,
+  FIN_PATH,
+  FIN_NATIVE_VIEWBOX,
   getKeyholePath,
-  getSlantPath,
   getNotchPath,
-  getSpikePath,
-  getBulgePath,
+  DROP_PATH,
+  DROP_NATIVE_VIEWBOX,
   getScoopPath,
   getRidgePath,
+  BEAN_PATH,
+  BEAN_NATIVE_VIEWBOX,
+  HOURGLASS_PATH,
+  HOURGLASS_NATIVE_VIEWBOX,
 } from './paths';
 
 // Shape aspect ratios (width:height) - 1 means square
@@ -54,8 +50,6 @@ export const SHAPE_ASPECT_RATIOS: Record<ShapeType, number> = {
   star: 1,
   // Sophisticated shapes
   rightTriangle: 1,
-  isoscelesTriangle: 1,
-  diamond: 1,
   trapezoid: 1,
   parallelogram: 1,
   kite: 1,
@@ -65,31 +59,25 @@ export const SHAPE_ASPECT_RATIOS: Record<ShapeType, number> = {
   semicircle: 2, // wider than tall
   quarterCircle: 1,
   ellipse: 1.67, // wider than tall
-  blade: 0.5, // taller than wide
   lens: 1.8, // wider than tall (thicker)
   arch: 1,
-  drop: 0.7, // taller than wide
   // Irregular abstract shapes
-  shard: 1,
   wedge: 1,
-  fan: 1,
+  wave: 1,
   hook: HOOK_NATIVE_VIEWBOX.width / HOOK_NATIVE_VIEWBOX.height, // match Figma export
-  wave: 2, // wider than tall
   crescent: CRESCENT_NATIVE_VIEWBOX.width / CRESCENT_NATIVE_VIEWBOX.height, // match Figma export
   pill: 2.5, // wider than tall
   splinter: 1,
-  chunk: 1,
   // Mixed straight/curved shapes
   fang: 0.8, // slightly taller
-  claw: 0.8,
-  fin: 1,
+  fin: FIN_NATIVE_VIEWBOX.width / FIN_NATIVE_VIEWBOX.height, // match Figma export
   keyhole: 1,
-  slant: 1,
   notch: 1,
-  spike: 0.6, // taller than wide
-  bulge: 1,
+  drop: DROP_NATIVE_VIEWBOX.width / DROP_NATIVE_VIEWBOX.height, // match Figma export
   scoop: 1.2, // slightly wider
   ridge: 1.3, // slightly wider
+  bean: BEAN_NATIVE_VIEWBOX.width / BEAN_NATIVE_VIEWBOX.height, // match Figma export
+  hourglass: HOURGLASS_NATIVE_VIEWBOX.width / HOURGLASS_NATIVE_VIEWBOX.height, // match Figma export
 };
 
 // Get SVG path/element data for each shape type
@@ -163,20 +151,6 @@ export function getShapeSVGData(type: ShapeType, size: number) {
         viewBox: { width, height },
       };
 
-    case 'isoscelesTriangle':
-      return {
-        element: 'polygon' as const,
-        props: { points: getIsoscelesTrianglePoints(size) },
-        viewBox: { width, height },
-      };
-
-    case 'diamond':
-      return {
-        element: 'polygon' as const,
-        props: { points: getDiamondPoints(size) },
-        viewBox: { width, height },
-      };
-
     case 'trapezoid':
       return {
         element: 'polygon' as const,
@@ -242,13 +216,6 @@ export function getShapeSVGData(type: ShapeType, size: number) {
         viewBox: { width, height },
       };
 
-    case 'blade':
-      return {
-        element: 'path' as const,
-        props: { d: getBladePath(width, height) },
-        viewBox: { width, height },
-      };
-
     case 'lens':
       return {
         element: 'path' as const,
@@ -264,20 +231,6 @@ export function getShapeSVGData(type: ShapeType, size: number) {
         outlineD: getArchOutlinePath(size),
       };
 
-    case 'drop':
-      return {
-        element: 'path' as const,
-        props: { d: getDropPath(width, height) },
-        viewBox: { width, height },
-      };
-
-    case 'shard':
-      return {
-        element: 'polygon' as const,
-        props: { points: getShardPoints(size) },
-        viewBox: { width, height },
-      };
-
     case 'wedge':
       return {
         element: 'polygon' as const,
@@ -285,10 +238,10 @@ export function getShapeSVGData(type: ShapeType, size: number) {
         viewBox: { width, height },
       };
 
-    case 'fan':
+    case 'wave':
       return {
         element: 'path' as const,
-        props: { d: getFanPath(size) },
+        props: { d: getWavePath(size) },
         viewBox: { width, height },
       };
 
@@ -298,13 +251,6 @@ export function getShapeSVGData(type: ShapeType, size: number) {
         props: { d: HOOK_PATH },
         viewBox: HOOK_NATIVE_VIEWBOX,
         dimensions: { width, height },
-      };
-
-    case 'wave':
-      return {
-        element: 'path' as const,
-        props: { d: getWavePath(width, height) },
-        viewBox: { width, height },
       };
 
     case 'crescent':
@@ -329,13 +275,6 @@ export function getShapeSVGData(type: ShapeType, size: number) {
         viewBox: { width, height },
       };
 
-    case 'chunk':
-      return {
-        element: 'polygon' as const,
-        props: { points: getChunkPoints(size) },
-        viewBox: { width, height },
-      };
-
     case 'fang':
       return {
         element: 'path' as const,
@@ -343,31 +282,18 @@ export function getShapeSVGData(type: ShapeType, size: number) {
         viewBox: { width, height },
       };
 
-    case 'claw':
-      return {
-        element: 'path' as const,
-        props: { d: getClawPath(width, height) },
-        viewBox: { width, height },
-      };
-
     case 'fin':
       return {
         element: 'path' as const,
-        props: { d: getFinPath(size) },
-        viewBox: { width, height },
+        props: { d: FIN_PATH },
+        viewBox: FIN_NATIVE_VIEWBOX,
+        dimensions: { width, height },
       };
 
     case 'keyhole':
       return {
         element: 'path' as const,
         props: { d: getKeyholePath(size) },
-        viewBox: { width, height },
-      };
-
-    case 'slant':
-      return {
-        element: 'path' as const,
-        props: { d: getSlantPath(size) },
         viewBox: { width, height },
       };
 
@@ -378,18 +304,12 @@ export function getShapeSVGData(type: ShapeType, size: number) {
         viewBox: { width, height },
       };
 
-    case 'spike':
+    case 'drop':
       return {
         element: 'path' as const,
-        props: { d: getSpikePath(width, height) },
-        viewBox: { width, height },
-      };
-
-    case 'bulge':
-      return {
-        element: 'path' as const,
-        props: { d: getBulgePath(size) },
-        viewBox: { width, height },
+        props: { d: DROP_PATH },
+        viewBox: DROP_NATIVE_VIEWBOX,
+        dimensions: { width, height },
       };
 
     case 'scoop':
@@ -404,6 +324,22 @@ export function getShapeSVGData(type: ShapeType, size: number) {
         element: 'path' as const,
         props: { d: getRidgePath(width, height) },
         viewBox: { width, height },
+      };
+
+    case 'bean':
+      return {
+        element: 'path' as const,
+        props: { d: BEAN_PATH },
+        viewBox: BEAN_NATIVE_VIEWBOX,
+        dimensions: { width, height },
+      };
+
+    case 'hourglass':
+      return {
+        element: 'path' as const,
+        props: { d: HOURGLASS_PATH },
+        viewBox: HOURGLASS_NATIVE_VIEWBOX,
+        dimensions: { width, height },
       };
 
     default:
@@ -457,8 +393,6 @@ export const SHAPE_NAMES: Record<ShapeType, string> = {
   star: 'Star',
   // Sophisticated shapes
   rightTriangle: 'Right Triangle',
-  isoscelesTriangle: 'Isosceles Triangle',
-  diamond: 'Diamond',
   trapezoid: 'Trapezoid',
   parallelogram: 'Parallelogram',
   kite: 'Kite',
@@ -468,29 +402,23 @@ export const SHAPE_NAMES: Record<ShapeType, string> = {
   semicircle: 'Semicircle',
   quarterCircle: 'Quarter Circle',
   ellipse: 'Ellipse',
-  blade: 'Blade',
   lens: 'Lens',
   arch: 'Arch',
-  drop: 'Drop',
   // Irregular abstract shapes
-  shard: 'Shard',
   wedge: 'Wedge',
-  fan: 'Fan',
-  hook: 'Hook',
   wave: 'Wave',
+  hook: 'Hook',
   crescent: 'Crescent',
   pill: 'Pill',
   splinter: 'Splinter',
-  chunk: 'Chunk',
   // Mixed straight/curved shapes
   fang: 'Fang',
-  claw: 'Claw',
   fin: 'Fin',
   keyhole: 'Keyhole',
-  slant: 'Slant',
   notch: 'Notch',
-  spike: 'Spike',
-  bulge: 'Bulge',
+  drop: 'Drop',
   scoop: 'Scoop',
   ridge: 'Ridge',
+  bean: 'Bean',
+  hourglass: 'Hourglass',
 };

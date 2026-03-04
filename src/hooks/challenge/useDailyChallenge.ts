@@ -237,11 +237,11 @@ export function useDailyChallenge(date: string): UseDailyChallengeReturn {
       // DEBUG: Override shapes/colors for testing (uncomment as needed)
       return {
         ...base,
-        // shapes: [
-        //   { type: 'hook', name: SHAPE_NAMES['hook'], svg: '' },
-        //   { type: 'crescent', name: SHAPE_NAMES['crescent'], svg: '' },
-        //   // base.shapes[1],
-        // ],
+        shapes: [
+          { type: 'fin', name: SHAPE_NAMES['fin'], svg: '' },
+          { type: 'hourglass', name: SHAPE_NAMES['hourglass'], svg: '' },
+          // base.shapes[1],
+        ],
         // colors: ['hsl(270, 100%, 85%)', 'hsl(324, 100%, 44%)'],
       };
     })();
