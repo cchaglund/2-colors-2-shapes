@@ -17,7 +17,7 @@ interface ShapeIconProps {
  */
 export function ShapeIcon({ type, size = 24, fill = 'currentColor', stroke, strokeWidth }: ShapeIconProps) {
   const { element, props, viewBox } = getShapeSVGData(type, size);
-  const extraProps = { fill, ...(stroke ? { stroke, strokeWidth } : {}) };
+  const extraProps = { fill, ...(stroke ? { stroke, strokeWidth, vectorEffect: 'non-scaling-stroke' as const } : {}) };
 
   return (
     <svg width={size} height={size} viewBox={`0 0 ${viewBox.width} ${viewBox.height}`} overflow={stroke ? 'visible' : undefined}>

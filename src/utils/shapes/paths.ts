@@ -20,7 +20,6 @@ export function getBladePath(width: number, height: number): string {
 // Generate lens (vesica piscis) path
 export function getLensPath(width: number, height: number): string {
   // Lens shape - curves go through top/bottom center points
-  // Use two arcs per side to ensure the shape touches y=0 and y=height at center
   return `M 0,${height / 2} Q ${width * 0.25},0 ${width / 2},0 Q ${width * 0.75},0 ${width},${height / 2} Q ${width * 0.75},${height} ${width / 2},${height} Q ${width * 0.25},${height} 0,${height / 2} Z`;
 }
 
@@ -54,17 +53,9 @@ export function getFanPath(size: number): string {
   return `M 0,${size} Q 0,${size * 0.444} ${size * 0.444},${size * 0.111} L ${size},0 Q ${size * 0.556},${size * 0.444} ${size * 0.889},${size} Z`;
 }
 
-// Generate hook - curved hook shape
-export function getHookPath(size: number): string {
-  // Original x range: 0.3 to 1.0 (width 0.7), normalize to 0-1
-  // Transform: newX = (oldX - 0.3) / 0.7
-  return `M 0,0 L ${size * 0.286},0 Q ${size},0 ${size},${size * 0.4} Q ${size},${size * 0.7} ${size * 0.429},${size * 0.7} L ${size * 0.429},${size} L 0,${size} L 0,${size * 0.5} Q 0,${size * 0.2} ${size * 0.429},${size * 0.2} Q ${size * 0.643},${size * 0.2} ${size * 0.643},${size * 0.4} Q ${size * 0.643},${size * 0.5} ${size * 0.429},${size * 0.5} L 0,${size * 0.5} Z`;
-}
-
-// Outer-only outline for hook (no inner hole stroke)
-export function getHookOutlinePath(size: number): string {
-  return `M 0,0 L ${size * 0.286},0 Q ${size},0 ${size},${size * 0.4} Q ${size},${size * 0.7} ${size * 0.429},${size * 0.7} L ${size * 0.429},${size} L 0,${size} L 0,${size * 0.5} Z`;
-}
+// Hook — fixed Figma export (native viewBox: 275×287)
+export const HOOK_PATH = 'M137.07 0C212.278 0.000261999 273.348 60.5318 274.22 135.533H274.229V137.16C274.229 144.858 274.264 152.333 274.229 159.554V286.699H203.504V189.021C203.092 186.191 202.859 183.303 202.859 180.354C202.859 113.666 155.49 59.6055 97.0576 59.6055C53.6176 59.6056 16.2937 89.4845 0 132.217C2.60217 58.7551 62.9738 0 137.07 0Z';
+export const HOOK_NATIVE_VIEWBOX = { width: 275, height: 287 };
 
 // Generate wave - flowing wave shape
 export function getWavePath(width: number, height: number): string {
@@ -73,13 +64,9 @@ export function getWavePath(width: number, height: number): string {
   return `M 0,${height * 0.4} Q ${width * 0.125},0 ${width * 0.25},0 Q ${width * 0.375},0 ${width * 0.5},${height * 0.4} Q ${width * 0.625},${height * 0.8} ${width * 0.75},${height * 0.4} Q ${width * 0.875},0 ${width},${height * 0.4} L ${width},${height * 0.6} Q ${width * 0.875},${height} ${width * 0.75},${height} Q ${width * 0.625},${height} ${width * 0.5},${height * 0.6} Q ${width * 0.375},${height * 0.2} ${width * 0.25},${height * 0.6} Q ${width * 0.125},${height} 0,${height * 0.6} Z`;
 }
 
-// Generate crescent - moon crescent shape
-export function getCrescentPath(width: number, height: number): string {
-  // Crescent moon shape filling bounding box
-  // Outer curve passes through x=0 at middle, inner curve creates the crescent hollow
-  // Split into segments so outer curve actually touches the left edge
-  return `M ${width},0 Q ${width * 0.3},0 0,${height * 0.5} Q ${width * 0.3},${height} ${width},${height} Q ${width * 0.5},${height * 0.5} ${width},0 Z`;
-}
+// Crescent — fixed Figma export (native viewBox: 257×370)
+export const CRESCENT_PATH = 'M193.271 0C215.472 0 236.799 3.58478 256.655 10.1787C181.048 35.2868 126.77 104.055 126.77 184.958C126.77 265.861 181.048 334.628 256.655 359.736C236.799 366.33 215.472 369.916 193.271 369.916C86.5301 369.916 0 287.107 0 184.958C0 82.8086 86.5301 0.000126303 193.271 0Z';
+export const CRESCENT_NATIVE_VIEWBOX = { width: 257, height: 370 };
 
 // Generate pill - rounded rectangle (horizontal, fills bounding box)
 export function getPillPath(width: number, height: number): string {

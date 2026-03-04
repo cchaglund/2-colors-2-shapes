@@ -232,59 +232,19 @@ export function useDailyChallenge(date: string): UseDailyChallengeReturn {
     const fetchPromise = (async (): Promise<DailyChallenge> => {
       // Try direct DB read first (fast, ~100ms via PostgREST)
       const fromDB = await readChallengeFromDB(date);
-      if (fromDB) return fromDB;
+      const base = fromDB ?? await generateChallengeViaEdgeFunction(date);
 
-      // Not in DB — first visitor today. Call edge function to generate.
-      return generateChallengeViaEdgeFunction(date);
+      // DEBUG: Override shapes/colors for testing (uncomment as needed)
+      return {
+        ...base,
+        // shapes: [
+        //   { type: 'hook', name: SHAPE_NAMES['hook'], svg: '' },
+        //   { type: 'crescent', name: SHAPE_NAMES['crescent'], svg: '' },
+        //   // base.shapes[1],
+        // ],
+        // colors: ['hsl(270, 100%, 85%)', 'hsl(324, 100%, 44%)'],
+      };
     })();
-
-    // const fetchPromise = (async (): Promise<DailyChallenge> => {
-    //   const { data, error: fetchError } = await supabase.functions.invoke(
-    //     'get-daily-challenge',
-    //     {
-    //       body: { date },
-    //     }
-    //   );
-
-    //   if (fetchError) {
-    //     throw new Error(fetchError.message || 'Failed to fetch challenge');
-    //   }
-
-    //   // DEBUG: Override shapes with equilateral triangle and circle
-    //   // const debugShapes: [import('../types').ChallengeShapeData, import('../types').ChallengeShapeData] = [
-    //   //   {
-    //   //     type: 'triangle',
-    //   //     name: 'Triangle',
-    //   //     svg: 'M 50 6.699 L 93.301 81.699 L 6.699 81.699 Z',
-    //   //   },
-    //   //   {
-    //   //     type: 'circle',
-    //   //     name: 'Circle',
-    //   //     svg: 'M 50 0 A 50 50 0 1 1 50 100 A 50 50 0 1 1 50 0 Z',
-    //   //   },
-    //   // ];
-
-    //   // DEBUG: Override colors (uncomment to force specific colors)
-    //   // const debugColors = [
-    //   //   'hsl(270, 100%, 85%)',  // blue
-    //   //   'hsl(324, 100%, 44%)',  // red
-    //   //   'hsl(61, 52%, 67%)',   // yellow
-    //   // ];
-
-    //   const fetchedChallenge: DailyChallenge = {
-    //     date: data.date,
-    //     colors: data.colors,
-    //     // colors: debugColors,
-    //     shapes: data.shapes,
-    //     // shapes: debugShapes,
-    //     word: data.word,
-    //   };
-
-    //   // Cache the result (with persistence)
-    //   cacheChallenge(fetchedChallenge);
-    //   return fetchedChallenge;
-    // })();
-
 
     pendingRequests.set(date, fetchPromise);
 

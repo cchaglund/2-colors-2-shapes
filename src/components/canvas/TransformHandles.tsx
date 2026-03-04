@@ -158,11 +158,13 @@ export function TransformInteractionLayer({
   const rotateOffset = BASE_ROTATE_HANDLE_OFFSET * scale;
   const interactionRadius = BASE_INTERACTION_RADIUS * scale;
 
-  const { viewBox } = getShapeSVGData(shape.type, shape.size);
-  const resizeHandles = getResizeHandles(viewBox.width, viewBox.height);
-  const rotationHandle = getRotationHandle(viewBox.width, viewBox.height, rotateOffset);
-  const centerX = viewBox.width / 2;
-  const centerY = viewBox.height / 2;
+  const { viewBox, dimensions } = getShapeSVGData(shape.type, shape.size);
+  const renderW = dimensions?.width ?? viewBox.width;
+  const renderH = dimensions?.height ?? viewBox.height;
+  const resizeHandles = getResizeHandles(renderW, renderH);
+  const rotationHandle = getRotationHandle(renderW, renderH, rotateOffset);
+  const centerX = renderW / 2;
+  const centerY = renderH / 2;
   const transform = buildShapeTransform(shape, centerX, centerY);
 
   return (
@@ -171,8 +173,8 @@ export function TransformInteractionLayer({
       <rect
         x={0}
         y={0}
-        width={viewBox.width}
-        height={viewBox.height}
+        width={renderW}
+        height={renderH}
         fill="transparent"
         style={{ cursor: 'move', touchAction: 'none' }}
         onMouseDown={onMoveStart}
@@ -230,11 +232,13 @@ export function TransformVisualLayer({
   const strokeWidth = BASE_STROKE_WIDTH * scale;
   const dashStrokeWidth = BASE_DASH_STROKE_WIDTH * scale;
 
-  const { element, props, viewBox, outlineD } = getShapeSVGData(shape.type, shape.size);
-  const resizeHandles = getResizeHandles(viewBox.width, viewBox.height);
-  const rotationHandle = getRotationHandle(viewBox.width, viewBox.height, rotateOffset);
-  const centerX = viewBox.width / 2;
-  const centerY = viewBox.height / 2;
+  const { element, props, viewBox, outlineD, dimensions } = getShapeSVGData(shape.type, shape.size);
+  const renderW = dimensions?.width ?? viewBox.width;
+  const renderH = dimensions?.height ?? viewBox.height;
+  const resizeHandles = getResizeHandles(renderW, renderH);
+  const rotationHandle = getRotationHandle(renderW, renderH, rotateOffset);
+  const centerX = renderW / 2;
+  const centerY = renderH / 2;
   const transform = buildShapeTransform(shape, centerX, centerY);
 
   // Common props for the shape outline
@@ -243,9 +247,21 @@ export function TransformVisualLayer({
     ...(outlineD && { d: outlineD }),
     fill: 'none',
     stroke: 'var(--color-text-primary)',
-    strokeWidth: dashStrokeWidth,
-    strokeDasharray: `${5 * scale},${5 * scale}`,
+    strokeWidth: dimensions ? dashStrokeWidth * (viewBox.width / renderW) : dashStrokeWidth,
+    strokeDasharray: dimensions
+      ? `${5 * scale * (viewBox.width / renderW)},${5 * scale * (viewBox.width / renderW)}`
+      : `${5 * scale},${5 * scale}`,
   };
+
+  // For fixed-viewBox shapes, wrap outline in nested <svg> for coordinate scaling
+  const outlineElement = (
+    <>
+      {element === 'ellipse' && <ellipse {...outlineProps} />}
+      {element === 'rect' && <rect {...outlineProps} />}
+      {element === 'polygon' && <polygon {...outlineProps} />}
+      {element === 'path' && <path {...outlineProps} />}
+    </>
+  );
 
   return (
     <g transform={transform} style={{ pointerEvents: 'none' }}>
@@ -253,18 +269,26 @@ export function TransformVisualLayer({
       <rect
         x={0}
         y={0}
-        width={viewBox.width}
-        height={viewBox.height}
+        width={renderW}
+        height={renderH}
         fill="none"
         style={{ stroke: 'var(--sel-border)', strokeDasharray: 'var(--sel-dash)' }}
         strokeWidth={strokeWidth}
       />
 
       {/* Shape outline (dashed) — rendered after bounding box so it's visible on rect shapes */}
-      {element === 'ellipse' && <ellipse {...outlineProps} />}
-      {element === 'rect' && <rect {...outlineProps} />}
-      {element === 'polygon' && <polygon {...outlineProps} />}
-      {element === 'path' && <path {...outlineProps} />}
+      {dimensions ? (
+        <svg
+          x={0} y={0}
+          width={renderW} height={renderH}
+          viewBox={`0 0 ${viewBox.width} ${viewBox.height}`}
+          overflow="visible"
+        >
+          {outlineElement}
+        </svg>
+      ) : (
+        outlineElement
+      )}
 
       {/* Resize handles (8: corners + midpoints) */}
       {resizeHandles.map((handle) => (
@@ -320,11 +344,13 @@ export function MultiSelectTransformLayer({
   // For single shape, use the existing visual layer behavior
   if (isSingleShape) {
     const shape = shapes[0];
-    const { element, props, viewBox, outlineD } = getShapeSVGData(shape.type, shape.size);
-    const resizeHandles = getResizeHandles(viewBox.width, viewBox.height);
-    const rotationHandle = getRotationHandle(viewBox.width, viewBox.height, rotateOffset);
-    const centerX = viewBox.width / 2;
-    const centerY = viewBox.height / 2;
+    const { element, props, viewBox, outlineD, dimensions } = getShapeSVGData(shape.type, shape.size);
+    const renderW = dimensions?.width ?? viewBox.width;
+    const renderH = dimensions?.height ?? viewBox.height;
+    const resizeHandles = getResizeHandles(renderW, renderH);
+    const rotationHandle = getRotationHandle(renderW, renderH, rotateOffset);
+    const centerX = renderW / 2;
+    const centerY = renderH / 2;
     const transform = buildShapeTransform(shape, centerX, centerY);
 
     const outlineProps = {
@@ -332,9 +358,20 @@ export function MultiSelectTransformLayer({
       ...(outlineD && { d: outlineD }),
       fill: 'none',
       stroke: 'var(--color-text-primary)',
-      strokeWidth: dashStrokeWidth,
-      strokeDasharray: `${5 * scale},${5 * scale}`,
+      strokeWidth: dimensions ? dashStrokeWidth * (viewBox.width / renderW) : dashStrokeWidth,
+      strokeDasharray: dimensions
+        ? `${5 * scale * (viewBox.width / renderW)},${5 * scale * (viewBox.width / renderW)}`
+        : `${5 * scale},${5 * scale}`,
     };
+
+    const outlineElement = (
+      <>
+        {element === 'ellipse' && <ellipse {...outlineProps} />}
+        {element === 'rect' && <rect {...outlineProps} />}
+        {element === 'polygon' && <polygon {...outlineProps} />}
+        {element === 'path' && <path {...outlineProps} />}
+      </>
+    );
 
     return (
       <g transform={transform} style={{ pointerEvents: 'none' }}>
@@ -342,18 +379,26 @@ export function MultiSelectTransformLayer({
         <rect
           x={0}
           y={0}
-          width={viewBox.width}
-          height={viewBox.height}
+          width={renderW}
+          height={renderH}
           fill="none"
           style={{ stroke: 'var(--sel-border)', strokeDasharray: 'var(--sel-dash)' }}
           strokeWidth={strokeWidth}
         />
 
         {/* Shape outline (dashed) — rendered after bounding box so it's visible on rect shapes */}
-        {element === 'ellipse' && <ellipse {...outlineProps} />}
-        {element === 'rect' && <rect {...outlineProps} />}
-        {element === 'polygon' && <polygon {...outlineProps} />}
-        {element === 'path' && <path {...outlineProps} />}
+        {dimensions ? (
+          <svg
+            x={0} y={0}
+            width={renderW} height={renderH}
+            viewBox={`0 0 ${viewBox.width} ${viewBox.height}`}
+            overflow="visible"
+          >
+            {outlineElement}
+          </svg>
+        ) : (
+          outlineElement
+        )}
 
         {/* Resize handles (8: corners + midpoints) */}
         {resizeHandles.map((handle) => (
@@ -397,9 +442,11 @@ export function MultiSelectTransformLayer({
       {/* Individual shape outlines — shape-specific dashed outlines per-shape */}
       {showIndividualOutlines &&
         shapes.map((shape) => {
-          const { element, props, viewBox, outlineD } = getShapeSVGData(shape.type, shape.size);
-          const centerX = viewBox.width / 2;
-          const centerY = viewBox.height / 2;
+          const { element, props, viewBox, outlineD, dimensions } = getShapeSVGData(shape.type, shape.size);
+          const rW = dimensions?.width ?? viewBox.width;
+          const rH = dimensions?.height ?? viewBox.height;
+          const centerX = rW / 2;
+          const centerY = rH / 2;
           const transform = buildShapeTransform(shape, centerX, centerY);
 
           const outlineProps = {
@@ -407,17 +454,36 @@ export function MultiSelectTransformLayer({
             ...(outlineD && { d: outlineD }),
             fill: 'none',
             stroke: 'var(--color-text-primary)',
-            strokeWidth: dashStrokeWidth,
-            strokeDasharray: `${5 * scale},${5 * scale}`,
+            strokeWidth: dimensions ? dashStrokeWidth * (viewBox.width / rW) : dashStrokeWidth,
+            strokeDasharray: dimensions
+              ? `${5 * scale * (viewBox.width / rW)},${5 * scale * (viewBox.width / rW)}`
+              : `${5 * scale},${5 * scale}`,
             opacity: 0.8,
           };
 
-          return (
-            <g key={shape.id} transform={transform}>
+          const outlineEl = (
+            <>
               {element === 'ellipse' && <ellipse {...outlineProps} />}
               {element === 'rect' && <rect {...outlineProps} />}
               {element === 'polygon' && <polygon {...outlineProps} />}
               {element === 'path' && <path {...outlineProps} />}
+            </>
+          );
+
+          return (
+            <g key={shape.id} transform={transform}>
+              {dimensions ? (
+                <svg
+                  x={0} y={0}
+                  width={rW} height={rH}
+                  viewBox={`0 0 ${viewBox.width} ${viewBox.height}`}
+                  overflow="visible"
+                >
+                  {outlineEl}
+                </svg>
+              ) : (
+                outlineEl
+              )}
             </g>
           );
         })}
@@ -475,9 +541,11 @@ export function HoverHighlightLayer({ shapes, zoom = 1 }: { shapes: Shape[]; zoo
   return (
     <g style={{ pointerEvents: 'none' }}>
       {shapes.map((shape) => {
-        const { viewBox } = getShapeSVGData(shape.type, shape.size);
-        const centerX = viewBox.width / 2;
-        const centerY = viewBox.height / 2;
+        const { viewBox, dimensions } = getShapeSVGData(shape.type, shape.size);
+        const rW = dimensions?.width ?? viewBox.width;
+        const rH = dimensions?.height ?? viewBox.height;
+        const centerX = rW / 2;
+        const centerY = rH / 2;
         const transform = buildShapeTransform(shape, centerX, centerY);
 
         return (
@@ -485,8 +553,8 @@ export function HoverHighlightLayer({ shapes, zoom = 1 }: { shapes: Shape[]; zoo
             <rect
               x={0}
               y={0}
-              width={viewBox.width}
-              height={viewBox.height}
+              width={rW}
+              height={rH}
               fill="none"
               style={{ stroke: 'var(--color-accent)' }}
               strokeWidth={strokeWidth}

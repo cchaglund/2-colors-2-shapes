@@ -134,7 +134,7 @@ function circleIntersectsRect(center: Pt, r: number, rect: AABB): boolean {
  */
 export function shapeIntersectsRect(shape: Shape, rect: AABB): boolean {
   const svgData = getShapeSVGData(shape.type, shape.size);
-  const { width, height } = svgData.viewBox;
+  const { width, height } = svgData.dimensions ?? svgData.viewBox;
   const cx = width / 2;
   const cy = height / 2;
   const angleRad = (shape.rotation * Math.PI) / 180;

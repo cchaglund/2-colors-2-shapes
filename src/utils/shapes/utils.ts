@@ -24,10 +24,11 @@ import {
   getArchOutlinePath,
   getDropPath,
   getFanPath,
-  getHookPath,
-  getHookOutlinePath,
+  HOOK_PATH,
+  HOOK_NATIVE_VIEWBOX,
   getWavePath,
-  getCrescentPath,
+  CRESCENT_PATH,
+  CRESCENT_NATIVE_VIEWBOX,
   getPillPath,
   getFangPath,
   getClawPath,
@@ -72,9 +73,9 @@ export const SHAPE_ASPECT_RATIOS: Record<ShapeType, number> = {
   shard: 1,
   wedge: 1,
   fan: 1,
-  hook: 1,
+  hook: HOOK_NATIVE_VIEWBOX.width / HOOK_NATIVE_VIEWBOX.height, // match Figma export
   wave: 2, // wider than tall
-  crescent: 0.8, // taller than wide (thicker)
+  crescent: CRESCENT_NATIVE_VIEWBOX.width / CRESCENT_NATIVE_VIEWBOX.height, // match Figma export
   pill: 2.5, // wider than tall
   splinter: 1,
   chunk: 1,
@@ -294,9 +295,9 @@ export function getShapeSVGData(type: ShapeType, size: number) {
     case 'hook':
       return {
         element: 'path' as const,
-        props: { d: getHookPath(size) },
-        viewBox: { width, height },
-        outlineD: getHookOutlinePath(size),
+        props: { d: HOOK_PATH },
+        viewBox: HOOK_NATIVE_VIEWBOX,
+        dimensions: { width, height },
       };
 
     case 'wave':
@@ -309,8 +310,9 @@ export function getShapeSVGData(type: ShapeType, size: number) {
     case 'crescent':
       return {
         element: 'path' as const,
-        props: { d: getCrescentPath(width, height) },
-        viewBox: { width, height },
+        props: { d: CRESCENT_PATH },
+        viewBox: CRESCENT_NATIVE_VIEWBOX,
+        dimensions: { width, height },
       };
 
     case 'pill':

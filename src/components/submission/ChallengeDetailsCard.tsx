@@ -40,7 +40,7 @@ export function ChallengeDetailsCard({ challenge, submissionShapes }: ChallengeD
         <span className="text-xs text-(--color-text-tertiary) uppercase tracking-wide">Shapes</span>
         <div className="flex flex-wrap gap-2 mt-1.5">
           {challenge.shapes.map((shapeData, i) => {
-            const { element, props } = getShapeSVGData(shapeData.type, 28);
+            const { element, props, viewBox } = getShapeSVGData(shapeData.type, 28);
             const count = submissionShapes
               ? submissionShapes.filter(s => s.type === shapeData.type).length
               : undefined;
@@ -50,7 +50,7 @@ export function ChallengeDetailsCard({ challenge, submissionShapes }: ChallengeD
                 className="rounded-(--radius-md) p-1.5 flex items-center gap-1.5 bg-(--color-bg-tertiary)"
                 title={shapeData.name}
               >
-                <svg width={32} height={32} viewBox="0 0 28 28">
+                <svg width={32} height={32} viewBox={`0 0 ${viewBox.width} ${viewBox.height}`} preserveAspectRatio="xMidYMid meet">
                   {element === 'ellipse' && (
                     <ellipse {...props} fill="var(--color-text-primary)" />
                   )}

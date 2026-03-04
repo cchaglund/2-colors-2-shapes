@@ -405,6 +405,15 @@ src/
 └── main.tsx
 ```
 
+## Adding Shapes
+
+There are two ways to add shapes to the system:
+
+1. **Parameterized** — Write a function that generates SVG path data scaled to any size (e.g., `getDropPath(width, height)`). Best for simple geometric shapes.
+2. **Figma export** — Paste a fixed SVG path exported from Figma. The system scales it automatically via nested `<svg>` viewBox. Best for complex or designer-crafted shapes.
+
+See [docs/adding-shapes.md](docs/adding-shapes.md) for full instructions.
+
 ## How the Daily Challenge Works
 
 1. The current date (YYYY-MM-DD) is hashed to create a numeric seed

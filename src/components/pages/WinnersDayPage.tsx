@@ -257,14 +257,14 @@ export function WinnersDayPage({ date, themeMode, onSetThemeMode, themeName, onS
                   </span>
                   <div className="flex flex-wrap gap-2 mt-1">
                     {challenge.shapes.map((shapeData, i) => {
-                      const { element, props } = getShapeSVGData(shapeData.type, 32);
+                      const { element, props, viewBox } = getShapeSVGData(shapeData.type, 32);
                       return (
                         <div
                           key={i}
                           className="rounded-(--radius-md) p-1 flex items-center justify-center bg-(--color-bg-tertiary)"
                           title={shapeData.name}
                         >
-                          <svg width={40} height={40} viewBox="0 0 32 32">
+                          <svg width={40} height={40} viewBox={`0 0 ${viewBox.width} ${viewBox.height}`} preserveAspectRatio="xMidYMid meet">
                             {element === 'ellipse' && (
                               <ellipse {...props} fill="var(--color-text-primary)" />
                             )}
