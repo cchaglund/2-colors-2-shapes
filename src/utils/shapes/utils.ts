@@ -18,8 +18,10 @@ import {
   getArchPath,
   getArchOutlinePath,
   getWavePath,
-  HOOK_PATH,
-  HOOK_NATIVE_VIEWBOX,
+  getHookPath,
+  getHookOutlinePath,
+  CLAW_PATH,
+  CLAW_NATIVE_VIEWBOX,
   CRESCENT_PATH,
   CRESCENT_NATIVE_VIEWBOX,
   getPillPath,
@@ -64,7 +66,7 @@ export const SHAPE_ASPECT_RATIOS: Record<ShapeType, number> = {
   // Irregular abstract shapes
   wedge: 1,
   wave: 1,
-  hook: HOOK_NATIVE_VIEWBOX.width / HOOK_NATIVE_VIEWBOX.height, // match Figma export
+  hook: 1,
   crescent: CRESCENT_NATIVE_VIEWBOX.width / CRESCENT_NATIVE_VIEWBOX.height, // match Figma export
   pill: 2.5, // wider than tall
   splinter: 1,
@@ -78,6 +80,7 @@ export const SHAPE_ASPECT_RATIOS: Record<ShapeType, number> = {
   ridge: 1.3, // slightly wider
   bean: BEAN_NATIVE_VIEWBOX.width / BEAN_NATIVE_VIEWBOX.height, // match Figma export
   hourglass: HOURGLASS_NATIVE_VIEWBOX.width / HOURGLASS_NATIVE_VIEWBOX.height, // match Figma export
+  claw: CLAW_NATIVE_VIEWBOX.width / CLAW_NATIVE_VIEWBOX.height, // match Figma export
 };
 
 // Get SVG path/element data for each shape type
@@ -248,9 +251,9 @@ export function getShapeSVGData(type: ShapeType, size: number) {
     case 'hook':
       return {
         element: 'path' as const,
-        props: { d: HOOK_PATH },
-        viewBox: HOOK_NATIVE_VIEWBOX,
-        dimensions: { width, height },
+        props: { d: getHookPath(size) },
+        viewBox: { width, height },
+        outlineD: getHookOutlinePath(size),
       };
 
     case 'crescent':
@@ -342,6 +345,14 @@ export function getShapeSVGData(type: ShapeType, size: number) {
         dimensions: { width, height },
       };
 
+    case 'claw':
+      return {
+        element: 'path' as const,
+        props: { d: CLAW_PATH },
+        viewBox: CLAW_NATIVE_VIEWBOX,
+        dimensions: { width, height },
+      };
+
     default:
       return {
         element: 'rect' as const,
@@ -421,4 +432,5 @@ export const SHAPE_NAMES: Record<ShapeType, string> = {
   ridge: 'Ridge',
   bean: 'Bean',
   hourglass: 'Hourglass',
+  claw: 'Claw',
 };

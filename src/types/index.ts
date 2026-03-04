@@ -34,7 +34,8 @@ export type ShapeType =
   | 'scoop'
   | 'ridge'
   | 'bean'
-  | 'hourglass';
+  | 'hourglass'
+  | 'claw';
 
 export interface Shape {
   id: string;

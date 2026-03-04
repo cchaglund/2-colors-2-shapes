@@ -40,9 +40,21 @@ export function getWavePath(size: number): string {
   return `M 0,${size} Q 0,${size * 0.444} ${size * 0.444},${size * 0.111} L ${size},0 Q ${size * 0.556},${size * 0.444} ${size * 0.889},${size} Z`;
 }
 
-// Hook — fixed Figma export (native viewBox: 275×287)
-export const HOOK_PATH = 'M137.07 0C212.278 0.000261999 273.348 60.5318 274.22 135.533H274.229V137.16C274.229 144.858 274.264 152.333 274.229 159.554V286.699H203.504V189.021C203.092 186.191 202.859 183.303 202.859 180.354C202.859 113.666 155.49 59.6055 97.0576 59.6055C53.6176 59.6056 16.2937 89.4845 0 132.217C2.60217 58.7551 62.9738 0 137.07 0Z';
-export const HOOK_NATIVE_VIEWBOX = { width: 275, height: 287 };
+// Generate hook - curved hook shape
+export function getHookPath(size: number): string {
+  // Original x range: 0.3 to 1.0 (width 0.7), normalize to 0-1
+  // Transform: newX = (oldX - 0.3) / 0.7
+  return `M 0,0 L ${size * 0.286},0 Q ${size},0 ${size},${size * 0.4} Q ${size},${size * 0.7} ${size * 0.429},${size * 0.7} L ${size * 0.429},${size} L 0,${size} L 0,${size * 0.5} Q 0,${size * 0.2} ${size * 0.429},${size * 0.2} Q ${size * 0.643},${size * 0.2} ${size * 0.643},${size * 0.4} Q ${size * 0.643},${size * 0.5} ${size * 0.429},${size * 0.5} L 0,${size * 0.5} Z`;
+}
+
+// Outer-only outline for hook (no inner hole stroke)
+export function getHookOutlinePath(size: number): string {
+  return `M 0,0 L ${size * 0.286},0 Q ${size},0 ${size},${size * 0.4} Q ${size},${size * 0.7} ${size * 0.429},${size * 0.7} L ${size * 0.429},${size} L 0,${size} L 0,${size * 0.5} Z`;
+}
+
+// Claw — fixed Figma export (native viewBox: 275×287)
+export const CLAW_PATH = 'M137.07 0C212.278 0.000261999 273.348 60.5318 274.22 135.533H274.229V137.16C274.229 144.858 274.264 152.333 274.229 159.554V286.699H203.504V189.021C203.092 186.191 202.859 183.303 202.859 180.354C202.859 113.666 155.49 59.6055 97.0576 59.6055C53.6176 59.6056 16.2937 89.4845 0 132.217C2.60217 58.7551 62.9738 0 137.07 0Z';
+export const CLAW_NATIVE_VIEWBOX = { width: 275, height: 287 };
 
 // Crescent — fixed Figma export (native viewBox: 257×370)
 export const CRESCENT_PATH = 'M193.271 0C215.472 0 236.799 3.58478 256.655 10.1787C181.048 35.2868 126.77 104.055 126.77 184.958C126.77 265.861 181.048 334.628 256.655 359.736C236.799 366.33 215.472 369.916 193.271 369.916C86.5301 369.916 0 287.107 0 184.958C0 82.8086 86.5301 0.000126303 193.271 0Z';
