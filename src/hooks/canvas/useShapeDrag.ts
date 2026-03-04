@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { Shape } from '../../types';
 import type { DragState } from '../../types/canvas';
 
@@ -22,46 +22,61 @@ export function useShapeDrag({
 }: UseShapeDragOptions) {
   const [dragState, setDragState] = useState<DragState | null>(null);
 
+  // Keep latest values in refs to avoid effect re-registration on every render frame
+  const shapesRef = useRef(shapes);
+  shapesRef.current = shapes;
+  const getSVGPointRef = useRef(getSVGPoint);
+  getSVGPointRef.current = getSVGPoint;
+  const onUpdateShapeRef = useRef(onUpdateShape);
+  onUpdateShapeRef.current = onUpdateShape;
+  const onUpdateShapesRef = useRef(onUpdateShapes);
+  onUpdateShapesRef.current = onUpdateShapes;
+  const onCommitToHistoryRef = useRef(onCommitToHistory);
+  onCommitToHistoryRef.current = onCommitToHistory;
+  const dragStateRef = useRef(dragState);
+  dragStateRef.current = dragState;
+
   useEffect(() => {
     if (!dragState || dragState.mode === 'none') return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!dragState) return;
+      const ds = dragStateRef.current;
+      if (!ds) return;
 
-      const point = getSVGPoint(e.clientX, e.clientY);
+      const point = getSVGPointRef.current(e.clientX, e.clientY);
 
-      if (dragState.mode === 'move') {
-        const dx = point.x - dragState.startX;
-        const dy = point.y - dragState.startY;
+      if (ds.mode === 'move') {
+        const dx = point.x - ds.startX;
+        const dy = point.y - ds.startY;
 
         // Move all shapes in startPositions
-        if (dragState.startPositions && dragState.startPositions.size > 1) {
+        if (ds.startPositions && ds.startPositions.size > 1) {
           const updates = new Map<string, Partial<Shape>>();
-          dragState.startPositions.forEach((startPos, id) => {
+          ds.startPositions.forEach((startPos, id) => {
             updates.set(id, {
               x: startPos.x + dx,
               y: startPos.y + dy,
             });
           });
-          onUpdateShapes(updates, false);
+          onUpdateShapesRef.current(updates, false);
         } else {
           // Single shape move
-          onUpdateShape(dragState.shapeId, {
-            x: dragState.startShapeX + dx,
-            y: dragState.startShapeY + dy,
+          onUpdateShapeRef.current(ds.shapeId, {
+            x: ds.startShapeX + dx,
+            y: ds.startShapeY + dy,
           }, false);
         }
-      } else if (dragState.mode === 'resize') {
+      } else if (ds.mode === 'resize') {
         // Pure screen-space resize logic
         // We completely ignore rotation/flip - just use where the mouse actually is
 
         // Shape center in screen space
-        const centerX = dragState.startShapeX + dragState.startSize / 2;
-        const centerY = dragState.startShapeY + dragState.startSize / 2;
+        const centerX = ds.startShapeX + ds.startSize / 2;
+        const centerY = ds.startShapeY + ds.startSize / 2;
 
         // Where the drag started (the grabbed corner's screen position)
-        const grabX = dragState.startX;
-        const grabY = dragState.startY;
+        const grabX = ds.startX;
+        const grabY = ds.startY;
 
         // Direction from center to grabbed point (this is the "outward" direction)
         const outDirX = grabX - centerX;
@@ -78,8 +93,8 @@ export function useShapeDrag({
         const unitOutY = outDirY / outLen;
 
         // Mouse movement since drag start
-        const dx = point.x - dragState.startX;
-        const dy = point.y - dragState.startY;
+        const dx = point.x - ds.startX;
+        const dy = point.y - ds.startY;
 
         // Project mouse movement onto the outward direction
         // Positive = moving away from center = enlarge
@@ -94,13 +109,13 @@ export function useShapeDrag({
         const sizeDelta = projection * Math.SQRT2;
 
         // Multi-select resize
-        if (dragState.startShapeData && dragState.startBounds) {
-          const bounds = dragState.startBounds;
+        if (ds.startShapeData && ds.startBounds) {
+          const bounds = ds.startBounds;
           const maxDimension = Math.max(bounds.width, bounds.height);
           const scale = Math.max(0.1, (maxDimension + sizeDelta) / maxDimension);
 
           const updates = new Map<string, Partial<Shape>>();
-          dragState.startShapeData.forEach((startData, id) => {
+          ds.startShapeData.forEach((startData, id) => {
             const relX = startData.x - anchorX;
             const relY = startData.y - anchorY;
             const newX = anchorX + relX * scale;
@@ -109,13 +124,13 @@ export function useShapeDrag({
 
             updates.set(id, { x: newX, y: newY, size: newSize });
           });
-          onUpdateShapes(updates, false);
+          onUpdateShapesRef.current(updates, false);
         } else {
           // Single shape resize
-          const newSize = Math.max(20, dragState.startSize + sizeDelta);
+          const newSize = Math.max(20, ds.startSize + sizeDelta);
 
           // Keep anchor fixed, scale the center position relative to anchor
-          const ratio = newSize / dragState.startSize;
+          const ratio = newSize / ds.startSize;
           const newCenterX = anchorX + (centerX - anchorX) * ratio;
           const newCenterY = anchorY + (centerY - anchorY) * ratio;
 
@@ -123,22 +138,22 @@ export function useShapeDrag({
           const newX = newCenterX - newSize / 2;
           const newY = newCenterY - newSize / 2;
 
-          onUpdateShape(dragState.shapeId, {
+          onUpdateShapeRef.current(ds.shapeId, {
             size: newSize,
             x: newX,
             y: newY,
           }, false);
         }
-      } else if (dragState.mode === 'rotate') {
+      } else if (ds.mode === 'rotate') {
         // Multi-select rotate
-        if (dragState.startShapeData && dragState.startBounds) {
-          const bounds = dragState.startBounds;
+        if (ds.startShapeData && ds.startBounds) {
+          const bounds = ds.startBounds;
           const centerX = bounds.x + bounds.width / 2;
           const centerY = bounds.y + bounds.height / 2;
 
           const startAngle = Math.atan2(
-            dragState.startY - centerY,
-            dragState.startX - centerX
+            ds.startY - centerY,
+            ds.startX - centerX
           );
           const currentAngle = Math.atan2(point.y - centerY, point.x - centerX);
 
@@ -150,9 +165,9 @@ export function useShapeDrag({
           }
 
           const updates = new Map<string, Partial<Shape>>();
-          dragState.startShapeData.forEach((startData, id) => {
+          ds.startShapeData.forEach((startData, id) => {
             // Find the actual shape to check its flip state
-            const shape = shapes.find(s => s.id === id);
+            const shape = shapesRef.current.find(s => s.id === id);
             const shapeFlipX = shape?.flipX ?? false;
             const shapeFlipY = shape?.flipY ?? false;
 
@@ -183,79 +198,81 @@ export function useShapeDrag({
               rotation: startData.rotation + shapeRotationDelta,
             });
           });
-          onUpdateShapes(updates, false);
+          onUpdateShapesRef.current(updates, false);
         } else {
           // Single shape rotate
-          const draggedShape = shapes.find((s) => s.id === dragState.shapeId);
+          const draggedShape = shapesRef.current.find((s) => s.id === ds.shapeId);
           if (!draggedShape) return;
 
           const centerX = draggedShape.x + draggedShape.size / 2;
           const centerY = draggedShape.y + draggedShape.size / 2;
 
           const startAngle = Math.atan2(
-            dragState.startY - centerY,
-            dragState.startX - centerX
+            ds.startY - centerY,
+            ds.startX - centerX
           );
           const currentAngle = Math.atan2(point.y - centerY, point.x - centerX);
 
           // For single shape, mirrored shapes need inverted rotation to match visual drag direction
-          const flipInvertsRotation = (dragState.flipX ? 1 : 0) ^ (dragState.flipY ? 1 : 0);
+          const flipInvertsRotation = (ds.flipX ? 1 : 0) ^ (ds.flipY ? 1 : 0);
           const rotationMult = flipInvertsRotation ? -1 : 1;
 
           const angleDelta = ((currentAngle - startAngle) * 180) / Math.PI * rotationMult;
-          let newRotation = dragState.startRotation + angleDelta;
+          let newRotation = ds.startRotation + angleDelta;
 
           if (e.shiftKey) {
             newRotation = Math.round(newRotation / 15) * 15;
           }
 
-          onUpdateShape(dragState.shapeId, { rotation: newRotation }, false);
+          onUpdateShapeRef.current(ds.shapeId, { rotation: newRotation }, false);
         }
       }
     };
 
     const handleMouseUp = () => {
-      if (dragState) {
-        const label = dragState.mode === 'move' ? 'Move'
-          : dragState.mode === 'resize' ? 'Resize'
-          : dragState.mode === 'rotate' ? 'Rotate'
+      const ds = dragStateRef.current;
+      if (ds) {
+        const label = ds.mode === 'move' ? 'Move'
+          : ds.mode === 'resize' ? 'Resize'
+          : ds.mode === 'rotate' ? 'Rotate'
           : undefined;
-        onCommitToHistory(label);
+        onCommitToHistoryRef.current(label);
       }
       setDragState(null);
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      if (!dragState || e.touches.length !== 1) return;
+      const ds = dragStateRef.current;
+      if (!ds || e.touches.length !== 1) return;
       e.preventDefault();
 
       const touch = e.touches[0];
-      const point = getSVGPoint(touch.clientX, touch.clientY);
+      const point = getSVGPointRef.current(touch.clientX, touch.clientY);
 
-      if (dragState.mode === 'move') {
-        const dx = point.x - dragState.startX;
-        const dy = point.y - dragState.startY;
+      if (ds.mode === 'move') {
+        const dx = point.x - ds.startX;
+        const dy = point.y - ds.startY;
 
-        if (dragState.startPositions && dragState.startPositions.size > 1) {
+        if (ds.startPositions && ds.startPositions.size > 1) {
           const updates = new Map<string, Partial<Shape>>();
-          dragState.startPositions.forEach((startPos, id) => {
+          ds.startPositions.forEach((startPos, id) => {
             updates.set(id, {
               x: startPos.x + dx,
               y: startPos.y + dy,
             });
           });
-          onUpdateShapes(updates, false);
+          onUpdateShapesRef.current(updates, false);
         } else {
-          onUpdateShape(dragState.shapeId, {
-            x: dragState.startShapeX + dx,
-            y: dragState.startShapeY + dy,
+          onUpdateShapeRef.current(ds.shapeId, {
+            x: ds.startShapeX + dx,
+            y: ds.startShapeY + dy,
           }, false);
         }
-      } else if (dragState.mode === 'resize') {
-        const centerX = dragState.startShapeX + dragState.startSize / 2;
-        const centerY = dragState.startShapeY + dragState.startSize / 2;
-        const grabX = dragState.startX;
-        const grabY = dragState.startY;
+      } else if (ds.mode === 'resize') {
+        const centerX = ds.startShapeX + ds.startSize / 2;
+        const centerY = ds.startShapeY + ds.startSize / 2;
+        const grabX = ds.startX;
+        const grabY = ds.startY;
         const outDirX = grabX - centerX;
         const outDirY = grabY - centerY;
         const outLen = Math.sqrt(outDirX * outDirX + outDirY * outDirY);
@@ -264,20 +281,20 @@ export function useShapeDrag({
 
         const unitOutX = outDirX / outLen;
         const unitOutY = outDirY / outLen;
-        const dx = point.x - dragState.startX;
-        const dy = point.y - dragState.startY;
+        const dx = point.x - ds.startX;
+        const dy = point.y - ds.startY;
         const projection = dx * unitOutX + dy * unitOutY;
         const anchorX = centerX - outDirX;
         const anchorY = centerY - outDirY;
         const sizeDelta = projection * Math.SQRT2;
 
-        if (dragState.startShapeData && dragState.startBounds) {
-          const bounds = dragState.startBounds;
+        if (ds.startShapeData && ds.startBounds) {
+          const bounds = ds.startBounds;
           const maxDimension = Math.max(bounds.width, bounds.height);
           const scale = Math.max(0.1, (maxDimension + sizeDelta) / maxDimension);
 
           const updates = new Map<string, Partial<Shape>>();
-          dragState.startShapeData.forEach((startData, id) => {
+          ds.startShapeData.forEach((startData, id) => {
             const relX = startData.x - anchorX;
             const relY = startData.y - anchorY;
             const newX = anchorX + relX * scale;
@@ -285,29 +302,29 @@ export function useShapeDrag({
             const newSize = Math.max(20, startData.size * scale);
             updates.set(id, { x: newX, y: newY, size: newSize });
           });
-          onUpdateShapes(updates, false);
+          onUpdateShapesRef.current(updates, false);
         } else {
-          const newSize = Math.max(20, dragState.startSize + sizeDelta);
-          const ratio = newSize / dragState.startSize;
+          const newSize = Math.max(20, ds.startSize + sizeDelta);
+          const ratio = newSize / ds.startSize;
           const newCenterX = anchorX + (centerX - anchorX) * ratio;
           const newCenterY = anchorY + (centerY - anchorY) * ratio;
           const newX = newCenterX - newSize / 2;
           const newY = newCenterY - newSize / 2;
-          onUpdateShape(dragState.shapeId, { size: newSize, x: newX, y: newY }, false);
+          onUpdateShapeRef.current(ds.shapeId, { size: newSize, x: newX, y: newY }, false);
         }
-      } else if (dragState.mode === 'rotate') {
-        if (dragState.startShapeData && dragState.startBounds) {
-          const bounds = dragState.startBounds;
+      } else if (ds.mode === 'rotate') {
+        if (ds.startShapeData && ds.startBounds) {
+          const bounds = ds.startBounds;
           const centerX = bounds.x + bounds.width / 2;
           const centerY = bounds.y + bounds.height / 2;
 
-          const startAngle = Math.atan2(dragState.startY - centerY, dragState.startX - centerX);
+          const startAngle = Math.atan2(ds.startY - centerY, ds.startX - centerX);
           const currentAngle = Math.atan2(point.y - centerY, point.x - centerX);
           const angleDelta = ((currentAngle - startAngle) * 180) / Math.PI;
 
           const updates = new Map<string, Partial<Shape>>();
-          dragState.startShapeData.forEach((startData, id) => {
-            const shape = shapes.find(s => s.id === id);
+          ds.startShapeData.forEach((startData, id) => {
+            const shape = shapesRef.current.find(s => s.id === id);
             const shapeFlipX = shape?.flipX ?? false;
             const shapeFlipY = shape?.flipY ?? false;
 
@@ -336,35 +353,36 @@ export function useShapeDrag({
               rotation: startData.rotation + shapeRotationDelta,
             });
           });
-          onUpdateShapes(updates, false);
+          onUpdateShapesRef.current(updates, false);
         } else {
-          const draggedShape = shapes.find((s) => s.id === dragState.shapeId);
+          const draggedShape = shapesRef.current.find((s) => s.id === ds.shapeId);
           if (!draggedShape) return;
 
           const centerX = draggedShape.x + draggedShape.size / 2;
           const centerY = draggedShape.y + draggedShape.size / 2;
 
-          const startAngle = Math.atan2(dragState.startY - centerY, dragState.startX - centerX);
+          const startAngle = Math.atan2(ds.startY - centerY, ds.startX - centerX);
           const currentAngle = Math.atan2(point.y - centerY, point.x - centerX);
 
-          const flipInvertsRotation = (dragState.flipX ? 1 : 0) ^ (dragState.flipY ? 1 : 0);
+          const flipInvertsRotation = (ds.flipX ? 1 : 0) ^ (ds.flipY ? 1 : 0);
           const rotationMult = flipInvertsRotation ? -1 : 1;
 
           const angleDelta = ((currentAngle - startAngle) * 180) / Math.PI * rotationMult;
-          const newRotation = dragState.startRotation + angleDelta;
+          const newRotation = ds.startRotation + angleDelta;
 
-          onUpdateShape(dragState.shapeId, { rotation: newRotation }, false);
+          onUpdateShapeRef.current(ds.shapeId, { rotation: newRotation }, false);
         }
       }
     };
 
     const handleTouchEnd = () => {
-      if (dragState) {
-        const label = dragState.mode === 'move' ? 'Move'
-          : dragState.mode === 'resize' ? 'Resize'
-          : dragState.mode === 'rotate' ? 'Rotate'
+      const ds = dragStateRef.current;
+      if (ds) {
+        const label = ds.mode === 'move' ? 'Move'
+          : ds.mode === 'resize' ? 'Resize'
+          : ds.mode === 'rotate' ? 'Rotate'
           : undefined;
-        onCommitToHistory(label);
+        onCommitToHistoryRef.current(label);
       }
       setDragState(null);
     };
@@ -382,7 +400,9 @@ export function useShapeDrag({
       window.removeEventListener('touchend', handleTouchEnd);
       window.removeEventListener('touchcancel', handleTouchEnd);
     };
-  }, [dragState, shapes, getSVGPoint, onUpdateShape, onUpdateShapes, onCommitToHistory]);
+    // Only re-register listeners when a drag starts/stops, not on every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dragState]);
 
   return { dragState, setDragState };
 }

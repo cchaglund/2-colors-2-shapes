@@ -55,17 +55,21 @@ export function LikeButton({ submissionId, submissionUserId, initialLikeCount }:
         aria-label={isLiked ? 'Unlike submission' : 'Like submission'}
         aria-pressed={isLiked}
         className={`
-          inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-[13px] font-medium transition-colors
+          inline-flex items-center gap-1.5 px-4 py-2 rounded-(--radius-pill) text-sm font-medium transition-all
           ${showDisabledStyle
             ? 'cursor-not-allowed opacity-50'
             : 'cursor-pointer'
           }
           ${isLiked
-            ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20'
-            : 'bg-(--color-bg-tertiary) text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-hover)'
+            ? 'text-(--color-danger)'
+            : 'text-(--color-text-secondary) hover:text-(--color-text-primary)'
           }
           focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-1 focus:ring-offset-(--color-bg-primary)
         `}
+        style={{
+          background: isLiked ? 'transparent' : 'transparent',
+          border: 'var(--border-width, 2px) solid var(--color-border-light)',
+        }}
       >
         {/* Heart icon - filled when liked, outlined when not */}
         <svg
@@ -80,6 +84,7 @@ export function LikeButton({ submissionId, submissionUserId, initialLikeCount }:
         >
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
         </svg>
+        <span>{isLiked ? 'Liked' : 'Like'}</span>
         {displayCount !== null && (
           <span>{displayCount}</span>
         )}

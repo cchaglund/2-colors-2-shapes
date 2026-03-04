@@ -23,3 +23,7 @@ This project uses the REMOTE Supabase database, NOT local. If you need to intera
 ## Agent Browser/Visual Testing
 
 When testing things using the browser, it often helps to be logged in. Read how in agent-login.md.
+
+## Design Context
+
+See DESIGN.md for design context and guidelines.

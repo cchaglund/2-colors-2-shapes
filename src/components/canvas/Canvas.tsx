@@ -1,4 +1,5 @@
-import { useRef, useCallback, useMemo } from 'react';
+import { useRef, useState, useCallback, useMemo } from 'react';
+import { motion } from 'motion/react';
 import type { Shape, ShapeGroup, DailyChallenge, ViewportState } from '../../types';
 import { CANVAS_SIZE } from '../../types/canvas';
 import { getShapeDimensions } from '../../utils/shapes';
@@ -96,6 +97,24 @@ export function Canvas({
     return filtered;
   }, [visibleShapes, selectedShapeIds]);
 
+  // Track newly added shapes for entrance animation.
+  // First render seeds with all current IDs (no animation for loaded shapes).
+  // Subsequent renders detect new IDs (user-placed shapes → animate).
+  // Bulk loads (>3 new shapes, e.g. Supabase hydration) skip animation.
+  const knownShapeIdsRef = useRef<Set<string> | null>(null);
+  const newShapeIds: ReadonlySet<string> = (() => {
+    if (knownShapeIdsRef.current === null) {
+      knownShapeIdsRef.current = new Set(shapes.map(s => s.id));
+      return new Set<string>();
+    }
+    const added = new Set<string>();
+    for (const s of shapes) {
+      if (!knownShapeIdsRef.current.has(s.id)) added.add(s.id);
+    }
+    knownShapeIdsRef.current = new Set(shapes.map(s => s.id));
+    return added.size > 3 ? new Set<string>() : added;
+  })();
+
   // Use extracted hooks
   const { getSVGPoint, getClientPoint } = useCanvasCoordinates(svgRef);
 
@@ -128,7 +147,7 @@ export function Canvas({
     marqueeStartRef.current = startMarqueeAt;
   }
 
-  useWheelZoom(svgRef, onZoomAtPoint);
+  useWheelZoom(svgRef, onZoomAtPoint, onPan, viewport);
 
   useCanvasKeyboardShortcuts({
     selectedShapes,
@@ -173,6 +192,9 @@ export function Canvas({
     getSVGPoint,
     getClientPoint,
   });
+
+  // Track which transform handle is hovered for visual feedback (1.3x scale)
+  const [hoveredHandleId, setHoveredHandleId] = useState<string | null>(null);
 
   // Event handlers that need to set drag state
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
@@ -443,7 +465,7 @@ export function Canvas({
         width={CANVAS_SIZE}
         height={CANVAS_SIZE}
         viewBox={`${viewBoxX} ${viewBoxY} ${viewBoxSize} ${viewBoxSize}`}
-        className="border touch-none overflow-visible border-(--color-border)"
+        className="touch-none overflow-visible"
         style={{ cursor: marqueeState ? 'crosshair' : cursorStyle }}
         onMouseDown={handleCanvasMouseDown}
         onTouchStart={handleCanvasTouchStart}
@@ -459,25 +481,43 @@ export function Canvas({
           </clipPath>
         </defs>
 
-        {/* Canvas background rect (for when zoomed out) */}
+        {/* Canvas background rect — animated fill for smooth color transitions */}
+        <motion.rect
+          x={0}
+          y={0}
+          width={CANVAS_SIZE}
+          height={CANVAS_SIZE}
+          animate={{ fill: backgroundColor || 'var(--color-bg-elevated)' }}
+          transition={{ duration: 0.3 }}
+          onMouseDown={(e) => {
+            if (!isSpacePressed) startMarqueeAt(e.clientX, e.clientY);
+          }}
+        />
+
+        {/* Canvas boundary — moves with viewBox when panning (Figma-like) */}
         <rect
           x={0}
           y={0}
           width={CANVAS_SIZE}
           height={CANVAS_SIZE}
-          fill={backgroundColor || '#ffffff'}
-          onMouseDown={(e) => !isSpacePressed && startMarqueeAt(e.clientX, e.clientY)}
+          fill="none"
+          stroke="var(--color-border)"
+          strokeWidth={2 / viewport.zoom}
+          style={{ pointerEvents: 'none' }}
         />
 
         {/* Render shapes - optionally clipped to canvas bounds */}
         <g clipPath={showOffCanvas ? undefined : "url(#canvas-clip)"}>
           {sortedShapes.map((shape) => (
             <g key={shape.id}>
-              <g onMouseDown={(e) => !isSpacePressed && handleShapeMouseDown(e, shape.id)}>
+              <g onMouseDown={(e) => {
+                if (!isSpacePressed) handleShapeMouseDown(e, shape.id);
+              }}>
                 <ShapeElement
                   shape={shape}
                   color={challenge.colors[shape.colorIndex]}
                   isSelected={selectedShapeIds.has(shape.id)}
+                  animateEntrance={newShapeIds.has(shape.id)}
                 />
               </g>
             </g>
@@ -503,6 +543,7 @@ export function Canvas({
                 onMoveStart={handleMoveStart}
                 onResizeStart={handleResizeStart}
                 onRotateStart={handleRotateStart}
+                onHandleHover={setHoveredHandleId}
               />
             )}
           </g>
@@ -515,6 +556,7 @@ export function Canvas({
             bounds={selectionBounds!}
             zoom={viewport.zoom}
             showIndividualOutlines={true}
+            hoveredHandleId={hoveredHandleId}
           />
         )}
 
@@ -527,6 +569,7 @@ export function Canvas({
                 zoom={viewport.zoom}
                 onResizeStart={handleMultiResizeStart}
                 onRotateStart={handleMultiRotateStart}
+                onHandleHover={setHoveredHandleId}
               />
             )}
             <MultiSelectTransformLayer
@@ -534,6 +577,7 @@ export function Canvas({
               bounds={selectionBounds}
               zoom={viewport.zoom}
               showIndividualOutlines={true}
+              hoveredHandleId={hoveredHandleId}
             />
           </>
         )}
@@ -545,8 +589,7 @@ export function Canvas({
             y={Math.min(marqueeState.startY, marqueeState.currentY)}
             width={Math.abs(marqueeState.currentX - marqueeState.startX)}
             height={Math.abs(marqueeState.currentY - marqueeState.startY)}
-            fill="rgba(59, 130, 246, 0.1)"
-            stroke="rgba(59, 130, 246, 0.6)"
+            style={{ fill: 'var(--sel-hover-fill)', stroke: 'var(--sel-border)' }}
             strokeWidth={1 / viewport.zoom}
             strokeDasharray={`${4 / viewport.zoom} ${2 / viewport.zoom}`}
             pointerEvents="none"

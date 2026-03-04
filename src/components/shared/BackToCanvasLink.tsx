@@ -2,7 +2,7 @@ export function BackToCanvasLink() {
     return (
         <a
             href="/"
-            className="inline-flex items-center gap-1 text-sm hover:underline text-(--color-text-secondary) mb-4"
+            className="inline-flex items-center gap-1 text-base hover:underline text-(--color-text-secondary) mb-4"
         >
             <svg
                 width="16"
@@ -16,7 +16,7 @@ export function BackToCanvasLink() {
             >
                 <polyline points="15 18 9 12 15 6" />
             </svg>
-            Back to canvas
+            <span className="hidden md:inline">Back to canvas</span>
         </a>
     );
 };

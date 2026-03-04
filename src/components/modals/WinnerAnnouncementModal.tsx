@@ -2,6 +2,8 @@ import type { RankingEntry } from '../../types';
 import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
 import { WinnerCard } from '../submission/WinnerCard';
 import { Modal } from '../shared/Modal';
+import { Button } from '../shared/Button';
+import { LoadingSpinner } from '../shared/LoadingSpinner';
 
 interface WinnerAnnouncementModalProps {
   challengeDate: string;
@@ -36,10 +38,7 @@ export function WinnerAnnouncementModal({
   if (challengeLoading || !challenge) {
     return (
       <Modal onClose={onDismiss} closeOnBackdropClick={false} dataTestId="winner-announcement-modal">
-        <div className="text-center">
-          <div className="inline-block w-6 h-6 border-2 border-(--color-text-tertiary) border-t-transparent rounded-full animate-spin mb-3" />
-          <p className="text-[13px] text-(--color-text-secondary)">Loading...</p>
-        </div>
+        <LoadingSpinner message="Loading..." inline />
       </Modal>
     );
   }
@@ -47,12 +46,12 @@ export function WinnerAnnouncementModal({
   return (
     <Modal onClose={onDismiss} size="max-w-140" ariaLabelledBy="winner-title" dataTestId="winner-announcement-modal">
       <div className="text-center mb-5">
-        <h2 id="winner-title" className="text-lg font-semibold text-(--color-text-primary) mb-0.5">
+        <h2 id="winner-title" className="text-xl font-semibold text-(--color-text-primary) mb-0.5">
           Winners of {formatDate(challengeDate)}
         </h2>
-        <p className="text-[13px] text-(--color-text-secondary)">Word of the day was "{challenge.word}"</p>
+        <p className="text-sm text-(--color-text-secondary)">Word of the day was "{challenge.word}"</p>
         {winners.length > 1 && (
-          <p className="text-[11px] text-(--color-text-tertiary) mt-0.5">
+          <p className="text-xs text-(--color-text-tertiary) mt-0.5">
             {winners.length === 3 ? 'Three-way tie!' : winners.length === 2 ? 'Tie for 1st place!' : ''}
           </p>
         )}
@@ -99,12 +98,9 @@ export function WinnerAnnouncementModal({
         </div>
       ) : null}
 
-      <button
-        onClick={onDismiss}
-        className="w-full px-4 py-2 bg-(--color-accent) text-white text-[13px] rounded-md font-medium hover:bg-(--color-accent-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2"
-      >
+      <Button variant="primary" size="md" fullWidth onClick={onDismiss}>
         Awesome!
-      </button>
+      </Button>
     </Modal>
   );
 }

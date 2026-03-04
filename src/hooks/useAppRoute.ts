@@ -12,7 +12,7 @@ import {
   getGalleryView,
 } from '../utils/urlParams';
 
-// Routes that render standalone pages (no challenge data needed)
+// Routes that render standalone pages (fetch their own data)
 type StandaloneRoute =
   | { type: 'explorer' }
   | { type: 'voting-test' }
@@ -21,13 +21,13 @@ type StandaloneRoute =
   | { type: 'color-tester' }
   | { type: 'gallery'; tab?: string; year?: number; month?: number; date?: string }
   | { type: 'wall-of-the-day'; date: string }
-  | { type: 'profile'; userId: string };
-
-// Routes that need challenge data loaded first
-type ChallengeRoute =
+  | { type: 'profile'; userId: string }
   | { type: 'winners-day'; date: string }
   | { type: 'submission-by-id'; id: string }
-  | { type: 'submission-by-date'; date: string }
+  | { type: 'submission-by-date'; date: string };
+
+// Routes that need today's challenge data loaded first
+type ChallengeRoute =
   | { type: 'canvas' };
 
 export type AppRoute = StandaloneRoute | ChallengeRoute;
@@ -64,14 +64,5 @@ export function useAppRoute(): AppRoute {
 
 /** Check if a route needs challenge data before rendering */
 export function isStandaloneRoute(route: AppRoute): route is StandaloneRoute {
-  return (
-    route.type === 'explorer' ||
-    route.type === 'voting-test' ||
-    route.type === 'social-test' ||
-    route.type === 'dashboard' ||
-    route.type === 'color-tester' ||
-    route.type === 'gallery' ||
-    route.type === 'wall-of-the-day' ||
-    route.type === 'profile'
-  );
+  return route.type !== 'canvas';
 }

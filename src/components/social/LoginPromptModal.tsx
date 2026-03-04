@@ -1,5 +1,6 @@
 import { useAuth } from '../../hooks/auth/useAuth';
 import { Modal } from '../shared/Modal';
+import { Button } from '../shared/Button';
 
 interface LoginPromptModalProps {
   onClose: () => void;
@@ -30,18 +31,15 @@ export function LoginPromptModal({
     >
       <h3
         id="login-prompt-title"
-        className="m-0 mb-5 text-lg font-semibold text-(--color-text-primary)"
+        className="m-0 mb-5 text-xl font-semibold text-(--color-text-primary)"
       >
         {title}
       </h3>
-      <p className="m-0 mb-7 text-[15px] text-(--color-text-secondary)">
+      <p className="m-0 mb-7 text-lg text-(--color-text-secondary)">
         {message}
       </p>
-      <div className="flex flex-col gap-3">
-        <button
-          onClick={handleLogin}
-          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-md cursor-pointer text-[13px] font-medium transition-colors bg-(--color-accent) text-white border-none hover:bg-(--color-accent-hover)"
-        >
+      <div className="flex flex-col items-center gap-3">
+        <Button variant="primary" size="md" fullWidth onClick={handleLogin} className="gap-2">
           <svg className="w-4 h-4" viewBox="0 0 24 24">
             <path
               fill="currentColor"
@@ -61,13 +59,10 @@ export function LoginPromptModal({
             />
           </svg>
           Sign in with Google
-        </button>
-        <button
-          className="px-5 py-2 rounded-md cursor-pointer text-[13px] font-medium transition-colors bg-transparent text-(--color-text-secondary) border border-(--color-border) hover:bg-(--color-hover)"
-          onClick={onClose}
-        >
+        </Button>
+        <Button variant="link" onClick={onClose}>
           Cancel
-        </button>
+        </Button>
       </div>
     </Modal>
   );

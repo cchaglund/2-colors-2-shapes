@@ -10,17 +10,9 @@ export function getQuarterCirclePath(size: number): string {
   return `M 0,0 L ${size},0 A ${size},${size} 0 0 1 0,${size} L 0,0 Z`;
 }
 
-// Generate blade/leaf path (curved asymmetric shape)
-export function getBladePath(width: number, height: number): string {
-  // Blade/leaf shape - elliptical with pointed ends, filling bounding box
-  // Control points at edges make the curves bulge to touch the left/right edges
-  return `M ${width / 2},0 Q ${width},${height * 0.25} ${width},${height / 2} Q ${width},${height * 0.75} ${width / 2},${height} Q 0,${height * 0.75} 0,${height / 2} Q 0,${height * 0.25} ${width / 2},0 Z`;
-}
-
 // Generate lens (vesica piscis) path
 export function getLensPath(width: number, height: number): string {
   // Lens shape - curves go through top/bottom center points
-  // Use two arcs per side to ensure the shape touches y=0 and y=height at center
   return `M 0,${height / 2} Q ${width * 0.25},0 ${width / 2},0 Q ${width * 0.75},0 ${width},${height / 2} Q ${width * 0.75},${height} ${width / 2},${height} Q ${width * 0.25},${height} 0,${height / 2} Z`;
 }
 
@@ -41,45 +33,20 @@ export function getArchOutlinePath(size: number): string {
   return `M 0,${size} L 0,0 A ${outerRadius},${outerRadius * 0.6} 0 0 1 ${size},0 L ${size},${size} Z`;
 }
 
-// Generate teardrop/drop path (smooth curve using cubic bezier)
-export function getDropPath(width: number, height: number): string {
-  // Drop/leaf shape - pointed ends with curves touching left/right edges
-  return `M ${width / 2},0 Q ${width},${height * 0.25} ${width},${height / 2} Q ${width},${height * 0.75} ${width / 2},${height} Q 0,${height * 0.75} 0,${height / 2} Q 0,${height * 0.25} ${width / 2},0 Z`;
-}
-
-// Generate fan - spread-out curved shape
-export function getFanPath(size: number): string {
+// Generate wave - spread-out curved shape
+export function getWavePath(size: number): string {
   // Original went from x: 0.1 to 1.0, y: 0 to 1.0
   // Normalize to fill 0-size: scale x by 1/0.9, offset by -0.1/0.9
   return `M 0,${size} Q 0,${size * 0.444} ${size * 0.444},${size * 0.111} L ${size},0 Q ${size * 0.556},${size * 0.444} ${size * 0.889},${size} Z`;
 }
 
-// Generate hook - curved hook shape
-export function getHookPath(size: number): string {
-  // Original x range: 0.3 to 1.0 (width 0.7), normalize to 0-1
-  // Transform: newX = (oldX - 0.3) / 0.7
-  return `M 0,0 L ${size * 0.286},0 Q ${size},0 ${size},${size * 0.4} Q ${size},${size * 0.7} ${size * 0.429},${size * 0.7} L ${size * 0.429},${size} L 0,${size} L 0,${size * 0.5} Q 0,${size * 0.2} ${size * 0.429},${size * 0.2} Q ${size * 0.643},${size * 0.2} ${size * 0.643},${size * 0.4} Q ${size * 0.643},${size * 0.5} ${size * 0.429},${size * 0.5} L 0,${size * 0.5} Z`;
-}
+// Hook — fixed Figma export (native viewBox: 275×287)
+export const HOOK_PATH = 'M137.07 0C212.278 0.000261999 273.348 60.5318 274.22 135.533H274.229V137.16C274.229 144.858 274.264 152.333 274.229 159.554V286.699H203.504V189.021C203.092 186.191 202.859 183.303 202.859 180.354C202.859 113.666 155.49 59.6055 97.0576 59.6055C53.6176 59.6056 16.2937 89.4845 0 132.217C2.60217 58.7551 62.9738 0 137.07 0Z';
+export const HOOK_NATIVE_VIEWBOX = { width: 275, height: 287 };
 
-// Outer-only outline for hook (no inner hole stroke)
-export function getHookOutlinePath(size: number): string {
-  return `M 0,0 L ${size * 0.286},0 Q ${size},0 ${size},${size * 0.4} Q ${size},${size * 0.7} ${size * 0.429},${size * 0.7} L ${size * 0.429},${size} L 0,${size} L 0,${size * 0.5} Z`;
-}
-
-// Generate wave - flowing wave shape
-export function getWavePath(width: number, height: number): string {
-  // Wave shape - top edge passes through y=0 at 25%, bottom edge passes through y=height at 75%
-  // Split curves to go through the actual edge points
-  return `M 0,${height * 0.4} Q ${width * 0.125},0 ${width * 0.25},0 Q ${width * 0.375},0 ${width * 0.5},${height * 0.4} Q ${width * 0.625},${height * 0.8} ${width * 0.75},${height * 0.4} Q ${width * 0.875},0 ${width},${height * 0.4} L ${width},${height * 0.6} Q ${width * 0.875},${height} ${width * 0.75},${height} Q ${width * 0.625},${height} ${width * 0.5},${height * 0.6} Q ${width * 0.375},${height * 0.2} ${width * 0.25},${height * 0.6} Q ${width * 0.125},${height} 0,${height * 0.6} Z`;
-}
-
-// Generate crescent - moon crescent shape
-export function getCrescentPath(width: number, height: number): string {
-  // Crescent moon shape filling bounding box
-  // Outer curve passes through x=0 at middle, inner curve creates the crescent hollow
-  // Split into segments so outer curve actually touches the left edge
-  return `M ${width},0 Q ${width * 0.3},0 0,${height * 0.5} Q ${width * 0.3},${height} ${width},${height} Q ${width * 0.5},${height * 0.5} ${width},0 Z`;
-}
+// Crescent — fixed Figma export (native viewBox: 257×370)
+export const CRESCENT_PATH = 'M193.271 0C215.472 0 236.799 3.58478 256.655 10.1787C181.048 35.2868 126.77 104.055 126.77 184.958C126.77 265.861 181.048 334.628 256.655 359.736C236.799 366.33 215.472 369.916 193.271 369.916C86.5301 369.916 0 287.107 0 184.958C0 82.8086 86.5301 0.000126303 193.271 0Z';
+export const CRESCENT_NATIVE_VIEWBOX = { width: 257, height: 370 };
 
 // Generate pill - rounded rectangle (horizontal, fills bounding box)
 export function getPillPath(width: number, height: number): string {
@@ -94,30 +61,15 @@ export function getFangPath(width: number, height: number): string {
   return `M 0,0 L ${width},0 L ${width * 0.5},${height} Q 0,${height * 0.5} 0,0 Z`;
 }
 
-// Generate claw - curved talon/hook shape
-export function getClawPath(width: number, height: number): string {
-  // Claw shape: curved talon pointing up-right, thick base at bottom-left
-  // Outer edge curves from bottom-left up to pointed tip at top-right
-  // Inner edge creates the hook/claw thickness
-  return `M 0,${height} L 0,${height * 0.7} Q 0,${height * 0.3} ${width * 0.3},${height * 0.15} Q ${width * 0.6},0 ${width},0 L ${width * 0.7},${height * 0.2} Q ${width * 0.4},${height * 0.25} ${width * 0.25},${height * 0.5} Q ${width * 0.15},${height * 0.7} ${width * 0.4},${height} Z`;
-}
+// Fin — fixed Figma export (native viewBox: 274×244)
+export const FIN_PATH = 'M186.725 0C117.159 133.857 92.5364 185.632 273.411 243.262C273.411 243.262 138.004 243.262 38.2243 243.262C-61.555 243.262 50.2871 66.8368 186.725 0Z';
+export const FIN_NATIVE_VIEWBOX = { width: 274, height: 244 };
 
-// Generate fin - angular with one curved edge
-export function getFinPath(size: number): string {
-  // Fin shape normalized to fill bounding box
-  return `M 0,${size} L ${size * 0.35},${size * 0.7} L ${size * 0.25},${size * 0.2} L ${size},0 Q ${size},${size * 0.5} ${size * 0.85},${size} Z`;
-}
-
-// Generate thorn - sharp point with curved sides
-export function getThornPath(size: number): string {
+// Generate keyhole - sharp point with curved sides
+export function getKeyholePath(size: number): string {
   // Original x range: 0.1 to 0.9 (width 0.8), normalize to 0-1
   // Transform: newX = (oldX - 0.1) / 0.8
   return `M ${size * 0.5},0 Q ${size * 0.875},${size * 0.3} ${size * 0.75},${size * 0.6} L ${size},${size} L 0,${size} L ${size * 0.25},${size * 0.6} Q ${size * 0.125},${size * 0.3} ${size * 0.5},0 Z`;
-}
-
-// Generate slant - parallelogram with one curved side
-export function getSlantPath(size: number): string {
-  return `M ${size * 0.3},0 L ${size},0 L ${size * 0.7},${size} L 0,${size} Q ${size * 0.1},${size * 0.5} ${size * 0.3},0 Z`;
 }
 
 // Generate notch - angular shape with curved indent
@@ -127,16 +79,9 @@ export function getNotchPath(size: number): string {
   return `M 0,0 L ${size},0 L ${size},${size} Q ${size * 0.5},${size * 0.667} 0,${size} L 0,0 Z`;
 }
 
-// Generate spike - tall narrow with curved base
-export function getSpikePath(width: number, height: number): string {
-  // Spike/teardrop shape - pointed top, rounded bottom filling bounding box
-  return `M ${width / 2},0 L ${width},${height * 0.55} Q ${width},${height} ${width / 2},${height} Q 0,${height} 0,${height * 0.55} L ${width / 2},0 Z`;
-}
-
-// Generate bulge - angular corners with curved middle
-export function getBulgePath(size: number): string {
-  return `M ${size * 0.2},0 L ${size * 0.8},0 L ${size},${size * 0.3} Q ${size * 0.9},${size * 0.7} ${size * 0.7},${size} L ${size * 0.3},${size} Q ${size * 0.1},${size * 0.7} 0,${size * 0.3} L ${size * 0.2},0 Z`;
-}
+// Drop — fixed Figma export (native viewBox: 182×246)
+export const DROP_PATH = 'M144.477 82.706C160.762 112.291 181.636 141.012 181.636 174.239C181.636 269.673 0.000408136 269.673 0 174.239C0 115.623 59.5608 50.338 90.8178 0L144.477 82.706Z';
+export const DROP_NATIVE_VIEWBOX = { width: 182, height: 246 };
 
 // Generate scoop - angular top with curved bottom
 export function getScoopPath(width: number, height: number): string {
@@ -144,6 +89,14 @@ export function getScoopPath(width: number, height: number): string {
   // Split the bottom curve so it actually touches y=height
   return `M 0,${height * 0.1} L ${width * 0.3},0 L ${width * 0.7},0 L ${width},${height * 0.1} L ${width},${height * 0.3} Q ${width * 0.75},${height} ${width / 2},${height} Q ${width * 0.25},${height} 0,${height * 0.3} L 0,${height * 0.1} Z`;
 }
+
+// Bean — fixed Figma export (native viewBox: 236×116)
+export const BEAN_PATH = 'M235.312 20.9408C235.312 73.2428 182.635 115.642 117.656 115.642C52.6763 115.642 0 73.2428 0 20.9408C0 -31.3612 52.6763 30.7885 117.656 30.7885C182.635 30.7885 235.312 -31.3612 235.312 20.9408Z';
+export const BEAN_NATIVE_VIEWBOX = { width: 236, height: 116 };
+
+// Hourglass — fixed Figma export (native viewBox: 319×343)
+export const HOURGLASS_PATH = 'M9.39819 28.7236C0.587619 16.8456 9.06627 0 23.8552 0H295.153C309.942 0 318.421 16.8456 309.61 28.7236L231.62 133.866C227.485 139.441 226.924 146.897 230.178 153.028L316.883 316.385C323.246 328.374 314.557 342.824 300.984 342.824H18.0245C4.45174 342.824 -4.23797 328.374 2.12529 316.385L88.8304 153.028C92.0847 146.897 91.5235 139.441 87.3882 133.866L9.39819 28.7236Z';
+export const HOURGLASS_NATIVE_VIEWBOX = { width: 319, height: 343 };
 
 // Generate ridge - zigzag top with curved bottom
 export function getRidgePath(width: number, height: number): string {

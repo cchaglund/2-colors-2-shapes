@@ -1,9 +1,10 @@
 import { useEffect, useRef, useCallback } from 'react';
-import confetti from 'canvas-confetti';
 import type { RankingEntry } from '../../types';
 import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
 import { WinnerCard } from '../submission/WinnerCard';
 import { Modal } from '../shared/Modal';
+import { Button } from '../shared/Button';
+import { LoadingSpinner } from '../shared/LoadingSpinner';
 
 const CONFETTI_DURATION_MS = 6_000;
 const CONFETTI_INTERVAL_MS = 300;
@@ -34,7 +35,7 @@ export function CongratulatoryModal({
   const { challenge, loading: challengeLoading } = useDailyChallenge(challengeDate);
 
   // Confetti refs and dismiss handler
-  const confettiInstance = useRef<confetti.CreateTypes | null>(null);
+  const confettiInstance = useRef<{ reset: () => void } | null>(null);
   const stopConfetti = useCallback(() => {
     confettiInstance.current?.reset();
     confettiInstance.current = null;
@@ -50,28 +51,33 @@ export function CongratulatoryModal({
     if (challengeLoading) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const instance = confetti.create(undefined, { resize: true });
-    confettiInstance.current = instance;
+    let interval: ReturnType<typeof setInterval>;
+    let timeout: ReturnType<typeof setTimeout>;
 
-    const fireConfetti = () => {
-      instance({
-        particleCount: 30,
-        spread: 70,
-        origin: { x: Math.random(), y: Math.random() * 0.4 },
-        zIndex: 100,
-      });
-    };
+    import('canvas-confetti').then(({ default: confetti }) => {
+      const instance = confetti.create(undefined, { resize: true });
+      confettiInstance.current = instance;
 
-    fireConfetti();
-    const interval = setInterval(fireConfetti, CONFETTI_INTERVAL_MS);
-    const timeout = setTimeout(() => {
-      clearInterval(interval);
-    }, CONFETTI_DURATION_MS);
+      const fireConfetti = () => {
+        instance({
+          particleCount: 30,
+          spread: 70,
+          origin: { x: Math.random(), y: Math.random() * 0.4 },
+          zIndex: 100,
+        });
+      };
+
+      fireConfetti();
+      interval = setInterval(fireConfetti, CONFETTI_INTERVAL_MS);
+      timeout = setTimeout(() => {
+        clearInterval(interval);
+      }, CONFETTI_DURATION_MS);
+    });
 
     return () => {
       clearInterval(interval);
       clearTimeout(timeout);
-      instance.reset();
+      confettiInstance.current?.reset();
       confettiInstance.current = null;
     };
   }, [challengeLoading]);
@@ -80,10 +86,7 @@ export function CongratulatoryModal({
   if (challengeLoading || !challenge) {
     return (
       <Modal onClose={handleDismiss} closeOnBackdropClick={false} dataTestId="congratulatory-modal">
-        <div className="text-center">
-          <div className="inline-block w-6 h-6 border-2 border-(--color-text-tertiary) border-t-transparent rounded-full animate-spin mb-3" />
-          <p className="text-[13px] text-(--color-text-secondary)">Loading...</p>
-        </div>
+        <LoadingSpinner message="Loading..." inline />
       </Modal>
     );
   }
@@ -94,10 +97,10 @@ export function CongratulatoryModal({
   return (
     <Modal onClose={handleDismiss} ariaLabelledBy="congrats-title" dataTestId="congratulatory-modal">
       <div className="text-center mb-5">
-        <h2 id="congrats-title" className="text-lg font-semibold text-(--color-text-primary) mb-0.5">
+        <h2 id="congrats-title" className="text-xl font-semibold text-(--color-text-primary) mb-0.5">
           {heading}
         </h2>
-        <p className="text-[13px] text-(--color-text-secondary)">{subtext}</p>
+        <p className="text-sm text-(--color-text-secondary)">{subtext}</p>
       </div>
 
       <div className="flex justify-center mb-5">
@@ -108,12 +111,9 @@ export function CongratulatoryModal({
         />
       </div>
 
-      <button
-        onClick={handleDismiss}
-        className="w-full px-4 py-2 bg-(--color-accent) text-white text-[13px] rounded-md font-medium hover:bg-(--color-accent-hover) transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2"
-      >
+      <Button variant="primary" size="md" fullWidth onClick={handleDismiss}>
         Yay!
-      </button>
+      </Button>
     </Modal>
   );
 }

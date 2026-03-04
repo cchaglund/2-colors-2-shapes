@@ -7,6 +7,9 @@ interface ZoomControlsProps {
   maxZoom: number;
 }
 
+const btnBase =
+  'h-[30px] flex items-center justify-center font-semibold text-xs transition-colors cursor-pointer disabled:opacity-35 disabled:cursor-default';
+
 export function ZoomControls({
   zoom,
   onZoomIn,
@@ -20,23 +23,30 @@ export function ZoomControls({
   const canZoomOut = zoom > minZoom + 0.001;
   const isDefaultZoom = Math.abs(zoom - 1) < 0.001;
 
+  const btnStyle = {
+    background: 'var(--color-card-bg)',
+    border: 'var(--border-width, 2px) solid var(--color-border)',
+    borderRadius: 'var(--radius-md)',
+    boxShadow: 'var(--shadow-btn)',
+    color: 'var(--color-text-primary)',
+    fontFamily: 'inherit',
+  };
+
   return (
-    <div className="flex items-center gap-1 backdrop-blur-sm rounded-lg shadow-md px-2 py-1 bg-(--color-overlay) border border-(--color-border)">
+    <div className="flex items-center gap-1">
       <button
-        className="w-7 h-7 flex items-center justify-center rounded disabled:opacity-40 disabled:cursor-not-allowed font-medium text-(--color-text-primary) hover:enabled:bg-(--color-hover) transition-colors"
-        onClick={onZoomOut}
-        disabled={!canZoomOut}
-        title="Zoom out"
+        className={btnBase}
+        style={{ ...btnStyle, padding: '0 8px' }}
+        onClick={onZoomIn}
+        disabled={!canZoomIn}
+        title="Zoom in"
       >
-        −
+        +
       </button>
 
       <button
-        className={`min-w-14 h-7 px-2 flex items-center justify-center rounded text-sm font-medium transition-colors ${
-          isDefaultZoom
-            ? 'cursor-default text-(--color-text-tertiary)'
-            : 'cursor-pointer text-(--color-accent) hover:bg-(--color-accent)/10'
-        }`}
+        className={btnBase}
+        style={{ ...btnStyle, padding: '0 10px', cursor: isDefaultZoom ? 'default' : 'pointer' }}
         onClick={onResetZoom}
         disabled={isDefaultZoom}
         title="Reset zoom to 100%"
@@ -45,12 +55,23 @@ export function ZoomControls({
       </button>
 
       <button
-        className="w-7 h-7 flex items-center justify-center rounded disabled:opacity-40 disabled:cursor-not-allowed font-medium text-(--color-text-primary) hover:enabled:bg-(--color-hover) transition-colors"
-        onClick={onZoomIn}
-        disabled={!canZoomIn}
-        title="Zoom in"
+        className={btnBase}
+        style={{ ...btnStyle, padding: '0 8px' }}
+        onClick={onZoomOut}
+        disabled={!canZoomOut}
+        title="Zoom out"
       >
-        +
+        −
+      </button>
+
+      <button
+        className={btnBase}
+        style={{ ...btnStyle, padding: '0 8px' }}
+        onClick={onResetZoom}
+        disabled={isDefaultZoom}
+        title="Reset zoom to 100%"
+      >
+        1:1
       </button>
     </div>
   );

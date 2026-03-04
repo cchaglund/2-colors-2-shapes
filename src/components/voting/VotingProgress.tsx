@@ -8,7 +8,7 @@ export function VotingProgress({ voteCount, requiredVotes }: VotingProgressProps
     <div className="w-full">
       <div className="flex justify-end mb-2">
         <div className="text-right">
-          <div className="text-sm font-medium text-(--color-text-primary)">
+          <div className="text-base font-medium text-(--color-text-primary)">
             {voteCount} of {requiredVotes} votes
           </div>
           <div className="text-xs text-(--color-text-tertiary)">
@@ -16,7 +16,7 @@ export function VotingProgress({ voteCount, requiredVotes }: VotingProgressProps
           </div>
         </div>
       </div>
-      <div className="w-full h-2 bg-(--color-bg-tertiary) rounded-full overflow-hidden">
+      <div className="w-full h-2 bg-(--color-bg-tertiary) rounded-(--radius-pill) overflow-hidden">
         <div
           className="h-full bg-(--color-accent) transition-all duration-300"
           style={{ width: `${percentage}%` }}

@@ -5,6 +5,11 @@ import { useCalendarMonth } from '../../hooks/challenge/useCalendarMonth';
 import { useCalendarChallenges } from '../../hooks/challenge/useCalendarChallenges';
 import { WallSortControls } from '../Wall/WallSortControls';
 import { SubmissionThumbnail } from '../shared/SubmissionThumbnail';
+import { TrophyBadge } from '../shared/TrophyBadge';
+import { ViewToggle } from '../shared/ViewToggle';
+import { EmptyState } from '../shared/EmptyState';
+import { LoadingSpinner } from '../shared/LoadingSpinner';
+import { LoadMoreButton } from '../shared/LoadMoreButton';
 import { ContentNavigation } from '../Calendar/ContentNavigation';
 import { ContentCalendarGrid } from '../Calendar/ContentCalendarGrid';
 import { useAuth } from '../../hooks/auth/useAuth';
@@ -164,79 +169,50 @@ export function FriendsFeedContent({
   // Not logged in state
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-        <div className="w-12 h-12 rounded-full bg-(--color-bg-tertiary) flex items-center justify-center mb-4">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="var(--color-text-tertiary)"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
+      <EmptyState
+        icon={
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-tertiary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
             <circle cx="9" cy="7" r="4" />
             <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
             <path d="M16 3.13a4 4 0 0 1 0 7.75" />
           </svg>
-        </div>
-        <p className="text-[13px] text-(--color-text-secondary)">
-          Please sign in to see friends' submissions
-        </p>
-      </div>
+        }
+        message="Please sign in to see friends' submissions"
+      />
     );
   }
 
   // No friends state
   if (followingCount === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-        <div className="w-12 h-12 rounded-full bg-(--color-bg-tertiary) flex items-center justify-center mb-4">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="var(--color-text-tertiary)"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
+      <EmptyState
+        icon={
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-tertiary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
             <circle cx="9" cy="7" r="4" />
             <line x1="19" y1="8" x2="19" y2="14" />
             <line x1="22" y1="11" x2="16" y2="11" />
           </svg>
-        </div>
-        <p className="text-[13px] text-(--color-text-secondary)">
-          Follow some artists to see their work here
-        </p>
-      </div>
+        }
+        message="Follow some artists to see their work here"
+      />
     );
   }
 
   // Loading state
   if (loading && viewType === 'grid') {
-    return (
-      <div className="flex flex-col items-center justify-center py-16">
-        <div className="w-6 h-6 border-2 border-(--color-border) border-t-(--color-accent) rounded-full animate-spin mb-4" />
-        <p className="text-[13px] text-(--color-text-secondary)">
-          Loading friends' submissions...
-        </p>
-      </div>
-    );
+    return <LoadingSpinner message="Loading friends' submissions..." />;
   }
 
   // Error state
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-        <p className="text-[13px] text-red-500 mb-2">
+        <p className="text-sm text-(--color-danger) mb-2">
           Failed to load submissions
         </p>
-        <p className="text-[12px] text-(--color-text-tertiary)">{error}</p>
+        <p className="text-sm text-(--color-text-tertiary)">{error}</p>
       </div>
     );
   }
@@ -258,28 +234,14 @@ export function FriendsFeedContent({
 
       {/* View toggle and sort controls */}
       <div className="flex items-center justify-between">
-        <div className="flex rounded-md p-0.5 border border-(--color-border) bg-(--color-bg-tertiary)">
-          <button
-            onClick={() => setViewType('grid')}
-            className={`px-3 py-1.5 rounded text-[13px] font-medium transition-colors ${
-              viewType === 'grid'
-                ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
-                : 'bg-transparent text-(--color-text-secondary) border border-transparent'
-            }`}
-          >
-            Grid
-          </button>
-          <button
-            onClick={() => setViewType('calendar')}
-            className={`px-3 py-1.5 rounded text-[13px] font-medium transition-colors ${
-              viewType === 'calendar'
-                ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
-                : 'bg-transparent text-(--color-text-secondary) border border-transparent'
-            }`}
-          >
-            Calendar
-          </button>
-        </div>
+        <ViewToggle
+          options={[
+            { value: 'grid' as ViewType, label: 'Grid' },
+            { value: 'calendar' as ViewType, label: 'Calendar' },
+          ]}
+          activeValue={viewType}
+          onChange={setViewType}
+        />
 
         {/* Sort controls - only show in grid view */}
         {viewType === 'grid' && (
@@ -312,78 +274,59 @@ export function FriendsFeedContent({
       {/* Grid view */}
       {viewType === 'grid' && (
         !canViewCurrentDay ? (
-          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-            <div className="w-12 h-12 rounded-full bg-(--color-bg-tertiary) flex items-center justify-center mb-4">
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="var(--color-text-tertiary)"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
+          <EmptyState
+            icon={
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-tertiary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                 <path d="M7 11V7a5 5 0 0 1 10 0v4" />
               </svg>
-            </div>
-            <p className="text-[13px] text-(--color-text-secondary) mb-4">
-              Save your art first, in order to see friends' submissions for today
-            </p>
-            <a
-              href="/"
-              className="text-[13px] text-(--color-accent) hover:underline"
-            >
+            }
+            message="Save your art first, in order to see friends' submissions for today"
+          >
+            <a href="/" className="text-sm text-(--color-accent) hover:underline">
               ← Back to canvas
             </a>
-          </div>
+          </EmptyState>
         ) : (
           <>
             {/* Empty state for no submissions on this day */}
             {submissions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-              <div className="w-12 h-12 rounded-full bg-(--color-bg-tertiary) flex items-center justify-center mb-4">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="var(--color-text-tertiary)"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
+            <EmptyState
+              icon={
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-tertiary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                   <line x1="9" y1="9" x2="15" y2="15" />
                   <line x1="15" y1="9" x2="9" y2="15" />
                 </svg>
-              </div>
-              <p className="text-[13px] text-(--color-text-secondary)">
-                None of your friends posted on this day
-              </p>
-            </div>
+              }
+              message="None of your friends posted on this day"
+            />
           ) : challenge ? (
             <>
               {/* Grid of submissions */}
               <div
                 className="grid gap-4"
                 style={{
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
                 }}
               >
                 {submissions.map((submission) => (
                   <div
                     key={submission.id}
-                    className="flex flex-col items-center"
+                    className="relative"
                     title={`Submitted at ${formatTime(submission.created_at)}`}
                   >
+                    {submission.final_rank !== undefined && submission.final_rank >= 1 && submission.final_rank <= 3 && (
+                      <div className="absolute top-0 right-0 z-10">
+                        <TrophyBadge rank={submission.final_rank as 1 | 2 | 3} />
+                      </div>
+                    )}
                     <SubmissionThumbnail
                       shapes={submission.shapes}
                       groups={submission.groups}
                       challenge={challenge}
                       backgroundColorIndex={submission.background_color_index}
-                      size={140}
+                      card={true}
                       showNickname={true}
                       nickname={submission.nickname}
                       href={onSubmissionClick ? undefined : getSubmissionHref(submission.id)}
@@ -396,12 +339,7 @@ export function FriendsFeedContent({
               {/* Load more button */}
               {hasMore && (
                 <div className="flex justify-center pt-4">
-                  <button
-                    onClick={loadMore}
-                    className="px-4 py-2 text-[13px] font-medium text-(--color-accent) border border-(--color-accent) rounded-md hover:bg-(--color-accent) hover:text-white transition-colors"
-                  >
-                    Load more submissions
-                  </button>
+                  <LoadMoreButton onClick={loadMore} />
                 </div>
               )}
             </>

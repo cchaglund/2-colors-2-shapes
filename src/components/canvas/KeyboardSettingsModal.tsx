@@ -9,6 +9,7 @@ import {
   bindingFromEvent,
   findConflicts,
 } from '../../constants/keyboardActions';
+import { Button } from '../shared/Button';
 import { Modal } from '../shared/Modal';
 
 interface KeyboardSettingsModalProps {
@@ -145,13 +146,13 @@ export function KeyboardSettingsModal({
         <div className="p-4 border-b flex items-center justify-between border-(--color-border)">
           <h2
             id="keyboard-settings-title"
-            className="m-0 text-lg font-semibold text-(--color-text-primary)"
+            className="m-0 text-xl font-semibold text-(--color-text-primary)"
           >
             Keyboard Shortcuts
           </h2>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-md border-none cursor-pointer transition-colors bg-transparent text-(--color-text-tertiary)"
+            className="w-8 h-8 flex items-center justify-center rounded-(--radius-md) border-none cursor-pointer transition-colors bg-transparent text-(--color-text-tertiary)"
             aria-label="Close"
           >
             ✕
@@ -160,7 +161,7 @@ export function KeyboardSettingsModal({
 
         {/* Content */}
         <div className="p-4 overflow-y-auto flex-1">
-          <p className="mt-0 mb-4 text-[13px] text-(--color-text-secondary)">
+          <p className="mt-0 mb-4 text-sm text-(--color-text-secondary)">
             Click on a shortcut to change it. Press Escape to cancel.
           </p>
 
@@ -178,20 +179,20 @@ export function KeyboardSettingsModal({
                   return (
                     <div
                       key={action.id}
-                      className="flex items-center justify-between py-2 px-3 rounded-md bg-(--color-bg-tertiary)"
+                      className="flex items-center justify-between py-2 px-3 rounded-(--radius-md) bg-(--color-bg-tertiary)"
                     >
                       <div className="flex-1 min-w-0 pr-4">
-                        <div className="text-[13px] font-medium text-(--color-text-primary)">
+                        <div className="text-sm font-medium text-(--color-text-primary)">
                           {action.label}
                         </div>
-                        <div className="text-[11px] truncate text-(--color-text-tertiary)">
+                        <div className="text-xs truncate text-(--color-text-tertiary)">
                           {action.description}
                         </div>
                       </div>
                       <button
                         onClick={() => handleStartListening(action.id)}
                         disabled={!isRemappable}
-                        className={`px-3 py-1.5 rounded-md text-[11px] font-mono border transition-colors min-w-20 bg-(--color-bg-secondary) border-(--color-border) ${
+                        className={`px-3 py-1.5 rounded-(--radius-md) text-xs font-mono border transition-colors min-w-20 bg-(--color-bg-secondary) border-(--color-border) ${
                           isListening ? 'ring-2 ring-(--color-accent)' : ''
                         } ${
                           binding ? 'text-(--color-text-primary)' : 'text-(--color-text-tertiary)'
@@ -220,24 +221,18 @@ export function KeyboardSettingsModal({
 
         {/* Footer */}
         <div className="p-4 border-t flex items-center justify-between border-(--color-border)">
-          <button
-            onClick={handleResetAll}
-            className="px-4 py-2 rounded-md cursor-pointer text-[13px] font-medium transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary) border border-(--color-border) hover:bg-(--color-hover)"
-          >
+          <Button variant="ghost" onClick={handleResetAll}>
             Reset to Defaults
-          </button>
+          </Button>
           <div className="flex items-center gap-3">
             {syncing && (
-              <span className="text-[11px] text-(--color-text-tertiary)">
+              <span className="text-xs text-(--color-text-tertiary)">
                 Saving...
               </span>
             )}
-            <button
-              onClick={onClose}
-              className="px-4 py-2 rounded-md cursor-pointer text-[13px] font-medium bg-(--color-accent) text-white hover:bg-(--color-accent-hover) transition-colors"
-            >
+            <Button variant="primary" size="md" onClick={onClose}>
               Done
-            </button>
+            </Button>
           </div>
         </div>
       </Modal>
@@ -253,10 +248,10 @@ export function KeyboardSettingsModal({
           closeOnBackdropClick={false}
           dataTestId="keyboard-conflict-modal"
         >
-          <h3 className="m-0 mb-3 text-lg font-semibold text-(--color-text-primary)">
+          <h3 className="m-0 mb-3 text-xl font-semibold text-(--color-text-primary)">
             Shortcut Conflict
           </h3>
-          <p className="m-0 mb-4 text-[13px] text-(--color-text-secondary)">
+          <p className="m-0 mb-4 text-sm text-(--color-text-secondary)">
             <span className="font-mono font-medium">
               {formatKeyBinding(pendingConflicts.binding)}
             </span>{' '}
@@ -268,19 +263,13 @@ export function KeyboardSettingsModal({
             </span>
             . Replace it?
           </p>
-          <div className="flex gap-3 justify-center">
-            <button
-              onClick={() => handleResolveConflict(false)}
-              className="px-4 py-2 rounded-md cursor-pointer text-[13px] font-medium transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary) border border-(--color-border) hover:bg-(--color-hover)"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={() => handleResolveConflict(true)}
-              className="px-4 py-2 rounded-md cursor-pointer text-[13px] font-medium bg-(--color-accent) text-white hover:bg-(--color-accent-hover) transition-colors"
-            >
+          <div className="flex flex-col items-center gap-3">
+            <Button variant="primary" size="md" fullWidth onClick={() => handleResolveConflict(true)}>
               Replace
-            </button>
+            </Button>
+            <Button variant="link" onClick={() => handleResolveConflict(false)}>
+              Cancel
+            </Button>
           </div>
         </Modal>
       )}

@@ -1,4 +1,5 @@
 import { Modal } from '../shared/Modal';
+import { Button } from '../shared/Button';
 
 interface ResetConfirmModalProps {
   onConfirm: () => void;
@@ -19,26 +20,20 @@ export function ResetConfirmModal({ onConfirm, onCancel }: ResetConfirmModalProp
     >
       <h3
         id="reset-confirm-title"
-        className="m-0 mb-3 text-lg font-semibold text-(--color-text-primary)"
+        className="m-0 mb-3 text-xl font-semibold text-(--color-text-primary)"
       >
         Reset Canvas?
       </h3>
-      <p className="m-0 mb-5 text-[13px] text-(--color-text-secondary)">
+      <p className="m-0 mb-5 text-sm text-(--color-text-secondary)">
         This will delete all shapes and cannot be undone.
       </p>
-      <div className="flex gap-3 justify-center">
-        <button
-          className="px-5 py-2 rounded-md cursor-pointer text-[13px] font-medium transition-colors bg-(--color-bg-tertiary) text-(--color-text-primary) border border-(--color-border) hover:bg-(--color-hover)"
-          onClick={onCancel}
-        >
-          Cancel
-        </button>
-        <button
-          className="px-5 py-2 rounded-md cursor-pointer text-[13px] font-medium transition-colors text-white bg-(--color-danger) border border-(--color-danger) hover:bg-(--color-danger-hover)"
-          onClick={onConfirm}
-        >
+      <div className="flex flex-col items-center gap-3">
+        <Button variant="danger" size="md" fullWidth onClick={onConfirm}>
           Reset
-        </button>
+        </Button>
+        <Button variant="link" onClick={onCancel}>
+          Cancel
+        </Button>
       </div>
     </Modal>
   );

@@ -16,16 +16,54 @@ interface StoredSettings {
   version: number;
 }
 
-const CURRENT_VERSION = 1;
+const CURRENT_VERSION = 3;
+
+/** Migrate v1 → v2: remap mirrorH from H→M, mirrorV from V→Shift+M */
+function migrateV1ToV2(mappings: KeyMappings): KeyMappings {
+  const migrated = { ...mappings };
+  if (migrated.mirrorHorizontal?.key === 'KeyH' && !migrated.mirrorHorizontal.shift) {
+    migrated.mirrorHorizontal = { key: 'KeyM' };
+  }
+  if (migrated.mirrorVertical?.key === 'KeyV' && !migrated.mirrorVertical.shift) {
+    migrated.mirrorVertical = { key: 'KeyM', shift: true };
+  }
+  return migrated;
+}
+
+/** Migrate v2 → v3: revert mirrorH from M→H, mirrorV from Shift+M→V, remove selectMode */
+function migrateV2ToV3(mappings: KeyMappings): KeyMappings {
+  const migrated = { ...mappings };
+  if (migrated.mirrorHorizontal?.key === 'KeyM' && !migrated.mirrorHorizontal.shift) {
+    migrated.mirrorHorizontal = { key: 'KeyH' };
+  }
+  if (migrated.mirrorVertical?.key === 'KeyM' && migrated.mirrorVertical?.shift) {
+    migrated.mirrorVertical = { key: 'KeyV' };
+  }
+  // Remove selectMode — no longer exists
+  delete (migrated as Record<string, unknown>).selectMode;
+  return migrated;
+}
+
+function migrateToLatest(mappings: KeyMappings, fromVersion: number): KeyMappings {
+  let migrated = mappings;
+  if (fromVersion < 2) migrated = migrateV1ToV2(migrated);
+  if (fromVersion < 3) migrated = migrateV2ToV3(migrated);
+  return migrated;
+}
 
 function loadFromLocalStorage(): KeyMappings {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed: StoredSettings = JSON.parse(stored);
-      if (parsed.version === CURRENT_VERSION && parsed.mappings) {
+      if (parsed.mappings) {
+        let mappings = parsed.mappings;
+        if (parsed.version < CURRENT_VERSION) {
+          mappings = migrateToLatest(mappings, parsed.version);
+          saveToLocalStorage({ ...getDefaultMappings(), ...mappings });
+        }
         // Merge with defaults in case new actions were added
-        return { ...getDefaultMappings(), ...parsed.mappings };
+        return { ...getDefaultMappings(), ...mappings };
       }
     }
   } catch (e) {
@@ -81,8 +119,21 @@ export function useKeyboardSettings(userId: string | undefined) {
               setMappings(loadFromLocalStorage());
             }
           } else if (data?.mappings) {
+            let dbMappings = data.mappings as KeyMappings;
+            // Detect pre-v3 data: if selectMode key exists or mirror keys use old defaults
+            const needsMigration = ('selectMode' in (dbMappings as Record<string, unknown>)) ||
+              (dbMappings.mirrorHorizontal?.key === 'KeyM' && !dbMappings.mirrorHorizontal.shift);
+            if (needsMigration) {
+              // Determine version: if selectMode exists it was at least v2, otherwise v1
+              const fromVersion = ('selectMode' in (dbMappings as Record<string, unknown>)) ? 2 : 1;
+              dbMappings = migrateToLatest(dbMappings, fromVersion);
+              supabase
+                .from('keyboard_settings')
+                .upsert({ user_id: userId, mappings: { ...getDefaultMappings(), ...dbMappings }, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
+                .then(({ error: e2 }) => { if (e2) console.error('Failed to persist keyboard migration:', e2); });
+            }
             // Merge with defaults in case new actions were added
-            setMappings({ ...getDefaultMappings(), ...data.mappings });
+            setMappings({ ...getDefaultMappings(), ...dbMappings });
           }
         } catch (e) {
           console.error('Failed to load keyboard settings from Supabase:', e);

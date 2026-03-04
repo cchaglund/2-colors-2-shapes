@@ -1,4 +1,4 @@
-# 3 Colors 2 Shapes
+# shapepaint.com
 
 A daily art challenge app where you create art using only 3 colors and 2 geometric shapes.
 
@@ -243,7 +243,7 @@ A developer tool that displays all 41 available shape types with sample renderin
 - Curved: Semicircle, Quarter Circle, Ellipse, Blade, Lens, Drop
 - Special: Cross, Arrow, Arch
 - Abstract: Shard, Wedge, Fan, Hook, Wave, Crescent, Pill, Splinter, Chunk
-- Mixed (straight + curved): Fang, Claw, Fin, Thorn, Slant, Notch, Spike, Bulge, Scoop, Ridge
+- Mixed (straight + curved): Fang, Claw, Fin, Keyhole, Slant, Notch, Spike, Bulge, Scoop, Ridge
 
 **Access via URL parameter:**
 ```
@@ -404,6 +404,15 @@ src/
 ├── App.tsx
 └── main.tsx
 ```
+
+## Adding Shapes
+
+There are two ways to add shapes to the system:
+
+1. **Parameterized** — Write a function that generates SVG path data scaled to any size (e.g., `getDropPath(width, height)`). Best for simple geometric shapes.
+2. **Figma export** — Paste a fixed SVG path exported from Figma. The system scales it automatically via nested `<svg>` viewBox. Best for complex or designer-crafted shapes.
+
+See [docs/adding-shapes.md](docs/adding-shapes.md) for full instructions.
 
 ## How the Daily Challenge Works
 

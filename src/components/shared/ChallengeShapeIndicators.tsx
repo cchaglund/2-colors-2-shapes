@@ -9,9 +9,9 @@ interface ChallengeShapeIndicatorsProps {
 }
 
 function ShapeIcon({ type, size, color }: { type: ShapeType; size: number; color: string }) {
-  const { element, props } = getShapeSVGData(type, size);
+  const { element, props, viewBox } = getShapeSVGData(type, size);
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+    <svg width={size} height={size} viewBox={`0 0 ${viewBox.width} ${viewBox.height}`} preserveAspectRatio="xMidYMid meet">
       {element === 'ellipse' && <ellipse {...props} fill={color} />}
       {element === 'rect' && <rect {...props} fill={color} />}
       {element === 'polygon' && <polygon {...props} fill={color} />}
@@ -24,7 +24,7 @@ export function ChallengeShapeIndicators({
   shapes,
   size = 12,
   gap = 2,
-  color = '#6b7280', // gray-500
+  color = 'currentColor',
 }: ChallengeShapeIndicatorsProps) {
   return (
     <div className="flex items-center" style={{ gap }}>

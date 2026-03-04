@@ -15,13 +15,20 @@ import {
   ExportActionsCard,
   LikeButton,
 } from '../submission';
+import { TopBar } from '../canvas/TopBar';
+import { LoadingSpinner } from '../shared/LoadingSpinner';
+import type { ThemeMode, ThemeName } from '../../hooks/ui/useThemeState';
 
 interface SubmissionDetailPageProps {
   date?: string;
   submissionId?: string;
+  themeMode: ThemeMode;
+  onSetThemeMode: (mode: ThemeMode) => void;
+  themeName: ThemeName;
+  onSetThemeName: (name: ThemeName) => void;
 }
 
-export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPageProps) {
+export function SubmissionDetailPage({ date, submissionId, themeMode, onSetThemeMode, themeName, onSetThemeName }: SubmissionDetailPageProps) {
   const { user } = useAuth();
   const { loadSubmission, getAdjacentSubmissionDates } = useSubmissions(user?.id);
   const { fetchSubmissionRank } = useRanking();
@@ -57,9 +64,9 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
   if (!submissionId && !user) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-(--color-bg-primary)">
-        <div className="text-center text-(--color-text-secondary)">
+        <p className="text-sm text-(--color-text-secondary)">
           Please sign in to view this submission.
-        </div>
+        </p>
       </div>
     );
   }
@@ -67,9 +74,7 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-(--color-bg-primary)">
-        <div className="text-(--color-text-secondary)">
-          Loading submission...
-        </div>
+        <LoadingSpinner message="Loading submission..." />
       </div>
     );
   }
@@ -77,9 +82,9 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-(--color-bg-primary)">
-        <div className="text-(--color-text-secondary)">
-          Error: {error}
-        </div>
+        <p className="text-sm text-(--color-danger)">
+          {error}
+        </p>
       </div>
     );
   }
@@ -87,89 +92,113 @@ export function SubmissionDetailPage({ date, submissionId }: SubmissionDetailPag
   if (!submission || !challenge) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-(--color-bg-primary)">
-        <div className="text-(--color-text-secondary)">
+        <p className="text-sm text-(--color-text-secondary)">
           {submissionId ? 'Submission not found.' : `No submission found for ${formattedDate}.`}
-        </div>
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-(--color-bg-primary)">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
+    <div className="h-screen flex flex-col overflow-hidden bg-(--color-bg-primary)">
+      <TopBar
+        themeMode={themeMode}
+        onSetThemeMode={onSetThemeMode}
+        themeName={themeName}
+        onSetThemeName={onSetThemeName}
+        centerContent={
+          <span className="text-lg font-semibold text-(--color-text-primary) font-display">Submission</span>
+        }
+        rightContent={
+          <div className="flex items-center gap-2">
+            {date && <SubmissionNavigation adjacentDates={adjacentDates} />}
             <a
-              href="/"
-              className="inline-flex items-center gap-1 text-[13px] transition-colors text-(--color-text-secondary) hover:text-(--color-text-primary)"
+              href="/?view=gallery"
+              className="h-9 md:h-8 px-2 md:px-3 rounded-(--radius-pill) text-xs font-medium transition-colors text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) no-underline flex items-center gap-1"
+              style={{
+                background: 'var(--color-selected)',
+                border: 'var(--border-width, 2px) solid var(--color-border)',
+                boxShadow: 'var(--shadow-btn)',
+              }}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="15 18 9 12 15 6" />
               </svg>
-              Back to canvas
+              <span className="hidden md:inline">Gallery</span>
             </a>
-            {/* Navigation buttons - only show when viewing by date (own submissions) */}
-            {date && <SubmissionNavigation adjacentDates={adjacentDates} />}
           </div>
-          <h1 className="text-xl font-semibold mb-1 text-(--color-text-primary)">
-            {formattedDate}
-          </h1>
-          <div className="flex items-center gap-2 text-[13px]">
-            {nickname && submission?.user_id ? (
-              <>
-                <a
-                  href={`?view=profile&user=${submission.user_id}`}
-                  className="text-(--color-text-secondary) hover:text-(--color-accent) transition-colors"
-                >
-                  @{nickname}
-                </a>
-                <span className="text-(--color-text-tertiary)">·</span>
-                <span className="text-(--color-text-secondary)">Submission</span>
-                {user && user.id !== submission.user_id && (
-                  <FollowButton targetUserId={submission.user_id} size="sm" />
-                )}
-              </>
-            ) : (
-              <span className="text-(--color-text-secondary)">Daily Challenge Submission</span>
-            )}
-          </div>
-        </div>
-
-        {/* Main content */}
-        <div className="flex flex-col md:flex-row gap-5 items-start justify-center">
-          {/* Canvas and actions */}
-          <div className="flex flex-col gap-3">
-            <div className="border rounded-lg overflow-hidden w-fit border-(--color-border)">
-              <SubmissionCanvas
-                shapes={submission.shapes}
-                groups={submission.groups}
-                challenge={challenge}
-                backgroundColorIndex={submission.background_color_index}
-                svgRef={svgRef}
-              />
-            </div>
-            {/* Like button */}
-            <div className="flex items-center">
-              <LikeButton
-                submissionId={submission.id}
-                submissionUserId={submission.user_id}
-                initialLikeCount={submission.like_count}
-              />
+        }
+      />
+      <div className="flex-1 overflow-auto p-4 md:p-8 theme-pattern">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="mb-6">
+            <h1 className="text-xl font-semibold mb-1 text-(--color-text-primary) font-display">
+              {formattedDate}
+            </h1>
+            <div className="flex items-center gap-2 text-sm">
+              {nickname && submission?.user_id ? (
+                <>
+                  <a
+                    href={`?view=profile&user=${submission.user_id}`}
+                    className="text-(--color-text-secondary) hover:text-(--color-accent) transition-colors"
+                  >
+                    @{nickname}
+                  </a>
+                  <span className="text-(--color-text-tertiary)">·</span>
+                  <span className="text-(--color-text-secondary)">Submission</span>
+                  {user && user.id !== submission.user_id && (
+                    <FollowButton targetUserId={submission.user_id} size="sm" />
+                  )}
+                </>
+              ) : (
+                <span className="text-(--color-text-secondary)">Daily Challenge Submission</span>
+              )}
             </div>
           </div>
 
-          {/* Info sidebar */}
-          <div className="space-y-3 w-full md:w-72">
-            <ChallengeDetailsCard challenge={challenge} />
-            {rankInfo && <RankingCard rankInfo={rankInfo} />}
-            <SubmissionStatsCard submission={submission} />
-            <ExportActionsCard
-              onDownloadPNG={downloadPNG}
-              onDownloadSVG={downloadSVG}
-              onCopyLink={copyShareLink}
-              showDownloadButtons={!submissionId}
-            />
+          {/* Main content */}
+          <div className="flex flex-col md:flex-row gap-5 items-start justify-center">
+            {/* Canvas and actions */}
+            <div className="flex flex-col gap-3">
+              <div
+                className="overflow-hidden w-fit"
+                style={{
+                  border: 'var(--border-width-heavy, 3px) solid var(--color-border)',
+                  borderRadius: 'var(--radius-lg)',
+                  boxShadow: 'var(--shadow-card)',
+                }}
+              >
+                <SubmissionCanvas
+                  shapes={submission.shapes}
+                  groups={submission.groups}
+                  challenge={challenge}
+                  backgroundColorIndex={submission.background_color_index}
+                  svgRef={svgRef}
+                />
+              </div>
+              {/* Like button */}
+              <div className="flex items-center">
+                <LikeButton
+                  submissionId={submission.id}
+                  submissionUserId={submission.user_id}
+                  initialLikeCount={submission.like_count}
+                />
+              </div>
+            </div>
+
+            {/* Info sidebar */}
+            <div className="space-y-3 w-full md:w-72">
+              <ChallengeDetailsCard challenge={challenge} submissionShapes={submission.shapes} />
+              {rankInfo && <RankingCard rankInfo={rankInfo} />}
+              <SubmissionStatsCard submission={submission} />
+              <ExportActionsCard
+                onDownloadPNG={downloadPNG}
+                onDownloadSVG={downloadSVG}
+                onCopyLink={copyShareLink}
+                showDownloadButtons={!submissionId}
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { TrophyBadge } from '../shared/TrophyBadge';
+import { Card } from '../shared/Card';
 import { RankingBadge } from './RankingBadge';
 
 interface RankingCardProps {
@@ -7,21 +8,21 @@ interface RankingCardProps {
 
 export function RankingCard({ rankInfo }: RankingCardProps) {
   return (
-    <div className="border rounded-xl p-4 bg-(--color-bg-primary) border-(--color-border)">
-      <h2 className="text-sm font-semibold mb-3 text-(--color-text-primary)">
+    <Card>
+      <h2 className="text-basefont-semibold mb-3 text-(--color-text-primary)">
         Ranking
       </h2>
       <div className="flex items-center gap-3">
         {rankInfo.rank <= 3 && (
-          <TrophyBadge rank={rankInfo.rank as 1 | 2 | 3} size="lg" />
+          <TrophyBadge rank={rankInfo.rank as 1 | 2 | 3} />
         )}
         <RankingBadge rank={rankInfo.rank} total={rankInfo.total} />
       </div>
       {rankInfo.rank === 1 && (
-        <p className="mt-2 text-sm text-(--color-text-secondary)">
+        <p className="mt-2 text-basetext-(--color-text-secondary)">
           Winner of the day!
         </p>
       )}
-    </div>
+    </Card>
   );
 }

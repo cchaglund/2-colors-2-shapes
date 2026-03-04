@@ -31,10 +31,14 @@ export function SVGShape({
   style,
   dataShapeId,
 }: SVGShapeProps) {
-  const { element, props, viewBox } = getShapeSVGData(type, size);
+  const { element, props, viewBox, dimensions } = getShapeSVGData(type, size);
 
-  const centerX = viewBox.width / 2;
-  const centerY = viewBox.height / 2;
+  // dimensions = intended render size; viewBox = path coordinate space
+  // When they differ (fixed Figma exports), a nested <svg> handles the scaling
+  const renderW = dimensions?.width ?? viewBox.width;
+  const renderH = dimensions?.height ?? viewBox.height;
+  const centerX = renderW / 2;
+  const centerY = renderH / 2;
   const scaleX = flipX ? -1 : 1;
   const scaleY = flipY ? -1 : 1;
 
@@ -42,12 +46,29 @@ export function SVGShape({
 
   const fillProps = { fill: color, style };
 
-  return (
-    <g transform={transform} data-shape-id={dataShapeId}>
+  const shapeElement = (
+    <>
       {element === 'ellipse' && <ellipse {...props} {...fillProps} />}
       {element === 'rect' && <rect {...props} {...fillProps} />}
       {element === 'polygon' && <polygon {...props} {...fillProps} />}
       {element === 'path' && <path {...props} {...fillProps} />}
+    </>
+  );
+
+  return (
+    <g transform={transform} data-shape-id={dataShapeId}>
+      {dimensions ? (
+        <svg
+          x={0} y={0}
+          width={renderW} height={renderH}
+          viewBox={`0 0 ${viewBox.width} ${viewBox.height}`}
+          overflow="visible"
+        >
+          {shapeElement}
+        </svg>
+      ) : (
+        shapeElement
+      )}
     </g>
   );
 }

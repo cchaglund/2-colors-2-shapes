@@ -1,4 +1,5 @@
 import type { Submission } from '../../hooks/submission/useSubmissions';
+import { Card } from '../shared/Card';
 
 interface SubmissionStatsCardProps {
   submission: Submission;
@@ -6,11 +7,11 @@ interface SubmissionStatsCardProps {
 
 export function SubmissionStatsCard({ submission }: SubmissionStatsCardProps) {
   return (
-    <div className="border rounded-xl p-4 bg-(--color-bg-primary) border-(--color-border)">
-      <h2 className="text-sm font-semibold mb-3 text-(--color-text-primary)">
+    <Card>
+      <h2 className="text-base font-semibold mb-3 text-(--color-text-primary)">
         Submission Stats
       </h2>
-      <div className="space-y-2 text-sm">
+      <div className="space-y-2 text-base">
         <div className="flex justify-between">
           <span className="text-(--color-text-tertiary)">Shapes used</span>
           <span className="text-(--color-text-primary)">{submission.shapes.length}</span>
@@ -22,6 +23,6 @@ export function SubmissionStatsCard({ submission }: SubmissionStatsCardProps) {
           </span>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

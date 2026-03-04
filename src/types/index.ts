@@ -7,8 +7,6 @@ export type ShapeType =
   | 'star'
   // Sophisticated shapes
   | 'rightTriangle'
-  | 'isoscelesTriangle'
-  | 'diamond'
   | 'trapezoid'
   | 'parallelogram'
   | 'kite'
@@ -18,31 +16,25 @@ export type ShapeType =
   | 'semicircle'
   | 'quarterCircle'
   | 'ellipse'
-  | 'blade'
   | 'lens'
   | 'arch'
-  | 'drop'
   // Irregular abstract shapes
-  | 'shard'
   | 'wedge'
-  | 'fan'
-  | 'hook'
   | 'wave'
+  | 'hook'
   | 'crescent'
   | 'pill'
   | 'splinter'
-  | 'chunk'
   // New mixed straight/curved shapes
   | 'fang'
-  | 'claw'
   | 'fin'
-  | 'thorn'
-  | 'slant'
+  | 'keyhole'
   | 'notch'
-  | 'spike'
-  | 'bulge'
+  | 'drop'
   | 'scoop'
-  | 'ridge';
+  | 'ridge'
+  | 'bean'
+  | 'hourglass';
 
 export interface Shape {
   id: string;

@@ -118,7 +118,7 @@ function FollowButtonDemo({ initialState, nickname }: FollowButtonDemoProps) {
 
   const buttonStyles: Record<FollowState, string> = {
     follow:
-      'bg-(--color-accent) text-white hover:bg-(--color-accent-hover) border-transparent',
+      'bg-(--color-accent) text-(--color-accent-text) hover:bg-(--color-accent-hover) border-transparent',
     following:
       'bg-transparent text-(--color-text-primary) border-(--color-border) hover:border-(--color-danger) hover:text-(--color-danger)',
     unfollow:
@@ -302,7 +302,7 @@ function FriendsModalDemo() {
       {/* Open modal button */}
       <button
         onClick={() => setShowModal(true)}
-        className="w-full px-4 py-3 text-sm font-medium rounded-lg bg-(--color-accent) text-white hover:bg-(--color-accent-hover) transition-colors cursor-pointer"
+        className="w-full px-4 py-3 text-sm font-medium rounded-lg bg-(--color-accent) text-(--color-accent-text) hover:bg-(--color-accent-hover) transition-colors cursor-pointer"
       >
         Open Friends Modal
       </button>
@@ -549,7 +549,7 @@ export function SocialTestPage() {
                 All Button States (Static Preview)
               </h4>
               <div className="flex gap-3 p-4 bg-(--color-bg-secondary) rounded-lg border border-(--color-border)">
-                <button className="px-4 py-1.5 text-sm font-medium rounded-full border border-transparent bg-(--color-accent) text-white">
+                <button className="px-4 py-1.5 text-sm font-medium rounded-full border border-transparent bg-(--color-accent) text-(--color-accent-text)">
                   Follow
                 </button>
                 <button className="px-4 py-1.5 text-sm font-medium rounded-full border border-(--color-border) bg-transparent text-(--color-text-primary)">
@@ -613,7 +613,7 @@ export function SocialTestPage() {
               onClick={() => setActiveScenario(scenario)}
               className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                 activeScenario === scenario
-                  ? 'bg-(--color-accent) text-white'
+                  ? 'bg-(--color-accent) text-(--color-accent-text)'
                   : 'text-(--color-text-primary) hover:bg-(--color-bg-secondary)'
               }`}
             >
@@ -631,7 +631,7 @@ export function SocialTestPage() {
               onClick={() => setActiveScenario(scenario)}
               className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                 activeScenario === scenario
-                  ? 'bg-(--color-accent) text-white'
+                  ? 'bg-(--color-accent) text-(--color-accent-text)'
                   : 'text-(--color-text-primary) hover:bg-(--color-bg-secondary)'
               }`}
             >

@@ -83,18 +83,6 @@ export function getRightTrianglePoints(size: number): string {
   return `0,${size} ${size},${size} 0,0`;
 }
 
-// Generate isosceles triangle (taller than equilateral)
-export function getIsoscelesTrianglePoints(size: number): string {
-  const centerX = size / 2;
-  return `${centerX},0 ${size},${size} 0,${size}`;
-}
-
-// Generate diamond (rhombus) points
-export function getDiamondPoints(size: number): string {
-  const half = size / 2;
-  return `${half},0 ${size},${half} ${half},${size} 0,${half}`;
-}
-
 // Generate trapezoid points
 export function getTrapezoidPoints(size: number): string {
   const inset = size * 0.2;
@@ -133,11 +121,6 @@ export function getArrowPoints(size: number): string {
   return `0,${centerY - halfShaft} ${headStart},${centerY - halfShaft} ${headStart},0 ${size},${centerY} ${headStart},${size} ${headStart},${centerY + halfShaft} 0,${centerY + halfShaft}`;
 }
 
-// Generate shard - angular asymmetric fragment
-export function getShardPoints(size: number): string {
-  return `${size * 0.2},0 ${size * 0.9},${size * 0.15} ${size},${size * 0.6} ${size * 0.5},${size} 0,${size * 0.7} ${size * 0.1},${size * 0.3}`;
-}
-
 // Generate wedge - thick angled slice
 export function getWedgePoints(size: number): string {
   return `${size * 0.5},0 ${size},${size * 0.3} ${size * 0.8},${size} ${size * 0.2},${size} 0,${size * 0.5}`;
@@ -148,7 +131,3 @@ export function getSplinterPoints(size: number): string {
   return `${size * 0.4},0 ${size * 0.6},0 ${size * 0.8},${size * 0.3} ${size},${size} ${size * 0.7},${size * 0.6} ${size * 0.3},${size * 0.8} 0,${size * 0.4}`;
 }
 
-// Generate chunk - irregular blocky shape
-export function getChunkPoints(size: number): string {
-  return `${size * 0.1},${size * 0.1} ${size * 0.6},0 ${size},${size * 0.2} ${size * 0.9},${size * 0.7} ${size * 0.6},${size} ${size * 0.2},${size * 0.9} 0,${size * 0.5}`;
-}

@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
+import { useClickOutside } from '../../hooks/ui/useClickOutside';
 
 export type SortMode = 'random' | 'newest' | 'oldest' | 'ranked' | 'likes';
 
@@ -17,6 +18,19 @@ const SORT_LABELS: Record<SortMode, string> = {
   likes: 'Likes',
 };
 
+const triggerStyle: React.CSSProperties = {
+  background: 'var(--color-card-bg)',
+  border: 'var(--border-width, 2px) solid var(--color-border-light)',
+  borderRadius: 'var(--radius-md)',
+};
+
+const dropdownStyle: React.CSSProperties = {
+  background: 'var(--color-card-bg)',
+  border: 'var(--border-width, 2px) solid var(--color-border-light)',
+  borderRadius: 'var(--radius-md)',
+  boxShadow: 'var(--shadow-card)',
+};
+
 export function WallSortControls({
   sortMode,
   onSortModeChange,
@@ -26,23 +40,12 @@ export function WallSortControls({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  useClickOutside(dropdownRef, isOpen, () => setIsOpen(false));
+
   const allOptions: SortMode[] = ['random', 'newest', 'oldest', 'ranked', 'likes'];
   const options = showLikesOption
     ? allOptions
     : allOptions.filter(o => o !== 'likes');
-
-  // Close on outside click
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isOpen]);
 
   const handleSelect = (mode: SortMode) => {
     if (mode === 'ranked' && !isRankedAvailable) return;
@@ -54,7 +57,8 @@ export function WallSortControls({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-1.5 rounded-md text-[13px] font-medium cursor-pointer transition-colors bg-(--color-bg-tertiary) text-(--color-text-secondary) border border-(--color-border) hover:text-(--color-text-primary)"
+        className="inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-1.5 text-sm font-semibold cursor-pointer transition-all text-(--color-text-primary) hover:opacity-80"
+        style={triggerStyle}
       >
         {SORT_LABELS[sortMode]}
         <svg
@@ -73,7 +77,10 @@ export function WallSortControls({
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-1 py-1 min-w-30 rounded-md bg-(--color-bg-primary) border border-(--color-border) shadow-lg z-10">
+        <div
+          className="absolute right-0 top-full mt-1 py-1 min-w-30 z-10"
+          style={dropdownStyle}
+        >
           {options.map((mode) => {
             const isDisabled = mode === 'ranked' && !isRankedAvailable;
             const isSelected = sortMode === mode;
@@ -83,7 +90,7 @@ export function WallSortControls({
                 key={mode}
                 onClick={() => handleSelect(mode)}
                 disabled={isDisabled}
-                className={`w-full text-left px-3 py-1.5 text-[13px] transition-colors ${
+                className={`w-full text-left px-3 py-1.5 text-sm transition-colors ${
                   isDisabled
                     ? 'opacity-50 cursor-not-allowed text-(--color-text-tertiary)'
                     : 'cursor-pointer hover:bg-(--color-bg-secondary)'

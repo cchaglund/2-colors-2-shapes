@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import type { Shape, ShapeGroup } from '../../types';
 
@@ -49,6 +49,9 @@ export function useSubmissions(userId: string | undefined, todayDate?: string) {
     checkExistingSubmission();
   }, [userId, todayDate]);
 
+  // Cache for loadMySubmissions to avoid re-fetching on every gallery navigation
+  const mySubmissionsCache = useRef<{ userId: string; data: Submission[] } | null>(null);
+
   const saveSubmission = useCallback(
     async (params: SaveSubmissionParams): Promise<{ success: boolean; error?: string }> => {
       if (!userId) return { success: false, error: 'Not authenticated' };
@@ -73,6 +76,8 @@ export function useSubmissions(userId: string | undefined, todayDate?: string) {
         return { success: false, error: error.message };
       }
       setHasSubmittedToday(true);
+      // Invalidate my-submissions cache so next gallery visit re-fetches
+      mySubmissionsCache.current = null;
       return { success: true };
     },
     [userId]
@@ -105,6 +110,11 @@ export function useSubmissions(userId: string | undefined, todayDate?: string) {
   }> => {
     if (!userId) return { data: [], error: 'Not authenticated' };
 
+    // Return cached data if available for same user (skip loading state)
+    if (mySubmissionsCache.current && mySubmissionsCache.current.userId === userId) {
+      return { data: mySubmissionsCache.current.data };
+    }
+
     setLoading(true);
     const { data, error } = await supabase
       .from('submissions')
@@ -116,7 +126,9 @@ export function useSubmissions(userId: string | undefined, todayDate?: string) {
     if (error) {
       return { data: [], error: error.message };
     }
-    return { data: (data as Submission[]) ?? [] };
+    const submissions = (data as Submission[]) ?? [];
+    mySubmissionsCache.current = { userId, data: submissions };
+    return { data: submissions };
   }, [userId]);
 
   const getAdjacentSubmissionDates = useCallback(

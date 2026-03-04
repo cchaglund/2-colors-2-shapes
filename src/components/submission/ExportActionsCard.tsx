@@ -1,3 +1,11 @@
+import { Card } from '../shared/Card';
+
+const actionBtnStyle: React.CSSProperties = {
+  background: 'var(--color-selected)',
+  border: 'var(--border-width, 2px) solid var(--color-border-light)',
+  borderRadius: 'var(--radius-md)',
+};
+
 interface ExportActionsCardProps {
   onDownloadPNG: () => void;
   onDownloadSVG: () => void;
@@ -12,8 +20,8 @@ export function ExportActionsCard({
   showDownloadButtons = true,
 }: ExportActionsCardProps) {
   return (
-    <div className="border rounded-lg p-4 bg-(--color-bg-primary) border-(--color-border)">
-      <h2 className="text-[13px] font-semibold mb-3 text-(--color-text-primary)">
+    <Card>
+      <h2 className="text-sm font-semibold mb-3 text-(--color-text-primary)">
         Export & Share
       </h2>
       <div className="space-y-1.5">
@@ -21,7 +29,8 @@ export function ExportActionsCard({
           <>
             <button
               onClick={onDownloadPNG}
-              className="w-full px-3 py-2 rounded-md cursor-pointer text-[13px] font-medium transition-colors flex items-center justify-center gap-2 bg-(--color-bg-tertiary) text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-hover)"
+              className="w-full px-3 py-2.5 cursor-pointer text-sm font-semibold transition-all flex items-center justify-center gap-1.5 text-(--color-text-primary) hover:opacity-80"
+              style={actionBtnStyle}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -32,7 +41,8 @@ export function ExportActionsCard({
             </button>
             <button
               onClick={onDownloadSVG}
-              className="w-full px-3 py-2 rounded-md cursor-pointer text-[13px] font-medium transition-colors flex items-center justify-center gap-2 bg-(--color-bg-tertiary) text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-hover)"
+              className="w-full px-3 py-2.5 cursor-pointer text-sm font-semibold transition-all flex items-center justify-center gap-1.5 text-(--color-text-primary) hover:opacity-80"
+              style={actionBtnStyle}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -45,7 +55,8 @@ export function ExportActionsCard({
         )}
         <button
           onClick={onCopyLink}
-          className="w-full px-3 py-2 rounded-md cursor-pointer text-[13px] font-medium transition-colors flex items-center justify-center gap-2 bg-(--color-bg-tertiary) text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-hover)"
+          className="w-full px-3 py-2.5 cursor-pointer text-sm font-semibold transition-all flex items-center justify-center gap-1.5 text-(--color-text-primary) hover:opacity-80"
+          style={actionBtnStyle}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
@@ -54,6 +65,6 @@ export function ExportActionsCard({
           Copy Link
         </button>
       </div>
-    </div>
+    </Card>
   );
 }

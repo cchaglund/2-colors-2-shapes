@@ -4,7 +4,13 @@
 # Run this file from the root of the project, with: `AI/ralph-afk.sh <iterations>`
 # The files referenced should all be in the features/current-feature directory.
 
-set -e
+cleanup() {
+  echo " Interrupted"
+  pkill -P $$ 2>/dev/null
+  wait 2>/dev/null
+  exit 130
+}
+trap cleanup INT TERM
 
 # This constructs the sandbox name based on the current working directory.
 # It should only be used if you created the sandbox via the command: "docker sandbox run claude ."
@@ -37,8 +43,25 @@ docker sandbox exec "$SANDBOX_NAME" bash -c '
 
 for ((i=1; i<=$1; i++)); do
   LOG_FILE="/tmp/claude-run-$$.log"
-  docker sandbox run "$SANDBOX_NAME" -- -p --verbose --output-format stream-json "@AI/RALPH.md @features/current-feature/PRD.json @features/current-feature/progress.txt (fyi: you're not able to run builds in this vm you're in, but you can probably run the dev server)" 2>&1 | tee "$LOG_FILE"
-  result=$(cat "$LOG_FILE")
+  # Python PTY wrapper: gives docker a fake terminal (so Claude streams output)
+  # without touching our real terminal (so Ctrl+C still works)
+  python3 -c '
+import pty, os, sys, subprocess, signal
+master, slave = pty.openpty()
+proc = subprocess.Popen(sys.argv[1:], stdin=slave, stdout=slave, stderr=slave)
+os.close(slave)
+signal.signal(signal.SIGTERM, lambda *_: (proc.kill(), sys.exit(130)))
+try:
+    while True:
+        data = os.read(master, 4096)
+        if not data: break
+        os.write(1, data)
+except (OSError, KeyboardInterrupt):
+    pass
+proc.wait()
+sys.exit(proc.returncode or 0)
+' docker sandbox run "$SANDBOX_NAME" -- -p --verbose --output-format stream-json "@AI/RALPH.md @features/current-feature/PRD.json @features/current-feature/progress.txt" 2>&1 | tee "$LOG_FILE" &
+  wait $! 2>/dev/null || true
 
   # Kill any orphaned processes to prevent zombie accumulation
   docker sandbox exec "$SANDBOX_NAME" bash -c '

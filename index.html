@@ -2,27 +2,27 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <!-- Primary Meta Tags -->
-    <title>3 Colors 2 Shapes - Daily Art Challenge</title>
-    <meta name="title" content="3 Colors 2 Shapes - Daily Art Challenge" />
+    <title>shapepaint.com - Daily Art Challenge</title>
+    <meta name="title" content="shapepaint.com - Daily Art Challenge" />
     <meta name="description" content="A daily creative challenge where you make art using just 3 colors and 2 shapes. New constraints every day. Save, share, and vote on submissions." />
     <meta name="keywords" content="daily art challenge, creative constraints, shape art, color challenge, digital art, minimalist art, daily creativity" />
-    <meta name="author" content="3 Colors 2 Shapes" />
+    <meta name="author" content="shapepaint.com" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://2colors2shapes.com/" />
-    <meta property="og:title" content="3 Colors 2 Shapes - Daily Art Challenge" />
+    <meta property="og:title" content="shapepaint.com - Daily Art Challenge" />
     <meta property="og:description" content="A daily creative challenge where you make art using just 3 colors and 2 shapes. New constraints every day." />
     <meta property="og:image" content="https://2colors2shapes.com/og-image.png" />
-    <meta property="og:site_name" content="3 Colors 2 Shapes" />
+    <meta property="og:site_name" content="shapepaint.com" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://2colors2shapes.com/" />
-    <meta name="twitter:title" content="3 Colors 2 Shapes - Daily Art Challenge" />
+    <meta name="twitter:title" content="shapepaint.com - Daily Art Challenge" />
     <meta name="twitter:description" content="A daily creative challenge where you make art using just 3 colors and 2 shapes. New constraints every day." />
     <meta name="twitter:image" content="https://2colors2shapes.com/og-image.png" />
 
@@ -39,7 +39,7 @@
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "3 Colors 2 Shapes",
+      "name": "shapepaint.com",
       "url": "https://2colors2shapes.com",
       "description": "A daily creative challenge where you make art using just 3 colors and 2 shapes. New constraints every day. Save, share, and vote on submissions.",
       "applicationCategory": "DesignApplication",
@@ -51,26 +51,31 @@
       },
       "author": {
         "@type": "Organization",
-        "name": "3 Colors 2 Shapes"
+        "name": "shapepaint.com"
       }
     }
     </script>
-    <!-- Apply dark mode before first paint to prevent white flash -->
+    <!-- Apply theme + dark mode before first paint to prevent white flash -->
     <style>
-      html.dark { background-color: #161616; }
+      html[data-theme="a"][data-mode="dark"] { background-color: #1A1230; }
+      html[data-theme="b"][data-mode="dark"] { background-color: #1a1a1a; }
+      html[data-theme="c"][data-mode="dark"] { background-color: #2a2520; }
     </style>
     <script>
       (function() {
-        var t = localStorage.getItem('theme-preference');
-        var dark = t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
-        if (dark) document.documentElement.classList.add('dark');
+        var mode = localStorage.getItem('theme-mode') || 'system';
+        var theme = localStorage.getItem('theme-name') || 'a';
+        var dark = mode === 'dark' || (mode === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+        var el = document.documentElement;
+        el.setAttribute('data-theme', theme);
+        el.setAttribute('data-mode', dark ? 'dark' : 'light');
       })();
     </script>
   </head>
   <body>
     <noscript>
       <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; text-align: center;">
-        <h1>3 Colors 2 Shapes</h1>
+        <h1>shapepaint.com</h1>
         <p>A daily creative challenge where you make art using just 3 colors and 2 shapes.</p>
         <p>Every day brings new color and shape constraints. Create something unique, save your work, and vote on other submissions.</p>
         <p><strong>Please enable JavaScript to use this application.</strong></p>

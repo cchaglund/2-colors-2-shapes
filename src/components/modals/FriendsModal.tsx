@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useAuth } from '../../hooks/auth/useAuth';
 import { useFollows } from '../../hooks/social/useFollows';
 import { Modal } from '../shared/Modal';
+import { CloseButton } from '../shared/CloseButton';
 import { FriendsModalTabs, type FriendsTab } from './FriendsModalTabs';
 import { FriendsList } from './FriendsList';
 import { UserSearchBar } from './UserSearchBar';
@@ -27,21 +28,13 @@ export function FriendsModal({ onClose }: FriendsModalProps) {
         <div className="flex items-center justify-between mb-4">
           <h2
             id="friends-modal-title"
-            className="text-lg font-semibold text-(--color-text-primary)"
+            className="text-xl font-semibold text-(--color-text-primary)"
           >
             Friends
           </h2>
-          <button
-            onClick={onClose}
-            className="text-(--color-text-secondary) hover:text-(--color-text-primary) transition-colors cursor-pointer"
-            aria-label="Close modal"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <CloseButton onClick={onClose} label="Close modal" />
         </div>
-        <p className="text-[13px] text-(--color-text-secondary) text-center py-8">
+        <p className="text-sm text-(--color-text-secondary) text-center py-8">
           Please sign in to manage friends
         </p>
       </Modal>
@@ -59,19 +52,11 @@ export function FriendsModal({ onClose }: FriendsModalProps) {
       <div className="flex items-center justify-between p-4 border-b border-(--color-border)">
         <h2
           id="friends-modal-title"
-          className="text-lg font-semibold text-(--color-text-primary)"
+          className="text-xl font-semibold text-(--color-text-primary)"
         >
           Friends
         </h2>
-        <button
-          onClick={onClose}
-          className="text-(--color-text-secondary) hover:text-(--color-text-primary) transition-colors cursor-pointer"
-          aria-label="Close modal"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        <CloseButton onClick={onClose} label="Close modal" />
       </div>
 
       {/* Tabs */}

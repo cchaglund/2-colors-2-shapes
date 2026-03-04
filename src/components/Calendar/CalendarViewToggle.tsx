@@ -1,4 +1,6 @@
 import type { ViewMode } from './types';
+import { ViewToggle } from '../shared/ViewToggle';
+import { useIsDesktop } from '../../hooks/ui/useBreakpoint';
 
 interface CalendarViewToggleProps {
   effectiveViewMode: ViewMode;
@@ -11,56 +13,23 @@ export function CalendarViewToggle({
   user,
   onSetViewMode,
 }: CalendarViewToggleProps) {
+  const isDesktop = useIsDesktop();
+
+  const options = [
+    { value: 'my-submissions' as ViewMode, label: isDesktop ? 'My Submissions' : 'Mine', disabled: !user, disabledTitle: 'Sign in to view my submissions' },
+    { value: 'winners' as ViewMode, label: 'Winners' },
+    { value: 'wall' as ViewMode, label: 'Wall' },
+    { value: 'friends' as ViewMode, label: 'Friends', disabled: !user, disabledTitle: 'Sign in to view friends' },
+  ];
+
   return (
-    <div className="flex rounded-md p-0.5 mb-7 border border-(--color-border) bg-(--color-bg-tertiary)">
-      <button
-        onClick={() => onSetViewMode('my-submissions')}
-        disabled={!user}
-        className={`flex-1 px-4 py-1.5 rounded text-[13px] font-medium transition-colors ${
-          !user ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-        } ${
-          effectiveViewMode === 'my-submissions'
-            ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
-            : 'bg-transparent text-(--color-text-secondary) border border-transparent'
-        }`}
-        title={!user ? 'Sign in to view your submissions' : undefined}
-      >
-        My Submissions
-      </button>
-      <button
-        onClick={() => onSetViewMode('winners')}
-        className={`flex-1 px-4 py-1.5 rounded text-[13px] font-medium transition-colors cursor-pointer ${
-          effectiveViewMode === 'winners'
-            ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
-            : 'bg-transparent text-(--color-text-secondary) border border-transparent'
-        }`}
-      >
-        Winners
-      </button>
-      <button
-        onClick={() => onSetViewMode('wall')}
-        className={`flex-1 px-4 py-1.5 rounded text-[13px] font-medium transition-colors cursor-pointer ${
-          effectiveViewMode === 'wall'
-            ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
-            : 'bg-transparent text-(--color-text-secondary) border border-transparent'
-        }`}
-      >
-        Wall
-      </button>
-      <button
-        onClick={() => onSetViewMode('friends')}
-        disabled={!user}
-        className={`flex-1 px-4 py-1.5 rounded text-[13px] font-medium transition-colors ${
-          !user ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-        } ${
-          effectiveViewMode === 'friends'
-            ? 'bg-(--color-selected) text-(--color-text-primary) border border-(--color-border-light)'
-            : 'bg-transparent text-(--color-text-secondary) border border-transparent'
-        }`}
-        title={!user ? 'Sign in to see friends\' submissions' : undefined}
-      >
-        Friends
-      </button>
-    </div>
+    <ViewToggle
+      options={options}
+      activeValue={effectiveViewMode}
+      onChange={onSetViewMode}
+      size="md"
+      fullWidth
+      className="mb-7"
+    />
   );
 }

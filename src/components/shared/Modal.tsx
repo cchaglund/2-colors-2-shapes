@@ -7,9 +7,9 @@ interface ModalProps {
   size?: string;
   /** Additional classes on the content box */
   className?: string;
-  /** Close when pressing Escape. Default: true */
+  /** Close when pressing Escape. Default: false */
   closeOnEscape?: boolean;
-  /** Close when clicking the backdrop. Default: true */
+  /** Close when clicking the backdrop. Default: false */
   closeOnBackdropClick?: boolean;
   /** aria-labelledby id for accessibility */
   ariaLabelledBy?: string;
@@ -24,8 +24,8 @@ export function Modal({
   children,
   size = 'max-w-lg',
   className = '',
-  closeOnEscape = true,
-  closeOnBackdropClick = true,
+  closeOnEscape = false,
+  closeOnBackdropClick = false,
   ariaLabelledBy,
   zIndex = 'z-50',
   dataTestId,
@@ -89,7 +89,7 @@ export function Modal({
     >
       <div
         ref={modalRef}
-        className={`bg-(--color-bg-primary) border border-(--color-border) rounded-lg p-6 w-full ${size} mx-4 ${className}`}
+        className={`p-4 md:p-6 w-full ${size} mx-4 max-h-[90vh] overflow-y-auto bg-(--color-modal-bg) border-[length:var(--border-width,2px)] border-solid border-(--color-border) rounded-(--radius-lg) shadow-(--shadow-modal) ${className}`}
       >
         {children}
       </div>

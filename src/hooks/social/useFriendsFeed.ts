@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { supabase } from '../../lib/supabase';
 import type { Shape, ShapeGroup } from '../../types';
 import { getTodayDateUTC } from '../../utils/dailyChallenge';
+import { getAdjacentDates, isDateWithinLastTwoDays } from '../../utils/calendarUtils';
 import { canViewCurrentDay as canViewCurrentDayUtil } from '../../utils/privacyRules';
 import { fisherYatesShuffle } from '../../utils/wallSorting';
 import { useFollows } from './useFollows';
@@ -71,42 +72,6 @@ export function invalidateFriendsFeedCache(date?: string): void {
  */
 export function clearAllFriendsFeedCache(): void {
   friendsFeedCache.clear();
-}
-
-// =============================================================================
-// Date Utilities
-// =============================================================================
-
-function getAdjacentDates(date: string): { prev: string | null; next: string | null } {
-  const today = getTodayDateUTC();
-  const targetDate = new Date(date + 'T00:00:00Z');
-
-  // Previous day
-  const prevDate = new Date(targetDate);
-  prevDate.setUTCDate(prevDate.getUTCDate() - 1);
-  const prev = prevDate.toISOString().split('T')[0];
-
-  // Next day (only if not already today or in the future)
-  let next: string | null = null;
-  if (date < today) {
-    const nextDate = new Date(targetDate);
-    nextDate.setUTCDate(nextDate.getUTCDate() + 1);
-    const nextStr = nextDate.toISOString().split('T')[0];
-    if (nextStr <= today) {
-      next = nextStr;
-    }
-  }
-
-  return { prev, next };
-}
-
-function isDateWithinLastTwoDays(date: string): boolean {
-  const today = getTodayDateUTC();
-  const yesterday = new Date(today + 'T00:00:00Z');
-  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
-  const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-  return date === today || date === yesterdayStr;
 }
 
 // =============================================================================
@@ -181,7 +146,24 @@ async function fetchFriendsSubmissions(
       }
     }
 
-    // Map submissions with nicknames
+    // Batch fetch final_rank from daily_rankings
+    const submissionIds = submissions.map(s => s.id);
+    const rankMap = new Map<string, number>();
+    const { data: rankings, error: rankingsError } = await supabase
+      .from('daily_rankings')
+      .select('submission_id, final_rank')
+      .in('submission_id', submissionIds)
+      .not('final_rank', 'is', null);
+
+    if (rankingsError) {
+      console.error('Failed to fetch rankings:', rankingsError);
+    } else if (rankings) {
+      for (const r of rankings) {
+        rankMap.set(r.submission_id, r.final_rank as number);
+      }
+    }
+
+    // Map submissions with nicknames and ranks
     const friendsSubmissions: FriendsSubmission[] = submissions.map(s => ({
       id: s.id,
       user_id: s.user_id,
@@ -190,7 +172,7 @@ async function fetchFriendsSubmissions(
       groups: (s.groups as ShapeGroup[]) || [],
       background_color_index: s.background_color_index,
       created_at: s.created_at,
-      final_rank: undefined, // TODO: join from daily_rankings if needed
+      final_rank: rankMap.get(s.id),
     }));
 
     return friendsSubmissions;

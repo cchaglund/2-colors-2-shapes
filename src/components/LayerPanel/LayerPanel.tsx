@@ -1,13 +1,11 @@
 import { useState, useMemo } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import type { Shape, ShapeGroup } from '../../types';
 import { useIsTouchDevice } from '../../hooks/ui/useIsTouchDevice';
+import { IS_MAC } from '../../utils/platform';
 import type { LayerPanelProps, LayerItem } from './types';
 import { LayerItem as LayerItemComponent } from './LayerItem';
 import { GroupHeader } from './GroupHeader';
-
-
-// Detect if user is on macOS for modifier key instructions
-const isMac = typeof navigator !== 'undefined' && navigator.userAgent.includes('Mac');
 
 export function LayerPanel({
   shapes,
@@ -30,7 +28,6 @@ export function LayerPanel({
   onToggleGroupVisibility,
   onSelectGroup,
   onToggle,
-  onStartResize,
   onHoverShape,
 }: LayerPanelProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -117,10 +114,9 @@ export function LayerPanel({
           ids.push(shape.id);
         }
 
-        if (!group.isCollapsed) {
-          for (const shape of shapesInGroup) {
-            items.push({ type: 'shape', shape, belongsToGroupId: group.id });
-          }
+        // Always include children — collapse animation handled in render
+        for (const shape of shapesInGroup) {
+          items.push({ type: 'shape', shape, belongsToGroupId: group.id });
         }
       } else {
         items.push({ type: 'shape', shape: topItem.shape });
@@ -132,7 +128,7 @@ export function LayerPanel({
   }, [sortedShapes, groups]);
 
   // Modifier key hint text
-  const modifierKeyHint = isMac ? '⌘' : 'Ctrl';
+  const modifierKeyHint = IS_MAC ? '⌘' : 'Ctrl';
 
   // Hint text varies by device type and multi-select mode
   const getLayerHint = () => {
@@ -149,7 +145,7 @@ export function LayerPanel({
 
   // Handle layer click with modifier key support
   const handleLayerClick = (e: React.MouseEvent, shapeId: string) => {
-    const isToggleModifier = isMac ? e.metaKey : e.ctrlKey;
+    const isToggleModifier = IS_MAC ? e.metaKey : e.ctrlKey;
     const isRangeModifier = e.shiftKey;
 
     if (isTouchDevice && isMultiSelectMode) {
@@ -166,7 +162,7 @@ export function LayerPanel({
   // Handle group header click
   const handleGroupClick = (e: React.MouseEvent, groupId: string) => {
     e.stopPropagation();
-    const isToggleModifier = isMac ? e.metaKey : e.ctrlKey;
+    const isToggleModifier = IS_MAC ? e.metaKey : e.ctrlKey;
     const shouldToggle = (isTouchDevice && isMultiSelectMode) || isToggleModifier;
     onSelectGroup(groupId, { toggle: shouldToggle });
   };
@@ -269,20 +265,22 @@ export function LayerPanel({
   // Group action handlers
   const canCreateGroup = selectedShapeIds.size >= 2;
 
-  const selectedShapesInGroup = useMemo(() => {
-    const selectedShapes = shapes.filter((s) => selectedShapeIds.has(s.id));
-    return selectedShapes.some((s) => s.groupId);
+  // Determine which selected shapes are in a group
+  const selectedInGroupIds = useMemo(() => {
+    const ids: string[] = [];
+    for (const shape of shapes) {
+      if (selectedShapeIds.has(shape.id) && shape.groupId) {
+        ids.push(shape.id);
+      }
+    }
+    return ids;
   }, [shapes, selectedShapeIds]);
+
+  const canUngroup = selectedInGroupIds.length > 0;
 
   const handleCreateGroup = () => {
     if (canCreateGroup) {
       onCreateGroup(Array.from(selectedShapeIds));
-    }
-  };
-
-  const handleUngroup = () => {
-    if (selectedShapesInGroup) {
-      onUngroupShapes(Array.from(selectedShapeIds));
     }
   };
 
@@ -291,56 +289,80 @@ export function LayerPanel({
 
   return (
     <div
-      className="overflow-y-auto h-full w-full relative flex flex-col bg-(--color-bg-primary) border-l border-(--color-border)"
+      className="w-full flex flex-col bg-(--color-card-bg)"
+      style={{
+        border: 'var(--border-width, 2px) solid var(--color-border)',
+        borderRadius: 'var(--radius-lg)',
+        boxShadow: 'var(--shadow-card)',
+        maxHeight: 'calc(100vh - 140px)',
+      }}
     >
-      {/* Resize handle */}
-      <div
-        className="absolute top-0 left-0 w-1 h-full cursor-col-resize hover:bg-(--color-accent) transition-colors"
-        onMouseDown={onStartResize}
-      />
+      {/* Header: layers icon + 'Layers' + count badge + group icon button + close button */}
+      <div className="flex items-center gap-2 px-3 py-2.5 shrink-0" style={{ borderBottom: 'var(--border-width, 2px) solid var(--color-selected)' }}>
+        {/* Layers icon */}
+        <svg className="shrink-0 text-(--color-text-secondary)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polygon points="12 2 2 7 12 12 22 7 12 2" />
+          <polyline points="2 17 12 22 22 17" />
+          <polyline points="2 12 12 17 22 12" />
+        </svg>
+        <span className="text-sm font-bold text-(--color-text-primary)">Layers</span>
+        {/* Count badge */}
+        <span className="text-xs font-medium px-1.5 py-0.5 rounded-(--radius-pill) bg-(--color-bg-tertiary) text-(--color-text-secondary) leading-none">
+          {shapes.length}
+        </span>
+
+        <div className="flex-1" />
+
+        {/* Group icon button */}
+        <button
+          className="w-6 h-6 flex items-center justify-center bg-transparent border-none cursor-pointer rounded transition-colors text-(--color-text-tertiary) hover:text-(--color-text-primary) hover:bg-(--color-hover) disabled:opacity-30 disabled:cursor-not-allowed"
+          disabled={!canCreateGroup}
+          onClick={handleCreateGroup}
+          title={canCreateGroup ? 'Group selected shapes' : 'Select 2+ shapes to group'}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="2" width="8" height="8" rx="1" />
+            <rect x="14" y="2" width="8" height="8" rx="1" />
+            <rect x="2" y="14" width="8" height="8" rx="1" />
+            <rect x="14" y="14" width="8" height="8" rx="1" />
+          </svg>
+        </button>
+
+        {/* Ungroup icon button — enabled when selected shapes are in a group */}
+        <button
+          className="w-6 h-6 flex items-center justify-center bg-transparent border-none cursor-pointer rounded transition-colors text-(--color-text-tertiary) hover:text-(--color-text-primary) hover:bg-(--color-hover) disabled:opacity-30 disabled:cursor-not-allowed"
+          disabled={!canUngroup}
+          onClick={() => onUngroupShapes(selectedInGroupIds)}
+          title={canUngroup ? 'Ungroup selected shapes' : 'Select grouped shapes to ungroup'}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="2" width="8" height="8" rx="1" />
+            <rect x="14" y="14" width="8" height="8" rx="1" />
+            <path d="M14 7h3M7 14v3" />
+          </svg>
+        </button>
+
+        {/* Close button */}
+        <button
+          className="w-6 h-6 flex items-center justify-center bg-transparent border-none cursor-pointer rounded transition-colors text-(--color-text-tertiary) hover:text-(--color-text-secondary) hover:bg-(--color-hover)"
+          onClick={onToggle}
+          title="Hide Layers"
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <line x1="2" y1="2" x2="10" y2="10" />
+            <line x1="10" y1="2" x2="2" y2="10" />
+          </svg>
+        </button>
+      </div>
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto px-4">
-        {/* Header with collapse */}
-        <div className="flex items-center justify-between py-3 border-b border-(--color-border-light)">
-          <span className="text-[13px] font-medium text-(--color-text-primary)">Layers</span>
-          <button
-            className="w-6 h-6 flex items-center justify-center bg-transparent border-none cursor-pointer rounded transition-colors text-(--color-text-tertiary) hover:text-(--color-text-secondary) hover:bg-(--color-hover)"
-            onClick={onToggle}
-            title="Hide Layers"
-          >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <polyline points="4 2 8 6 4 10" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Group/Ungroup buttons */}
-        <div className="flex gap-1 py-3 border-b border-(--color-border-light)">
-          <button
-            className="flex-1 px-2 py-1.5 text-[11px] rounded-md cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed bg-transparent border border-(--color-border) text-(--color-text-secondary) hover:enabled:bg-(--color-hover) hover:enabled:text-(--color-text-primary)"
-            disabled={!canCreateGroup}
-            onClick={handleCreateGroup}
-            title={canCreateGroup ? 'Group selected shapes' : 'Select 2+ shapes to group'}
-          >
-            Group
-          </button>
-          <button
-            className="flex-1 px-2 py-1.5 text-[11px] rounded-md cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed bg-transparent border border-(--color-border) text-(--color-text-secondary) hover:enabled:bg-(--color-hover) hover:enabled:text-(--color-text-primary)"
-            disabled={!selectedShapesInGroup}
-            onClick={handleUngroup}
-            title={selectedShapesInGroup ? 'Ungroup selected shapes' : 'Select grouped shapes to ungroup'}
-          >
-            Ungroup
-          </button>
-        </div>
-
+      <div className="flex-1 overflow-y-auto px-3">
         {/* Multi-select toggle for touch devices */}
         {isTouchDevice && (
           <button
-            className={`w-full px-2 py-2 text-[11px] rounded-md cursor-pointer transition-colors my-3 border ${
+            className={`w-full px-2 py-2 text-xs rounded-(--radius-md) cursor-pointer transition-colors my-2 border ${
               isMultiSelectMode
-                ? 'bg-(--color-accent) text-white border-(--color-accent)'
+                ? 'bg-(--color-accent) text-(--color-accent-text) border-(--color-accent)'
                 : 'bg-transparent text-(--color-text-secondary) border-(--color-border)'
             }`}
             onClick={() => setIsMultiSelectMode(!isMultiSelectMode)}
@@ -350,87 +372,153 @@ export function LayerPanel({
         )}
 
         {/* Layer list */}
-        <div className="py-3">
+        <div className="py-2">
           {sortedShapes.length === 0 ? (
-            <p className="text-[13px] text-center py-4 text-(--color-text-tertiary)">No shapes yet. Add one!</p>
+            <p className="text-sm text-center py-4 text-(--color-text-tertiary)">No shapes yet</p>
           ) : (
         <ul className="list-none p-0 m-0">
-          {layerItems.map((item) => {
-            if (item.type === 'group-header' && item.group && item.shapesInGroup) {
-              return (
-                <GroupHeader
-                  key={`group-${item.group.id}`}
-                  group={item.group}
-                  shapesInGroup={item.shapesInGroup}
-                  selectedShapeIds={selectedShapeIds}
-                  editingGroupId={editingGroupId}
-                  editValue={editValue}
-                  isTouchDevice={isTouchDevice}
-                  isMultiSelectMode={isMultiSelectMode}
-                  modifierKeyHint={modifierKeyHint}
-                  isTop={item.isTopItem ?? false}
-                  isBottom={item.isBottomItem ?? false}
-                  topLevelIndex={item.topLevelIndex ?? 0}
-                  draggedGroupId={draggedGroupId}
-                  dropTargetTopLevelIndex={dropTargetTopLevelIndex}
-                  onGroupClick={handleGroupClick}
-                  onStartEditingGroup={startEditingGroup}
-                  onEditValueChange={setEditValue}
-                  onFinishEditing={finishEditing}
-                  onKeyDown={handleKeyDown}
-                  onToggleGroupCollapsed={onToggleGroupCollapsed}
-                  onToggleGroupVisibility={onToggleGroupVisibility}
-                  onDeleteGroup={onDeleteGroup}
-                  onMoveGroup={onMoveGroup}
-                  onGroupDragStart={handleGroupDragStart}
-                  onGroupDragEnd={handleGroupDragEnd}
-                  onGroupDragOver={handleGroupDragOver}
-                  onGroupDrop={handleGroupDrop}
-                  onHoverShape={onHoverShape}
-                />
-              );
-            } else if (item.type === 'shape' && item.shape) {
-              const currentIndex = shapeIndex++;
-              const isInGroup = !!item.shape.groupId;
-              const groupId = item.belongsToGroupId || null;
-              return (
-                <LayerItemComponent
-                  key={item.shape.id}
-                  shape={item.shape}
-                  index={currentIndex}
-                  isInGroup={isInGroup}
-                  groupId={groupId}
-                  challenge={challenge}
-                  selectedShapeIds={selectedShapeIds}
-                  editingId={editingId}
-                  editValue={editValue}
-                  draggedId={draggedId}
-                  dropTargetIndex={dropTargetIndex}
-                  isTouchDevice={isTouchDevice}
-                  isTopLayer={isTopLayer(item.shape)}
-                  isBottomLayer={isBottomLayer(item.shape)}
-                  layerHint={getLayerHint()}
-                  onLayerClick={handleLayerClick}
-                  onStartEditing={startEditing}
-                  onEditValueChange={setEditValue}
-                  onFinishEditing={finishEditing}
-                  onKeyDown={handleKeyDown}
-                  onDragStart={handleDragStart}
-                  onDragEnd={handleDragEnd}
-                  onDragOver={handleDragOver}
-                  onDrop={handleDrop}
-                  onMoveLayer={onMoveLayer}
-                  onDeleteShape={onDeleteShape}
-                  onToggleVisibility={onToggleShapeVisibility}
-                  onHoverShape={onHoverShape}
-                  groupVisible={item.shape.groupId
-                    ? groups.find(g => g.id === item.shape!.groupId)?.visible !== false
-                    : true}
-                />
-              );
+          {(() => {
+            const elements: React.ReactNode[] = [];
+            let i = 0;
+            while (i < layerItems.length) {
+              const item = layerItems[i];
+              if (item.type === 'group-header' && item.group && item.shapesInGroup) {
+                const group = item.group;
+                const isCollapsed = group.isCollapsed;
+                elements.push(
+                  <GroupHeader
+                    key={`group-${group.id}`}
+                    group={group}
+                    shapesInGroup={item.shapesInGroup}
+                    selectedShapeIds={selectedShapeIds}
+                    editingGroupId={editingGroupId}
+                    editValue={editValue}
+                    isTouchDevice={isTouchDevice}
+                    isMultiSelectMode={isMultiSelectMode}
+                    modifierKeyHint={modifierKeyHint}
+                    isTop={item.isTopItem ?? false}
+                    isBottom={item.isBottomItem ?? false}
+                    topLevelIndex={item.topLevelIndex ?? 0}
+                    draggedGroupId={draggedGroupId}
+                    dropTargetTopLevelIndex={dropTargetTopLevelIndex}
+                    onGroupClick={handleGroupClick}
+                    onStartEditingGroup={startEditingGroup}
+                    onEditValueChange={setEditValue}
+                    onFinishEditing={finishEditing}
+                    onKeyDown={handleKeyDown}
+                    onToggleGroupCollapsed={onToggleGroupCollapsed}
+                    onToggleGroupVisibility={onToggleGroupVisibility}
+                    onDeleteGroup={onDeleteGroup}
+                    onMoveGroup={onMoveGroup}
+                    onGroupDragStart={handleGroupDragStart}
+                    onGroupDragEnd={handleGroupDragEnd}
+                    onGroupDragOver={handleGroupDragOver}
+                    onGroupDrop={handleGroupDrop}
+                    onHoverShape={onHoverShape}
+                    onUngroupShapes={onUngroupShapes}
+                  />
+                );
+
+                // Collect consecutive children belonging to this group
+                const groupChildren: LayerItem[] = [];
+                let j = i + 1;
+                while (j < layerItems.length && layerItems[j].type === 'shape' && layerItems[j].belongsToGroupId === group.id) {
+                  groupChildren.push(layerItems[j]);
+                  j++;
+                }
+
+                elements.push(
+                  <AnimatePresence key={`group-children-${group.id}`}>
+                    {!isCollapsed && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        style={{ overflow: 'hidden', paddingLeft: 12 }}
+                      >
+                        {groupChildren.map((child) => {
+                          const shape = child.shape!;
+                          const currentIndex = shapeIndex++;
+                          return (
+                            <LayerItemComponent
+                              key={shape.id}
+                              shape={shape}
+                              index={currentIndex}
+                              isInGroup={true}
+                              groupId={child.belongsToGroupId || null}
+                              challenge={challenge}
+                              selectedShapeIds={selectedShapeIds}
+                              editingId={editingId}
+                              editValue={editValue}
+                              draggedId={draggedId}
+                              dropTargetIndex={dropTargetIndex}
+                              isTopLayer={isTopLayer(shape)}
+                              isBottomLayer={isBottomLayer(shape)}
+                              layerHint={getLayerHint()}
+                              onLayerClick={handleLayerClick}
+                              onStartEditing={startEditing}
+                              onEditValueChange={setEditValue}
+                              onFinishEditing={finishEditing}
+                              onKeyDown={handleKeyDown}
+                              onDragStart={handleDragStart}
+                              onDragEnd={handleDragEnd}
+                              onDragOver={handleDragOver}
+                              onDrop={handleDrop}
+                              onMoveLayer={onMoveLayer}
+                              onDeleteShape={onDeleteShape}
+                              onToggleVisibility={onToggleShapeVisibility}
+                              onHoverShape={onHoverShape}
+                              groupVisible={groups.find(g => g.id === shape.groupId)?.visible !== false}
+                            />
+                          );
+                        })}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                );
+
+                i = j; // Skip past the children we already rendered
+              } else if (item.type === 'shape' && item.shape) {
+                const currentIndex = shapeIndex++;
+                elements.push(
+                  <LayerItemComponent
+                    key={item.shape.id}
+                    shape={item.shape}
+                    index={currentIndex}
+                    isInGroup={false}
+                    groupId={null}
+                    challenge={challenge}
+                    selectedShapeIds={selectedShapeIds}
+                    editingId={editingId}
+                    editValue={editValue}
+                    draggedId={draggedId}
+                    dropTargetIndex={dropTargetIndex}
+                    isTopLayer={isTopLayer(item.shape)}
+                    isBottomLayer={isBottomLayer(item.shape)}
+                    layerHint={getLayerHint()}
+                    onLayerClick={handleLayerClick}
+                    onStartEditing={startEditing}
+                    onEditValueChange={setEditValue}
+                    onFinishEditing={finishEditing}
+                    onKeyDown={handleKeyDown}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                    onMoveLayer={onMoveLayer}
+                    onDeleteShape={onDeleteShape}
+                    onToggleVisibility={onToggleShapeVisibility}
+                    onHoverShape={onHoverShape}
+                    groupVisible={true}
+                  />
+                );
+                i++;
+              } else {
+                i++;
+              }
             }
-            return null;
-          })}
+            return elements;
+          })()}
         </ul>
           )}
         </div>

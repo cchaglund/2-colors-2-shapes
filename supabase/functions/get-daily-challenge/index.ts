@@ -80,8 +80,6 @@ type ShapeType =
   | 'hexagon'
   | 'star'
   | 'rightTriangle'
-  | 'isoscelesTriangle'
-  | 'diamond'
   | 'trapezoid'
   | 'parallelogram'
   | 'kite'
@@ -91,11 +89,8 @@ type ShapeType =
   | 'semicircle'
   | 'quarterCircle'
   | 'ellipse'
-  | 'blade'
   | 'lens'
   | 'arch'
-  | 'drop'
-  | 'shard'
   | 'wedge'
   | 'fan'
   | 'hook'
@@ -103,12 +98,10 @@ type ShapeType =
   | 'crescent'
   | 'pill'
   | 'splinter'
-  | 'chunk'
   | 'fang'
   | 'claw'
   | 'fin'
-  | 'thorn'
-  | 'slant'
+  | 'keyhole'
   | 'notch'
   | 'spike'
   | 'bulge'
@@ -156,8 +149,6 @@ const SHAPE_NAMES: Record<ShapeType, string> = {
   hexagon: 'Hexagon',
   star: 'Star',
   rightTriangle: 'Right Triangle',
-  isoscelesTriangle: 'Isosceles Triangle',
-  diamond: 'Diamond',
   trapezoid: 'Trapezoid',
   parallelogram: 'Parallelogram',
   kite: 'Kite',
@@ -167,11 +158,8 @@ const SHAPE_NAMES: Record<ShapeType, string> = {
   semicircle: 'Semicircle',
   quarterCircle: 'Quarter Circle',
   ellipse: 'Ellipse',
-  blade: 'Blade',
   lens: 'Lens',
   arch: 'Arch',
-  drop: 'Drop',
-  shard: 'Shard',
   wedge: 'Wedge',
   fan: 'Fan',
   hook: 'Hook',
@@ -179,12 +167,10 @@ const SHAPE_NAMES: Record<ShapeType, string> = {
   crescent: 'Crescent',
   pill: 'Pill',
   splinter: 'Splinter',
-  chunk: 'Chunk',
   fang: 'Fang',
   claw: 'Claw',
   fin: 'Fin',
-  thorn: 'Thorn',
-  slant: 'Slant',
+  keyhole: 'Keyhole',
   notch: 'Notch',
   spike: 'Spike',
   bulge: 'Bulge',
@@ -255,10 +241,6 @@ function getShapeSVG(type: ShapeType): string {
     }
     case 'rightTriangle':
       return `M 0,${size} L ${size},${size} L 0,0 Z`;
-    case 'isoscelesTriangle':
-      return `M ${half},0 L ${size},${size} L 0,${size} Z`;
-    case 'diamond':
-      return `M ${half},0 L ${size},${half} L ${half},${size} L 0,${half} Z`;
     case 'trapezoid': {
       const inset = size * 0.2;
       return `M ${inset},0 L ${size - inset},0 L ${size},${size} L 0,${size} Z`;
@@ -291,10 +273,6 @@ function getShapeSVG(type: ShapeType): string {
       return `M 0,0 L ${size},0 A ${size},${size} 0 0 1 0,${size} L 0,0 Z`;
     case 'ellipse':
       return `M ${half},${half - size/3} A ${half},${size/3} 0 1 1 ${half},${half + size/3} A ${half},${size/3} 0 1 1 ${half},${half - size/3} Z`;
-    case 'blade': {
-      const controlOffset = size * 0.5;
-      return `M ${half},0 Q ${size + controlOffset * 0.5},${size * 0.35} ${half},${size} Q ${-controlOffset * 0.5},${size * 0.65} ${half},0 Z`;
-    }
     case 'lens': {
       const radius = size * 0.7;
       return `M 0,${half} A ${radius},${radius} 0 0 1 ${size},${half} A ${radius},${radius} 0 0 1 0,${half} Z`;
@@ -306,10 +284,6 @@ function getShapeSVG(type: ShapeType): string {
       const outerRadius = half;
       return `M 0,${size} L 0,${size * 0.4} A ${outerRadius},${outerRadius} 0 0 1 ${size},${size * 0.4} L ${size},${size} L ${size - archWidth},${size} L ${size - archWidth},${size * 0.4 + archWidth * 0.5} A ${innerRadius},${innerRadius} 0 0 0 ${archWidth},${size * 0.4 + archWidth * 0.5} L ${archWidth},${size} Z`;
     }
-    case 'drop':
-      return `M ${half},0 C ${size * 0.9},${size * 0.4} ${size * 0.9},${size * 0.7} ${half},${size} C ${size * 0.1},${size * 0.7} ${size * 0.1},${size * 0.4} ${half},0 Z`;
-    case 'shard':
-      return polygonToPath(`${size * 0.2},0 ${size * 0.9},${size * 0.15} ${size},${size * 0.6} ${half},${size} 0,${size * 0.7} ${size * 0.1},${size * 0.3}`);
     case 'wedge':
       return polygonToPath(`${half},0 ${size},${size * 0.3} ${size * 0.8},${size} ${size * 0.2},${size} 0,${half}`);
     case 'fan':
@@ -333,18 +307,14 @@ function getShapeSVG(type: ShapeType): string {
     }
     case 'splinter':
       return polygonToPath(`${size * 0.4},0 ${size * 0.6},0 ${size * 0.8},${size * 0.3} ${size},${size} ${size * 0.7},${size * 0.6} ${size * 0.3},${size * 0.8} 0,${size * 0.4}`);
-    case 'chunk':
-      return polygonToPath(`${size * 0.1},${size * 0.1} ${size * 0.6},0 ${size},${size * 0.2} ${size * 0.9},${size * 0.7} ${size * 0.6},${size} ${size * 0.2},${size * 0.9} 0,${half}`);
     case 'fang':
       return `M ${size * 0.3},0 L ${size * 0.7},0 L ${half},${size} Q ${size * 0.2},${size * 0.6} ${size * 0.3},0 Z`;
     case 'claw':
       return `M ${size * 0.2},${size} L ${half},${size} L ${size * 0.6},${size * 0.7} Q ${size * 0.9},${size * 0.3} ${half},0 Q ${size * 0.3},${size * 0.2} ${size * 0.35},${half} L ${size * 0.2},${size} Z`;
     case 'fin':
       return `M 0,${size} L ${size * 0.3},${size * 0.7} L ${size * 0.2},${size * 0.2} L ${size * 0.8},0 Q ${size},${size * 0.4} ${size * 0.7},${size} Z`;
-    case 'thorn':
+    case 'keyhole':
       return `M ${half},0 Q ${size * 0.8},${size * 0.3} ${size * 0.7},${size * 0.6} L ${size * 0.9},${size} L ${size * 0.1},${size} L ${size * 0.3},${size * 0.6} Q ${size * 0.2},${size * 0.3} ${half},0 Z`;
-    case 'slant':
-      return `M ${size * 0.3},0 L ${size},0 L ${size * 0.7},${size} L 0,${size} Q ${size * 0.1},${half} ${size * 0.3},0 Z`;
     case 'notch':
       return `M 0,0 L ${size},0 L ${size},${size * 0.6} Q ${half},${size * 0.4} 0,${size * 0.6} L 0,0 Z`;
     case 'spike':
@@ -442,6 +412,49 @@ function oklchToHsl(oklch: OKLCH): { h: number; s: number; l: number } {
 }
 
 // =============================================================================
+// sRGB Gamut Mapping for OKLCH
+// =============================================================================
+
+// Check if an OKLCH color maps to valid sRGB (no channel outside [0, 1])
+function isOklchInGamut(l: number, c: number, h: number): boolean {
+  const hRad = (h * Math.PI) / 180;
+  const a = c * Math.cos(hRad);
+  const b = c * Math.sin(hRad);
+
+  const l_ = l + 0.3963377774 * a + 0.2158037573 * b;
+  const m_ = l - 0.1055613458 * a - 0.0638541728 * b;
+  const s_ = l - 0.0894841775 * a - 1.291485548 * b;
+
+  const l3 = l_ * l_ * l_;
+  const m3 = m_ * m_ * m_;
+  const s3 = s_ * s_ * s_;
+
+  const rLinear = 4.0767416621 * l3 - 3.3077115913 * m3 + 0.2309699292 * s3;
+  const gLinear = -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3;
+  const bLinear = -0.0041960863 * l3 - 0.7034186147 * m3 + 1.707614701 * s3;
+
+  const eps = 0.001;
+  return rLinear >= -eps && rLinear <= 1 + eps &&
+         gLinear >= -eps && gLinear <= 1 + eps &&
+         bLinear >= -eps && bLinear <= 1 + eps;
+}
+
+// Binary search for the maximum in-gamut chroma at a given lightness and hue
+function maxChromaInGamut(l: number, h: number): number {
+  let lo = 0;
+  let hi = 0.5;
+  for (let i = 0; i < 16; i++) {
+    const mid = (lo + hi) / 2;
+    if (isOklchInGamut(l, mid, h)) {
+      lo = mid;
+    } else {
+      hi = mid;
+    }
+  }
+  return lo;
+}
+
+// =============================================================================
 // Muddy Hue Exclusion
 // =============================================================================
 
@@ -480,7 +493,11 @@ function dateToSeed(dateStr: string): number {
 function generateColorWithOKLCH(random: () => number, hue: number): string {
   const { oklch } = COLOR_CONFIG;
   const l = oklch.lightness.min + random() * (oklch.lightness.max - oklch.lightness.min);
-  const c = oklch.chroma.min + random() * (oklch.chroma.max - oklch.chroma.min);
+  // Gamut map: cap chroma to the maximum that stays within sRGB
+  const maxC = maxChromaInGamut(l, hue);
+  const effectiveMax = Math.min(oklch.chroma.max, maxC);
+  const effectiveMin = Math.min(oklch.chroma.min, effectiveMax);
+  const c = effectiveMin + random() * (effectiveMax - effectiveMin);
   const hsl = oklchToHsl({ l, c, h: hue });
   return `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
 }

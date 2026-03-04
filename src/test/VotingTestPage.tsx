@@ -452,7 +452,7 @@ export function VotingTestPage() {
           <div className="text-center">
             <button
               onClick={() => setShowModal(true)}
-              className="px-6 py-3 bg-(--color-accent) text-white rounded-lg font-medium hover:bg-(--color-accent-hover)"
+              className="px-6 py-3 bg-(--color-accent) text-(--color-accent-text) rounded-lg font-medium hover:bg-(--color-accent-hover)"
             >
               Show Winner Modal
             </button>
@@ -466,7 +466,7 @@ export function VotingTestPage() {
           <div className="text-center">
             <button
               onClick={() => setShowModal(true)}
-              className="px-6 py-3 bg-(--color-accent) text-white rounded-lg font-medium hover:bg-(--color-accent-hover)"
+              className="px-6 py-3 bg-(--color-accent) text-(--color-accent-text) rounded-lg font-medium hover:bg-(--color-accent-hover)"
             >
               Show Tied Winner Modal
             </button>
@@ -480,7 +480,7 @@ export function VotingTestPage() {
           <div className="text-center">
             <button
               onClick={() => setShowModal(true)}
-              className="px-6 py-3 bg-(--color-accent) text-white rounded-lg font-medium hover:bg-(--color-accent-hover)"
+              className="px-6 py-3 bg-(--color-accent) text-(--color-accent-text) rounded-lg font-medium hover:bg-(--color-accent-hover)"
             >
               Show Three-Way Tie Modal
             </button>
@@ -501,7 +501,7 @@ export function VotingTestPage() {
           <div className="text-center">
             <button
               onClick={() => setShowModal(true)}
-              className="px-6 py-3 bg-(--color-accent) text-white rounded-lg font-medium hover:bg-(--color-accent-hover)"
+              className="px-6 py-3 bg-(--color-accent) text-(--color-accent-text) rounded-lg font-medium hover:bg-(--color-accent-hover)"
             >
               Show Congrats Modal
             </button>
@@ -547,7 +547,7 @@ export function VotingTestPage() {
               }}
               className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                 activeScenario === scenario
-                  ? 'bg-(--color-accent) text-white'
+                  ? 'bg-(--color-accent) text-(--color-accent-text)'
                   : 'text-(--color-text-primary) hover:bg-(--color-bg-secondary)'
               }`}
             >
@@ -569,7 +569,7 @@ export function VotingTestPage() {
               }}
               className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                 activeScenario === scenario
-                  ? 'bg-(--color-accent) text-white'
+                  ? 'bg-(--color-accent) text-(--color-accent-text)'
                   : 'text-(--color-text-primary) hover:bg-(--color-bg-secondary)'
               }`}
             >
@@ -591,7 +591,7 @@ export function VotingTestPage() {
               }}
               className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                 activeScenario === scenario
-                  ? 'bg-(--color-accent) text-white'
+                  ? 'bg-(--color-accent) text-(--color-accent-text)'
                   : 'text-(--color-text-primary) hover:bg-(--color-bg-secondary)'
               }`}
             >
