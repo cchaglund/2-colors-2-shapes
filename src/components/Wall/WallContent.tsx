@@ -77,12 +77,7 @@ export function WallContent({
       const daysInMonth = getDaysInMonth(calendarYear, calendarMonth);
       const endDate = formatDate(calendarYear, calendarMonth, daysInMonth);
 
-      const data = await fetchSubmissionCountsByDateRange(startDate, endDate);
-
-      const counts: SubmissionCountByDate = {};
-      data.forEach((s: { challenge_date: string }) => {
-        counts[s.challenge_date] = (counts[s.challenge_date] || 0) + 1;
-      });
+      const counts = await fetchSubmissionCountsByDateRange(startDate, endDate);
       setSubmissionCounts(counts);
     } catch (err) {
       console.error('Failed to fetch submission counts:', err);

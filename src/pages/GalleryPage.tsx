@@ -34,7 +34,7 @@ interface GalleryPageProps {
 export function GalleryPage({ tab: initialTab, year: initialYear, month: initialMonth, date: initialDate, themeMode, onSetThemeMode, themeName, onSetThemeName }: GalleryPageProps) {
   const { user } = useAuth();
   const todayStr = useMemo(() => getTodayDateUTC(), []);
-  const { loadMySubmissions, loading, hasSubmittedToday: submittedToday, hasCheckedSubmission } = useSubmissions(user?.id, todayStr);
+  const { loadSubmissionsForMonth, loading, hasSubmittedToday: submittedToday, hasCheckedSubmission } = useSubmissions(user?.id, todayStr);
   // Optimistic: assume submitted while check is pending to avoid flashing locked state
   const hasSubmittedToday = !hasCheckedSubmission || submittedToday;
   const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -83,10 +83,14 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
     setViewMode(mode);
   }, []);
 
-  // Load submissions (only when in my-submissions mode)
+  // Load submissions for the current month (only when in my-submissions mode)
   useEffect(() => {
     if (user && effectiveViewMode === 'my-submissions') {
-      loadMySubmissions().then(({ data }) => {
+      const monthStart = formatDate(currentYear, currentMonth, 1);
+      const daysInMonth = getDaysInMonth(currentYear, currentMonth);
+      const monthEnd = formatDate(currentYear, currentMonth, daysInMonth);
+
+      loadSubmissionsForMonth(monthStart, monthEnd).then(({ data }) => {
         setSubmissions(data);
         if (data.length > 0) {
           const submissionIds = data.map((s) => s.id);
@@ -96,7 +100,7 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
         }
       });
     }
-  }, [user, effectiveViewMode, loadMySubmissions]);
+  }, [user, effectiveViewMode, currentYear, currentMonth, loadSubmissionsForMonth]);
 
   // Load winners for the current month when in winners mode
   useEffect(() => {

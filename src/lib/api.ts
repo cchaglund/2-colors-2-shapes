@@ -28,14 +28,19 @@ export async function fetchSubmission(userId: string, challengeDate: string): Pr
   return data as SubmissionRow | null;
 }
 
-export async function fetchSubmissionById(submissionId: string): Promise<SubmissionRow | null> {
+export interface SubmissionWithJoins extends SubmissionRow {
+  profiles: { nickname: string | null } | null;
+  daily_rankings: { final_rank: number | null; challenge_date: string }[] | null;
+}
+
+export async function fetchSubmissionById(submissionId: string): Promise<SubmissionWithJoins | null> {
   const { data, error } = await supabase
     .from('submissions')
-    .select('*')
+    .select('*, profiles!user_id(nickname), daily_rankings(final_rank, challenge_date)')
     .eq('id', submissionId)
-    .single();
+    .maybeSingle();
   if (error) throw error;
-  return data as SubmissionRow;
+  return data as SubmissionWithJoins | null;
 }
 
 export async function checkSubmissionExists(userId: string, challengeDate: string): Promise<boolean> {
@@ -74,6 +79,22 @@ export async function fetchUserSubmissions(userId: string): Promise<SubmissionRo
     .from('submissions')
     .select('*')
     .eq('user_id', userId)
+    .order('challenge_date', { ascending: false });
+  if (error) throw error;
+  return (data as SubmissionRow[]) ?? [];
+}
+
+export async function fetchUserSubmissionsByMonth(
+  userId: string,
+  monthStart: string,
+  monthEnd: string
+): Promise<SubmissionRow[]> {
+  const { data, error } = await supabase
+    .from('submissions')
+    .select('*')
+    .eq('user_id', userId)
+    .gte('challenge_date', monthStart)
+    .lte('challenge_date', monthEnd)
     .order('challenge_date', { ascending: false });
   if (error) throw error;
   return (data as SubmissionRow[]) ?? [];
@@ -138,14 +159,19 @@ export async function countOtherSubmissions(challengeDate: string, userId: strin
 export async function fetchSubmissionCountsByDateRange(
   startDate: string,
   endDate: string
-): Promise<{ challenge_date: string }[]> {
-  const { data } = await supabase
-    .from('submissions')
-    .select('challenge_date')
-    .gte('challenge_date', startDate)
-    .lte('challenge_date', endDate)
-    .eq('included_in_ranking', true);
-  return (data as { challenge_date: string }[]) ?? [];
+): Promise<Record<string, number>> {
+  const { data, error } = await supabase.rpc('count_submissions_by_date', {
+    p_start_date: startDate,
+    p_end_date: endDate,
+  });
+  if (error) throw error;
+  const counts: Record<string, number> = {};
+  if (data) {
+    for (const row of data as { challenge_date: string; submission_count: number }[]) {
+      counts[row.challenge_date] = row.submission_count;
+    }
+  }
+  return counts;
 }
 
 export async function fetchSubmissionPair(submissionAId: string, submissionBId: string) {
@@ -205,25 +231,66 @@ export async function generateChallenge(date: string) {
 // Wall of the Day
 // =============================================================================
 
-export async function fetchWallSubmissionsFromDB(date: string, limit: number) {
-  const { data, error } = await supabase
+export type WallSortMode = 'newest' | 'oldest' | 'likes';
+
+export async function fetchWallSubmissionsFromDB(date: string, limit: number, sortMode: WallSortMode = 'newest') {
+  let query = supabase
     .from('submissions')
     .select('id, user_id, shapes, groups, background_color_index, created_at, like_count')
     .eq('challenge_date', date)
-    .eq('included_in_ranking', true)
+    .eq('included_in_ranking', true);
+
+  switch (sortMode) {
+    case 'newest':
+      query = query.order('created_at', { ascending: false });
+      break;
+    case 'oldest':
+      query = query.order('created_at', { ascending: true });
+      break;
+    case 'likes':
+      query = query.order('like_count', { ascending: false }).order('created_at', { ascending: true });
+      break;
+  }
+
+  const { data, error } = await query.limit(limit);
+  if (error) throw error;
+  return data;
+}
+
+export async function fetchWallSubmissionsRanked(date: string, limit: number) {
+  const { data, error } = await supabase
+    .from('daily_rankings')
+    .select('submission_id, final_rank, submissions!inner(id, user_id, shapes, groups, background_color_index, created_at, like_count)')
+    .eq('challenge_date', date)
+    .not('final_rank', 'is', null)
+    .order('final_rank', { ascending: true })
     .limit(limit);
   if (error) throw error;
   return data;
 }
 
-export async function fetchFriendsSubmissionsFromDB(date: string, followingIds: string[], limit: number) {
-  const { data, error } = await supabase
+export type FriendsSortMode = 'newest' | 'oldest' | 'ranked';
+
+export async function fetchFriendsSubmissionsFromDB(date: string, followingIds: string[], limit: number, sortMode: FriendsSortMode = 'newest') {
+  let query = supabase
     .from('submissions')
     .select('id, user_id, shapes, groups, background_color_index, created_at')
     .eq('challenge_date', date)
     .eq('included_in_ranking', true)
-    .in('user_id', followingIds)
-    .limit(limit);
+    .in('user_id', followingIds);
+
+  switch (sortMode) {
+    case 'newest':
+      query = query.order('created_at', { ascending: false });
+      break;
+    case 'oldest':
+      query = query.order('created_at', { ascending: true });
+      break;
+    case 'ranked':
+      break;
+  }
+
+  const { data, error } = await query.limit(limit);
   if (error) throw error;
   return data;
 }
@@ -441,6 +508,14 @@ export async function fetchSubmissionRankInfo(submissionId: string): Promise<{ r
     .eq('challenge_date', data.challenge_date);
 
   return { rank: data.final_rank, total: count ?? 0 };
+}
+
+export async function fetchRankTotal(challengeDate: string): Promise<number> {
+  const { count } = await supabase
+    .from('daily_rankings')
+    .select('*', { count: 'exact', head: true })
+    .eq('challenge_date', challengeDate);
+  return count ?? 0;
 }
 
 export async function fetchRankingsBySubmissionIds(submissionIds: string[]): Promise<Map<string, number>> {

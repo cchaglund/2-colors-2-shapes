@@ -1,11 +1,14 @@
-import { lazy, Suspense, useMemo } from 'react';
+import { lazy, Suspense, useMemo, type ReactNode } from 'react';
 import { MotionConfig } from 'motion/react';
 import { FollowsProvider } from './contexts/FollowsContext';
 import { getTodayDateUTC } from './utils/dailyChallenge';
 import { useDailyChallenge } from './hooks/challenge/useDailyChallenge';
 import { useAppRoute, isStandaloneRoute } from './hooks/useAppRoute';
 import { useThemeState } from './hooks/ui/useThemeState';
+import { useAuth } from './hooks/auth/useAuth';
+import { useAdmin } from './hooks/auth/useAdmin';
 import { LoadingSpinner } from './components/shared/LoadingSpinner';
+import { ErrorBoundary } from './components/shared/ErrorBoundary';
 
 // Route-based code splitting: each page loads only when navigated to
 const ShapeExplorer = lazy(() => import('./components/admin/ShapeExplorer').then(m => ({ default: m.ShapeExplorer })));
@@ -19,6 +22,15 @@ const UserProfilePage = lazy(() => import('./pages/UserProfilePage').then(m => (
 const VotingTestPage = lazy(() => import('./test/VotingTestPage').then(m => ({ default: m.VotingTestPage })));
 const SocialTestPage = lazy(() => import('./test/SocialTestPage').then(m => ({ default: m.SocialTestPage })));
 const CanvasEditorPage = lazy(() => import('./pages/CanvasEditorPage').then(m => ({ default: m.CanvasEditorPage })));
+
+function AdminGuard({ children }: { children: ReactNode }) {
+  const { user, loading: authLoading } = useAuth();
+  const { isAdmin, loading: adminLoading } = useAdmin(user?.id);
+
+  if (authLoading || adminLoading) return <LoadingSpinner size="lg" fullScreen />;
+  if (!isAdmin) return null;
+  return <>{children}</>;
+}
 
 function AppContent() {
   // Apply theme globally so all pages respect the selected theme + dark mode
@@ -36,11 +48,11 @@ function AppContent() {
   if (isStandaloneRoute(route)) {
     const page = (() => {
       switch (route.type) {
-        case 'explorer': return <ShapeExplorer />;
+        case 'explorer': return <AdminGuard><ShapeExplorer /></AdminGuard>;
         case 'voting-test': return <VotingTestPage />;
         case 'social-test': return <SocialTestPage />;
-        case 'dashboard': return <Dashboard />;
-        case 'color-tester': return <ColorTester />;
+        case 'dashboard': return <AdminGuard><Dashboard /></AdminGuard>;
+        case 'color-tester': return <AdminGuard><ColorTester /></AdminGuard>;
         case 'gallery': return <FollowsProvider><GalleryPage tab={route.tab} year={route.year} month={route.month} date={route.date} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} /></FollowsProvider>;
         case 'wall-of-the-day': return <WallOfTheDayPage date={route.date} />;
         case 'profile': return <FollowsProvider><UserProfilePage userId={route.userId} /></FollowsProvider>;
@@ -66,9 +78,11 @@ function AppContent() {
 
 function App() {
   return (
-    <MotionConfig reducedMotion="user">
-      <AppContent />
-    </MotionConfig>
+    <ErrorBoundary>
+      <MotionConfig reducedMotion="user">
+        <AppContent />
+      </MotionConfig>
+    </ErrorBoundary>
   );
 }
 

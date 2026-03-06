@@ -4,6 +4,7 @@ import {
   upsertSubmission,
   fetchSubmission,
   fetchUserSubmissions,
+  fetchUserSubmissionsByMonth,
   fetchAdjacentSubmissionDates,
   type SubmissionRow,
 } from '../../lib/api';
@@ -40,10 +41,16 @@ export function useSubmissions(userId: string | undefined, todayDate?: string) {
   }, [userId, todayDate]);
 
   const mySubmissionsCache = useRef<{ userId: string; data: Submission[] } | null>(null);
+  const monthCache = useRef<Map<string, Submission[]>>(new Map());
 
   const saveSubmission = useCallback(
     async (params: SaveSubmissionParams): Promise<{ success: boolean; error?: string }> => {
       if (!userId) return { success: false, error: 'Not authenticated' };
+
+      const MAX_SHAPES = 200;
+      if (params.shapes.length > MAX_SHAPES) {
+        return { success: false, error: `Maximum ${MAX_SHAPES} shapes per canvas` };
+      }
 
       setSaving(true);
       try {
@@ -57,6 +64,7 @@ export function useSubmissions(userId: string | undefined, todayDate?: string) {
         setSaving(false);
         setHasSubmittedToday(true);
         mySubmissionsCache.current = null;
+        monthCache.current.clear();
         return { success: true };
       } catch (err) {
         setSaving(false);
@@ -105,6 +113,28 @@ export function useSubmissions(userId: string | undefined, todayDate?: string) {
     }
   }, [userId]);
 
+  const loadSubmissionsForMonth = useCallback(async (
+    monthStart: string,
+    monthEnd: string
+  ): Promise<{ data: Submission[]; error?: string }> => {
+    if (!userId) return { data: [], error: 'Not authenticated' };
+
+    const cacheKey = `${userId}-${monthStart}`;
+    const cached = monthCache.current.get(cacheKey);
+    if (cached) return { data: cached };
+
+    setLoading(true);
+    try {
+      const submissions = await fetchUserSubmissionsByMonth(userId, monthStart, monthEnd);
+      setLoading(false);
+      monthCache.current.set(cacheKey, submissions);
+      return { data: submissions };
+    } catch (err) {
+      setLoading(false);
+      return { data: [], error: err instanceof Error ? err.message : 'Unknown error' };
+    }
+  }, [userId]);
+
   const getAdjacentSubmissionDates = useCallback(
     async (
       currentDate: string
@@ -119,6 +149,7 @@ export function useSubmissions(userId: string | undefined, todayDate?: string) {
     saveSubmission,
     loadSubmission,
     loadMySubmissions,
+    loadSubmissionsForMonth,
     getAdjacentSubmissionDates,
     saving,
     loading,
