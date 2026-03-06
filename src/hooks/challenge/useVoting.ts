@@ -1,5 +1,13 @@
 import { useState, useCallback } from 'react';
-import { supabase } from '../../lib/supabase';
+import {
+  countSubmissions,
+  countOtherSubmissions,
+  initializeDailyRankings,
+  fetchVotingStatus,
+  fetchNextVotingPair,
+  fetchSubmissionPair,
+  processVote,
+} from '../../lib/api';
 import { calculateRequiredVotes } from '../../utils/votingRules';
 import type { VotingPair, Shape } from '../../types';
 
@@ -44,18 +52,9 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
     setLoading(true);
 
     try {
-      // Check how many submissions exist for this date
-      const { count, error: countError } = await supabase
-        .from('submissions')
-        .select('*', { count: 'exact', head: true })
-        .eq('challenge_date', challengeDate);
-
-      if (countError) throw countError;
-
-      const totalSubmissions = count ?? 0;
+      const totalSubmissions = await countSubmissions(challengeDate);
       setSubmissionCount(totalSubmissions);
 
-      // Bootstrap case: 0 submissions - show opt-in prompt
       if (totalSubmissions === 0) {
         setNoSubmissions(true);
         setRequiredVotes(0);
@@ -63,21 +62,8 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
         return;
       }
 
-      // Check how many submissions are from OTHER users (not the current user)
-      // This determines if there's anything to vote on
-      const { count: otherCount, error: otherCountError } = await supabase
-        .from('submissions')
-        .select('*', { count: 'exact', head: true })
-        .eq('challenge_date', challengeDate)
-        .neq('user_id', userId);
+      const otherSubmissions = await countOtherSubmissions(challengeDate, userId);
 
-      if (otherCountError) throw otherCountError;
-
-      const otherSubmissions = otherCount ?? 0;
-
-      // Bootstrap case: 0 or 1 submissions from others - can't form pairs to vote on
-      // Need at least 2 submissions from other users to create a voting pair
-      // Treat this the same as having no submissions (show opt-in prompt)
       if (otherSubmissions < 2) {
         setNoSubmissions(true);
         setRequiredVotes(0);
@@ -85,29 +71,14 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
         return;
       }
 
-      // Calculate required votes based on submissions from OTHER users
-      // (since user can't vote on their own)
       const required = calculateRequiredVotes(otherSubmissions);
       setRequiredVotes(required);
 
-      // If we have enough submissions, initialize daily rankings
       if (totalSubmissions >= 2) {
-        const { error: initError } = await supabase.rpc('initialize_daily_rankings', {
-          p_challenge_date: challengeDate,
-        });
-
-        if (initError) {
-          console.error('Error initializing rankings:', initError);
-        }
+        await initializeDailyRankings(challengeDate);
       }
 
-      // Load user's voting status
-      const { data: status } = await supabase
-        .from('user_voting_status')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('challenge_date', challengeDate)
-        .maybeSingle();
+      const status = await fetchVotingStatus(userId, challengeDate);
 
       if (status) {
         setVoteCount(status.vote_count);
@@ -127,13 +98,7 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
     setLoading(true);
 
     try {
-      // Call the database function to get next pair
-      const { data: pairData, error: pairError } = await supabase.rpc('get_next_pair', {
-        p_voter_id: userId,
-        p_challenge_date: challengeDate,
-      });
-
-      if (pairError) throw pairError;
+      const pairData = await fetchNextVotingPair(userId, challengeDate);
 
       if (!pairData || pairData.length === 0) {
         setNoMorePairs(true);
@@ -143,14 +108,7 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
       }
 
       const pair = pairData[0];
-
-      // Fetch the actual submissions
-      const { data: submissions, error: subError } = await supabase
-        .from('submissions')
-        .select('id, user_id, shapes, groups, background_color_index')
-        .in('id', [pair.submission_a_id, pair.submission_b_id]);
-
-      if (subError) throw subError;
+      const submissions = await fetchSubmissionPair(pair.submission_a_id, pair.submission_b_id);
 
       if (!submissions || submissions.length < 2) {
         setNoMorePairs(true);
@@ -159,8 +117,8 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
         return;
       }
 
-      const subA = submissions.find((s: SubmissionRow) => s.id === pair.submission_a_id);
-      const subB = submissions.find((s: SubmissionRow) => s.id === pair.submission_b_id);
+      const subA = submissions.find((s) => s.id === pair.submission_a_id) as SubmissionRow | undefined;
+      const subB = submissions.find((s) => s.id === pair.submission_b_id) as SubmissionRow | undefined;
 
       if (!subA || !subB) {
         setNoMorePairs(true);
@@ -199,22 +157,16 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
       setSubmitting(true);
 
       try {
-        const response = await supabase.functions.invoke('process-vote', {
-          body: {
-            submissionAId: currentPair.submissionA.id,
-            submissionBId: currentPair.submissionB.id,
-            winnerId,
-          },
-        });
+        const result = await processVote(
+          currentPair.submissionA.id,
+          currentPair.submissionB.id,
+          winnerId
+        );
 
-        if (response.error) throw response.error;
-
-        const result = response.data;
         setVoteCount(result.voteCount);
         if (result.requiredVotes !== undefined) setRequiredVotes(result.requiredVotes);
         setHasEnteredRanking(result.enteredRanking);
 
-        // Fetch next pair
         await fetchNextPair();
       } catch (error) {
         console.error('Error submitting vote:', error);
@@ -232,17 +184,12 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
     setSubmitting(true);
 
     try {
-      const response = await supabase.functions.invoke('process-vote', {
-        body: {
-          submissionAId: currentPair.submissionA.id,
-          submissionBId: currentPair.submissionB.id,
-          winnerId: null, // null = skip
-        },
-      });
+      await processVote(
+        currentPair.submissionA.id,
+        currentPair.submissionB.id,
+        null
+      );
 
-      if (response.error) throw response.error;
-
-      // Skips don't increment vote count, but we still move to next pair
       await fetchNextPair();
     } catch (error) {
       console.error('Error skipping pair:', error);

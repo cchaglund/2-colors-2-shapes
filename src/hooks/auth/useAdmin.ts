@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../../lib/supabase';
+import { checkIsAdmin, fetchDashboardStats } from '../../lib/api';
 
 export interface DashboardStats {
   totalUsers: number;
@@ -16,34 +16,22 @@ export function useAdmin(userId: string | undefined) {
   const [statsLoading, setStatsLoading] = useState(false);
   const [statsError, setStatsError] = useState<string | null>(null);
 
-  // Check if user is admin
   useEffect(() => {
-    async function checkAdmin() {
+    async function check() {
       if (!userId) {
         setIsAdmin(false);
         setLoading(false);
         return;
       }
 
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('is_admin')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        console.error('Error checking admin status:', error);
-        setIsAdmin(false);
-      } else {
-        setIsAdmin(data?.is_admin ?? false);
-      }
+      const admin = await checkIsAdmin(userId);
+      setIsAdmin(admin);
       setLoading(false);
     }
 
-    checkAdmin();
+    check();
   }, [userId]);
 
-  // Fetch dashboard stats
   const fetchStats = useCallback(async () => {
     if (!userId || !isAdmin) return;
 
@@ -51,23 +39,7 @@ export function useAdmin(userId: string | undefined) {
     setStatsError(null);
 
     try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const accessToken = sessionData.session?.access_token;
-
-      if (!accessToken) {
-        throw new Error('No access token available');
-      }
-
-      const { data, error } = await supabase.functions.invoke('dashboard-stats', {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      if (error) {
-        throw error;
-      }
-
+      const data = await fetchDashboardStats();
       setStats(data as DashboardStats);
     } catch (err) {
       console.error('Error fetching dashboard stats:', err);

@@ -1,7 +1,14 @@
 /* eslint-disable react-refresh/only-export-components -- Context exported for useFollows hook */
 import { createContext, useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from 'react';
-import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/auth/useAuth';
+import {
+  fetchFollowing,
+  fetchFollowers,
+  fetchNicknames,
+  insertFollow,
+  deleteFollow,
+  fetchProfileNickname,
+} from '../lib/api';
 
 export interface FollowUser {
   id: string;
@@ -73,56 +80,28 @@ export function FollowsProvider({ children }: FollowsProviderProps) {
 
     setLoading(true);
     try {
-      // Fetch following (users I follow)
-      const { data: followingData, error: followingError } = await supabase
-        .from('follows')
-        .select('following_id, created_at')
-        .eq('follower_id', user.id);
-
+      const followingData = await fetchFollowing(user.id);
       if (controller.signal.aborted) return;
-      if (followingError) throw followingError;
 
-      // Fetch followers (users who follow me)
-      const { data: followersData, error: followersError } = await supabase
-        .from('follows')
-        .select('follower_id, created_at')
-        .eq('following_id', user.id);
-
+      const followersData = await fetchFollowers(user.id);
       if (controller.signal.aborted) return;
-      if (followersError) throw followersError;
 
-      // Get profile info for following
-      const followingUserIds = followingData?.map(f => f.following_id) || [];
-      const followersUserIds = followersData?.map(f => f.follower_id) || [];
+      const followingUserIds = followingData.map(f => f.following_id);
+      const followersUserIds = followersData.map(f => f.follower_id);
       const allUserIds = [...new Set([...followingUserIds, ...followersUserIds])];
 
-      let profilesMap: Record<string, string> = {};
-      if (allUserIds.length > 0) {
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, nickname')
-          .in('id', allUserIds);
+      const nicknameMap = await fetchNicknames(allUserIds);
+      if (controller.signal.aborted) return;
 
-        if (controller.signal.aborted) return;
-        if (profilesError) throw profilesError;
-
-        profilesMap = (profiles || []).reduce((acc, p) => {
-          acc[p.id] = p.nickname || 'Anonymous';
-          return acc;
-        }, {} as Record<string, string>);
-      }
-
-      // Build following list
-      const followingList: FollowUser[] = (followingData || []).map(f => ({
+      const followingList: FollowUser[] = followingData.map(f => ({
         id: f.following_id,
-        nickname: profilesMap[f.following_id] || 'Anonymous',
+        nickname: nicknameMap.get(f.following_id) || 'Anonymous',
         followedAt: f.created_at,
       }));
 
-      // Build followers list
-      const followersList: FollowUser[] = (followersData || []).map(f => ({
+      const followersList: FollowUser[] = followersData.map(f => ({
         id: f.follower_id,
-        nickname: profilesMap[f.follower_id] || 'Anonymous',
+        nickname: nicknameMap.get(f.follower_id) || 'Anonymous',
         followedAt: f.created_at,
       }));
 
@@ -182,27 +161,13 @@ export function FollowsProvider({ children }: FollowsProviderProps) {
     setFollowing(prev => [...prev, optimisticUser]);
 
     try {
-      // Insert follow record
-      const { error: insertError } = await supabase
-        .from('follows')
-        .insert({
-          follower_id: user.id,
-          following_id: userId,
-        });
+      await insertFollow(user.id, userId);
 
-      if (insertError) throw insertError;
+      const nickname = await fetchProfileNickname(userId);
 
-      // Fetch the user's nickname to update the optimistic entry
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('nickname')
-        .eq('id', userId)
-        .single();
-
-      // Update with real nickname
       setFollowing(prev =>
         prev.map(f => f.id === userId
-          ? { ...f, nickname: profile?.nickname || 'Anonymous' }
+          ? { ...f, nickname: nickname || 'Anonymous' }
           : f
         )
       );
@@ -235,14 +200,7 @@ export function FollowsProvider({ children }: FollowsProviderProps) {
     setFollowing(prev => prev.filter(f => f.id !== userId));
 
     try {
-      // Delete follow record
-      const { error: deleteError } = await supabase
-        .from('follows')
-        .delete()
-        .eq('follower_id', user.id)
-        .eq('following_id', userId);
-
-      if (deleteError) throw deleteError;
+      await deleteFollow(user.id, userId);
 
       return { success: true };
     } catch (error) {

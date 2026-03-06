@@ -1,7 +1,8 @@
 import { useState, useRef, useCallback } from 'react';
+import { findProfileByNickname } from '../../lib/api';
 import { navigate } from '../../lib/router';
 import { AnimatePresence, motion } from 'motion/react';
-import { Link } from '../shared/Link';
+import { Link, AvatarImage, Button, LoadingSpinner } from '../shared';
 import type { Profile } from '../../hooks/auth/useProfile';
 import type { ThemeMode, ThemeName } from '../../hooks/ui/useThemeState';
 import { FollowsProvider } from '../../contexts/FollowsContext';
@@ -9,10 +10,6 @@ import { useFollows } from '../../hooks/social/useFollows';
 import { useIsDesktop } from '../../hooks/ui/useBreakpoint';
 import { useClickOutside } from '../../hooks/ui/useClickOutside';
 import { THEME_NAMES, MODE_CYCLE, MODE_TITLE } from '../../constants/themes';
-import { supabase } from '../../lib/supabase';
-import { AvatarImage } from '../shared/AvatarImage';
-import { Button } from '../shared/Button';
-import { LoadingSpinner } from '../shared/LoadingSpinner';
 
 interface UserMenuDropdownProps {
   profile: Profile | null;
@@ -143,20 +140,14 @@ function UserMenuContent({
     setAddError('');
 
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, nickname')
-        .ilike('nickname', nickname)
-        .limit(1);
-
-      if (error) throw error;
-      if (!data || data.length === 0) {
+      const profile = await findProfileByNickname(nickname);
+      if (!profile) {
         setAddStatus('error');
         setAddError('User not found');
         return;
       }
 
-      const result = await follow(data[0].id);
+      const result = await follow(profile.id);
       if (result.success) {
         setAddStatus('success');
         setAddNickname('');

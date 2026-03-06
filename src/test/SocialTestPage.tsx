@@ -491,9 +491,10 @@ export function SocialTestPage() {
                   challenge={MOCK_CHALLENGE}
                   backgroundColorIndex={submission.background_color_index}
                   size={140}
-                  showNickname
-                  nickname={submission.nickname}
                 />
+                <span className="text-xs text-(--color-text-secondary) truncate max-w-full">
+                  {submission.nickname}
+                </span>
               </div>
             ))}
           </div>

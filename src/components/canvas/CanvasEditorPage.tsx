@@ -1,18 +1,13 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { navigate } from '../../lib/router';
-import { supabase } from '../../lib/supabase';
 import type { DailyChallenge, Shape } from '../../types';
 import type { ThemeMode, ThemeName } from '../../hooks/ui/useThemeState';
 import { getYesterdayDateUTC } from '../../utils/dailyChallenge';
 import { invalidateWallCache } from '../../hooks/challenge/useWallOfTheDay';
+import { setIncludedInRanking } from '../../lib/api';
 import { useAuth } from '../../hooks/auth/useAuth';
 import { useProfile } from '../../hooks/auth/useProfile';
-import { useCanvasState } from '../../hooks/canvas/useCanvasState';
-import { useViewportState } from '../../hooks/canvas/useViewportState';
-import { useGridState } from '../../hooks/canvas/useGridState';
-import { useOffCanvasState } from '../../hooks/canvas/useOffCanvasState';
-import { useShapeActions } from '../../hooks/canvas/useShapeActions';
+import { useCanvasEditorState } from '../../hooks/canvas/useCanvasEditorState';
 import { useSidebarState } from '../../hooks/ui/useSidebarState';
 import { useAppModals } from '../../hooks/ui/useAppModals';
 import { useWelcomeModal } from '../../hooks/ui/useWelcomeModal';
@@ -23,6 +18,7 @@ import { useIsDesktop } from '../../hooks/ui/useBreakpoint';
 import { useSubmissions } from '../../hooks/submission/useSubmissions';
 import { useSaveSubmission } from '../../hooks/submission/useSaveSubmission';
 import { useSubmissionSync } from '../../hooks/submission/useSubmissionSync';
+import { CanvasEditorProvider } from '../../contexts/CanvasEditorContext';
 import { Canvas } from './Canvas';
 import { TopBar } from './TopBar';
 import { BottomToolbar } from './BottomToolbar';
@@ -31,16 +27,10 @@ import { ZoomControls } from './ZoomControls';
 import { KeyboardShortcutsPopover } from './KeyboardShortcutsPopover';
 import { BackgroundColorPicker } from './BackgroundColorPicker';
 import { UndoRedoToast } from './UndoRedoToast';
-import { KeyboardSettingsModal } from './KeyboardSettingsModal';
-import { ResetConfirmModal } from './ResetConfirmModal';
+import { CanvasModals } from './CanvasModals';
 import { LayerPanel } from '../LayerPanel';
 import { OnboardingModal } from '../modals/OnboardingModal';
 import { WelcomeModal } from '../modals/WelcomeModal';
-import { FriendsModal } from '../modals/FriendsModal';
-import { WinnerAnnouncementModal } from '../modals/WinnerAnnouncementModal';
-import { CongratulatoryModal } from '../modals/CongratulatoryModal';
-import { VotingModal } from '../voting';
-import { FollowsProvider } from '../../contexts/FollowsContext';
 
 function InspirationCenter({ word }: { word: string }) {
   return (
@@ -108,42 +98,41 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
     syncing: keyboardSyncing,
   } = useKeyboardSettings(user?.id);
 
-  // Canvas state
+  // Canvas editor state (composes canvas, viewport, grid, off-canvas, shape actions)
   const {
+    editorContext,
     canvasState,
-    addShape,
-    duplicateShapes,
-    updateShape,
-    updateShapes,
-    deleteShape,
-    deleteSelectedShapes,
-    selectShape,
-    selectShapes,
-    moveLayer,
-    moveGroup,
-    reorderLayers,
-    reorderGroup,
-    setBackgroundColor,
+    loadCanvasState,
     resetCanvas,
-    mirrorHorizontal,
-    mirrorVertical,
+    viewport,
+    resetViewport,
+    minZoom,
+    maxZoom,
+    handleZoomIn,
+    handleZoomOut,
+    showGrid,
+    toggleGrid,
+    showOffCanvas,
+    toggleOffCanvas,
+    handleMoveShapes,
+    handleDuplicate,
+    handleMirrorHorizontal,
+    handleMirrorVertical,
+    handleResizeShapes,
+    handleBringForward,
+    handleSendBackward,
+    addShape,
+    setBackgroundColor,
+    updateShapes,
+    deleteSelectedShapes,
     undo,
     redo,
     canUndo,
     canRedo,
-    commitToHistory,
-    createGroup,
-    deleteGroup,
-    ungroupShapes,
-    renameGroup,
-    toggleGroupCollapsed,
-    toggleShapeVisibility,
-    toggleGroupVisibility,
-    selectGroup,
-    loadCanvasState,
+    marqueeStartRef,
     toast,
     dismissToast,
-  } = useCanvasState(challenge, user?.id);
+  } = useCanvasEditorState({ challenge, userId: user?.id, keyMappings });
 
   // Sync submission from server
   const { hydrated } = useSubmissionSync({
@@ -153,18 +142,6 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
     loadCanvasState,
   });
 
-  // Viewport state
-  const {
-    viewport,
-    setZoom,
-    setPan,
-    zoomAtPoint,
-    setZoomAtPoint,
-    resetViewport,
-    minZoom,
-    maxZoom,
-  } = useViewportState();
-
   // Sidebar state
   const {
     leftOpen,
@@ -172,47 +149,6 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
     toggleLeft,
     toggleRight,
   } = useSidebarState();
-
-  // Theme state (received from App)
-
-  // Grid state
-  const { showGrid, toggleGrid } = useGridState();
-
-  // Off-canvas state
-  const { showOffCanvas, toggleOffCanvas } = useOffCanvasState();
-
-  // Shape actions (move, rotate, resize, mirror, duplicate)
-  const {
-    handleMoveShapes,
-    handleDuplicate,
-    handleMirrorHorizontal,
-    handleMirrorVertical,
-    handleResizeShapes,
-  } = useShapeActions({
-    shapes: canvasState.shapes,
-    selectedShapeIds: canvasState.selectedShapeIds,
-    updateShapes,
-    duplicateShapes,
-    mirrorHorizontal,
-    mirrorVertical,
-  });
-
-  // Bring forward / send backward (z-ordering from tools panel)
-  const handleBringForward = useCallback(() => {
-    const sorted = [...canvasState.selectedShapeIds]
-      .map(id => canvasState.shapes.find(s => s.id === id))
-      .filter(Boolean)
-      .sort((a, b) => b!.zIndex - a!.zIndex);
-    sorted.forEach(shape => moveLayer(shape!.id, 'up'));
-  }, [canvasState.selectedShapeIds, canvasState.shapes, moveLayer]);
-
-  const handleSendBackward = useCallback(() => {
-    const sorted = [...canvasState.selectedShapeIds]
-      .map(id => canvasState.shapes.find(s => s.id === id))
-      .filter(Boolean)
-      .sort((a, b) => a!.zIndex - b!.zIndex);
-    sorted.forEach(shape => moveLayer(shape!.id, 'down'));
-  }, [canvasState.selectedShapeIds, canvasState.shapes, moveLayer]);
 
   // Save submission
   const { saveStatus, handleSave } = useSaveSubmission({
@@ -230,15 +166,6 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
     },
   });
 
-  // Zoom handlers
-  const handleZoomIn = useCallback(() => {
-    setZoom(viewport.zoom + 0.1);
-  }, [viewport.zoom, setZoom]);
-
-  const handleZoomOut = useCallback(() => {
-    setZoom(viewport.zoom - 0.1);
-  }, [viewport.zoom, setZoom]);
-
   // Reset handlers
   const handleReset = () => openResetConfirm();
   const confirmReset = () => {
@@ -253,12 +180,9 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
       console.error('[handleOptInToRanking] Missing user or challenge', { user: !!user, challenge: !!challenge });
       return;
     }
-    const { error } = await supabase
-      .from('submissions')
-      .update({ included_in_ranking: true })
-      .eq('user_id', user.id)
-      .eq('challenge_date', challenge.date);
-    if (error) {
+    try {
+      await setIncludedInRanking(user.id, challenge.date);
+    } catch (error) {
       console.error('[handleOptInToRanking] Error:', error);
     }
   }, [user, challenge]);
@@ -269,7 +193,6 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
   // Selected color for new shapes
   const [selectedColorIndex, setSelectedColorIndex] = useState<number>(0);
 
-  // Add shape at canvas center with the given color
   const handleAddShape = useCallback((shapeIndex: number, colorIndex: number) => {
     addShape(shapeIndex, colorIndex);
   }, [addShape]);
@@ -279,37 +202,26 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
     setSelectedColorIndex(colorIndex);
     if (canvasState.selectedShapeIds.size > 0) {
       const updates = new Map<string, Partial<Shape>>();
-      canvasState.selectedShapeIds.forEach(id => {
+      canvasState.selectedShapeIds.forEach((id: string) => {
         updates.set(id, { colorIndex });
       });
       updateShapes(updates, true, 'Change color');
     }
   }, [canvasState.selectedShapeIds, updateShapes]);
 
-  // Hover highlight state (transient UI, not canvas document state)
-  const [hoveredShapeIds, setHoveredShapeIds] = useState<Set<string> | null>(null);
-
-  // Computed values
-  const backgroundColor =
-    canvasState.backgroundColorIndex !== null && challenge
-      ? challenge.colors[canvasState.backgroundColorIndex]
-      : null;
-
-  // Marquee selection from outside the canvas (checkerboard background)
-  const marqueeStartRef = useRef<((clientX: number, clientY: number) => void) | null>(null);
   const handleBackgroundMouseDown = useCallback((e: React.MouseEvent<HTMLElement>) => {
     const target = e.target as HTMLElement;
     if (target === e.currentTarget || target.classList.contains('canvas-wrapper')) {
       if (e.button !== 0) return;
-      e.preventDefault(); // Prevent text selection during marquee drag
+      e.preventDefault();
       marqueeStartRef.current?.(e.clientX, e.clientY);
     }
-  }, []);
+  }, [marqueeStartRef]);
 
-  // Show onboarding modal if user is logged in but hasn't completed onboarding
   const showOnboarding = user && profile && !profile.onboarding_complete;
 
   return (
+    <CanvasEditorProvider value={editorContext}>
     <div className="flex flex-col h-screen overflow-hidden">
       {showWelcome && <WelcomeModal onDismiss={dismissWelcome} challenge={challenge} />}
       {showOnboarding && <OnboardingModal onComplete={updateNickname} />}
@@ -339,34 +251,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
           onMouseDown={handleBackgroundMouseDown}
         >
           <div className="overflow-visible p-4 md:p-16 canvas-wrapper">
-            <Canvas
-              shapes={canvasState.shapes}
-              groups={canvasState.groups}
-              selectedShapeIds={canvasState.selectedShapeIds}
-              backgroundColor={backgroundColor}
-              challenge={challenge}
-              viewport={viewport}
-              keyMappings={keyMappings}
-              showGrid={showGrid}
-              showOffCanvas={showOffCanvas}
-              onSelectShape={selectShape}
-              onSelectShapes={selectShapes}
-              onUpdateShape={updateShape}
-              onUpdateShapes={updateShapes}
-              onCommitToHistory={commitToHistory}
-              onDuplicateShapes={duplicateShapes}
-              onDeleteSelectedShapes={deleteSelectedShapes}
-              onUndo={undo}
-              onRedo={redo}
-              onMirrorHorizontal={mirrorHorizontal}
-              onMirrorVertical={mirrorVertical}
-              onZoomAtPoint={zoomAtPoint}
-              onSetZoomAtPoint={setZoomAtPoint}
-              onPan={setPan}
-              onToggleGrid={toggleGrid}
-              hoveredShapeIds={hoveredShapeIds}
-              marqueeStartRef={marqueeStartRef}
-            />
+            <Canvas marqueeStartRef={marqueeStartRef} />
           </div>
         </main>
 
@@ -388,7 +273,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
               <div className="w-px h-5 bg-(--color-border-light) shrink-0" />
               <div className="flex items-center gap-2">
                 <span className="text-sm text-(--color-text-secondary)">
-                  Background: 
+                  Background:
                 </span>
                 <BackgroundColorPicker
                   colors={challenge.colors}
@@ -530,29 +415,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
               }
               style={isDesktop ? { width: 280 } : undefined}
             >
-              <LayerPanel
-                shapes={canvasState.shapes}
-                groups={canvasState.groups}
-                selectedShapeIds={canvasState.selectedShapeIds}
-                challenge={challenge}
-                onSelectShape={selectShape}
-                onMoveLayer={moveLayer}
-                onMoveGroup={moveGroup}
-                onReorderLayers={reorderLayers}
-                onReorderGroup={reorderGroup}
-                onDeleteShape={deleteShape}
-                onRenameShape={(id, name) => updateShape(id, { name }, true, 'Rename')}
-                onCreateGroup={createGroup}
-                onDeleteGroup={deleteGroup}
-                onUngroupShapes={ungroupShapes}
-                onRenameGroup={renameGroup}
-                onToggleGroupCollapsed={toggleGroupCollapsed}
-                onToggleShapeVisibility={toggleShapeVisibility}
-                onToggleGroupVisibility={toggleGroupVisibility}
-                onSelectGroup={selectGroup}
-                onToggle={toggleRight}
-                onHoverShape={setHoveredShapeIds}
-              />
+              <LayerPanel onToggle={toggleRight} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -566,63 +429,36 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
         )}
       </div>
 
-      {/* Modals (render above everything) */}
-      {showResetConfirm && (
-        <ResetConfirmModal onConfirm={confirmReset} onCancel={cancelReset} />
-      )}
-
-      {showKeyboardSettings && (
-        <KeyboardSettingsModal
-          mappings={keyMappings}
-          onUpdateBinding={updateBinding}
-          onResetAll={resetAllBindings}
-          onClose={closeKeyboardSettings}
-          syncing={keyboardSyncing}
-        />
-      )}
-
-      {showWinnerAnnouncement && !winnerLoading && (
-        <>
-          {userPlacement && !congratsDismissed ? (
-            <CongratulatoryModal
-              userEntry={userPlacement}
-              challengeDate={winnerChallengeDate}
-              onDismiss={() => {
-                persistSeen();
-                dismissCongrats();
-              }}
-            />
-          ) : !winnerDismissed ? (
-            <WinnerAnnouncementModal
-              challengeDate={winnerChallengeDate}
-              topThree={winnerTopThree}
-              onDismiss={() => {
-                dismissWinnerAnnouncement();
-                dismissWinner();
-              }}
-              onViewSubmission={(submissionId: string) => {
-                navigate(`?view=submission&id=${submissionId}`);
-              }}
-            />
-          ) : null}
-        </>
-      )}
-
-      {showVotingModal && user && (
-        <VotingModal
-          userId={user.id}
-          challengeDate={yesterdayDate}
-          onComplete={closeVotingModal}
-          onSkipVoting={closeVotingModal}
-          onOptInToRanking={handleOptInToRanking}
-        />
-      )}
-
-      {showFriendsModal && (
-        <FollowsProvider>
-          <FriendsModal onClose={closeFriendsModal} />
-        </FollowsProvider>
-      )}
+      <CanvasModals
+        showResetConfirm={showResetConfirm}
+        onConfirmReset={confirmReset}
+        onCancelReset={cancelReset}
+        showKeyboardSettings={showKeyboardSettings}
+        keyMappings={keyMappings}
+        onUpdateBinding={updateBinding}
+        onResetAllBindings={resetAllBindings}
+        onCloseKeyboardSettings={closeKeyboardSettings}
+        keyboardSyncing={keyboardSyncing}
+        showWinnerAnnouncement={showWinnerAnnouncement}
+        winnerLoading={winnerLoading}
+        userPlacement={userPlacement}
+        congratsDismissed={congratsDismissed}
+        winnerDismissed={winnerDismissed}
+        winnerChallengeDate={winnerChallengeDate}
+        winnerTopThree={winnerTopThree}
+        onPersistSeen={persistSeen}
+        onDismissCongrats={dismissCongrats}
+        onDismissWinnerAnnouncement={dismissWinnerAnnouncement}
+        onDismissWinner={dismissWinner}
+        showVotingModal={showVotingModal}
+        votingUserId={user?.id}
+        yesterdayDate={yesterdayDate}
+        onCloseVotingModal={closeVotingModal}
+        onOptInToRanking={handleOptInToRanking}
+        showFriendsModal={showFriendsModal}
+        onCloseFriendsModal={closeFriendsModal}
+      />
     </div>
+    </CanvasEditorProvider>
   );
 }

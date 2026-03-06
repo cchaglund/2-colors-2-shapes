@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { fetchProfile as apiFetchProfile, updateProfileFields } from '../../lib/api';
 import { supabase } from '../../lib/supabase';
 
 export interface Profile {
@@ -22,26 +23,22 @@ export function useProfile(userId: string | undefined) {
     }
 
     setLoading(true);
-    let { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
+    try {
+      let data = await apiFetchProfile(userId);
 
-    if (error) {
-      setError(error.message);
-      setProfile(null);
-    } else {
       if (data.avatar_url?.includes('googleusercontent.com')) {
         const { cacheGoogleAvatar } = await import('../../lib/avatarCache');
         const cachedUrl = await cacheGoogleAvatar(supabase, userId, data.avatar_url);
         if (cachedUrl) {
-          await supabase.from('profiles').update({ avatar_url: cachedUrl }).eq('id', userId);
+          await updateProfileFields(userId, { avatar_url: cachedUrl });
           data = { ...data, avatar_url: cachedUrl };
         }
       }
       setProfile(data);
       setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch profile');
+      setProfile(null);
     }
     setLoading(false);
   }, [userId]);
@@ -62,17 +59,14 @@ export function useProfile(userId: string | undefined) {
       return { success: false, error: 'Nickname can only contain letters and numbers' };
     }
 
-    const { error } = await supabase
-      .from('profiles')
-      .update({ nickname, onboarding_complete: true })
-      .eq('id', userId);
-
-    if (error) {
-      // Handle unique constraint violation
-      if (error.code === '23505') {
+    try {
+      await updateProfileFields(userId, { nickname, onboarding_complete: true });
+    } catch (err) {
+      const pgError = err as { code?: string; message?: string };
+      if (pgError.code === '23505') {
         return { success: false, error: 'This nickname is already taken' };
       }
-      return { success: false, error: error.message };
+      return { success: false, error: pgError.message ?? 'Failed to update nickname' };
     }
 
     // Refetch profile to get updated data

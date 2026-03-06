@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/auth/useAuth';
+import { searchProfilesByNickname } from '../../lib/api';
 import { FriendRow } from './FriendRow';
 import { LoadingSpinner } from '../shared/LoadingSpinner';
 
@@ -44,25 +44,8 @@ export function UserSearchBar({ onNavigateToProfile }: UserSearchBarProps) {
       setHasSearched(true);
 
       try {
-        let queryBuilder = supabase
-          .from('profiles')
-          .select('id, nickname')
-          .ilike('nickname', `%${debouncedQuery}%`)
-          .limit(20);
-
-        // Exclude current user from results
-        if (user?.id) {
-          queryBuilder = queryBuilder.neq('id', user.id);
-        }
-
-        const { data, error } = await queryBuilder;
-
-        if (error) {
-          console.error('Search error:', error);
-          setResults([]);
-        } else {
-          setResults(data || []);
-        }
+        const data = await searchProfilesByNickname(debouncedQuery, user?.id);
+        setResults(data);
       } catch (err) {
         console.error('Search error:', err);
         setResults([]);

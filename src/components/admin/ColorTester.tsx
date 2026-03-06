@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
-import { Link } from '../shared/Link';
-import { supabase } from '../../lib/supabase';
+import { Link } from '../shared';
+import { generateTestColors } from '../../lib/api';
 
 // =============================================================================
 // ColorTester - Tests the PRODUCTION color generation algorithm
@@ -40,21 +40,7 @@ export function ColorTester() {
     setError(null);
 
     try {
-      const { data, error: fetchError } = await supabase.functions.invoke(
-        'get-daily-challenge',
-        {
-          body: {
-            test: true,
-            previousColors: previousColorsRef.current,
-          },
-        }
-      );
-
-      if (fetchError) {
-        throw new Error(fetchError.message || 'Failed to generate colors');
-      }
-
-      const response = data as TestColorResponse;
+      const response = await generateTestColors(previousColorsRef.current) as TestColorResponse;
       setColors(response.colors);
       setMetadata(response.metadata.pairwise);
       setHistory((prev) => [response.colors, ...prev]);

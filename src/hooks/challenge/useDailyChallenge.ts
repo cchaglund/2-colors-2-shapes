@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { DailyChallenge, ShapeType } from '../../types';
-import { supabase } from '../../lib/supabase';
+import { fetchChallengeRow, fetchChallengeRows, generateChallenge } from '../../lib/api';
+import type { ChallengeRow } from '../../lib/api';
 import { SHAPE_NAMES } from '../../utils/shapes/utils';
 
 // =============================================================================
@@ -96,20 +97,6 @@ loadCacheFromStorage();
 // The edge function is only needed to GENERATE a new challenge (once per day).
 // =============================================================================
 
-interface ChallengeRow {
-  challenge_date: string;
-  color_1: string;
-  color_2: string;
-  color_3: string | null;
-  shape_1: string;
-  shape_2: string;
-  shape_1_svg: string | null;
-  shape_2_svg: string | null;
-  shape_1_name: string | null;
-  shape_2_name: string | null;
-  word: string;
-}
-
 function rowToChallenge(row: ChallengeRow): DailyChallenge {
   const shape1Type = row.shape_1 as ShapeType;
   const shape2Type = row.shape_2 as ShapeType;
@@ -133,39 +120,18 @@ function rowToChallenge(row: ChallengeRow): DailyChallenge {
   };
 }
 
-/** Read a single challenge directly from the DB (fast, ~100ms) */
 async function readChallengeFromDB(date: string): Promise<DailyChallenge | null> {
-  const { data } = await supabase
-    .from('challenges')
-    .select('*')
-    .eq('challenge_date', date)
-    .single();
-
-  return data ? rowToChallenge(data as ChallengeRow) : null;
+  const row = await fetchChallengeRow(date);
+  return row ? rowToChallenge(row) : null;
 }
 
-/** Read multiple challenges directly from the DB (fast, ~100ms) */
 async function readChallengesFromDB(dates: string[]): Promise<DailyChallenge[]> {
-  if (dates.length === 0) return [];
-
-  const { data } = await supabase
-    .from('challenges')
-    .select('*')
-    .in('challenge_date', dates);
-
-  return ((data as ChallengeRow[]) || []).map(rowToChallenge);
+  const rows = await fetchChallengeRows(dates);
+  return rows.map(rowToChallenge);
 }
 
-/** Call edge function to generate a challenge (slow, only needed once per day) */
 async function generateChallengeViaEdgeFunction(date: string): Promise<DailyChallenge> {
-  const { data, error } = await supabase.functions.invoke('get-daily-challenge', {
-    body: { date },
-  });
-
-  if (error) {
-    throw new Error(error.message || 'Failed to generate challenge');
-  }
-
+  const data = await generateChallenge(date);
   return {
     date: data.date,
     colors: data.colors,

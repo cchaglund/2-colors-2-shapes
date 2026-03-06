@@ -1,28 +1,7 @@
 import type { Shape, ShapeGroup, DailyChallenge } from '../../types';
 
 export interface LayerPanelProps {
-  shapes: Shape[];
-  groups: ShapeGroup[];
-  selectedShapeIds: Set<string>;
-  challenge: DailyChallenge;
-  onSelectShape: (id: string | null, options?: { toggle?: boolean; range?: boolean; orderedIds?: string[] }) => void;
-  onMoveLayer: (id: string, direction: 'up' | 'down' | 'top' | 'bottom') => void;
-  onMoveGroup: (groupId: string, direction: 'up' | 'down' | 'top' | 'bottom') => void;
-  onReorderLayers: (draggedId: string, targetIndex: number, targetGroupId: string | null) => void;
-  onReorderGroup: (draggedGroupId: string, targetIndex: number) => void;
-  onDeleteShape: (id: string) => void;
-  onRenameShape: (id: string, name: string) => void;
-  // Group handlers
-  onCreateGroup: (shapeIds: string[], groupName?: string) => void;
-  onDeleteGroup: (groupId: string) => void;
-  onUngroupShapes: (shapeIds: string[]) => void;
-  onRenameGroup: (groupId: string, newName: string) => void;
-  onToggleGroupCollapsed: (groupId: string) => void;
-  onToggleShapeVisibility: (id: string) => void;
-  onToggleGroupVisibility: (groupId: string) => void;
-  onSelectGroup: (groupId: string, options?: { toggle?: boolean }) => void;
   onToggle: () => void;
-  onHoverShape: (ids: Set<string> | null) => void;
 }
 
 // Helper type for rendering grouped and ungrouped shapes

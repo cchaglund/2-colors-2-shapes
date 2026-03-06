@@ -6,10 +6,10 @@ import { useAuth } from '../../hooks/auth/useAuth';
 import { useSubmissions, type Submission } from '../../hooks/submission/useSubmissions';
 import { getTodayDateUTC, getTwoDaysAgoDateUTC } from '../../utils/dailyChallenge';
 import { fetchChallengesBatch } from '../../hooks/challenge/useDailyChallenge';
-import { supabase } from '../../lib/supabase';
-import type { Shape, ShapeGroup, DailyChallenge } from '../../types';
+import { fetchRankingsBySubmissionIds, fetchMonthlyWinners } from '../../lib/api';
+import type { DailyChallenge } from '../../types';
 import { formatDate, getDaysInMonth, getFirstDayOfMonth, MONTHS } from '../../utils/calendarUtils';
-import type { ViewMode, RankingInfo, WinnerEntry } from '../Calendar/types';
+import type { ViewMode, WinnerEntry } from '../Calendar/types';
 import { CalendarViewToggle } from '../Calendar/CalendarViewToggle';
 import { ContentNavigation } from '../Calendar/ContentNavigation';
 import { CalendarGrid } from '../Calendar/CalendarGrid';
@@ -90,22 +90,9 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
         setSubmissions(data);
         if (data.length > 0) {
           const submissionIds = data.map((s) => s.id);
-          supabase
-            .from('daily_rankings')
-            .select('submission_id, final_rank')
-            .in('submission_id', submissionIds)
-            .not('final_rank', 'is', null)
-            .then(({ data: rankingData }) => {
-              if (rankingData) {
-                const rankMap = new Map<string, number>();
-                (rankingData as RankingInfo[]).forEach((r) => {
-                  if (r.final_rank !== null) {
-                    rankMap.set(r.submission_id, r.final_rank);
-                  }
-                });
-                setRankings(rankMap);
-              }
-            });
+          fetchRankingsBySubmissionIds(submissionIds).then((rankMap) => {
+            setRankings(rankMap);
+          });
         }
       });
     }
@@ -121,68 +108,9 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
       const startDate = formatDate(currentYear, currentMonth, 1);
       const daysInMonth = getDaysInMonth(currentYear, currentMonth);
       const endDate = formatDate(currentYear, currentMonth, daysInMonth);
+      const clampedEnd = endDate <= latestWinnersDate ? endDate : latestWinnersDate;
 
-      const { data: rankingsData, error } = await supabase
-        .from('daily_rankings')
-        .select(`
-          challenge_date,
-          submission_id,
-          user_id,
-          final_rank,
-          submissions!inner (
-            shapes,
-            groups,
-            background_color_index
-          )
-        `)
-        .eq('final_rank', 1)
-        .gte('challenge_date', startDate)
-        .lte('challenge_date', endDate <= latestWinnersDate ? endDate : latestWinnersDate)
-        .order('challenge_date', { ascending: true });
-
-      if (error) {
-        console.error('Error loading winners:', error);
-        setWinnersLoading(false);
-        return;
-      }
-
-      if (!rankingsData || rankingsData.length === 0) {
-        setWinners([]);
-        setWinnersLoading(false);
-        return;
-      }
-
-      const userIds = [...new Set(rankingsData.map((r: { user_id: string }) => r.user_id))];
-      const { data: profilesData } = await supabase
-        .from('profiles')
-        .select('id, nickname')
-        .in('id', userIds);
-
-      const profileMap = new Map<string, string>();
-      if (profilesData) {
-        profilesData.forEach((p: { id: string; nickname: string }) => {
-          profileMap.set(p.id, p.nickname);
-        });
-      }
-
-      interface RankingRow {
-        challenge_date: string;
-        submission_id: string;
-        user_id: string;
-        final_rank: number;
-        submissions: { shapes: Shape[]; groups: ShapeGroup[] | null; background_color_index: number | null };
-      }
-      const winnerEntries: WinnerEntry[] = (rankingsData as unknown as RankingRow[]).map((row) => ({
-        challenge_date: row.challenge_date,
-        submission_id: row.submission_id,
-        user_id: row.user_id,
-        nickname: profileMap.get(row.user_id) || 'Anonymous',
-        final_rank: row.final_rank,
-        shapes: row.submissions?.shapes || [],
-        groups: row.submissions?.groups || [],
-        background_color_index: row.submissions?.background_color_index ?? null,
-      }));
-
+      const winnerEntries = await fetchMonthlyWinners(startDate, clampedEnd);
       setWinners(winnerEntries);
       setWinnersLoading(false);
     };

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { supabase } from '../../lib/supabase';
 import type { Submission } from './useSubmissions';
 import type { User } from '@supabase/supabase-js';
+import { fetchSubmissionById, fetchProfileNickname, fetchSubmissionRankInfo } from '../../lib/api';
 
 interface UseSubmissionDetailOptions {
   date?: string;
@@ -49,46 +49,20 @@ export function useSubmissionDetail({
 
       try {
         if (submissionId) {
-          // Load any submission by ID (public view)
-          const { data, error: fetchError } = await supabase
-            .from('submissions')
-            .select('*')
-            .eq('id', submissionId)
-            .single();
+          const data = await fetchSubmissionById(submissionId);
 
-          if (fetchError) {
-            setError(fetchError.message);
-            loadedForRef.current = null; // Reset on error to allow retry
+          if (!data) {
+            setError('Submission not found');
+            loadedForRef.current = null;
           } else {
-            setSubmission(data as Submission);
-            // Fetch profile for username display
-            if (data?.user_id) {
-              const { data: profileData } = await supabase
-                .from('profiles')
-                .select('nickname')
-                .eq('id', data.user_id)
-                .single();
-              setNickname(profileData?.nickname || null);
+            setSubmission(data as unknown as Submission);
+            if (data.user_id) {
+              const nick = await fetchProfileNickname(data.user_id);
+              setNickname(nick);
             }
-            // Fetch ranking info
-            if (data?.id) {
-              const { data: rankingData } = await supabase
-                .from('daily_rankings')
-                .select('final_rank, challenge_date')
-                .eq('submission_id', data.id)
-                .maybeSingle();
-
-              if (rankingData?.final_rank) {
-                const { count } = await supabase
-                  .from('daily_rankings')
-                  .select('*', { count: 'exact', head: true })
-                  .eq('challenge_date', rankingData.challenge_date);
-
-                setRankInfo({
-                  rank: rankingData.final_rank,
-                  total: count ?? 0,
-                });
-              }
+            if (data.id) {
+              const info = await fetchSubmissionRankInfo(data.id);
+              setRankInfo(info);
             }
           }
         } else if (date && user) {

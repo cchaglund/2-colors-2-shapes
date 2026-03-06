@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { supabase } from '../../lib/supabase';
 import type { Shape, ShapeGroup } from '../../types';
 import { getTodayDateUTC } from '../../utils/dailyChallenge';
 import { getAdjacentDates, isDateWithinLastTwoDays } from '../../utils/calendarUtils';
@@ -7,6 +6,7 @@ import { canViewCurrentDay as canViewCurrentDayUtil } from '../../utils/privacyR
 import { fisherYatesShuffle } from '../../utils/wallSorting';
 import { useFollows } from './useFollows';
 import { useAuth } from '../auth/useAuth';
+import { fetchFriendsSubmissionsFromDB, fetchNicknames, fetchRankingsBySubmissionIds } from '../../lib/api';
 
 // =============================================================================
 // Types
@@ -103,65 +103,17 @@ async function fetchFriendsSubmissions(
 
   // Create and track new request
   const promise = (async (): Promise<FriendsSubmission[]> => {
-    // Fetch submissions from users we follow
-    const { data: submissions, error: submissionsError } = await supabase
-      .from('submissions')
-      .select(`
-        id,
-        user_id,
-        shapes,
-        groups,
-        background_color_index,
-        created_at
-      `)
-      .eq('challenge_date', date)
-      .eq('included_in_ranking', true)
-      .in('user_id', followingIds)
-      .limit(INITIAL_LIMIT + 1); // +1 to check if more exist
-
-    if (submissionsError) {
-      throw new Error(submissionsError.message || 'Failed to fetch submissions');
-    }
+    const submissions = await fetchFriendsSubmissionsFromDB(date, followingIds, INITIAL_LIMIT + 1);
 
     if (!submissions || submissions.length === 0) {
       return [];
     }
 
-    // Batch fetch nicknames separately (avoid RLS join issues)
     const userIds = [...new Set(submissions.map(s => s.user_id))];
-    const { data: profiles, error: profilesError } = await supabase
-      .from('profiles')
-      .select('id, nickname')
-      .in('id', userIds);
+    const nicknameMap = await fetchNicknames(userIds);
 
-    if (profilesError) {
-      console.error('Failed to fetch profiles:', profilesError);
-    }
-
-    // Create nickname lookup map
-    const nicknameMap = new Map<string, string>();
-    if (profiles) {
-      for (const profile of profiles) {
-        nicknameMap.set(profile.id, profile.nickname || 'Anonymous');
-      }
-    }
-
-    // Batch fetch final_rank from daily_rankings
     const submissionIds = submissions.map(s => s.id);
-    const rankMap = new Map<string, number>();
-    const { data: rankings, error: rankingsError } = await supabase
-      .from('daily_rankings')
-      .select('submission_id, final_rank')
-      .in('submission_id', submissionIds)
-      .not('final_rank', 'is', null);
-
-    if (rankingsError) {
-      console.error('Failed to fetch rankings:', rankingsError);
-    } else if (rankings) {
-      for (const r of rankings) {
-        rankMap.set(r.submission_id, r.final_rank as number);
-      }
-    }
+    const rankMap = await fetchRankingsBySubmissionIds(submissionIds);
 
     // Map submissions with nicknames and ranks
     const friendsSubmissions: FriendsSubmission[] = submissions.map(s => ({
