@@ -15,7 +15,7 @@ interface CanvasModalsProps {
   showKeyboardSettings: boolean;
   keyMappings: KeyMappings;
   onUpdateBinding: (actionId: KeyboardActionId, newBinding: KeyBinding, resolveConflicts?: boolean) => Promise<{ success: boolean; conflicts?: KeyboardActionId[] }>;
-  onResetAllBindings: () => void;
+  onResetAllBindings: () => Promise<void>;
   onCloseKeyboardSettings: () => void;
   keyboardSyncing: boolean;
 

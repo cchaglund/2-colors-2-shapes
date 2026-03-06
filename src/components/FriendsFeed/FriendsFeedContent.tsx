@@ -230,7 +230,7 @@ export function FriendsFeedContent({
         {viewType === 'grid' && (
           <WallSortControls
             sortMode={sortMode}
-            onSortModeChange={(mode: SortMode) => setSortMode(mode)}
+            onSortModeChange={(mode) => setSortMode(mode as SortMode)}
             isRankedAvailable={isRankedAvailable}
             showLikesOption={false}
           />
