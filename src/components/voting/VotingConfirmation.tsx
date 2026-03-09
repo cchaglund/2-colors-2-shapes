@@ -13,7 +13,7 @@ export function VotingConfirmation({
   onDone,
   userId,
 }: VotingConfirmationProps) {
-  const wallUrl = `?view=wall-of-the-day&date=${wallDate}`;
+  const wallUrl = `?view=gallery&tab=wall&date=${wallDate}`;
   const { challenge } = useDailyChallenge(wallDate);
   const [previewSubmissions, setPreviewSubmissions] = useState<WallSubmission[]>([]);
 
@@ -25,7 +25,7 @@ export function VotingConfirmation({
   }, [wallDate, userId]);
 
   return (
-    <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-(--radius-lg) p-6 w-full max-w-sm mx-auto text-center">
+    <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-(--radius-lg) shadow-(--shadow-modal) p-6 w-full max-w-sm mx-auto text-center">
       {isEntered ? (
         <>
           <div className="text-3xl mb-3">🎉</div>

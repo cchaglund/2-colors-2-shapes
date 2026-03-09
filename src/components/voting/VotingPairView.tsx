@@ -28,7 +28,7 @@ export function VotingPairView({
   const thumbnailSize = isDesktop ? 260 : undefined; // undefined = full width
 
   return (
-    <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-(--radius-lg) w-full max-w-3xl">
+    <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-(--radius-lg) shadow-(--shadow-modal) w-full max-w-3xl">
       {/* Header banner */}
       <div className="px-4 py-4 md:px-6 md:py-5 border-b border-(--color-border-light) bg-(--color-bg-tertiary)">
         <h2 className="text-center text-xl font-semibold text-(--color-text-primary) mb-2">

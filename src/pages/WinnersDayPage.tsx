@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { navigate } from '../lib/router';
-import { Link } from '../components/shared/Link';
+import { Button } from '../components/shared/Button';
 import { useRanking } from '../hooks/challenge/useRanking';
 import { useDailyChallenge } from '../hooks/challenge/useDailyChallenge';
 import { WinnerCard } from '../components/submission/WinnerCard';
@@ -76,60 +76,34 @@ export function WinnersDayPage({ date, themeMode, onSetThemeMode, themeName, onS
         }
         rightContent={
           <div className="flex items-center gap-2">
-            {/* Navigation buttons */}
-            <button
-              onClick={() => {
-                if (adjacentDates.prev) {
-                  navigate(`?view=winners-day&date=${adjacentDates.prev}`);
-                }
-              }}
+            <Button
+              variant="ghost"
+              className="gap-1 disabled:opacity-30 disabled:cursor-not-allowed"
+              onClick={() => adjacentDates.prev && navigate(`?view=winners-day&date=${adjacentDates.prev}`)}
               disabled={!adjacentDates.prev}
-              className="h-8 px-3 rounded-(--radius-pill) text-xs font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary)"
-              style={{
-                background: 'var(--color-selected)',
-                border: 'var(--border-width, 2px) solid var(--color-border)',
-                boxShadow: 'var(--shadow-btn)',
-              }}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="15 18 9 12 15 6" />
               </svg>
               <span className="hidden md:inline">Previous</span>
-            </button>
-            <button
-              onClick={() => {
-                if (adjacentDates.next) {
-                  navigate(`?view=winners-day&date=${adjacentDates.next}`);
-                }
-              }}
+            </Button>
+            <Button
+              variant="ghost"
+              className="gap-1 disabled:opacity-30 disabled:cursor-not-allowed"
+              onClick={() => adjacentDates.next && navigate(`?view=winners-day&date=${adjacentDates.next}`)}
               disabled={!adjacentDates.next}
-              className="h-8 px-3 rounded-(--radius-pill) text-xs font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary)"
-              style={{
-                background: 'var(--color-selected)',
-                border: 'var(--border-width, 2px) solid var(--color-border)',
-                boxShadow: 'var(--shadow-btn)',
-              }}
             >
               <span className="hidden md:inline">Next</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="9 18 15 12 9 6" />
               </svg>
-            </button>
-            {/* Back to gallery */}
-            <Link
-              href="/?view=gallery&tab=winners"
-              className="h-8 px-3 rounded-(--radius-pill) text-xs font-medium transition-colors text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) no-underline flex items-center gap-1"
-              style={{
-                background: 'var(--color-selected)',
-                border: 'var(--border-width, 2px) solid var(--color-border)',
-                boxShadow: 'var(--shadow-btn)',
-              }}
-            >
+            </Button>
+            <Button as="a" variant="ghost" href="/?view=gallery&tab=winners" className="gap-1">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="15 18 9 12 15 6" />
               </svg>
               <span className="hidden md:inline">Back to gallery</span>
-            </Link>
+            </Button>
           </div>
         }
       />

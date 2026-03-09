@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { navigate } from '../lib/router';
-import { Link } from '../components/shared/Link';
+import { Button } from '../components/shared/Button';
 import { useAuth } from '../hooks/auth/useAuth';
 import { useSubmissions, type Submission } from '../hooks/submission/useSubmissions';
 import { getTodayDateUTC, getTwoDaysAgoDateUTC } from '../utils/dailyChallenge';
@@ -19,6 +19,35 @@ import { WallTab } from '../components/Calendar/tabs/WallTab';
 import { FriendsFeedTab } from '../components/Calendar/tabs/FriendsFeedTab';
 import { TopBar } from '../components/canvas/TopBar';
 import type { ThemeMode, ThemeName } from '../hooks/ui/useThemeState';
+
+const TAB_HEADERS: Record<ViewMode, { title: string; description: string }> = {
+  'my-submissions': {
+    title: 'My Submissions',
+    description: 'Your daily artwork history. Tap any day to revisit your creation.',
+  },
+  winners: {
+    title: 'Winners',
+    description: 'The top-voted artworks from each day, crowned by the community.',
+  },
+  wall: {
+    title: 'Wall of the Day',
+    description: 'Browse all submissions for a given day. See what the community created with the same constraints.',
+  },
+  friends: {
+    title: 'Friends',
+    description: 'See what the people you follow have been creating. Follow artists from their profile page, or add them by nickname from your profile.',
+  },
+};
+
+function TabHeader({ viewMode }: { viewMode: ViewMode }) {
+  const { title, description } = TAB_HEADERS[viewMode];
+  return (
+    <div className="mb-4">
+      <h2 className="text-2xl font-bold text-(--color-text-primary) font-display">{title}</h2>
+      <p className="text-sm text-(--color-text-secondary) mt-1">{description}</p>
+    </div>
+  );
+}
 
 interface GalleryPageProps {
   tab?: string;
@@ -241,20 +270,12 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
           <span className="text-lg font-semibold text-(--color-text-primary) font-display">Gallery</span>
         }
         rightContent={
-          <Link
-            href="/"
-            className="h-9 md:h-8 px-2 md:px-3 rounded-(--radius-pill) text-xs font-medium transition-colors text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) no-underline flex items-center gap-1"
-            style={{
-              background: 'var(--color-selected)',
-              border: 'var(--border-width, 2px) solid var(--color-border)',
-              boxShadow: 'var(--shadow-btn)',
-            }}
-          >
+          <Button as="a" variant="ghost" href="/" className="gap-1">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6" />
             </svg>
             <span className="hidden md:inline">Back to canvas</span>
-          </Link>
+          </Button>
         }
       />
       <div className="flex-1 overflow-auto p-4 md:p-8 theme-pattern">
@@ -267,7 +288,7 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
           onSetViewMode={handleSetViewMode}
         />
 
-        {/* Tab content */}
+        {/* Tab header + content */}
         <AnimatePresence mode="wait">
           <motion.div
             key={effectiveViewMode}
@@ -276,6 +297,7 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.2 }}
           >
+        <TabHeader viewMode={effectiveViewMode} />
         {effectiveViewMode === 'wall' ? (
           <WallTab
             date={wallDate}

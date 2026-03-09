@@ -17,7 +17,6 @@ const Dashboard = lazy(() => import('./components/admin/Dashboard').then(m => ({
 const GalleryPage = lazy(() => import('./pages/GalleryPage').then(m => ({ default: m.GalleryPage })));
 const SubmissionDetailPage = lazy(() => import('./pages/SubmissionDetailPage').then(m => ({ default: m.SubmissionDetailPage })));
 const WinnersDayPage = lazy(() => import('./pages/WinnersDayPage').then(m => ({ default: m.WinnersDayPage })));
-const WallOfTheDayPage = lazy(() => import('./pages/WallOfTheDayPage').then(m => ({ default: m.WallOfTheDayPage })));
 const UserProfilePage = lazy(() => import('./pages/UserProfilePage').then(m => ({ default: m.UserProfilePage })));
 const VotingTestPage = lazy(() => import('./test/VotingTestPage').then(m => ({ default: m.VotingTestPage })));
 const SocialTestPage = lazy(() => import('./test/SocialTestPage').then(m => ({ default: m.SocialTestPage })));
@@ -54,8 +53,7 @@ function AppContent() {
         case 'dashboard': return <AdminGuard><Dashboard /></AdminGuard>;
         case 'color-tester': return <AdminGuard><ColorTester /></AdminGuard>;
         case 'gallery': return <FollowsProvider><GalleryPage tab={route.tab} year={route.year} month={route.month} date={route.date} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} /></FollowsProvider>;
-        case 'wall-of-the-day': return <WallOfTheDayPage date={route.date} />;
-        case 'profile': return <FollowsProvider><UserProfilePage userId={route.userId} /></FollowsProvider>;
+        case 'profile': return <FollowsProvider><UserProfilePage userId={route.userId} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} /></FollowsProvider>;
         case 'winners-day': return <WinnersDayPage date={route.date} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} />;
         case 'submission-by-id': return <FollowsProvider><SubmissionDetailPage submissionId={route.id} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} /></FollowsProvider>;
         case 'submission-by-date': return <FollowsProvider><SubmissionDetailPage date={route.date} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} /></FollowsProvider>;

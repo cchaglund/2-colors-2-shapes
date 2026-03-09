@@ -43,7 +43,7 @@ export function SubmissionCard({
 
   const cardStyle: React.CSSProperties = {
     borderRadius: 'var(--radius-lg)',
-    border: 'var(--border-width, 2px) solid var(--color-border-light)',
+    border: 'var(--border-width, 2px) solid var(--color-border)',
     background: 'var(--color-card-bg)',
     boxShadow: isHovered ? 'var(--shadow-card)' : 'var(--shadow-btn)',
     overflow: 'hidden',

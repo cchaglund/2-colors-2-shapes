@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { Button } from '../components/shared/Button';
 import { Link } from '../components/shared/Link';
 import { useAuth } from '../hooks/auth/useAuth';
 import { useSubmissions } from '../hooks/submission/useSubmissions';
@@ -113,20 +114,12 @@ export function SubmissionDetailPage({ date, submissionId, themeMode, onSetTheme
         rightContent={
           <div className="flex items-center gap-2">
             {date && <SubmissionNavigation adjacentDates={adjacentDates} />}
-            <Link
-              href="/?view=gallery"
-              className="h-9 md:h-8 px-2 md:px-3 rounded-(--radius-pill) text-xs font-medium transition-colors text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) no-underline flex items-center gap-1"
-              style={{
-                background: 'var(--color-selected)',
-                border: 'var(--border-width, 2px) solid var(--color-border)',
-                boxShadow: 'var(--shadow-btn)',
-              }}
-            >
+            <Button as="a" variant="ghost" href="/?view=gallery" className="gap-1">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="15 18 9 12 15 6" />
               </svg>
               <span className="hidden md:inline">Gallery</span>
-            </Link>
+            </Button>
           </div>
         }
       />

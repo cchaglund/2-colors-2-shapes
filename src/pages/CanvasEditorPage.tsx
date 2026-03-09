@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { DailyChallenge, Shape } from '../types';
 import type { ThemeMode, ThemeName } from '../hooks/ui/useThemeState';
@@ -192,6 +192,20 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
 
   // Selected color for new shapes
   const [selectedColorIndex, setSelectedColorIndex] = useState<number>(0);
+
+  // Sync selected color to match the selected shape(s) color
+  useEffect(() => {
+    if (canvasState.selectedShapeIds.size === 0) return;
+    const selectedShapes = canvasState.shapes.filter((s) =>
+      canvasState.selectedShapeIds.has(s.id)
+    );
+    if (selectedShapes.length === 0) return;
+    const firstColor = selectedShapes[0].colorIndex;
+    const allSameColor = selectedShapes.every((s) => s.colorIndex === firstColor);
+    if (allSameColor && firstColor !== selectedColorIndex) {
+      setSelectedColorIndex(firstColor);
+    }
+  }, [canvasState.selectedShapeIds, canvasState.shapes]);
 
   const handleAddShape = useCallback((shapeIndex: number, colorIndex: number) => {
     addShape(shapeIndex, colorIndex);

@@ -372,7 +372,7 @@ function UserProfileDemo() {
       {/* Embedded UserProfilePage */}
       <div className="border border-(--color-border) rounded-lg overflow-hidden">
         <FollowsProvider>
-          <UserProfilePage userId={testUserId} />
+          <UserProfilePage userId={testUserId} themeMode="light" onSetThemeMode={() => {}} themeName="a" onSetThemeName={() => {}} />
         </FollowsProvider>
       </div>
     </div>

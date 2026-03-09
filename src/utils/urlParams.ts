@@ -82,34 +82,20 @@ export function getProfileView(): { view: 'profile'; userId: string } | null {
   return null;
 }
 
-// Check if wall-of-the-day view is requested
-export function getWallOfTheDayView(): { view: 'wall-of-the-day'; date: string } | null {
-  // Import getTodayDateUTC inline to avoid circular dependency
-  const getTodayDateUTC = (): string => {
-    const now = new Date();
-    return now.toISOString().split('T')[0];
-  };
-
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('view') === 'wall-of-the-day') {
-    const date = urlParams.get('date') || getTodayDateUTC();
-    // Validate date format
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      return { view: 'wall-of-the-day', date: getTodayDateUTC() };
-    }
-    // Redirect future dates to today
-    if (date > getTodayDateUTC()) {
-      return { view: 'wall-of-the-day', date: getTodayDateUTC() };
-    }
-    return { view: 'wall-of-the-day', date };
-  }
-  return null;
-}
 
 // Check if gallery view is requested
 export function getGalleryView(): { tab?: string; year?: number; month?: number; date?: string } | null {
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('view') === 'gallery') {
+  const view = urlParams.get('view');
+
+  // Legacy wall-of-the-day URLs redirect to gallery wall tab
+  if (view === 'wall-of-the-day') {
+    const dateStr = urlParams.get('date') || undefined;
+    const validDate = dateStr && /^\d{4}-\d{2}-\d{2}$/.test(dateStr) ? dateStr : undefined;
+    return { tab: 'wall', date: validDate };
+  }
+
+  if (view === 'gallery') {
     const tab = urlParams.get('tab') || undefined;
 
     const yearStr = urlParams.get('year');
