@@ -60,6 +60,12 @@ export function isColorTesterEnabled(): boolean {
   return urlParams.has('colors');
 }
 
+// Check if colors V2 test page is requested
+export function isColorsV2TestEnabled(): boolean {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.has('colors-v2');
+}
+
 // Check if winners-day view is requested
 export function getWinnersDayView(): { view: 'winners-day'; date: string } | null {
   const urlParams = new URLSearchParams(window.location.search);

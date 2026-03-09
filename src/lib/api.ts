@@ -768,9 +768,9 @@ export async function insertKeyboardSettings(userId: string, mappings: Record<st
 // Admin
 // =============================================================================
 
-export async function generateTestColors(previousColors: string[]) {
+export async function generateTestColors(previousColors: string[], previousRule?: string) {
   const { data, error } = await supabase.functions.invoke('get-daily-challenge', {
-    body: { test: true, previousColors },
+    body: { test: true, previousColors, previousRule },
   });
   if (error) throw new Error(error.message || 'Failed to generate colors');
   return data;

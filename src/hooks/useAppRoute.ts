@@ -7,6 +7,7 @@ import {
   isSocialTestEnabled,
   isDashboardEnabled,
   isColorTesterEnabled,
+  isColorsV2TestEnabled,
   getWinnersDayView,
   getProfileView,
   getGalleryView,
@@ -19,6 +20,7 @@ type StandaloneRoute =
   | { type: 'social-test' }
   | { type: 'dashboard' }
   | { type: 'color-tester' }
+  | { type: 'colors-v2-test' }
   | { type: 'gallery'; tab?: string; year?: number; month?: number; date?: string }
   | { type: 'profile'; userId: string }
   | { type: 'winners-day'; date: string }
@@ -37,6 +39,7 @@ function resolveRoute(): AppRoute {
   if (isSocialTestEnabled()) return { type: 'social-test' };
   if (isDashboardEnabled()) return { type: 'dashboard' };
   if (isColorTesterEnabled()) return { type: 'color-tester' };
+  if (isColorsV2TestEnabled()) return { type: 'colors-v2-test' };
 
   const gallery = getGalleryView();
   if (gallery) return { type: 'gallery', tab: gallery.tab, year: gallery.year, month: gallery.month, date: gallery.date };

@@ -22,31 +22,47 @@ interface PairwiseMetadata {
 
 interface TestColorResponse {
   colors: string[];
+  rule: string;
+  anchorHue: number;
   metadata: { pairwise: PairwiseMetadata[] };
 }
 
+const RULE_LABELS: Record<string, string> = {
+  'triadic': 'Triadic',
+  'complementary': 'Complementary',
+  'split-complementary': 'Split Complementary',
+  'analogous': 'Analogous',
+};
+
+interface HistoryEntry {
+  colors: string[];
+  rule: string;
+}
+
 export function ColorTester() {
-  const [colors, setColors] = useState<string[] | null>(null);
+  const [current, setCurrent] = useState<TestColorResponse | null>(null);
   const [metadata, setMetadata] = useState<PairwiseMetadata[] | null>(null);
-  const [history, setHistory] = useState<string[][]>([]);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Track "previous day" colors to test consecutive day avoidance
+  // Track "previous day" state to test consecutive day avoidance
   const previousColorsRef = useRef<string[]>([]);
+  const previousRuleRef = useRef<string | undefined>(undefined);
 
   const handleGenerate = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await generateTestColors(previousColorsRef.current) as TestColorResponse;
-      setColors(response.colors);
+      const response = await generateTestColors(previousColorsRef.current, previousRuleRef.current) as TestColorResponse;
+      setCurrent(response);
       setMetadata(response.metadata.pairwise);
-      setHistory((prev) => [response.colors, ...prev]);
+      setHistory((prev) => [{ colors: response.colors, rule: response.rule }, ...prev]);
 
-      // Update "previous" colors for next generation (simulates day-to-day)
+      // Update "previous" state for next generation (simulates day-to-day)
       previousColorsRef.current = [...response.colors];
+      previousRuleRef.current = response.rule;
     } catch (err) {
       console.error('Failed to generate colors:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -57,7 +73,10 @@ export function ColorTester() {
 
   const handleClearHistory = useCallback(() => {
     setHistory([]);
+    setCurrent(null);
+    setMetadata(null);
     previousColorsRef.current = [];
+    previousRuleRef.current = undefined;
   }, []);
 
   return (
@@ -67,7 +86,7 @@ export function ColorTester() {
           <h1 className="text-3xl font-bold mb-2 text-(--color-text-primary)">Color Tester</h1>
           <p className="text-sm text-(--color-text-secondary)">
             Tests the <strong>production server</strong> color generation algorithm. Each click
-            simulates a new day, avoiding colors too similar to the previous day.
+            simulates a new day with a different harmony rule.
           </p>
         </header>
 
@@ -83,16 +102,15 @@ export function ColorTester() {
           {/* Production Settings Info */}
           <div className="w-full p-4 rounded-lg bg-(--color-bg-secondary)">
             <h3 className="text-sm font-semibold mb-2 text-(--color-text-primary)">
-              Production Settings
+              Production Settings (V2)
             </h3>
             <ul className="text-xs text-(--color-text-tertiary) space-y-1">
               <li>Color space: OKLCH (perceptually uniform)</li>
-              <li>3 colors per challenge</li>
-              <li>Lightness range: 0.4 - 0.9</li>
-              <li>Muddy hues excluded: 30-50° (browns)</li>
-              <li>Min contrast ratio: 2.5 (≥2 of 3 pairs must pass)</li>
-              <li>Min hue difference: 30° between each pair</li>
-              <li>Consecutive day similarity check: enabled</li>
+              <li>Hue selection: Harmony-based (triadic, complementary, split-comp, analogous)</li>
+              <li>Lightness: 0.15 - 0.92 (bell-curve distribution, extremes rare)</li>
+              <li>Chroma: 0.07 - 0.5 (random per color)</li>
+              <li>Contrast: at least 1 of 3 pairs {'≥'} 2.5</li>
+              <li>Consecutive day: harmony rule must differ</li>
             </ul>
           </div>
 
@@ -124,11 +142,11 @@ export function ColorTester() {
           )}
 
           <div className="flex items-center justify-center py-4">
-            {colors ? (
+            {current ? (
               <svg width="240" height="235" viewBox="0 0 240 235">
-                <circle cx="80" cy="80" r="75" fill={colors[0]} stroke="none" />
-                <circle cx="160" cy="80" r="75" fill={colors[1]} stroke="none" />
-                <circle cx="120" cy="158" r="75" fill={colors[2]} stroke="none" />
+                <circle cx="80" cy="80" r="75" fill={current.colors[0]} stroke="none" />
+                <circle cx="160" cy="80" r="75" fill={current.colors[1]} stroke="none" />
+                <circle cx="120" cy="158" r="75" fill={current.colors[2]} stroke="none" />
               </svg>
             ) : (
               <p className="text-(--color-text-tertiary)">
@@ -137,13 +155,19 @@ export function ColorTester() {
             )}
           </div>
 
-          {colors && metadata && (
+          {current && metadata && (
             <div className="w-full p-4 rounded-lg bg-(--color-bg-secondary)">
-              <h3 className="text-sm font-semibold mb-3 text-(--color-text-primary)">
-                Color Details
-              </h3>
+              <div className="flex items-center gap-2 mb-3">
+                <h3 className="text-sm font-semibold text-(--color-text-primary)">Details</h3>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-(--color-bg-tertiary) text-(--color-text-secondary)">
+                  {RULE_LABELS[current.rule] || current.rule}
+                </span>
+                <span className="text-xs text-(--color-text-tertiary)">
+                  anchor: {current.anchorHue}°
+                </span>
+              </div>
               <div className="space-y-2 text-sm text-(--color-text-secondary)">
-                {colors.map((color, i) => (
+                {current.colors.map((color, i) => (
                   <div key={i} className="flex items-center gap-2">
                     <div
                       className="w-4 h-4 rounded"
@@ -185,15 +209,20 @@ export function ColorTester() {
               History (simulated consecutive days)
             </h2>
             <p className="text-xs text-(--color-text-tertiary) mb-4">
-              Each set should avoid having colors too similar to the previous set.
+              Each palette uses a different harmony rule from the previous one.
             </p>
             <div className="flex flex-wrap gap-4">
-              {history.slice(1).map((set, index) => (
-                <svg key={index} width="64" height="62" viewBox="0 0 64 62">
-                  <circle cx="21" cy="21" r="19" fill={set[0]} stroke="none" />
-                  <circle cx="43" cy="21" r="19" fill={set[1]} stroke="none" />
-                  <circle cx="32" cy="41" r="19" fill={set[2]} stroke="none" />
-                </svg>
+              {history.slice(1).map((entry, index) => (
+                <div key={index} className="flex flex-col items-center gap-1">
+                  <svg width="64" height="62" viewBox="0 0 64 62">
+                    <circle cx="21" cy="21" r="19" fill={entry.colors[0]} stroke="none" />
+                    <circle cx="43" cy="21" r="19" fill={entry.colors[1]} stroke="none" />
+                    <circle cx="32" cy="41" r="19" fill={entry.colors[2]} stroke="none" />
+                  </svg>
+                  <span className="text-[10px] text-(--color-text-tertiary)">
+                    {RULE_LABELS[entry.rule] || entry.rule}
+                  </span>
+                </div>
               ))}
             </div>
           </div>

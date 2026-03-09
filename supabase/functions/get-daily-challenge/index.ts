@@ -23,27 +23,20 @@ const corsHeaders = {
 // =============================================================================
 
 const COLOR_CONFIG = {
-  // Color space: 'oklch' (perceptually uniform) or 'hsl' (legacy)
-  colorSpace: 'oklch' as 'oklch' | 'hsl',
-
-  // Exclude muddy hues (browns in 30-50° HSL range, allows yellows 50-60°)
-  excludeMuddyHues: true,
-
-  // OKLCH ranges (0-1 scale)
+  // OKLCH ranges — lightness uses bell-curve distribution (see bellRandom)
+  // so near-black and near-white are possible but rare
   oklch: {
-    lightness: { min: 0.4, max: 0.9 },    // Full range, not too dark
-    chroma: { min: 0.07, max: 0.5 },      // Color intensity
+    lightness: { min: 0.15, max: 0.92 },
+    chroma: { min: 0.07, max: 0.5 },
   },
 
-  // HSL ranges (legacy fallback)
-  hsl: {
-    saturation: { min: 50, max: 90 },
-    lightness: { min: 40, max: 90 },
-  },
-
-  // Minimum contrast ratio (WCAG). 2.5 allows more colorful pairs than 3.0
+  // Minimum contrast ratio (WCAG). At least 1 of 3 pairs must pass.
   minContrastRatio: 2.5,
 };
+
+// Harmony rules for hue selection
+type HarmonyRule = 'triadic' | 'complementary' | 'split-complementary' | 'analogous';
+const HARMONY_RULES: HarmonyRule[] = ['triadic', 'complementary', 'split-complementary', 'analogous'];
 
 // =============================================================================
 // Daily Word Data
@@ -119,6 +112,7 @@ interface DailyChallenge {
   colors: string[];
   shapes: [ShapeData, ShapeData];
   word: string;
+  harmonyRule?: HarmonyRule;
 }
 
 interface ChallengeRow {
@@ -134,6 +128,7 @@ interface ChallengeRow {
   shape_1_name: string | null;
   shape_2_name: string | null;
   word: string;
+  harmony_rule: string | null;
   created_at: string;
 }
 
@@ -455,16 +450,45 @@ function maxChromaInGamut(l: number, h: number): number {
 }
 
 // =============================================================================
-// Muddy Hue Exclusion
+// Harmony-Based Hue Generation (V2)
 // =============================================================================
 
-function generateSafeHue(random: () => number, excludeMuddy: boolean): number {
-  if (!excludeMuddy) {
-    return Math.floor(random() * 360);
+/**
+ * Bell-curve-ish random: average of N uniform randoms.
+ * With n=2 (triangular distribution), values cluster around the center
+ * of the range. Extremes (near-black, near-white) are possible but rare.
+ */
+function bellRandom(random: () => number, n = 2): number {
+  let sum = 0;
+  for (let i = 0; i < n; i++) sum += random();
+  return sum / n;
+}
+
+function normalizeHue(h: number): number {
+  return ((h % 360) + 360) % 360;
+}
+
+function generateHarmoniousHues(random: () => number, rule: HarmonyRule): [number, number, number] {
+  const anchor = Math.floor(random() * 360);
+  const jitter = () => (random() - 0.5) * 30; // +/-15 degrees
+
+  switch (rule) {
+    case 'triadic':
+      return [anchor, normalizeHue(anchor + 120 + jitter()), normalizeHue(anchor + 240 + jitter())];
+    case 'complementary':
+      return [anchor, normalizeHue(anchor + 180 + jitter()), normalizeHue(anchor + 180 + jitter())];
+    case 'split-complementary':
+      return [anchor, normalizeHue(anchor + 150 + jitter()), normalizeHue(anchor + 210 + jitter())];
+    case 'analogous':
+      return [anchor, normalizeHue(anchor + 30 + jitter()), normalizeHue(anchor + 60 + jitter())];
   }
-  // Skip the 30-50° range (muddy browns), allows yellows at 50-60°
-  const hue = Math.floor(random() * 340);
-  return hue >= 30 ? hue + 20 : hue;
+}
+
+function pickHarmonyRule(random: () => number, excludeRule: HarmonyRule | null): HarmonyRule {
+  const available = excludeRule
+    ? HARMONY_RULES.filter(r => r !== excludeRule)
+    : HARMONY_RULES;
+  return available[Math.floor(random() * available.length)];
 }
 
 // =============================================================================
@@ -492,7 +516,7 @@ function dateToSeed(dateStr: string): number {
 
 function generateColorWithOKLCH(random: () => number, hue: number): string {
   const { oklch } = COLOR_CONFIG;
-  const l = oklch.lightness.min + random() * (oklch.lightness.max - oklch.lightness.min);
+  const l = oklch.lightness.min + bellRandom(random) * (oklch.lightness.max - oklch.lightness.min);
   // Gamut map: cap chroma to the maximum that stays within sRGB
   const maxC = maxChromaInGamut(l, hue);
   const effectiveMax = Math.min(oklch.chroma.max, maxC);
@@ -500,13 +524,6 @@ function generateColorWithOKLCH(random: () => number, hue: number): string {
   const c = effectiveMin + random() * (effectiveMax - effectiveMin);
   const hsl = oklchToHsl({ l, c, h: hue });
   return `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
-}
-
-function generateColorWithHSL(random: () => number, hue: number): string {
-  const { hsl } = COLOR_CONFIG;
-  const saturation = hsl.saturation.min + Math.floor(random() * (hsl.saturation.max - hsl.saturation.min));
-  const lightness = hsl.lightness.min + Math.floor(random() * (hsl.lightness.max - hsl.lightness.min));
-  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
 function parseHSL(hsl: string): { h: number; s: number; l: number } {
@@ -601,64 +618,44 @@ function isColorTooSimilar(color: string, colorsToAvoid: string[]): boolean {
   return false;
 }
 
+interface ColorGenerationResult {
+  colors: string[];
+  rule: HarmonyRule;
+  anchorHue: number;
+}
+
 function generateDistinctColors(
   random: () => number,
+  excludeRule: HarmonyRule | null = null,
   colorsToAvoid: string[] = []
-): string[] {
-  const { colorSpace, excludeMuddyHues, minContrastRatio } = COLOR_CONFIG;
-  const minHueDiff = 30;
-
-  const generateColor = (hue: number) =>
-    colorSpace === 'oklch'
-      ? generateColorWithOKLCH(random, hue)
-      : generateColorWithHSL(random, hue);
-
-  // Helper: check pairwise hue differences for 3 hues (all pairs ≥ minHueDiff)
-  function huesDistinct(hues: number[]): boolean {
-    for (let a = 0; a < hues.length; a++) {
-      for (let b = a + 1; b < hues.length; b++) {
-        let diff = Math.abs(hues[a] - hues[b]);
-        if (diff > 180) diff = 360 - diff;
-        if (diff < minHueDiff) return false;
-      }
-    }
-    return true;
-  }
+): ColorGenerationResult {
+  const { minContrastRatio } = COLOR_CONFIG;
 
   for (let i = 0; i < 100; i++) {
-    // Generate 3 distinct hues
-    const hues = [
-      generateSafeHue(random, excludeMuddyHues),
-      generateSafeHue(random, excludeMuddyHues),
-      generateSafeHue(random, excludeMuddyHues),
-    ];
+    const rule = pickHarmonyRule(random, excludeRule);
+    const hues = generateHarmoniousHues(random, rule);
+    const colors = hues.map(hue => generateColorWithOKLCH(random, hue));
 
-    if (!huesDistinct(hues)) continue;
-
-    const colors = hues.map(generateColor);
-
-    // Relaxed contrast: require ≥2 of 3 pairwise contrast ratios to meet threshold
+    // Relaxed contrast: require at least 1 of 3 pairs to meet threshold
     const pairs = [
       getContrastRatio(colors[0], colors[1]),
       getContrastRatio(colors[0], colors[2]),
       getContrastRatio(colors[1], colors[2]),
     ];
     const passingPairs = pairs.filter(r => r >= minContrastRatio).length;
-    if (passingPairs < 2) continue;
+    if (passingPairs < 1) continue;
 
     // Check similarity to colors to avoid (previous days)
     if (colors.some(c => isColorTooSimilar(c, colorsToAvoid))) continue;
 
-    return colors;
+    return { colors, rule, anchorHue: hues[0] };
   }
 
-  // Fallback: trichromatic hues (120° apart)
-  const hue = generateSafeHue(random, excludeMuddyHues);
-  return [
-    generateColor(hue),
-    generateColor((hue + 120) % 360),
-    generateColor((hue + 240) % 360),
-  ];
+  // Fallback: triadic with no exclusion
+  const rule = pickHarmonyRule(random, null);
+  const hues = generateHarmoniousHues(random, rule);
+  const colors = hues.map(hue => generateColorWithOKLCH(random, hue));
+  return { colors, rule, anchorHue: hues[0] };
 }
 
 function generateShapes(random: () => number): [ShapeType, ShapeType] {
@@ -673,6 +670,7 @@ function generateShapes(random: () => number): [ShapeType, ShapeType] {
 interface PreviousChallenge {
   shapes: [ShapeType, ShapeType];
   colors: string[];
+  harmonyRule: HarmonyRule | null;
 }
 
 function haveSameShapes(
@@ -735,9 +733,14 @@ function generateChallengeWithSmartRandomness(
   // Collect previous colors to avoid similar consecutive days
   const colorsToAvoid = previousChallenges.flatMap(c => c.colors);
 
+  // Get previous day's harmony rule to avoid repeating
+  const previousRule = previousChallenges.length > 0
+    ? previousChallenges[0].harmonyRule
+    : null;
+
   for (let attempt = 0; attempt < 50; attempt++) {
     const random = seededRandom(baseSeed + attempt * 1000003);
-    const colors = generateDistinctColors(random, colorsToAvoid);
+    const { colors, rule } = generateDistinctColors(random, previousRule, colorsToAvoid);
     const shapes = generateShapes(random);
 
     if (!isTooSimilarToAny({ shapes, colors }, previousChallenges)) {
@@ -746,19 +749,21 @@ function generateChallengeWithSmartRandomness(
         colors,
         shapes: [createShapeData(shapes[0]), createShapeData(shapes[1])],
         word,
+        harmonyRule: rule,
       };
     }
   }
 
   // Fallback - use first attempt
   const random = seededRandom(baseSeed);
-  const colors = generateDistinctColors(random, colorsToAvoid);
+  const { colors, rule } = generateDistinctColors(random, previousRule, colorsToAvoid);
   const shapes = generateShapes(random);
   return {
     date: dateStr,
     colors,
     shapes: [createShapeData(shapes[0]), createShapeData(shapes[1])],
     word,
+    harmonyRule: rule,
   };
 }
 
@@ -803,6 +808,7 @@ function rowToPreviousChallenge(row: ChallengeRow): PreviousChallenge {
   return {
     shapes: [row.shape_1 as ShapeType, row.shape_2 as ShapeType],
     colors: [row.color_1, row.color_2, row.color_3].filter(Boolean) as string[],
+    harmonyRule: row.harmony_rule as HarmonyRule | null,
   };
 }
 
@@ -866,6 +872,7 @@ async function fetchOrCreateChallenge(
         shape_1_name: challenge.shapes[0].name,
         shape_2_name: challenge.shapes[1].name,
         word: challenge.word,
+        harmony_rule: challenge.harmonyRule ?? null,
       },
       { onConflict: 'challenge_date', ignoreDuplicates: true }
     );
@@ -914,10 +921,13 @@ interface ChallengeRequest {
   dates?: string[];
   test?: boolean;              // For ColorTester: generate random colors
   previousColors?: string[];   // For ColorTester: colors to avoid (simulates consecutive days)
+  previousRule?: HarmonyRule;  // For ColorTester: harmony rule to avoid (simulates consecutive days)
 }
 
 interface TestColorResponse {
   colors: string[];
+  rule: HarmonyRule;
+  anchorHue: number;
   metadata: {
     pairwise: Array<{ pair: string; contrastRatio: number; hueDiff: number; distance: number }>;
   };
@@ -951,7 +961,8 @@ serve(async (req: Request) => {
     if (requestData.test) {
       const random = () => Math.random();
       const colorsToAvoid = requestData.previousColors || [];
-      const colors = generateDistinctColors(random, colorsToAvoid);
+      const excludeRule = requestData.previousRule || null;
+      const { colors, rule, anchorHue } = generateDistinctColors(random, excludeRule, colorsToAvoid);
 
       // Calculate pairwise metadata for display
       const pairwise: TestColorResponse['metadata']['pairwise'] = [];
@@ -972,6 +983,8 @@ serve(async (req: Request) => {
 
       const response: TestColorResponse = {
         colors,
+        rule,
+        anchorHue,
         metadata: { pairwise },
       };
 
