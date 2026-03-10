@@ -18,19 +18,20 @@ export function getLensPath(width: number, height: number): string {
 
 // Generate arch path
 export function getArchPath(size: number): string {
-  // Arch normalized to fill bounding box (y range 0-1 instead of 0.4-1)
   const archWidth = size * 0.3;
   const innerWidth = size - archWidth * 2;
   const innerRadius = innerWidth / 2;
   const outerRadius = size / 2;
-  // Scale y coordinates: newY = (oldY - 0.4) / 0.6
-  return `M 0,${size} L 0,0 A ${outerRadius},${outerRadius * 0.6} 0 0 1 ${size},0 L ${size},${size} L ${size - archWidth},${size} L ${size - archWidth},${size * 0.25} A ${innerRadius},${innerRadius * 0.6} 0 0 0 ${archWidth},${size * 0.25} L ${archWidth},${size} Z`;
+  const arcRy = outerRadius * 0.6; // y-radius of outer arc
+  // Outer walls start at arcRy so the arc peak reaches y=0 (fits in bounding box)
+  return `M 0,${size} L 0,${arcRy} A ${outerRadius},${arcRy} 0 0 1 ${size},${arcRy} L ${size},${size} L ${size - archWidth},${size} L ${size - archWidth},${size * 0.45} A ${innerRadius},${innerRadius * 0.45} 0 0 0 ${archWidth},${size * 0.45} L ${archWidth},${size} Z`;
 }
 
 // Outer-only outline for arch (no inner cutout stroke)
 export function getArchOutlinePath(size: number): string {
   const outerRadius = size / 2;
-  return `M 0,${size} L 0,0 A ${outerRadius},${outerRadius * 0.6} 0 0 1 ${size},0 L ${size},${size} Z`;
+  const arcRy = outerRadius * 0.6;
+  return `M 0,${size} L 0,${arcRy} A ${outerRadius},${arcRy} 0 0 1 ${size},${arcRy} L ${size},${size} Z`;
 }
 
 // Generate wave - spread-out curved shape

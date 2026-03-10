@@ -64,7 +64,6 @@ export interface ShapeGroup {
 export interface ChallengeShapeData {
   type: ShapeType;
   name: string;
-  svg: string; // Normalized SVG path (viewBox 0 0 100 100)
 }
 
 export interface DailyChallenge {

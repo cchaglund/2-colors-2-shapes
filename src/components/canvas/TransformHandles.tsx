@@ -15,6 +15,8 @@ interface MultiSelectTransformLayerProps {
   bounds: { x: number; y: number; width: number; height: number };
   zoom?: number;
   showIndividualOutlines?: boolean;
+  showBoundingRect?: boolean;
+  showOutline?: boolean;
   hoveredHandleId?: string | null;
 }
 
@@ -340,6 +342,8 @@ export function MultiSelectTransformLayer({
   bounds,
   zoom = 1,
   showIndividualOutlines = true,
+  showBoundingRect = true,
+  showOutline = true,
   hoveredHandleId,
 }: MultiSelectTransformLayerProps) {
   // Scale sizes inversely with zoom
@@ -384,18 +388,20 @@ export function MultiSelectTransformLayer({
     return (
       <g transform={transform} style={{ pointerEvents: 'none' }}>
         {/* Bounding box — solid or dashed per theme (--sel-dash) */}
-        <rect
-          x={0}
-          y={0}
-          width={renderW}
-          height={renderH}
-          fill="none"
-          style={{ stroke: 'var(--sel-border)', strokeDasharray: 'var(--sel-dash)' }}
-          strokeWidth={strokeWidth}
-        />
+        {showBoundingRect && (
+          <rect
+            x={0}
+            y={0}
+            width={renderW}
+            height={renderH}
+            fill="none"
+            style={{ stroke: 'var(--sel-border)', strokeDasharray: 'var(--sel-dash)' }}
+            strokeWidth={strokeWidth}
+          />
+        )}
 
         {/* Shape outline (dashed) — rendered after bounding box so it's visible on rect shapes */}
-        {dimensions ? (
+        {showOutline && (dimensions ? (
           <svg
             x={0} y={0}
             width={renderW} height={renderH}
@@ -406,10 +412,10 @@ export function MultiSelectTransformLayer({
           </svg>
         ) : (
           outlineElement
-        )}
+        ))}
 
         {/* Resize handles (8: corners + midpoints) */}
-        {resizeHandles.map((handle) => (
+        {showBoundingRect && resizeHandles.map((handle) => (
           <rect
             key={handle.id}
             x={handle.x - handleSize / 2}
@@ -431,7 +437,7 @@ export function MultiSelectTransformLayer({
   return (
     <g style={{ pointerEvents: 'none' }}>
       {/* Individual shape outlines — shape-specific dashed outlines per-shape */}
-      {showIndividualOutlines &&
+      {showOutline && showIndividualOutlines &&
         shapes.map((shape) => {
           const { element, props, viewBox, outlineD, dimensions } = getShapeSVGData(shape.type, shape.size);
           const rW = dimensions?.width ?? viewBox.width;
@@ -480,18 +486,20 @@ export function MultiSelectTransformLayer({
         })}
 
       {/* Combined bounding box — solid or dashed per theme (--sel-dash) */}
-      <rect
-        x={bounds.x}
-        y={bounds.y}
-        width={bounds.width}
-        height={bounds.height}
-        fill="none"
-        style={{ stroke: 'var(--sel-border)', strokeDasharray: 'var(--sel-dash)' }}
-        strokeWidth={strokeWidth}
-      />
+      {showBoundingRect && (
+        <rect
+          x={bounds.x}
+          y={bounds.y}
+          width={bounds.width}
+          height={bounds.height}
+          fill="none"
+          style={{ stroke: 'var(--sel-border)', strokeDasharray: 'var(--sel-dash)' }}
+          strokeWidth={strokeWidth}
+        />
+      )}
 
       {/* Resize handles (8: corners + midpoints) */}
-      {resizeHandles.map((handle) => (
+      {showBoundingRect && resizeHandles.map((handle) => (
         <rect
           key={handle.id}
           x={bounds.x + handle.x - handleSize / 2}

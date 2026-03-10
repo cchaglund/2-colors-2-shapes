@@ -194,10 +194,6 @@ export interface ChallengeRow {
   color_3: string | null;
   shape_1: string;
   shape_2: string;
-  shape_1_svg: string | null;
-  shape_2_svg: string | null;
-  shape_1_name: string | null;
-  shape_2_name: string | null;
   word: string;
 }
 
@@ -768,13 +764,6 @@ export async function insertKeyboardSettings(userId: string, mappings: Record<st
 // Admin
 // =============================================================================
 
-export async function generateTestColors(previousColors: string[], previousRule?: string) {
-  const { data, error } = await supabase.functions.invoke('get-daily-challenge', {
-    body: { test: true, previousColors, previousRule },
-  });
-  if (error) throw new Error(error.message || 'Failed to generate colors');
-  return data;
-}
 
 export async function fetchDashboardStats() {
   const { data: sessionData } = await supabase.auth.getSession();

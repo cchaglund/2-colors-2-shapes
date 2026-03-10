@@ -12,7 +12,7 @@ import { SHAPE_NAMES } from '../../utils/shapes/utils';
 // =============================================================================
 
 const CACHE_KEY = 'challenge-cache';
-const CACHE_VERSION = 3; // Increment when data format changes (added word field)
+const CACHE_VERSION = 4; // Increment when data format changes (removed svg field)
 
 interface CacheData {
   version: number;
@@ -107,13 +107,11 @@ function rowToChallenge(row: ChallengeRow): DailyChallenge {
     shapes: [
       {
         type: shape1Type,
-        name: row.shape_1_name || SHAPE_NAMES[shape1Type] || shape1Type,
-        svg: row.shape_1_svg || '',
+        name: SHAPE_NAMES[shape1Type] || shape1Type,
       },
       {
         type: shape2Type,
-        name: row.shape_2_name || SHAPE_NAMES[shape2Type] || shape2Type,
-        svg: row.shape_2_svg || '',
+        name: SHAPE_NAMES[shape2Type] || shape2Type,
       },
     ],
     word: row.word,
@@ -204,8 +202,8 @@ export function useDailyChallenge(date: string): UseDailyChallengeReturn {
       return {
         ...base,
         // shapes: [
-        //   { type: 'fin', name: SHAPE_NAMES['fin'], svg: '' },
-        //   { type: 'hourglass', name: SHAPE_NAMES['hourglass'], svg: '' },
+        //   { type: 'fin', name: SHAPE_NAMES['fin'] },
+        //   { type: 'hourglass', name: SHAPE_NAMES['hourglass'] },
         // ],
         // colors: ['hsl(270, 100%, 85%)', 'hsl(324, 100%, 44%)'],
       };

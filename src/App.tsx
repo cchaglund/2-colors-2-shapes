@@ -13,7 +13,6 @@ import { ErrorBoundary } from './components/shared/ErrorBoundary';
 // Route-based code splitting: each page loads only when navigated to
 const ShapeExplorer = lazy(() => import('./components/admin/ShapeExplorer').then(m => ({ default: m.ShapeExplorer })));
 const ColorTester = lazy(() => import('./components/admin/ColorTester').then(m => ({ default: m.ColorTester })));
-const ColorsV2Test = lazy(() => import('./components/admin/ColorsV2Test').then(m => ({ default: m.ColorsV2Test })));
 const Dashboard = lazy(() => import('./components/admin/Dashboard').then(m => ({ default: m.Dashboard })));
 const GalleryPage = lazy(() => import('./pages/GalleryPage').then(m => ({ default: m.GalleryPage })));
 const SubmissionDetailPage = lazy(() => import('./pages/SubmissionDetailPage').then(m => ({ default: m.SubmissionDetailPage })));
@@ -52,8 +51,7 @@ function AppContent() {
         case 'voting-test': return <VotingTestPage />;
         case 'social-test': return <SocialTestPage />;
         case 'dashboard': return <AdminGuard><Dashboard /></AdminGuard>;
-        case 'color-tester': return <AdminGuard><ColorTester /></AdminGuard>;
-        case 'colors-v2-test': return <ColorsV2Test />;
+        case 'color-tester': return <ColorTester />;
         case 'gallery': return <FollowsProvider><GalleryPage tab={route.tab} year={route.year} month={route.month} date={route.date} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} /></FollowsProvider>;
         case 'profile': return <FollowsProvider><UserProfilePage userId={route.userId} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} /></FollowsProvider>;
         case 'winners-day': return <WinnersDayPage date={route.date} themeMode={themeMode} onSetThemeMode={setThemeMode} themeName={themeName} onSetThemeName={setThemeName} />;

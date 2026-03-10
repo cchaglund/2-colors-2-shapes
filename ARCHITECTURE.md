@@ -289,8 +289,6 @@ erDiagram
         string color_3
         string shape_1
         string shape_2
-        string shape_1_svg
-        string shape_2_svg
         string word
     }
 
