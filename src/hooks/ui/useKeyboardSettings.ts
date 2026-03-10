@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../../lib/supabase';
+import { fetchKeyboardSettings, insertKeyboardSettings, upsertKeyboardSettings } from '../../lib/api';
 import {
   type KeyMappings,
   type KeyboardActionId,
@@ -97,22 +97,14 @@ export function useKeyboardSettings(userId: string | undefined) {
       if (userId) {
         // Try to load from Supabase for logged-in users
         try {
-          const { data, error } = await supabase
-            .from('keyboard_settings')
-            .select('mappings')
-            .eq('user_id', userId)
-            .single();
+          const { data, error } = await fetchKeyboardSettings(userId);
 
           if (error) {
             if (error.code === 'PGRST116') {
               // No record found, check localStorage for migration
               const localMappings = loadFromLocalStorage();
               setMappings(localMappings);
-              // Save to Supabase
-              await supabase.from('keyboard_settings').insert({
-                user_id: userId,
-                mappings: localMappings,
-              });
+              await insertKeyboardSettings(userId, localMappings);
             } else {
               console.error('Error loading keyboard settings:', error);
               // Fall back to localStorage
@@ -127,10 +119,8 @@ export function useKeyboardSettings(userId: string | undefined) {
               // Determine version: if selectMode exists it was at least v2, otherwise v1
               const fromVersion = ('selectMode' in (dbMappings as Record<string, unknown>)) ? 2 : 1;
               dbMappings = migrateToLatest(dbMappings, fromVersion);
-              supabase
-                .from('keyboard_settings')
-                .upsert({ user_id: userId, mappings: { ...getDefaultMappings(), ...dbMappings }, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
-                .then(({ error: e2 }) => { if (e2) console.error('Failed to persist keyboard migration:', e2); });
+              upsertKeyboardSettings(userId, { ...getDefaultMappings(), ...dbMappings })
+                .catch((e2) => { console.error('Failed to persist keyboard migration:', e2); });
             }
             // Merge with defaults in case new actions were added
             setMappings({ ...getDefaultMappings(), ...dbMappings });
@@ -182,19 +172,7 @@ export function useKeyboardSettings(userId: string | undefined) {
       if (userId) {
         setSyncing(true);
         try {
-          const { error } = await supabase
-            .from('keyboard_settings')
-            .upsert(
-              {
-                user_id: userId,
-                mappings: newMappings,
-                updated_at: new Date().toISOString(),
-              },
-              { onConflict: 'user_id' }
-            );
-          if (error) {
-            console.error('Failed to save keyboard settings to Supabase:', error);
-          }
+          await upsertKeyboardSettings(userId, newMappings);
         } catch (e) {
           console.error('Failed to sync keyboard settings:', e);
         }
@@ -227,19 +205,7 @@ export function useKeyboardSettings(userId: string | undefined) {
     if (userId) {
       setSyncing(true);
       try {
-        const { error } = await supabase
-          .from('keyboard_settings')
-          .upsert(
-            {
-              user_id: userId,
-              mappings: defaults,
-              updated_at: new Date().toISOString(),
-            },
-            { onConflict: 'user_id' }
-          );
-        if (error) {
-          console.error('Failed to reset keyboard settings in Supabase:', error);
-        }
+        await upsertKeyboardSettings(userId, defaults);
       } catch (e) {
         console.error('Failed to sync keyboard settings reset:', e);
       }

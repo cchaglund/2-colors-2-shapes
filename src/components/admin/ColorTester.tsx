@@ -1,78 +1,59 @@
-import { useState, useCallback, useRef } from 'react';
-import { Link } from '../shared/Link';
-import { supabase } from '../../lib/supabase';
+import { useState, useCallback } from 'react';
+import { Link } from '../shared';
+import { PALETTES, PALETTE_COUNT } from '../../../supabase/functions/_shared/palettes';
+import { pick3WithContrast } from '../../../supabase/functions/_shared/colorPicking';
 
 // =============================================================================
-// ColorTester - Tests the PRODUCTION color generation algorithm
+// ColorTester - Preview palette-based color selection
 // =============================================================================
-// This component calls the server edge function to generate colors.
-// It does NOT use local/client-side color generation.
-//
-// If you update color generation in supabase/functions/get-daily-challenge/,
-// you MUST deploy before changes appear here:
-//   supabase functions deploy get-daily-challenge
+// Uses the same palettes and contrast-aware picking logic as the edge function.
+// Day index determines the palette row; 3 of 5 colors are picked randomly,
+// ensuring at least one pair has sufficient contrast.
 // =============================================================================
 
-interface PairwiseMetadata {
-  pair: string;
-  contrastRatio: number;
-  hueDiff: number;
-  distance: number;
+function getColorsForDay(dayIndex: number): { colors: string[]; paletteIndex: number; fullPalette: string[]; pickedIndices: number[] } {
+  const paletteIndex = dayIndex % PALETTE_COUNT;
+  const palette = PALETTES[paletteIndex];
+  const { colors, pickedIndices } = pick3WithContrast(palette, Math.random);
+  return { colors, paletteIndex, fullPalette: palette, pickedIndices };
 }
 
-interface TestColorResponse {
+interface HistoryEntry {
   colors: string[];
-  metadata: { pairwise: PairwiseMetadata[] };
+  paletteIndex: number;
+  fullPalette: string[];
+  pickedIndices: number[];
+  dayIndex: number;
 }
 
 export function ColorTester() {
-  const [colors, setColors] = useState<string[] | null>(null);
-  const [metadata, setMetadata] = useState<PairwiseMetadata[] | null>(null);
-  const [history, setHistory] = useState<string[][]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [simulatedDay, setSimulatedDay] = useState(0);
 
-  // Track "previous day" colors to test consecutive day avoidance
-  const previousColorsRef = useRef<string[]>([]);
+  const handleGenerate = useCallback(() => {
+    const result = getColorsForDay(simulatedDay);
+    setHistory(prev => [{ ...result, dayIndex: simulatedDay }, ...prev]);
+    setSimulatedDay(prev => (prev + 1) % PALETTE_COUNT);
+  }, [simulatedDay]);
 
-  const handleGenerate = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const { data, error: fetchError } = await supabase.functions.invoke(
-        'get-daily-challenge',
-        {
-          body: {
-            test: true,
-            previousColors: previousColorsRef.current,
-          },
-        }
-      );
-
-      if (fetchError) {
-        throw new Error(fetchError.message || 'Failed to generate colors');
-      }
-
-      const response = data as TestColorResponse;
-      setColors(response.colors);
-      setMetadata(response.metadata.pairwise);
-      setHistory((prev) => [response.colors, ...prev]);
-
-      // Update "previous" colors for next generation (simulates day-to-day)
-      previousColorsRef.current = [...response.colors];
-    } catch (err) {
-      console.error('Failed to generate colors:', err);
-      setError(err instanceof Error ? err.message : 'Unknown error');
-    } finally {
-      setLoading(false);
+  const handleGenerateBatch = useCallback((count: number) => {
+    const entries: HistoryEntry[] = [];
+    let day = simulatedDay;
+    for (let i = 0; i < count; i++) {
+      const result = getColorsForDay(day);
+      entries.push({ ...result, dayIndex: day });
+      day = (day + 1) % PALETTE_COUNT;
     }
+    setHistory(prev => [...entries, ...prev]);
+    setSimulatedDay(day);
+  }, [simulatedDay]);
+
+  const handleClear = useCallback(() => {
+    setHistory([]);
+    setSimulatedDay(0);
   }, []);
 
-  const handleClearHistory = useCallback(() => {
-    setHistory([]);
-    previousColorsRef.current = [];
-  }, []);
+  const current = history[0] ?? null;
 
   return (
     <div className="min-h-screen p-8 flex flex-col items-center bg-(--color-bg-primary)">
@@ -80,134 +61,132 @@ export function ColorTester() {
         <header className="mb-8 text-center">
           <h1 className="text-3xl font-bold mb-2 text-(--color-text-primary)">Color Tester</h1>
           <p className="text-sm text-(--color-text-secondary)">
-            Tests the <strong>production server</strong> color generation algorithm. Each click
-            simulates a new day, avoiding colors too similar to the previous day.
+            Preview palette-based color selection from <strong>{PALETTE_COUNT} Coolors.co palettes</strong>.
+            Each day picks a palette, then 3 of 5 colors are selected randomly.
           </p>
         </header>
 
         <div className="flex flex-col items-center gap-6">
-          {/* Server Notice */}
-          <div className="w-full p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
-            <p className="text-xs text-amber-600 dark:text-amber-400">
-              <strong>Note:</strong> This calls the deployed edge function. After updating color
-              generation code, run <code className="bg-black/10 px-1 rounded">supabase functions deploy get-daily-challenge</code> for changes to appear here.
+          {/* Settings */}
+          <div className="w-full p-4 rounded-lg bg-(--color-bg-secondary)">
+            <h3 className="text-sm font-semibold mb-3 text-(--color-text-primary)">Settings</h3>
+            <div>
+              <label className="text-xs text-(--color-text-tertiary) block mb-1">Day Index</label>
+              <input
+                type="number"
+                min={0}
+                max={PALETTE_COUNT - 1}
+                value={simulatedDay}
+                onChange={e => setSimulatedDay(Math.max(0, Math.min(PALETTE_COUNT - 1, Number(e.target.value))))}
+                className="w-full px-3 py-1.5 rounded border text-sm bg-(--color-bg-primary) border-(--color-border) text-(--color-text-primary)"
+              />
+            </div>
+            <p className="text-xs text-(--color-text-tertiary) mt-2">
+              {PALETTE_COUNT} palettes available. Each generate picks a random 3 of 5 from the palette.
             </p>
           </div>
 
-          {/* Production Settings Info */}
-          <div className="w-full p-4 rounded-lg bg-(--color-bg-secondary)">
-            <h3 className="text-sm font-semibold mb-2 text-(--color-text-primary)">
-              Production Settings
-            </h3>
-            <ul className="text-xs text-(--color-text-tertiary) space-y-1">
-              <li>Color space: OKLCH (perceptually uniform)</li>
-              <li>3 colors per challenge</li>
-              <li>Lightness range: 0.4 - 0.9</li>
-              <li>Muddy hues excluded: 30-50° (browns)</li>
-              <li>Min contrast ratio: 2.5 (≥2 of 3 pairs must pass)</li>
-              <li>Min hue difference: 30° between each pair</li>
-              <li>Consecutive day similarity check: enabled</li>
-            </ul>
-          </div>
-
-          <div className="flex gap-4">
+          {/* Actions */}
+          <div className="flex gap-3 flex-wrap justify-center">
             <button
               onClick={handleGenerate}
-              disabled={loading}
-              className="px-6 py-3 rounded-lg font-medium text-lg cursor-pointer transition-opacity bg-(--color-text-primary) text-(--color-bg-primary) hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 rounded-lg font-medium text-lg cursor-pointer transition-opacity bg-(--color-text-primary) text-(--color-bg-primary) hover:opacity-80"
             >
-              {loading ? 'Generating...' : 'Generate Colors'}
+              Generate
+            </button>
+            <button
+              onClick={() => handleGenerateBatch(10)}
+              className="px-4 py-3 rounded-lg font-medium text-sm cursor-pointer transition-opacity bg-(--color-bg-tertiary) text-(--color-text-secondary) hover:opacity-80"
+            >
+              +10
+            </button>
+            <button
+              onClick={() => handleGenerateBatch(50)}
+              className="px-4 py-3 rounded-lg font-medium text-sm cursor-pointer transition-opacity bg-(--color-bg-tertiary) text-(--color-text-secondary) hover:opacity-80"
+            >
+              +50
             </button>
             {history.length > 0 && (
               <button
-                onClick={handleClearHistory}
-                disabled={loading}
-                className="px-4 py-3 rounded-lg font-medium text-sm cursor-pointer transition-opacity bg-(--color-bg-tertiary) text-(--color-text-secondary) hover:opacity-80 disabled:opacity-50"
+                onClick={handleClear}
+                className="px-4 py-3 rounded-lg font-medium text-sm cursor-pointer transition-opacity bg-(--color-bg-tertiary) text-(--color-text-secondary) hover:opacity-80"
               >
-                Clear History
+                Clear
               </button>
             )}
           </div>
 
-          {error && (
-            <div className="w-full p-3 rounded-lg bg-red-500/10 border border-red-500/30">
-              <p className="text-sm text-red-600 dark:text-red-400">
-                <strong>Error:</strong> {error}
-              </p>
-            </div>
-          )}
-
-          <div className="flex items-center justify-center py-4">
-            {colors ? (
-              <svg width="240" height="235" viewBox="0 0 240 235">
-                <circle cx="80" cy="80" r="75" fill={colors[0]} stroke="none" />
-                <circle cx="160" cy="80" r="75" fill={colors[1]} stroke="none" />
-                <circle cx="120" cy="158" r="75" fill={colors[2]} stroke="none" />
-              </svg>
-            ) : (
-              <p className="text-(--color-text-tertiary)">
-                Click the button to generate colors
-              </p>
-            )}
-          </div>
-
-          {colors && metadata && (
-            <div className="w-full p-4 rounded-lg bg-(--color-bg-secondary)">
-              <h3 className="text-sm font-semibold mb-3 text-(--color-text-primary)">
-                Color Details
-              </h3>
-              <div className="space-y-2 text-sm text-(--color-text-secondary)">
-                {colors.map((color, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <div
-                      className="w-4 h-4 rounded"
-                      style={{ backgroundColor: color }}
-                    />
-                    <code>{color}</code>
-                  </div>
-                ))}
-                <hr className="border-(--color-border) my-3" />
-                <h4 className="text-xs font-semibold text-(--color-text-primary) mb-2">
-                  Pairwise Comparisons
-                </h4>
-                {metadata.map((m, i) => (
-                  <div key={i} className="p-2 rounded bg-(--color-bg-tertiary) space-y-1">
-                    <div className="text-xs font-medium text-(--color-text-primary)">{m.pair}</div>
-                    <div>
-                      <strong>Contrast:</strong> {m.contrastRatio.toFixed(2)}:1
-                      {m.contrastRatio >= 2.5 && (
-                        <span className="ml-2 text-green-500">(passes)</span>
-                      )}
-                    </div>
-                    <div>
-                      <strong>Distance:</strong> {m.distance.toFixed(1)}
-                    </div>
-                    <div>
-                      <strong>Hue Diff:</strong> {m.hueDiff.toFixed(0)}°
-                    </div>
-                  </div>
-                ))}
+          {/* Current result */}
+          {current && (
+            <>
+              <div className="flex items-center justify-center py-4">
+                <svg width="240" height="235" viewBox="0 0 240 235">
+                  <circle cx="80" cy="80" r="75" fill={current.colors[0]} stroke="none" />
+                  <circle cx="160" cy="80" r="75" fill={current.colors[1]} stroke="none" />
+                  <circle cx="120" cy="158" r="75" fill={current.colors[2]} stroke="none" />
+                </svg>
               </div>
-            </div>
+
+              <div className="w-full p-4 rounded-lg bg-(--color-bg-secondary)">
+                <div className="flex items-center gap-2 mb-3">
+                  <h3 className="text-sm font-semibold text-(--color-text-primary)">Details</h3>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-(--color-bg-tertiary) text-(--color-text-secondary)">
+                    Palette #{current.paletteIndex} &middot; Day {current.dayIndex}
+                  </span>
+                </div>
+
+                {/* Selected colors */}
+                <div className="space-y-2 text-sm text-(--color-text-secondary) mb-3">
+                  {current.colors.map((color, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded" style={{ backgroundColor: color }} />
+                      <code>{color}</code>
+                      <span className="text-xs text-(--color-text-tertiary)">(index {current.pickedIndices[i]})</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Full palette preview */}
+                <hr className="border-(--color-border) my-3" />
+                <h4 className="text-xs font-semibold text-(--color-text-primary) mb-2">Full Palette</h4>
+                <div className="flex gap-1">
+                  {current.fullPalette.map((color, i) => (
+                    <div key={i} className="flex flex-col items-center gap-1 flex-1">
+                      <div
+                        className="w-full h-10 rounded"
+                        style={{
+                          backgroundColor: color,
+                          outline: current.pickedIndices.includes(i) ? '2px solid var(--color-text-primary)' : 'none',
+                          outlineOffset: '-2px',
+                        }}
+                      />
+                      <span className="text-[10px] text-(--color-text-tertiary)">{color}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
           )}
         </div>
 
-        {/* History Section */}
+        {/* History */}
         {history.length > 1 && (
           <div className="mt-8 pt-6 border-t border-(--color-border)">
             <h2 className="text-lg font-semibold mb-4 text-(--color-text-primary)">
-              History (simulated consecutive days)
+              History ({history.length} palettes)
             </h2>
-            <p className="text-xs text-(--color-text-tertiary) mb-4">
-              Each set should avoid having colors too similar to the previous set.
-            </p>
             <div className="flex flex-wrap gap-4">
-              {history.slice(1).map((set, index) => (
-                <svg key={index} width="64" height="62" viewBox="0 0 64 62">
-                  <circle cx="21" cy="21" r="19" fill={set[0]} stroke="none" />
-                  <circle cx="43" cy="21" r="19" fill={set[1]} stroke="none" />
-                  <circle cx="32" cy="41" r="19" fill={set[2]} stroke="none" />
-                </svg>
+              {history.slice(1).map((entry, index) => (
+                <div key={index} className="flex flex-col items-center gap-1">
+                  <svg width="64" height="62" viewBox="0 0 64 62">
+                    <circle cx="21" cy="21" r="19" fill={entry.colors[0]} stroke="none" />
+                    <circle cx="43" cy="21" r="19" fill={entry.colors[1]} stroke="none" />
+                    <circle cx="32" cy="41" r="19" fill={entry.colors[2]} stroke="none" />
+                  </svg>
+                  <span className="text-[10px] text-(--color-text-tertiary)">
+                    #{entry.paletteIndex}
+                  </span>
+                </div>
               ))}
             </div>
           </div>

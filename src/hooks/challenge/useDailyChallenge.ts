@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { DailyChallenge, ShapeType } from '../../types';
-import { supabase } from '../../lib/supabase';
+import { fetchChallengeRow, fetchChallengeRows, generateChallenge } from '../../lib/api';
+import type { ChallengeRow } from '../../lib/api';
 import { SHAPE_NAMES } from '../../utils/shapes/utils';
 
 // =============================================================================
@@ -11,7 +12,7 @@ import { SHAPE_NAMES } from '../../utils/shapes/utils';
 // =============================================================================
 
 const CACHE_KEY = 'challenge-cache';
-const CACHE_VERSION = 3; // Increment when data format changes (added word field)
+const CACHE_VERSION = 4; // Increment when data format changes (removed svg field)
 
 interface CacheData {
   version: number;
@@ -96,20 +97,6 @@ loadCacheFromStorage();
 // The edge function is only needed to GENERATE a new challenge (once per day).
 // =============================================================================
 
-interface ChallengeRow {
-  challenge_date: string;
-  color_1: string;
-  color_2: string;
-  color_3: string | null;
-  shape_1: string;
-  shape_2: string;
-  shape_1_svg: string | null;
-  shape_2_svg: string | null;
-  shape_1_name: string | null;
-  shape_2_name: string | null;
-  word: string;
-}
-
 function rowToChallenge(row: ChallengeRow): DailyChallenge {
   const shape1Type = row.shape_1 as ShapeType;
   const shape2Type = row.shape_2 as ShapeType;
@@ -120,52 +107,29 @@ function rowToChallenge(row: ChallengeRow): DailyChallenge {
     shapes: [
       {
         type: shape1Type,
-        name: row.shape_1_name || SHAPE_NAMES[shape1Type] || shape1Type,
-        svg: row.shape_1_svg || '',
+        name: SHAPE_NAMES[shape1Type] || shape1Type,
       },
       {
         type: shape2Type,
-        name: row.shape_2_name || SHAPE_NAMES[shape2Type] || shape2Type,
-        svg: row.shape_2_svg || '',
+        name: SHAPE_NAMES[shape2Type] || shape2Type,
       },
     ],
     word: row.word,
   };
 }
 
-/** Read a single challenge directly from the DB (fast, ~100ms) */
 async function readChallengeFromDB(date: string): Promise<DailyChallenge | null> {
-  const { data } = await supabase
-    .from('challenges')
-    .select('*')
-    .eq('challenge_date', date)
-    .single();
-
-  return data ? rowToChallenge(data as ChallengeRow) : null;
+  const row = await fetchChallengeRow(date);
+  return row ? rowToChallenge(row) : null;
 }
 
-/** Read multiple challenges directly from the DB (fast, ~100ms) */
 async function readChallengesFromDB(dates: string[]): Promise<DailyChallenge[]> {
-  if (dates.length === 0) return [];
-
-  const { data } = await supabase
-    .from('challenges')
-    .select('*')
-    .in('challenge_date', dates);
-
-  return ((data as ChallengeRow[]) || []).map(rowToChallenge);
+  const rows = await fetchChallengeRows(dates);
+  return rows.map(rowToChallenge);
 }
 
-/** Call edge function to generate a challenge (slow, only needed once per day) */
 async function generateChallengeViaEdgeFunction(date: string): Promise<DailyChallenge> {
-  const { data, error } = await supabase.functions.invoke('get-daily-challenge', {
-    body: { date },
-  });
-
-  if (error) {
-    throw new Error(error.message || 'Failed to generate challenge');
-  }
-
+  const data = await generateChallenge(date);
   return {
     date: data.date,
     colors: data.colors,
@@ -238,8 +202,8 @@ export function useDailyChallenge(date: string): UseDailyChallengeReturn {
       return {
         ...base,
         // shapes: [
-        //   { type: 'fin', name: SHAPE_NAMES['fin'], svg: '' },
-        //   { type: 'hourglass', name: SHAPE_NAMES['hourglass'], svg: '' },
+        //   { type: 'fin', name: SHAPE_NAMES['fin'] },
+        //   { type: 'hourglass', name: SHAPE_NAMES['hourglass'] },
         // ],
         // colors: ['hsl(270, 100%, 85%)', 'hsl(324, 100%, 44%)'],
       };

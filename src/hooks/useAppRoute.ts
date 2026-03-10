@@ -8,7 +8,6 @@ import {
   isDashboardEnabled,
   isColorTesterEnabled,
   getWinnersDayView,
-  getWallOfTheDayView,
   getProfileView,
   getGalleryView,
 } from '../utils/urlParams';
@@ -21,7 +20,6 @@ type StandaloneRoute =
   | { type: 'dashboard' }
   | { type: 'color-tester' }
   | { type: 'gallery'; tab?: string; year?: number; month?: number; date?: string }
-  | { type: 'wall-of-the-day'; date: string }
   | { type: 'profile'; userId: string }
   | { type: 'winners-day'; date: string }
   | { type: 'submission-by-id'; id: string }
@@ -42,9 +40,6 @@ function resolveRoute(): AppRoute {
 
   const gallery = getGalleryView();
   if (gallery) return { type: 'gallery', tab: gallery.tab, year: gallery.year, month: gallery.month, date: gallery.date };
-
-  const wall = getWallOfTheDayView();
-  if (wall) return { type: 'wall-of-the-day', date: wall.date };
 
   const profile = getProfileView();
   if (profile) return { type: 'profile', userId: profile.userId };

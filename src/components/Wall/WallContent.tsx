@@ -6,16 +6,11 @@ import { useCalendarChallenges } from '../../hooks/challenge/useCalendarChalleng
 import { WallSortControls } from './WallSortControls';
 import { WallLockedState } from './WallLockedState';
 import { WallEmptyState } from './WallEmptyState';
-import { SubmissionThumbnail } from '../shared/SubmissionThumbnail';
-import { TrophyBadge } from '../shared/TrophyBadge';
-import { ViewToggle } from '../shared/ViewToggle';
-import { LoadingSpinner } from '../shared/LoadingSpinner';
-import { LoadMoreButton } from '../shared/LoadMoreButton';
+import { SubmissionCard, TrophyBadge, ViewToggle, LoadingSpinner, LoadMoreButton } from '../shared';
 import { ContentNavigation } from '../Calendar/ContentNavigation';
 import { ContentCalendarGrid } from '../Calendar/ContentCalendarGrid';
 import { formatDate, getDaysInMonth } from '../../utils/calendarUtils';
-import { supabase } from '../../lib/supabase';
-
+import { fetchSubmissionCountsByDateRange } from '../../lib/api';
 type ViewType = 'grid' | 'calendar';
 
 interface SubmissionCountByDate {
@@ -82,20 +77,8 @@ export function WallContent({
       const daysInMonth = getDaysInMonth(calendarYear, calendarMonth);
       const endDate = formatDate(calendarYear, calendarMonth, daysInMonth);
 
-      const { data } = await supabase
-        .from('submissions')
-        .select('challenge_date')
-        .gte('challenge_date', startDate)
-        .lte('challenge_date', endDate)
-        .eq('included_in_ranking', true);
-
-      if (data) {
-        const counts: SubmissionCountByDate = {};
-        data.forEach(s => {
-          counts[s.challenge_date] = (counts[s.challenge_date] || 0) + 1;
-        });
-        setSubmissionCounts(counts);
-      }
+      const counts = await fetchSubmissionCountsByDateRange(startDate, endDate);
+      setSubmissionCounts(counts);
     } catch (err) {
       console.error('Failed to fetch submission counts:', err);
     } finally {
@@ -225,12 +208,11 @@ export function WallContent({
                     <TrophyBadge rank={submission.final_rank as 1 | 2 | 3} />
                   </div>
                 )}
-                <SubmissionThumbnail
+                <SubmissionCard
                   shapes={submission.shapes}
                   groups={submission.groups}
                   challenge={challenge}
                   backgroundColorIndex={submission.background_color_index}
-                  card={true}
                   showNickname={true}
                   nickname={submission.nickname}
                   href={onSubmissionClick ? undefined : getSubmissionHref(submission.id)}

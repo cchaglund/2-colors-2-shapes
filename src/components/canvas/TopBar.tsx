@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { ThemeMode, ThemeName } from '../../hooks/ui/useThemeState';
 import type { Profile } from '../../hooks/auth/useProfile';
+import { useProfile } from '../../hooks/auth/useProfile';
 import { THEME_META, MODE_CYCLE, MODE_TITLE } from '../../constants/themes';
 import { useAuth } from '../../hooks/auth/useAuth';
 import { UserMenuDropdown } from './UserMenuDropdown';
@@ -141,9 +142,16 @@ export function TopBar({
   saveStatus,
   hasSubmittedToday,
   isLoggedIn,
-  profile,
-  profileLoading,
+  profile: profileProp,
+  profileLoading: profileLoadingProp,
 }: TopBarProps) {
+  const { user, loading: authLoading, signInWithGoogle, signOut } = useAuth();
+  const { profile: ownProfile, loading: ownProfileLoading } = useProfile(user?.id);
+
+  // Use props if provided (canvas page passes these), otherwise use own hooks
+  const profile = profileProp !== undefined ? profileProp : ownProfile;
+  const profileLoading = profileLoadingProp !== undefined ? profileLoadingProp : ownProfileLoading;
+
   return (
     <header className="h-14 flex items-center justify-between px-4 bg-(--color-card-bg) shrink-0 z-30 relative" style={{ borderBottom: 'var(--border-width, 2px) solid var(--color-border)', paddingLeft: 'max(1rem, env(safe-area-inset-left))', paddingRight: 'max(1rem, env(safe-area-inset-right))', paddingTop: 'env(safe-area-inset-top)' }}>
       {/* Left group: logo + theme pill */}
@@ -179,14 +187,21 @@ export function TopBar({
             saveStatus={saveStatus}
             hasSubmittedToday={hasSubmittedToday}
             isLoggedIn={isLoggedIn}
-            profile={profile}
-            profileLoading={profileLoading}
-            themeMode={themeMode}
-            onSetThemeMode={onSetThemeMode}
-            themeName={themeName}
-            onSetThemeName={onSetThemeName}
           />
         )}
+
+        {/* User menu — always visible */}
+        <UserMenuDropdown
+          profile={profile ?? null}
+          loading={!!(authLoading || profileLoading)}
+          isLoggedIn={!!user}
+          onSignIn={signInWithGoogle}
+          onSignOut={signOut}
+          themeMode={themeMode}
+          onSetThemeMode={onSetThemeMode}
+          themeName={themeName}
+          onSetThemeName={onSetThemeName}
+        />
       </div>
     </header>
   );
@@ -201,12 +216,6 @@ function DefaultRightContent({
   saveStatus,
   hasSubmittedToday,
   isLoggedIn,
-  profile,
-  profileLoading,
-  themeMode,
-  onSetThemeMode,
-  themeName,
-  onSetThemeName,
 }: {
   onReset?: () => void;
   onSave?: () => void;
@@ -214,14 +223,7 @@ function DefaultRightContent({
   saveStatus?: 'idle' | 'saved' | 'error';
   hasSubmittedToday?: boolean;
   isLoggedIn?: boolean;
-  profile?: Profile | null;
-  profileLoading?: boolean;
-  themeMode: ThemeMode;
-  onSetThemeMode: (mode: ThemeMode) => void;
-  themeName: ThemeName;
-  onSetThemeName: (name: ThemeName) => void;
 }) {
-  const { user, loading: authLoading, signInWithGoogle, signOut } = useAuth();
   const isDesktop = useIsDesktop();
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
@@ -290,19 +292,6 @@ function DefaultRightContent({
           Gallery
         </Button>
       </div>
-
-      {/* Login / User menu */}
-      <UserMenuDropdown
-        profile={profile ?? null}
-        loading={!!(authLoading || profileLoading)}
-        isLoggedIn={!!user}
-        onSignIn={signInWithGoogle}
-        onSignOut={signOut}
-        themeMode={themeMode}
-        onSetThemeMode={onSetThemeMode}
-        themeName={themeName}
-        onSetThemeName={onSetThemeName}
-      />
     </>
   );
 }

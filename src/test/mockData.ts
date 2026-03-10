@@ -132,8 +132,8 @@ export const MOCK_CHALLENGE: DailyChallenge = {
   date: '2024-01-15',
   colors: ['#FF6B6B', '#4ECDC4'],
   shapes: [
-    { type: 'circle', name: 'Circle', svg: 'M50,10 a40,40 0 1,0 0.001,0 Z' },
-    { type: 'square', name: 'Square', svg: 'M10,10 H90 V90 H10 Z' },
+    { type: 'circle', name: 'Circle' },
+    { type: 'square', name: 'Square' },
   ],
   word: 'creativity',
 };

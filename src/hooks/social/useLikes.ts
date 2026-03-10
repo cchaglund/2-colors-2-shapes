@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { supabase } from '../../lib/supabase';
+import { checkLikeExists, insertLike, deleteLike } from '../../lib/api';
 
 interface UseLikesOptions {
   userId: string | undefined;
@@ -23,14 +23,8 @@ export function useLikes({ userId, submissionId, initialLikeCount }: UseLikesOpt
     checkedForRef.current = key;
 
     (async () => {
-      const { data } = await supabase
-        .from('likes')
-        .select('id')
-        .eq('user_id', userId!)
-        .eq('submission_id', submissionId!)
-        .maybeSingle();
-
-      setIsLiked(!!data);
+      const exists = await checkLikeExists(userId!, submissionId!);
+      setIsLiked(exists);
       setLoading(false);
     })();
   }, [userId, submissionId]);
@@ -63,48 +57,26 @@ export function useLikes({ userId, submissionId, initialLikeCount }: UseLikesOpt
 
     try {
       if (wasLiked) {
-        // Unlike
-        const { error } = await supabase
-          .from('likes')
-          .delete()
-          .eq('user_id', userId)
-          .eq('submission_id', submissionId);
-
-        if (error) {
-          // Rollback
-          setIsLiked(wasLiked);
-          setLikeCount(prevCount);
-          setMutating(false);
-          return { success: false, error: error.message };
-        }
+        await deleteLike(userId, submissionId);
       } else {
-        // Like
-        const { error } = await supabase
-          .from('likes')
-          .insert({ user_id: userId, submission_id: submissionId });
-
-        if (error) {
-          // Rollback
-          setIsLiked(wasLiked);
-          setLikeCount(prevCount);
-          setMutating(false);
-
-          // Check for foreign key violation (submission deleted)
-          if (error.code === '23503') {
-            return { success: false, error: 'Submission no longer exists' };
-          }
-          return { success: false, error: error.message };
-        }
+        await insertLike(userId, submissionId);
       }
 
       setMutating(false);
       return { success: true };
-    } catch {
-      // Rollback
+    } catch (err: unknown) {
       setIsLiked(wasLiked);
       setLikeCount(prevCount);
       setMutating(false);
-      return { success: false, error: 'Network error' };
+
+      if (err && typeof err === 'object' && 'code' in err && err.code === '23503') {
+        return { success: false, error: 'Submission no longer exists' };
+      }
+
+      const message = err instanceof Error ? err.message
+        : (err && typeof err === 'object' && 'message' in err) ? String((err as { message: unknown }).message)
+        : 'Network error';
+      return { success: false, error: message };
     }
   }, [userId, submissionId, isLiked, likeCount]);
 

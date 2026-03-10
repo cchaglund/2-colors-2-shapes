@@ -1,16 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { supabase } from '../../lib/supabase';
 import type { Shape, ShapeGroup } from '../../types';
 import { getTodayDateUTC } from '../../utils/dailyChallenge';
 import { getAdjacentDates, isDateWithinLastTwoDays } from '../../utils/calendarUtils';
 import { canViewCurrentDay as canViewCurrentDayUtil } from '../../utils/privacyRules';
-import { fisherYatesShuffle } from '../../utils/wallSorting';
+import { fetchWallSubmissionsFromDB, fetchWallSubmissionsRanked, fetchNicknames, fetchRankingsBySubmissionIds, type WallSortMode } from '../../lib/api';
 
 // =============================================================================
 // Types
 // =============================================================================
 
-export type SortMode = 'random' | 'newest' | 'oldest' | 'ranked' | 'likes';
+export type SortMode = 'newest' | 'oldest' | 'ranked' | 'likes';
 
 export interface WallSubmission {
   id: string;
@@ -53,17 +52,15 @@ export interface UseWallOfTheDayReturn {
 const wallCache = new Map<string, WallSubmission[]>();
 const pendingRequests = new Map<string, Promise<WallSubmission[]>>();
 
-/**
- * Invalidate wall cache for a specific date.
- * Call this when user saves a submission to ensure fresh data.
- */
 export function invalidateWallCache(date: string): void {
-  wallCache.delete(`wall-${date}`);
+  // Invalidate all sort modes for this date
+  for (const key of wallCache.keys()) {
+    if (key.startsWith(`wall-${date}-`)) {
+      wallCache.delete(key);
+    }
+  }
 }
 
-/**
- * Clear entire wall cache (useful for debugging)
- */
 export function clearAllWallCache(): void {
   wallCache.clear();
 }
@@ -74,96 +71,74 @@ export function clearAllWallCache(): void {
 
 const INITIAL_LIMIT = 100;
 
-export async function fetchWallSubmissions(date: string): Promise<WallSubmission[]> {
-  const cacheKey = `wall-${date}`;
+async function fetchRankedSubmissions(date: string, limit: number): Promise<WallSubmission[]> {
+  const data = await fetchWallSubmissionsRanked(date, limit + 1);
+  if (!data || data.length === 0) return [];
 
-  // Check cache
-  if (wallCache.has(cacheKey)) {
-    return wallCache.get(cacheKey)!;
-  }
-
-  // Check for pending request (request deduplication)
-  if (pendingRequests.has(cacheKey)) {
-    return pendingRequests.get(cacheKey)!;
-  }
-
-  // Create and track new request
-  const promise = (async (): Promise<WallSubmission[]> => {
-    // Fetch submissions
-    const { data: submissions, error: submissionsError } = await supabase
-      .from('submissions')
-      .select(`
-        id,
-        user_id,
-        shapes,
-        groups,
-        background_color_index,
-        created_at,
-        like_count
-      `)
-      .eq('challenge_date', date)
-      .eq('included_in_ranking', true)
-      .limit(INITIAL_LIMIT + 1); // +1 to check if more exist
-
-    if (submissionsError) {
-      throw new Error(submissionsError.message || 'Failed to fetch submissions');
-    }
-
-    if (!submissions || submissions.length === 0) {
-      return [];
-    }
-
-    // Batch fetch nicknames separately (avoid RLS join issues)
-    const userIds = [...new Set(submissions.map(s => s.user_id))];
-    const { data: profiles, error: profilesError } = await supabase
-      .from('profiles')
-      .select('id, nickname')
-      .in('id', userIds);
-
-    if (profilesError) {
-      console.error('Failed to fetch profiles:', profilesError);
-    }
-
-    // Create nickname lookup map
-    const nicknameMap = new Map<string, string>();
-    if (profiles) {
-      for (const profile of profiles) {
-        nicknameMap.set(profile.id, profile.nickname || 'Anonymous');
-      }
-    }
-
-    // Batch fetch final_rank from daily_rankings
-    const submissionIds = submissions.map(s => s.id);
-    const rankMap = new Map<string, number>();
-    const { data: rankings, error: rankingsError } = await supabase
-      .from('daily_rankings')
-      .select('submission_id, final_rank')
-      .in('submission_id', submissionIds)
-      .not('final_rank', 'is', null);
-
-    if (rankingsError) {
-      console.error('Failed to fetch rankings:', rankingsError);
-    } else if (rankings) {
-      for (const r of rankings) {
-        rankMap.set(r.submission_id, r.final_rank as number);
-      }
-    }
-
-    // Map submissions with nicknames and ranks
-    const wallSubmissions: WallSubmission[] = submissions.map(s => ({
+  // Extract embedded submission data from the join
+  const submissions = data.map(r => {
+    const s = r.submissions as unknown as {
+      id: string; user_id: string; shapes: unknown; groups: unknown;
+      background_color_index: number | null; created_at: string; like_count: number;
+    };
+    return {
       id: s.id,
       user_id: s.user_id,
-      nickname: nicknameMap.get(s.user_id) || 'Anonymous',
       shapes: s.shapes as Shape[],
       groups: (s.groups as ShapeGroup[]) || [],
       background_color_index: s.background_color_index,
       created_at: s.created_at,
-      final_rank: rankMap.get(s.id),
       like_count: s.like_count ?? 0,
-    }));
+      final_rank: r.final_rank as number,
+    };
+  });
 
-    return wallSubmissions;
-  })();
+  const userIds = [...new Set(submissions.map(s => s.user_id))];
+  const nicknameMap = await fetchNicknames(userIds);
+
+  return submissions.map(s => ({
+    ...s,
+    nickname: nicknameMap.get(s.user_id) || 'Anonymous',
+  }));
+}
+
+async function fetchSortedSubmissions(date: string, sortMode: WallSortMode, limit: number): Promise<WallSubmission[]> {
+  const submissions = await fetchWallSubmissionsFromDB(date, limit + 1, sortMode);
+  if (!submissions || submissions.length === 0) return [];
+
+  const userIds = [...new Set(submissions.map(s => s.user_id))];
+  const nicknameMap = await fetchNicknames(userIds);
+
+  const submissionIds = submissions.map(s => s.id);
+  const rankMap = await fetchRankingsBySubmissionIds(submissionIds);
+
+  return submissions.map(s => ({
+    id: s.id,
+    user_id: s.user_id,
+    nickname: nicknameMap.get(s.user_id) || 'Anonymous',
+    shapes: s.shapes as Shape[],
+    groups: (s.groups as ShapeGroup[]) || [],
+    background_color_index: s.background_color_index,
+    created_at: s.created_at,
+    final_rank: rankMap.get(s.id),
+    like_count: s.like_count ?? 0,
+  }));
+}
+
+export async function fetchWallSubmissions(date: string, sortMode: SortMode = 'newest'): Promise<WallSubmission[]> {
+  const cacheKey = `wall-${date}-${sortMode}`;
+
+  if (wallCache.has(cacheKey)) {
+    return wallCache.get(cacheKey)!;
+  }
+
+  if (pendingRequests.has(cacheKey)) {
+    return pendingRequests.get(cacheKey)!;
+  }
+
+  const promise = sortMode === 'ranked'
+    ? fetchRankedSubmissions(date, INITIAL_LIMIT)
+    : fetchSortedSubmissions(date, sortMode, INITIAL_LIMIT);
 
   pendingRequests.set(cacheKey, promise);
 
@@ -187,28 +162,17 @@ export function useWallOfTheDay(options: UseWallOfTheDayOptions): UseWallOfTheDa
   const [submissions, setSubmissions] = useState<WallSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sortMode, setSortMode] = useState<SortMode>('random');
+  const [sortMode, setSortMode] = useState<SortMode>('newest');
 
-  // Store shuffled order separately - only shuffle once per fetch
-  const [shuffledIds, setShuffledIds] = useState<string[]>([]);
-
-  // Track displayed count for pagination
   const [displayLimit, setDisplayLimit] = useState(INITIAL_LIMIT);
 
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Determine if user can view current day
   const canViewCurrentDay = canViewCurrentDayUtil(date, today, hasSubmittedToday);
-
-  // Determine if ranked sort is available (only for n-2+ days)
   const isRankedAvailable = !isDateWithinLastTwoDays(date);
-
-  // Calculate adjacent dates
   const adjacentDates = getAdjacentDates(date);
 
-  // Fetch submissions
   const fetchData = useCallback(async () => {
-    // Skip fetch if blocked
     if (!canViewCurrentDay) {
       setSubmissions([]);
       setLoading(false);
@@ -218,22 +182,12 @@ export function useWallOfTheDay(options: UseWallOfTheDayOptions): UseWallOfTheDa
     setLoading(true);
     setError(null);
 
-    // Cancel any in-flight request
     abortControllerRef.current?.abort();
     abortControllerRef.current = new AbortController();
 
     try {
-      const data = await fetchWallSubmissions(date);
+      const data = await fetchWallSubmissions(date, sortMode);
       setSubmissions(data);
-
-      // Shuffle IDs for random sort (only once per fetch)
-      if (data.length > 0) {
-        setShuffledIds(fisherYatesShuffle(data.map(s => s.id)));
-      } else {
-        setShuffledIds([]);
-      }
-
-      // Reset display limit when date changes
       setDisplayLimit(INITIAL_LIMIT);
     } catch (err) {
       console.error('Failed to fetch wall submissions:', err);
@@ -241,9 +195,8 @@ export function useWallOfTheDay(options: UseWallOfTheDayOptions): UseWallOfTheDa
     } finally {
       setLoading(false);
     }
-  }, [date, canViewCurrentDay]);
+  }, [date, canViewCurrentDay, sortMode]);
 
-  // Fetch on mount and when date changes
   useEffect(() => {
     fetchData();
     return () => {
@@ -251,80 +204,20 @@ export function useWallOfTheDay(options: UseWallOfTheDayOptions): UseWallOfTheDa
     };
   }, [fetchData]);
 
-  // Sort submissions based on current mode
-  const sortedSubmissions = (() => {
-    if (submissions.length === 0) return [];
-
-    let sorted: WallSubmission[];
-
-    switch (sortMode) {
-      case 'random': {
-        // Use pre-shuffled order
-        const idToSubmission = new Map(submissions.map(s => [s.id, s]));
-        sorted = shuffledIds
-          .map(id => idToSubmission.get(id))
-          .filter((s): s is WallSubmission => s !== undefined);
-        break;
-      }
-
-      case 'newest':
-        sorted = [...submissions].sort(
-          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
-        break;
-
-      case 'oldest':
-        sorted = [...submissions].sort(
-          (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-        );
-        break;
-
-      case 'ranked':
-        // Only show ranked if available and has final_rank
-        if (!isRankedAvailable) {
-          sorted = [...submissions];
-        } else {
-          // Filter out submissions without final_rank, then sort
-          const withRank = submissions.filter(s => s.final_rank !== undefined);
-          sorted = withRank.sort((a, b) => (a.final_rank ?? 0) - (b.final_rank ?? 0));
-        }
-        break;
-
-      case 'likes':
-        // Sort by like_count DESC, ties broken by earliest submission time
-        sorted = [...submissions].sort((a, b) => {
-          const likeDiff = b.like_count - a.like_count;
-          if (likeDiff !== 0) return likeDiff;
-          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-        });
-        break;
-
-      default:
-        sorted = [...submissions];
-    }
-
-    // Apply display limit for pagination
-    return sorted.slice(0, displayLimit);
-  })();
-
-  // Check if there are more submissions to load
+  const displayedSubmissions = submissions.slice(0, displayLimit);
   const hasMore = submissions.length > displayLimit;
 
-  // Load more submissions
   const loadMore = useCallback(async () => {
     setDisplayLimit(prev => prev + INITIAL_LIMIT);
   }, []);
 
-  // Handle sort mode change - reset to random if ranked not available
   const handleSetSortMode = useCallback((mode: SortMode) => {
-    if (mode === 'ranked' && !isRankedAvailable) {
-      return; // Ignore invalid sort mode
-    }
+    if (mode === 'ranked' && !isRankedAvailable) return;
     setSortMode(mode);
   }, [isRankedAvailable]);
 
   return {
-    submissions: sortedSubmissions,
+    submissions: displayedSubmissions,
     loading,
     error,
     sortMode,

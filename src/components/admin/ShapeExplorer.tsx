@@ -1,38 +1,81 @@
-import type { ShapeType } from '../../types';
+import { useState } from 'react';
+import type { Shape, ShapeType } from '../../types';
 import { getShapeSVGData, SHAPE_NAMES } from '../../utils/shapes';
+import { MultiSelectTransformLayer } from '../canvas/TransformHandles';
 import { Link } from '../shared/Link';
 
 const SHAPE_TYPES = Object.keys(SHAPE_NAMES) as ShapeType[];
 const SAMPLE_SIZE = 100;
 
+function makeShape(type: ShapeType, size: number): Shape {
+  return {
+    id: `explorer-${type}`,
+    type,
+    name: type,
+    x: 0,
+    y: 0,
+    size,
+    rotation: 0,
+    colorIndex: 0,
+    zIndex: 0,
+  };
+}
+
 interface ShapePreviewProps {
   type: ShapeType;
   size: number;
+  showBoundingRect: boolean;
+  showOutline: boolean;
 }
 
-function ShapePreview({ type, size }: ShapePreviewProps) {
-  const { element, props, viewBox } = getShapeSVGData(type, size);
+function ShapePreview({ type, size, showBoundingRect, showOutline }: ShapePreviewProps) {
+  const { element, props, viewBox, dimensions } = getShapeSVGData(type, size);
 
   // Scale to fit within size while preserving aspect ratio
   const scale = Math.min(size / viewBox.width, size / viewBox.height);
   const displayWidth = viewBox.width * scale;
   const displayHeight = viewBox.height * scale;
 
+  const showOverlay = showBoundingRect || showOutline;
+  // MultiSelectTransformLayer works in render-dimension space (dimensions ?? viewBox)
+  const renderW = dimensions?.width ?? viewBox.width;
+  const renderH = dimensions?.height ?? viewBox.height;
+
   return (
     <svg
       width={displayWidth}
       height={displayHeight}
       viewBox={`0 0 ${viewBox.width} ${viewBox.height}`}
+      overflow={showOverlay ? 'visible' : undefined}
     >
       {element === 'ellipse' && <ellipse {...props} fill="#000" />}
       {element === 'rect' && <rect {...props} fill="#000" />}
       {element === 'polygon' && <polygon {...props} fill="#000" />}
       {element === 'path' && <path {...props} fill="#000" />}
+      {showOverlay && (
+        // Bridge from viewBox coords to render-dimension coords that the transform layer expects
+        <svg
+          x={0} y={0}
+          width={viewBox.width} height={viewBox.height}
+          viewBox={`0 0 ${renderW} ${renderH}`}
+          overflow="visible"
+        >
+          <MultiSelectTransformLayer
+            shapes={[makeShape(type, size)]}
+            bounds={{ x: 0, y: 0, width: renderW, height: renderH }}
+            showBoundingRect={showBoundingRect}
+            showOutline={showOutline}
+          />
+        </svg>
+      )}
     </svg>
   );
 }
 
 export function ShapeExplorer() {
+  const [showBoundingRect, setShowBoundingRect] = useState(false);
+  const [showOutline, setShowOutline] = useState(false);
+
   return (
     <div className="min-h-screen p-8 bg-(--color-bg-primary)">
       <div className="max-w-4xl mx-auto">
@@ -51,6 +94,24 @@ export function ShapeExplorer() {
             </code>{' '}
             environment variable.
           </p>
+          <div className="flex gap-6 mt-4">
+            <label className="flex items-center gap-2 text-sm text-(--color-text-primary) cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showBoundingRect}
+                onChange={(e) => setShowBoundingRect(e.target.checked)}
+              />
+              Bounding rect
+            </label>
+            <label className="flex items-center gap-2 text-sm text-(--color-text-primary) cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showOutline}
+                onChange={(e) => setShowOutline(e.target.checked)}
+              />
+              Shape outline
+            </label>
+          </div>
         </header>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
@@ -65,7 +126,12 @@ export function ShapeExplorer() {
                 </h2>
 
                 <div className="p-3 rounded bg-(--color-bg-tertiary)">
-                  <ShapePreview type={type} size={SAMPLE_SIZE} />
+                  <ShapePreview
+                    type={type}
+                    size={SAMPLE_SIZE}
+                    showBoundingRect={showBoundingRect}
+                    showOutline={showOutline}
+                  />
                 </div>
 
                 <div className="text-center">

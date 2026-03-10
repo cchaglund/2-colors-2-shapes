@@ -1,21 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link } from '../shared/Link';
+import { Link, SubmissionCard, TrophyBadge, ViewToggle, EmptyState, LoadingSpinner, LoadMoreButton } from '../shared';
 import { useFriendsFeed, type SortMode } from '../../hooks/social/useFriendsFeed';
 import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
 import { useCalendarMonth } from '../../hooks/challenge/useCalendarMonth';
 import { useCalendarChallenges } from '../../hooks/challenge/useCalendarChallenges';
 import { WallSortControls } from '../Wall/WallSortControls';
-import { SubmissionThumbnail } from '../shared/SubmissionThumbnail';
-import { TrophyBadge } from '../shared/TrophyBadge';
-import { ViewToggle } from '../shared/ViewToggle';
-import { EmptyState } from '../shared/EmptyState';
-import { LoadingSpinner } from '../shared/LoadingSpinner';
-import { LoadMoreButton } from '../shared/LoadMoreButton';
 import { ContentNavigation } from '../Calendar/ContentNavigation';
 import { ContentCalendarGrid } from '../Calendar/ContentCalendarGrid';
 import { useAuth } from '../../hooks/auth/useAuth';
 import { useFollows } from '../../hooks/social/useFollows';
-import { supabase } from '../../lib/supabase';
+import { countFriendsSubmissionsByDate, fetchFriendsSubmissionsByDateRange } from '../../lib/api';
 import { formatDate, getDaysInMonth } from '../../utils/calendarUtils';
 
 type ViewType = 'grid' | 'calendar';
@@ -103,30 +97,18 @@ export function FriendsFeedContent({
       const daysInMonth = getDaysInMonth(calendarYear, calendarMonth);
       const endDate = formatDate(calendarYear, calendarMonth, daysInMonth);
 
-      // Use the RPC function if available, otherwise fall back to manual counting
-      const { data, error: rpcError } = await supabase.rpc('count_friends_submissions_by_date', {
-        p_user_id: user.id,
-        p_start_date: startDate,
-        p_end_date: endDate,
-      });
+      const { data, error: rpcError } = await countFriendsSubmissionsByDate(user.id, startDate, endDate);
 
       if (rpcError) {
         console.error('RPC failed, falling back to manual count:', rpcError);
-        // Fallback: query submissions directly
         const followingIdsArray = Array.from(followingIds);
-        const { data: submissionsData } = await supabase
-          .from('submissions')
-          .select('challenge_date, user_id')
-          .in('user_id', followingIdsArray)
-          .gte('challenge_date', startDate)
-          .lte('challenge_date', endDate)
-          .eq('included_in_ranking', true);
+        const submissionsData = await fetchFriendsSubmissionsByDateRange(followingIdsArray, startDate, endDate);
 
         if (submissionsData) {
           const counts: FriendsCountByDate = {};
           const usersByDate = new Map<string, Set<string>>();
 
-          submissionsData.forEach(s => {
+          submissionsData.forEach((s: { challenge_date: string; user_id: string }) => {
             if (!usersByDate.has(s.challenge_date)) {
               usersByDate.set(s.challenge_date, new Set());
             }
@@ -248,7 +230,7 @@ export function FriendsFeedContent({
         {viewType === 'grid' && (
           <WallSortControls
             sortMode={sortMode}
-            onSortModeChange={(mode: SortMode) => setSortMode(mode)}
+            onSortModeChange={(mode) => setSortMode(mode as SortMode)}
             isRankedAvailable={isRankedAvailable}
             showLikesOption={false}
           />
@@ -322,12 +304,11 @@ export function FriendsFeedContent({
                         <TrophyBadge rank={submission.final_rank as 1 | 2 | 3} />
                       </div>
                     )}
-                    <SubmissionThumbnail
+                    <SubmissionCard
                       shapes={submission.shapes}
                       groups={submission.groups}
                       challenge={challenge}
                       backgroundColorIndex={submission.background_color_index}
-                      card={true}
                       showNickname={true}
                       nickname={submission.nickname}
                       href={onSubmissionClick ? undefined : getSubmissionHref(submission.id)}

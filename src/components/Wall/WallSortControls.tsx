@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { useClickOutside } from '../../hooks/ui/useClickOutside';
 
-export type SortMode = 'random' | 'newest' | 'oldest' | 'ranked' | 'likes';
+export type SortMode = 'newest' | 'oldest' | 'ranked' | 'likes';
 
 interface WallSortControlsProps {
   sortMode: SortMode;
@@ -11,7 +11,6 @@ interface WallSortControlsProps {
 }
 
 const SORT_LABELS: Record<SortMode, string> = {
-  random: 'Random',
   newest: 'Newest',
   oldest: 'Oldest',
   ranked: 'Ranked',
@@ -42,7 +41,7 @@ export function WallSortControls({
 
   useClickOutside(dropdownRef, isOpen, () => setIsOpen(false));
 
-  const allOptions: SortMode[] = ['random', 'newest', 'oldest', 'ranked', 'likes'];
+  const allOptions: SortMode[] = ['newest', 'oldest', 'ranked', 'likes'];
   const options = showLikesOption
     ? allOptions
     : allOptions.filter(o => o !== 'likes');

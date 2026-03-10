@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { Shape, ShapeGroup } from '../../types';
 import { useIsTouchDevice } from '../../hooks/ui/useIsTouchDevice';
@@ -6,30 +6,34 @@ import { IS_MAC } from '../../utils/platform';
 import type { LayerPanelProps, LayerItem } from './types';
 import { LayerItem as LayerItemComponent } from './LayerItem';
 import { GroupHeader } from './GroupHeader';
+import { useCanvasEditor } from '../../contexts/CanvasEditorContext';
 
-export function LayerPanel({
-  shapes,
-  groups,
-  selectedShapeIds,
-  challenge,
-  onSelectShape,
-  onMoveLayer,
-  onMoveGroup,
-  onReorderLayers,
-  onReorderGroup,
-  onDeleteShape,
-  onRenameShape,
-  onCreateGroup,
-  onDeleteGroup,
-  onUngroupShapes,
-  onRenameGroup,
-  onToggleGroupCollapsed,
-  onToggleShapeVisibility,
-  onToggleGroupVisibility,
-  onSelectGroup,
-  onToggle,
-  onHoverShape,
-}: LayerPanelProps) {
+export function LayerPanel({ onToggle }: LayerPanelProps) {
+  const {
+    canvasState: { shapes, groups, selectedShapeIds },
+    challenge,
+    selectShape: onSelectShape,
+    moveLayer: onMoveLayer,
+    moveGroup: onMoveGroup,
+    reorderLayers: onReorderLayers,
+    reorderGroup: onReorderGroup,
+    deleteShape: onDeleteShape,
+    updateShape,
+    createGroup: onCreateGroup,
+    deleteGroup: onDeleteGroup,
+    ungroupShapes: onUngroupShapes,
+    renameGroup: onRenameGroup,
+    toggleGroupCollapsed: onToggleGroupCollapsed,
+    toggleShapeVisibility: onToggleShapeVisibility,
+    toggleGroupVisibility: onToggleGroupVisibility,
+    selectGroup: onSelectGroup,
+    setHoveredShapeIds: onHoverShape,
+  } = useCanvasEditor();
+
+  const onRenameShape = useCallback(
+    (id: string, name: string) => updateShape(id, { name }, true, 'Rename'),
+    [updateShape]
+  );
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');

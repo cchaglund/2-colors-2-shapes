@@ -133,6 +133,11 @@ serve(async (req: Request) => {
       });
     }
 
+    // Normalize pair order so (A,B) and (B,A) are stored identically
+    const [normalizedA, normalizedB] = submissionAId < submissionBId
+      ? [submissionAId, submissionBId]
+      : [submissionBId, submissionAId];
+
     // Calculate challenge date server-side (voting is always for yesterday's submissions)
     const challengeDate = getYesterdayDateUTC();
     const todayDate = getTodayDateUTC();
@@ -153,12 +158,12 @@ serve(async (req: Request) => {
     if (countError) throw countError;
     const requiredVotes = calculateRequiredVotes(otherSubmissionCount ?? 0);
 
-    // Record the comparison
+    // Record the comparison (using normalized order for consistent uniqueness)
     const { error: comparisonError } = await supabaseAdmin.from('comparisons').insert({
       voter_id: user.id,
       challenge_date: challengeDate,
-      submission_a_id: submissionAId,
-      submission_b_id: submissionBId,
+      submission_a_id: normalizedA,
+      submission_b_id: normalizedB,
       winner_id: winnerId,
     });
 
@@ -175,33 +180,32 @@ serve(async (req: Request) => {
 
     // If not skipped, update Elo scores
     if (winnerId) {
-      // Get current ratings
+      // Get current ratings (use normalized IDs for lookup)
       const { data: rankings, error: rankingsError } = await supabaseAdmin
         .from('daily_rankings')
         .select('submission_id, elo_score, vote_count')
-        .in('submission_id', [submissionAId, submissionBId])
+        .in('submission_id', [normalizedA, normalizedB])
         .eq('challenge_date', challengeDate);
 
       if (rankingsError) throw rankingsError;
 
-      const rankingA = rankings?.find((r) => r.submission_id === submissionAId);
-      const rankingB = rankings?.find((r) => r.submission_id === submissionBId);
+      const rankingA = rankings?.find((r) => r.submission_id === normalizedA);
+      const rankingB = rankings?.find((r) => r.submission_id === normalizedB);
 
       if (rankingA && rankingB) {
-        const winner = winnerId === submissionAId ? 'A' : 'B';
+        const winner = winnerId === normalizedA ? 'A' : 'B';
         const { newRatingA, newRatingB } = calculateElo(rankingA.elo_score, rankingB.elo_score, winner);
 
-        // Update both ratings
         await supabaseAdmin
           .from('daily_rankings')
           .update({ elo_score: newRatingA, vote_count: rankingA.vote_count + 1 })
-          .eq('submission_id', submissionAId)
+          .eq('submission_id', normalizedA)
           .eq('challenge_date', challengeDate);
 
         await supabaseAdmin
           .from('daily_rankings')
           .update({ elo_score: newRatingB, vote_count: rankingB.vote_count + 1 })
-          .eq('submission_id', submissionBId)
+          .eq('submission_id', normalizedB)
           .eq('challenge_date', challengeDate);
       }
     }

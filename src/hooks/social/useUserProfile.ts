@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { supabase } from '../../lib/supabase';
 import type { Shape, ShapeGroup } from '../../types';
+import { fetchUserPublicProfile, fetchUserPublicSubmissions, fetchFollowCounts } from '../../lib/api';
 
 // =============================================================================
 // Types
@@ -85,65 +85,21 @@ async function fetchUserProfile(userId: string): Promise<CachedUserData | null> 
 
   // Create and track new request
   const promise = (async (): Promise<CachedUserData | null> => {
-    // Fetch profile
-    const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('id, nickname')
-      .eq('id', userId)
-      .single();
-
-    if (profileError) {
-      // PGRST116 = "not found" - this is expected for invalid user IDs
-      if (profileError.code === 'PGRST116') {
-        return null;
-      }
-      throw new Error(profileError.message || 'Failed to fetch profile');
-    }
-
+    const profileData = await fetchUserPublicProfile(userId);
     if (!profileData) {
       return null;
     }
 
-    // Fetch follow counts in parallel
-    const [followingResult, followersResult] = await Promise.all([
-      supabase
-        .from('follows')
-        .select('id', { count: 'exact', head: true })
-        .eq('follower_id', userId),
-      supabase
-        .from('follows')
-        .select('id', { count: 'exact', head: true })
-        .eq('following_id', userId),
+    const [followCounts, submissionsData] = await Promise.all([
+      fetchFollowCounts(userId),
+      fetchUserPublicSubmissions(userId),
     ]);
-
-    const followingCount = followingResult.count ?? 0;
-    const followersCount = followersResult.count ?? 0;
-
-    // Fetch public submissions with rankings
-    const { data: submissionsData, error: submissionsError } = await supabase
-      .from('submissions')
-      .select(`
-        id,
-        challenge_date,
-        shapes,
-        groups,
-        background_color_index,
-        created_at,
-        daily_rankings!daily_rankings_submission_id_fkey(final_rank)
-      `)
-      .eq('user_id', userId)
-      .eq('included_in_ranking', true)
-      .order('challenge_date', { ascending: false });
-
-    if (submissionsError) {
-      throw new Error(submissionsError.message || 'Failed to fetch submissions');
-    }
 
     const profile: UserProfile = {
       id: profileData.id,
       nickname: profileData.nickname || 'Anonymous',
-      followingCount,
-      followersCount,
+      followingCount: followCounts.following,
+      followersCount: followCounts.followers,
     };
 
     const submissions: UserSubmission[] = (submissionsData || []).map(s => ({

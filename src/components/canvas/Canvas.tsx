@@ -1,9 +1,10 @@
 import { useRef, useState, useCallback, useEffect, useMemo } from 'react';
 import { motion } from 'motion/react';
-import type { Shape, ShapeGroup, DailyChallenge, ViewportState } from '../../types';
+import type { Shape } from '../../types';
 import { CANVAS_SIZE } from '../../types/canvas';
 import { getShapeDimensions } from '../../utils/shapes';
 import { getVisibleShapes } from '../../utils/visibility';
+import { useCanvasEditor } from '../../contexts/CanvasEditorContext';
 import { ShapeElement } from './ShapeElement';
 import {
   TransformInteractionLayer,
@@ -11,11 +12,9 @@ import {
   MultiSelectInteractionLayer,
   HoverHighlightLayer,
 } from './TransformHandles';
-import { type KeyMappings } from '../../constants/keyboardActions';
 import { TouchContextMenu } from './TouchContextMenu';
 import { CanvasGridLines } from './CanvasGridLines';
 
-// Import extracted hooks
 import { useCanvasCoordinates } from '../../hooks/canvas/useCanvasCoordinates';
 import { useSelectionBounds } from '../../hooks/canvas/useSelectionBounds';
 import { useCanvasKeyboardShortcuts } from '../../hooks/canvas/useCanvasKeyboardShortcuts';
@@ -26,64 +25,31 @@ import { useCanvasTouchGestures } from '../../hooks/canvas/useCanvasTouchGesture
 import { useMarqueeSelection } from '../../hooks/canvas/useMarqueeSelection';
 
 interface CanvasProps {
-  shapes: Shape[];
-  groups: ShapeGroup[];
-  selectedShapeIds: Set<string>;
-  backgroundColor: string | null;
-  challenge: DailyChallenge;
-  viewport: ViewportState;
-  keyMappings: KeyMappings;
-  showGrid?: boolean;
-  showOffCanvas?: boolean;
-  onSelectShape: (id: string | null, options?: { toggle?: boolean; range?: boolean; orderedIds?: string[] }) => void;
-  onSelectShapes: (ids: string[], options?: { additive?: boolean }) => void;
-  onUpdateShape: (id: string, updates: Partial<Shape>, addToHistory?: boolean) => void;
-  onUpdateShapes: (updates: Map<string, Partial<Shape>>, addToHistory?: boolean, label?: string) => void;
-  onCommitToHistory: (label?: string) => void;
-  onDuplicateShapes: (ids: string[]) => void;
-  onDeleteSelectedShapes: () => void;
-  onUndo: () => void;
-  onRedo: () => void;
-  onMirrorHorizontal: (ids: string[]) => void;
-  onMirrorVertical: (ids: string[]) => void;
-  onZoomAtPoint: (delta: number, pointX: number, pointY: number) => void;
-  onSetZoomAtPoint: (startZoom: number, scale: number, centerX: number, centerY: number, startPanX: number, startPanY: number) => void;
-  onPan: (panX: number, panY: number) => void;
-  onMoveLayer?: (id: string, direction: 'front' | 'back' | 'up' | 'down') => void;
-  onToggleGrid?: () => void;
-  hoveredShapeIds?: Set<string> | null;
   marqueeStartRef?: React.MutableRefObject<((clientX: number, clientY: number) => void) | null>;
 }
 
-export function Canvas({
-  shapes,
-  groups,
-  selectedShapeIds,
-  backgroundColor,
-  challenge,
-  viewport,
-  keyMappings,
-  showGrid,
-  showOffCanvas,
-  onSelectShape,
-  onSelectShapes,
-  onUpdateShape,
-  onUpdateShapes,
-  onCommitToHistory,
-  onDuplicateShapes,
-  onDeleteSelectedShapes,
-  onUndo,
-  onRedo,
-  onMirrorHorizontal,
-  onMirrorVertical,
-  onZoomAtPoint,
-  onSetZoomAtPoint,
-  onPan,
-  onMoveLayer,
-  onToggleGrid,
-  hoveredShapeIds,
-  marqueeStartRef,
-}: CanvasProps) {
+export function Canvas({ marqueeStartRef }: CanvasProps) {
+  const {
+    canvasState: { shapes, groups, selectedShapeIds },
+    backgroundColor, challenge, viewport, keyMappings,
+    showGrid, showOffCanvas,
+    selectShape: onSelectShape,
+    selectShapes: onSelectShapes,
+    updateShape: onUpdateShape,
+    updateShapes: onUpdateShapes,
+    commitToHistory: onCommitToHistory,
+    duplicateShapes: onDuplicateShapes,
+    deleteSelectedShapes: onDeleteSelectedShapes,
+    undo: onUndo, redo: onRedo,
+    mirrorHorizontal: onMirrorHorizontal,
+    mirrorVertical: onMirrorVertical,
+    zoomAtPoint: onZoomAtPoint,
+    setZoomAtPoint: onSetZoomAtPoint,
+    setPan: onPan,
+    moveLayer: onMoveLayer,
+    toggleGrid: onToggleGrid,
+    hoveredShapeIds,
+  } = useCanvasEditor();
   const svgRef = useRef<SVGSVGElement>(null);
 
   // Filter to only visible shapes
@@ -434,14 +400,14 @@ export function Canvas({
   }, [selectedShapeIds, onMirrorVertical]);
 
   const handleContextMenuBringToFront = useCallback(() => {
-    if (contextMenu.shapeId && onMoveLayer) {
-      onMoveLayer(contextMenu.shapeId, 'front');
+    if (contextMenu.shapeId) {
+      onMoveLayer(contextMenu.shapeId, 'top');
     }
   }, [contextMenu.shapeId, onMoveLayer]);
 
   const handleContextMenuSendToBack = useCallback(() => {
-    if (contextMenu.shapeId && onMoveLayer) {
-      onMoveLayer(contextMenu.shapeId, 'back');
+    if (contextMenu.shapeId) {
+      onMoveLayer(contextMenu.shapeId, 'bottom');
     }
   }, [contextMenu.shapeId, onMoveLayer]);
 

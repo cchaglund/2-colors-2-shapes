@@ -10,7 +10,7 @@
 import { useState } from 'react';
 
 import { SubmissionThumbnail } from '../components/shared/SubmissionThumbnail';
-import { UserProfilePage } from '../components/pages/UserProfilePage';
+import { UserProfilePage } from '../pages/UserProfilePage';
 import { FriendsFeedContent } from '../components/FriendsFeed/FriendsFeedContent';
 import { FriendsModal } from '../components/modals/FriendsModal';
 import { FriendsModalTabs, type FriendsTab } from '../components/modals/FriendsModalTabs';
@@ -372,7 +372,7 @@ function UserProfileDemo() {
       {/* Embedded UserProfilePage */}
       <div className="border border-(--color-border) rounded-lg overflow-hidden">
         <FollowsProvider>
-          <UserProfilePage userId={testUserId} />
+          <UserProfilePage userId={testUserId} themeMode="light" onSetThemeMode={() => {}} themeName="a" onSetThemeName={() => {}} />
         </FollowsProvider>
       </div>
     </div>
@@ -491,9 +491,10 @@ export function SocialTestPage() {
                   challenge={MOCK_CHALLENGE}
                   backgroundColorIndex={submission.background_color_index}
                   size={140}
-                  showNickname
-                  nickname={submission.nickname}
                 />
+                <span className="text-xs text-(--color-text-secondary) truncate max-w-full">
+                  {submission.nickname}
+                </span>
               </div>
             ))}
           </div>
