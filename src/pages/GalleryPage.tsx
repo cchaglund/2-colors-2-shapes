@@ -42,7 +42,7 @@ const TAB_HEADERS: Record<ViewMode, { title: string; description: string }> = {
 function TabHeader({ viewMode }: { viewMode: ViewMode }) {
   const { title, description } = TAB_HEADERS[viewMode];
   return (
-    <div className="mb-4">
+    <div className="mt-4 mb-8">
       <h2 className="text-2xl font-bold text-(--color-text-primary) font-display">{title}</h2>
       <p className="text-sm text-(--color-text-secondary) mt-1">{description}</p>
     </div>
