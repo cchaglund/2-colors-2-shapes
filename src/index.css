@@ -112,6 +112,7 @@
 
   /* ── Base (non-theme) ── */
   :root {
+    font-size: 112.5%; /* 18px — scales all rem-based values up from the 16px default */
     line-height: 1.5;
     font-weight: 400;
     font-synthesis: none;

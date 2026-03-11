@@ -17,7 +17,7 @@ const CUTOUT_PADDING = 20;
 const CUTOUT_PADDING_SHAPE = 105;
 const CUTOUT_RADIUS = 16;
 const TOOLTIP_GAP = 16;
-const TOOLTIP_MAX_WIDTH = 320;
+const TOOLTIP_MAX_WIDTH = 380;
 const VIEWPORT_MARGIN = 16;
 
 // --- Tour tooltip styling ---
