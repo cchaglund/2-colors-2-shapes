@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 
-export type TourStep = 'challenge' | 'add-shape' | 'manipulate' | 'colors' | 'submit';
+export type TourStep = 'welcome' | 'challenge' | 'add-shape' | 'manipulate' | 'colors' | 'submit';
 
-const STEP_ORDER: TourStep[] = ['challenge', 'add-shape', 'manipulate', 'colors', 'submit'];
+const STEP_ORDER: TourStep[] = ['welcome', 'challenge', 'add-shape', 'manipulate', 'colors', 'submit'];
 const STORAGE_KEY = 'tour-completed';
 
 function shouldShowTour(): boolean {
@@ -22,7 +22,7 @@ function completeTour(): void {
 
 export function useTour() {
   const [active, setActive] = useState(() => shouldShowTour());
-  const [step, setStep] = useState<TourStep>('challenge');
+  const [step, setStep] = useState<TourStep>('welcome');
 
   const next = useCallback(() => {
     setStep(prev => {
@@ -30,7 +30,7 @@ export function useTour() {
       if (currentIndex === STEP_ORDER.length - 1) {
         completeTour();
         setActive(false);
-        return 'challenge';
+        return 'welcome';
       }
       return STEP_ORDER[currentIndex + 1];
     });
@@ -43,7 +43,7 @@ export function useTour() {
   }, []);
 
   const replay = useCallback(() => {
-    setStep('challenge');
+    setStep('welcome');
     setActive(true);
   }, []);
 

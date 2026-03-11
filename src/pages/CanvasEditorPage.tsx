@@ -24,12 +24,11 @@ import { BottomToolbar } from '../components/canvas/BottomToolbar';
 import { ToolsPanel } from '../components/canvas/ToolsPanel';
 import { ZoomControls } from '../components/canvas/ZoomControls';
 import { KeyboardShortcutsPopover } from '../components/canvas/KeyboardShortcutsPopover';
-import { BackgroundColorPicker } from '../components/canvas/BackgroundColorPicker';
 import { UndoRedoToast } from '../components/canvas/UndoRedoToast';
 import { CanvasModals } from '../components/canvas/CanvasModals';
 import { LayerPanel } from '../components/LayerPanel';
 import { OnboardingModal } from '../components/modals/OnboardingModal';
-import { ShapeIcon } from '../components/shared/ShapeIcon';
+import { ChallengePreview } from '../components/shared/ChallengePreview';
 import { useTour } from '../hooks/ui/useTour';
 import { TourOverlay } from '../components/tour/TourOverlay';
 import { useDiscoveryHints } from '../hooks/ui/useDiscoveryHints';
@@ -39,53 +38,9 @@ function ChallengeDisplay({ challenge }: { challenge: DailyChallenge }) {
   return (
     <div data-tour="challenge" className="flex items-center gap-6">
       <span className="text-xs uppercase tracking-widest text-(--color-accent) font-semibold">
-        Today&rsquo;s Challenge:
+        Today{'\''}s Challenge:
       </span>
-      {/* Colors — single swatch rectangle */}
-      <div className="flex flex-col items-center gap-1">
-        <div
-          className="flex h-5 rounded-sm overflow-hidden"
-          style={{ outline: '1.5px solid var(--color-border)' }}
-        >
-          {challenge.colors.map((color, i) => (
-            <div
-              key={i}
-              className="w-5"
-              style={{ backgroundColor: color }}
-            />
-          ))}
-        </div>
-        <span className="text-[9px] uppercase tracking-wider text-(--color-text-tertiary)">
-          Colors
-        </span>
-      </div>
-      {/* Shapes */}
-      <div className="flex flex-col items-center gap-1">
-        <div className="flex items-center gap-1.5 h-5">
-          {challenge.shapes.map((shape, i) => (
-            <ShapeIcon
-              key={i}
-              type={shape.type}
-              size={20}
-              fill="var(--color-text-tertiary)"
-              stroke="var(--color-border)"
-              strokeWidth={1.5}
-            />
-          ))}
-        </div>
-        <span className="text-[9px] uppercase tracking-wider text-(--color-text-tertiary)">
-          Shapes
-        </span>
-      </div>
-      {/* Word */}
-      <div className="flex flex-col items-center gap-1">
-        <span className="text-sm font-semibold text-(--color-text-primary) capitalize font-display truncate leading-5">
-          &ldquo;{challenge.word}&rdquo;
-        </span>
-        <span className="text-[9px] uppercase tracking-wider text-(--color-text-tertiary)">
-          Word
-        </span>
-      </div>
+      <ChallengePreview challenge={challenge} />
     </div>
   );
 }
@@ -251,20 +206,6 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
   // Selected color for new shapes
   const [selectedColorIndex, setSelectedColorIndex] = useState<number>(0);
 
-  // Sync selected color to match the selected shape(s) color
-  useEffect(() => {
-    if (canvasState.selectedShapeIds.size === 0) return;
-    const selectedShapes = canvasState.shapes.filter((s) =>
-      canvasState.selectedShapeIds.has(s.id)
-    );
-    if (selectedShapes.length === 0) return;
-    const firstColor = selectedShapes[0].colorIndex;
-    const allSameColor = selectedShapes.every((s) => s.colorIndex === firstColor);
-    if (allSameColor && firstColor !== selectedColorIndex) {
-      setSelectedColorIndex(firstColor);
-    }
-  }, [canvasState.selectedShapeIds, canvasState.shapes]);
-
   const handleAddShape = useCallback((shapeIndex: number, colorIndex: number) => {
     addShape(shapeIndex, colorIndex);
   }, [addShape]);
@@ -313,6 +254,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
         <TourOverlay
           step={tour.step}
           selectedShapeId={canvasState.selectedShapeIds.size === 1 ? [...canvasState.selectedShapeIds][0] : null}
+          challenge={challenge}
           onNext={handleTourNext}
           onSkip={tour.skip}
         />
@@ -366,17 +308,6 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
               <p className="text-sm text-(--color-text-secondary)">
                 Add a shape below to start creating!
               </p>
-              <div className="w-px h-5 bg-(--color-border-light) shrink-0" />
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-(--color-text-secondary)">
-                  Background:
-                </span>
-                <BackgroundColorPicker
-                  colors={challenge.colors}
-                  selectedIndex={canvasState.backgroundColorIndex}
-                  onSelect={setBackgroundColor}
-                />
-              </div>
             </div>
           </div>
         )}

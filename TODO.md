@@ -2,7 +2,7 @@
 
 - why can an unloggedin user not see past winners or wall?
 - Why does the gallery button not have the border?
-- a lot of things automatically get keyboard selected, which is ugly,how to disable? e.g. ![alt text](image.png)
+
 
 
 - add text in the helper thing that says "Change background color (you can also do it later)" or something.

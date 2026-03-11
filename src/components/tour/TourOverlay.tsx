@@ -3,16 +3,18 @@ import { AnimatePresence, motion } from 'motion/react';
 import type { TourStep } from '../../hooks/ui/useTour';
 import { getStepConfig } from './tourSteps';
 import { Button } from '../shared/Button';
+import type { DailyChallenge } from '../../types';
 
 interface TourOverlayProps {
   step: TourStep;
   selectedShapeId: string | null;
+  challenge?: DailyChallenge | null;
   onNext: () => void;
   onSkip: () => void;
 }
 
 const CUTOUT_PADDING = 20;
-const CUTOUT_PADDING_SHAPE = 60;
+const CUTOUT_PADDING_SHAPE = 105;
 const CUTOUT_RADIUS = 16;
 const TOOLTIP_GAP = 16;
 const TOOLTIP_MAX_WIDTH = 320;
@@ -57,6 +59,7 @@ function useTargetRect(selector: string) {
   const retryRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
 
   const measure = useCallback(() => {
+    if (!selector) { setRect(null); return; }
     const el = document.querySelector(selector);
     if (el) {
       setRect(el.getBoundingClientRect());
@@ -77,7 +80,7 @@ function useTargetRect(selector: string) {
     const raf = requestAnimationFrame(() => {
       measure();
       // If element not found, retry briefly (handles async shape addition)
-      if (!document.querySelector(selector)) {
+      if (selector && !document.querySelector(selector)) {
         let attempts = 0;
         retryRef.current = setInterval(() => {
           measure();
@@ -219,11 +222,14 @@ function computeCutout(rect: DOMRect, step: TourStep): CutoutRect {
   };
 }
 
-export function TourOverlay({ step, selectedShapeId, onNext, onSkip }: TourOverlayProps) {
-  const config = getStepConfig(step);
-  const selector = getSelector(step, selectedShapeId);
+export function TourOverlay({ step, selectedShapeId, challenge, onNext, onSkip }: TourOverlayProps) {
+  const isDark = document.documentElement.getAttribute('data-mode') === 'dark';
+  const config = getStepConfig(step, { challenge, isDark });
+  const isWelcome = step === 'welcome';
+  const selector = isWelcome ? '' : getSelector(step, selectedShapeId);
   const { rect, remeasure } = useTargetRect(selector);
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
+  const tooltipStyle = getTooltipStyle();
 
   // "Spotlight off / reposition / spotlight on" transition
   const [cutoutVisible, setCutoutVisible] = useState(true);
@@ -252,6 +258,51 @@ export function TourOverlay({ step, selectedShapeId, onNext, onSkip }: TourOverl
     }
   }, [cutoutVisible, remeasure]);
 
+  const isInteractive = config.interactionType === 'click-next-interactive';
+
+  // --- Welcome step: centered modal, no cutout ---
+  if (isWelcome) {
+    return (
+      <div className="fixed inset-0 z-100">
+        <motion.div
+          className="absolute inset-0"
+          style={{ background: 'var(--color-modal-overlay)' }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        />
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-auto">
+          <motion.div
+            className="px-8 py-7 text-base w-95 max-w-[90vw] overflow-hidden"
+            style={tooltipStyle.box}
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ opacity: { duration: 0.25, delay: 0.15 }, scale: { duration: 0.25, delay: 0.15 }, y: { duration: 0.25, delay: 0.15 }, layout: { duration: 0.2 } }}
+            layout
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              {showSkipConfirm ? (
+                <SkipConfirmContent
+                  onConfirmSkip={onSkip}
+                  onCancel={() => setShowSkipConfirm(false)}
+                  tooltipStyle={tooltipStyle}
+                />
+              ) : (
+                <TourStepContent
+                  config={config}
+                  tooltipStyle={tooltipStyle}
+                  onNext={onNext}
+                  onRequestSkip={() => setShowSkipConfirm(true)}
+                />
+              )}
+            </AnimatePresence>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  // --- Spotlight steps: cutout + tooltip ---
   if (!rect) return null;
 
   // During fade-out, show frozen (old) position; otherwise use live rect
@@ -260,8 +311,6 @@ export function TourOverlay({ step, selectedShapeId, onNext, onSkip }: TourOverl
   const isShapeStep = step === 'manipulate';
   const padding = isShapeStep ? CUTOUT_PADDING_SHAPE : CUTOUT_PADDING;
   const tooltip = getTooltipPosition(rect, padding);
-  const isInteractive = config.interactionType === 'click-next-interactive';
-  const tooltipStyle = getTooltipStyle();
 
   return (
     <div className="fixed inset-0 z-100 pointer-events-none">
@@ -301,21 +350,23 @@ export function TourOverlay({ step, selectedShapeId, onNext, onSkip }: TourOverl
         />
       </svg>
 
-      {/* Block clicks outside cutout */}
-      <div
-        className="absolute inset-0 pointer-events-auto"
-        style={{
-          clipPath: `polygon(
-            0% 0%, 100% 0%, 100% 100%, 0% 100%,
-            0% ${cy}px,
-            ${cx}px ${cy}px,
-            ${cx}px ${cy + ch}px,
-            ${cx + cw}px ${cy + ch}px,
-            ${cx + cw}px ${cy}px,
-            0% ${cy}px
-          )`,
-        }}
-      />
+      {/* Block clicks outside cutout — skipped for manipulate step so shape can be freely dragged */}
+      {!isShapeStep && (
+        <div
+          className="absolute inset-0 pointer-events-auto"
+          style={{
+            clipPath: `polygon(
+              0% 0%, 100% 0%, 100% 100%, 0% 100%,
+              0% ${cy}px,
+              ${cx}px ${cy}px,
+              ${cx}px ${cy + ch}px,
+              ${cx + cw}px ${cy + ch}px,
+              ${cx + cw}px ${cy}px,
+              0% ${cy}px
+            )`,
+          }}
+        />
+      )}
 
       {/* For non-interactive steps, also block clicks in the cutout area */}
       {!isInteractive && (
@@ -330,6 +381,7 @@ export function TourOverlay({ step, selectedShapeId, onNext, onSkip }: TourOverl
           }}
         />
       )}
+
 
       {/* Tooltip */}
       <AnimatePresence mode="wait">
