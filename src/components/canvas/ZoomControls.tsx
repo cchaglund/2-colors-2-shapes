@@ -8,7 +8,7 @@ interface ZoomControlsProps {
 }
 
 const btnBase =
-  'h-[30px] flex items-center justify-center font-semibold text-xs transition-colors cursor-pointer disabled:opacity-35 disabled:cursor-default';
+  'h-7.5 flex items-center justify-center font-semibold text-xs transition-colors cursor-pointer disabled:opacity-35 disabled:cursor-default';
 
 export function ZoomControls({
   zoom,
@@ -36,7 +36,7 @@ export function ZoomControls({
     <div className="flex items-center gap-1">
       <button
         className={btnBase}
-        style={{ ...btnStyle, padding: '0 8px' }}
+        style={{ ...btnStyle, padding: '0 0.5rem' }}
         onClick={onZoomIn}
         disabled={!canZoomIn}
         title="Zoom in"
@@ -46,7 +46,7 @@ export function ZoomControls({
 
       <button
         className={btnBase}
-        style={{ ...btnStyle, padding: '0 10px', cursor: isDefaultZoom ? 'default' : 'pointer' }}
+        style={{ ...btnStyle, padding: '0 0.625rem', cursor: isDefaultZoom ? 'default' : 'pointer' }}
         onClick={onResetZoom}
         disabled={isDefaultZoom}
         title="Reset zoom to 100%"
@@ -56,7 +56,7 @@ export function ZoomControls({
 
       <button
         className={btnBase}
-        style={{ ...btnStyle, padding: '0 8px' }}
+        style={{ ...btnStyle, padding: '0 0.5rem' }}
         onClick={onZoomOut}
         disabled={!canZoomOut}
         title="Zoom out"
@@ -66,7 +66,7 @@ export function ZoomControls({
 
       <button
         className={btnBase}
-        style={{ ...btnStyle, padding: '0 8px' }}
+        style={{ ...btnStyle, padding: '0 0.5rem' }}
         onClick={onResetZoom}
         disabled={isDefaultZoom}
         title="Reset zoom to 100%"

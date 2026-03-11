@@ -58,7 +58,7 @@ export function ChallengePreview({ challenge, variant = 'default', className = '
             <div key={i} className="w-5" style={{ backgroundColor: color }} />
           ))}
         </div>
-        <span className={`text-[9px] uppercase tracking-wider ${s.labelClass}`} style={s.labelStyle}>
+        <span className={`text-[0.5625rem] uppercase tracking-wider ${s.labelClass}`} style={s.labelStyle}>
           Colors
         </span>
       </div>
@@ -76,7 +76,7 @@ export function ChallengePreview({ challenge, variant = 'default', className = '
             />
           ))}
         </div>
-        <span className={`text-[9px] uppercase tracking-wider ${s.labelClass}`} style={s.labelStyle}>
+        <span className={`text-[0.5625rem] uppercase tracking-wider ${s.labelClass}`} style={s.labelStyle}>
           Shapes
         </span>
       </div>
@@ -85,7 +85,7 @@ export function ChallengePreview({ challenge, variant = 'default', className = '
         <span className={`text-sm font-semibold capitalize font-display truncate leading-5 ${s.wordClass}`} style={s.wordStyle}>
           {'"'}{challenge.word}{'"'}
         </span>
-        <span className={`text-[9px] uppercase tracking-wider ${s.labelClass}`} style={s.labelStyle}>
+        <span className={`text-[0.5625rem] uppercase tracking-wider ${s.labelClass}`} style={s.labelStyle}>
           Word
         </span>
       </div>

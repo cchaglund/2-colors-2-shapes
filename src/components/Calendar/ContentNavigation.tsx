@@ -9,8 +9,8 @@ interface ContentNavigationProps {
 }
 
 const navBtnStyle: React.CSSProperties = {
-  width: 32,
-  height: 32,
+  width: '2rem',
+  height: '2rem',
   background: 'var(--color-card-bg)',
   border: 'var(--border-width, 2px) solid var(--color-border-light)',
   borderRadius: 'var(--radius-md)',
@@ -20,8 +20,8 @@ const todayBtnStyle: React.CSSProperties = {
   background: 'var(--color-selected)',
   border: 'var(--border-width, 2px) solid var(--color-border-light)',
   borderRadius: 'var(--radius-pill)',
-  padding: '4px 12px',
-  fontSize: 11,
+  padding: '0.25rem 0.75rem',
+  fontSize: '0.6875rem',
   fontWeight: 600,
 };
 

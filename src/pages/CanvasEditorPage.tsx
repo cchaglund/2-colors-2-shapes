@@ -250,15 +250,17 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
     <div className="flex flex-col h-screen overflow-hidden">
       {showOnboarding && <OnboardingModal onComplete={updateNickname} />}
 
-      {tour.active && !anyModalOpen && (
-        <TourOverlay
-          step={tour.step}
-          selectedShapeId={canvasState.selectedShapeIds.size === 1 ? [...canvasState.selectedShapeIds][0] : null}
-          challenge={challenge}
-          onNext={handleTourNext}
-          onSkip={tour.skip}
-        />
-      )}
+      <AnimatePresence>
+        {tour.active && !anyModalOpen && (
+          <TourOverlay
+            step={tour.step}
+            selectedShapeId={canvasState.selectedShapeIds.size === 1 ? [...canvasState.selectedShapeIds][0] : null}
+            challenge={challenge}
+            onNext={handleTourNext}
+            onSkip={tour.skip}
+          />
+        )}
+      </AnimatePresence>
 
       {hints.activeHint && !tour.active && (
         <DiscoveryHint hintId={hints.activeHint} onDismiss={hints.dismissHint} />

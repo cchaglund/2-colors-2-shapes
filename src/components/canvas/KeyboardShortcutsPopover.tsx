@@ -48,7 +48,7 @@ export function KeyboardShortcutsPopover({ keyMappings, onOpenSettings, onReplay
       <button
         data-hint="keyboard-shortcuts"
         onClick={() => setOpen(prev => !prev)}
-        className="w-[30px] h-[30px] flex items-center justify-center cursor-pointer transition-colors rounded-(--radius-md) bg-(--color-card-bg) text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) text-base font-bold"
+        className="w-7.5 h-7.5 flex items-center justify-center cursor-pointer transition-colors rounded-(--radius-md) bg-(--color-card-bg) text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) text-base font-bold"
         style={{ border: 'var(--border-width, 2px) solid var(--color-border)', boxShadow: 'var(--shadow-btn)' }}
         title="Keyboard shortcuts"
         aria-label="Keyboard shortcuts"
@@ -64,7 +64,7 @@ export function KeyboardShortcutsPopover({ keyMappings, onOpenSettings, onReplay
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 8 }}
             transition={{ duration: 0.15 }}
-            className="absolute bottom-full left-0 mb-2 w-[260px] overflow-hidden"
+            className="absolute bottom-full left-0 mb-2 w-65 overflow-hidden"
             style={{
               background: 'var(--color-card-bg)',
               border: 'var(--border-width, 2px) solid var(--color-border)',
@@ -78,9 +78,9 @@ export function KeyboardShortcutsPopover({ keyMappings, onOpenSettings, onReplay
             </div>
 
             {/* Shortcuts list */}
-            <div className="px-4 pb-3 max-h-[320px] overflow-y-auto">
+            <div className="px-4 pb-3 max-h-80 overflow-y-auto">
               {shortcuts.map(({ key, action }) => (
-                <div key={action} className="flex justify-between items-center py-[3px]">
+                <div key={action} className="flex justify-between items-center py-0.75">
                   <span
                     className="text-xs font-semibold whitespace-nowrap px-1.5 py-px rounded-(--radius-sm) bg-(--color-selected) text-(--color-text-primary)"
                   >{key}</span>

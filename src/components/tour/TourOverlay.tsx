@@ -239,12 +239,14 @@ export function TourOverlay({ step, selectedShapeId, challenge, onNext, onSkip }
   const [frozenCutout, setFrozenCutout] = useState<CutoutRect | null>(null);
 
   // Detect step change during render — freeze old cutout position before fading out
+  const comingFromWelcome = prevStep === 'welcome' && prevStep !== step;
   if (prevStep !== step) {
-    if (rect) {
+    if (rect && !comingFromWelcome) {
       setFrozenCutout(computeCutout(rect, prevStep));
     }
     setPrevStep(step);
-    setCutoutVisible(false);
+    // Skip fade-out when coming from welcome — there's no cutout to fade out
+    setCutoutVisible(comingFromWelcome);
     setShowSkipConfirm(false);
   }
 
@@ -262,10 +264,21 @@ export function TourOverlay({ step, selectedShapeId, challenge, onNext, onSkip }
 
   const isInteractive = config.interactionType === 'click-next-interactive';
 
-  // --- Welcome step: centered modal, no cutout ---
-  if (isWelcome) {
-    return (
-      <div className="fixed inset-0 z-100">
+  // Compute cutout + tooltip positioning for spotlight steps
+  const hasCutout = !isWelcome && rect;
+  const cutout = hasCutout ? (frozenCutout ?? computeCutout(rect, step)) : null;
+  const isShapeStep = step === 'manipulate';
+  const padding = isShapeStep ? CUTOUT_PADDING_SHAPE : CUTOUT_PADDING;
+  const tooltip = hasCutout ? getTooltipPosition(rect, padding) : null;
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-100"
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      {/* Persistent overlay background — shared by welcome and spotlight steps */}
+      {isWelcome ? (
         <motion.div
           className="absolute inset-0"
           style={{ background: 'var(--color-modal-overlay)' }}
@@ -273,6 +286,74 @@ export function TourOverlay({ step, selectedShapeId, challenge, onNext, onSkip }
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
         />
+      ) : (
+        <svg className="absolute inset-0 w-full h-full">
+          <defs>
+            <mask id="tour-mask">
+              <rect width="100%" height="100%" fill="white" />
+              {cutout && (cutoutVisible ? (
+                <motion.rect
+                  key={step}
+                  rx={CUTOUT_RADIUS}
+                  fill="black"
+                  initial={{ opacity: 0, x: cutout.cx - CUTOUT_FLARE, y: cutout.cy - CUTOUT_FLARE, width: cutout.cw + CUTOUT_FLARE * 2, height: cutout.ch + CUTOUT_FLARE * 2 }}
+                  animate={{ opacity: 1, x: cutout.cx, y: cutout.cy, width: cutout.cw, height: cutout.ch }}
+                  transition={CUTOUT_SPRING}
+                />
+              ) : (
+                <motion.rect
+                  rx={CUTOUT_RADIUS}
+                  fill="black"
+                  initial={{ opacity: 1 }}
+                  animate={{ opacity: 0 }}
+                  transition={{ duration: CUTOUT_FADE_MS / 1000 }}
+                  x={cutout.cx} y={cutout.cy} width={cutout.cw} height={cutout.ch}
+                />
+              ))}
+            </mask>
+          </defs>
+          <rect
+            width="100%"
+            height="100%"
+            fill="var(--color-modal-overlay)"
+            mask="url(#tour-mask)"
+          />
+        </svg>
+      )}
+
+      {/* Click-blocking layers for spotlight steps */}
+      {cutout && !isShapeStep && (
+        <div
+          className="absolute inset-0 pointer-events-auto"
+          style={{
+            clipPath: `polygon(
+              0% 0%, 100% 0%, 100% 100%, 0% 100%,
+              0% ${cutout.cy}px,
+              ${cutout.cx}px ${cutout.cy}px,
+              ${cutout.cx}px ${cutout.cy + cutout.ch}px,
+              ${cutout.cx + cutout.cw}px ${cutout.cy + cutout.ch}px,
+              ${cutout.cx + cutout.cw}px ${cutout.cy}px,
+              0% ${cutout.cy}px
+            )`,
+          }}
+        />
+      )}
+
+      {cutout && !isInteractive && (
+        <div
+          className="absolute pointer-events-auto"
+          style={{
+            left: cutout.cx,
+            top: cutout.cy,
+            width: cutout.cw,
+            height: cutout.ch,
+            borderRadius: CUTOUT_RADIUS,
+          }}
+        />
+      )}
+
+      {/* Welcome modal — centered */}
+      {isWelcome && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-auto">
           <motion.div
             className="px-8 py-7 text-base w-95 max-w-[90vw] overflow-hidden"
@@ -300,132 +381,51 @@ export function TourOverlay({ step, selectedShapeId, challenge, onNext, onSkip }
             </AnimatePresence>
           </motion.div>
         </div>
-      </div>
-    );
-  }
-
-  // --- Spotlight steps: cutout + tooltip ---
-  if (!rect) return null;
-
-  // During fade-out, show frozen (old) position; otherwise use live rect
-  const cutout = frozenCutout ?? computeCutout(rect, step);
-  const { cx, cy, cw, ch } = cutout;
-  const isShapeStep = step === 'manipulate';
-  const padding = isShapeStep ? CUTOUT_PADDING_SHAPE : CUTOUT_PADDING;
-  const tooltip = getTooltipPosition(rect, padding);
-
-  return (
-    <div className="fixed inset-0 z-100 pointer-events-none">
-      <svg className="absolute inset-0 w-full h-full">
-        <defs>
-          <mask id="tour-mask">
-            <rect width="100%" height="100%" fill="white" />
-            {cutoutVisible ? (
-              <motion.rect
-                key={step}
-                rx={CUTOUT_RADIUS}
-                fill="black"
-                initial={{ opacity: 0, x: cx - CUTOUT_FLARE, y: cy - CUTOUT_FLARE, width: cw + CUTOUT_FLARE * 2, height: ch + CUTOUT_FLARE * 2 }}
-                animate={{ opacity: 1, x: cx, y: cy, width: cw, height: ch }}
-                transition={CUTOUT_SPRING}
-              />
-            ) : (
-              <motion.rect
-                rx={CUTOUT_RADIUS}
-                fill="black"
-                initial={{ opacity: 1 }}
-                animate={{ opacity: 0 }}
-                transition={{ duration: CUTOUT_FADE_MS / 1000 }}
-                x={cx} y={cy} width={cw} height={ch}
-              />
-            )}
-          </mask>
-        </defs>
-        <motion.rect
-          width="100%"
-          height="100%"
-          fill="var(--color-modal-overlay)"
-          mask="url(#tour-mask)"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        />
-      </svg>
-
-      {/* Block clicks outside cutout — skipped for manipulate step so shape can be freely dragged */}
-      {!isShapeStep && (
-        <div
-          className="absolute inset-0 pointer-events-auto"
-          style={{
-            clipPath: `polygon(
-              0% 0%, 100% 0%, 100% 100%, 0% 100%,
-              0% ${cy}px,
-              ${cx}px ${cy}px,
-              ${cx}px ${cy + ch}px,
-              ${cx + cw}px ${cy + ch}px,
-              ${cx + cw}px ${cy}px,
-              0% ${cy}px
-            )`,
-          }}
-        />
       )}
 
-      {/* For non-interactive steps, also block clicks in the cutout area */}
-      {!isInteractive && (
-        <div
-          className="absolute pointer-events-auto"
-          style={{
-            left: cx,
-            top: cy,
-            width: cw,
-            height: ch,
-            borderRadius: CUTOUT_RADIUS,
-          }}
-        />
-      )}
-
-
-      {/* Tooltip */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={step}
-          className="absolute pointer-events-auto"
-          style={{
-            top: tooltip.placement === 'above' ? undefined : tooltip.top,
-            bottom: tooltip.placement === 'above' ? window.innerHeight - tooltip.top : undefined,
-            left: tooltip.left,
-            width: TOOLTIP_MAX_WIDTH,
-          }}
-          initial={{ opacity: 0, y: tooltip.placement === 'above' ? 8 : -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: tooltip.placement === 'above' ? 8 : -8 }}
-          transition={{ duration: 0.2 }}
-        >
+      {/* Spotlight tooltip — positioned near cutout */}
+      {tooltip && (
+        <AnimatePresence mode="wait">
           <motion.div
-            className="px-6 py-5 text-base overflow-hidden"
-            style={tooltipStyle.box}
-            layout
+            key={step}
+            className="absolute pointer-events-auto"
+            style={{
+              top: tooltip.placement === 'above' ? undefined : tooltip.top,
+              bottom: tooltip.placement === 'above' ? window.innerHeight - tooltip.top : undefined,
+              left: tooltip.left,
+              width: TOOLTIP_MAX_WIDTH,
+            }}
+            initial={{ opacity: 0, y: tooltip.placement === 'above' ? 8 : -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: tooltip.placement === 'above' ? 8 : -8 }}
             transition={{ duration: 0.2 }}
           >
-            <AnimatePresence mode="wait" initial={false}>
-              {showSkipConfirm ? (
-                <SkipConfirmContent
-                  onConfirmSkip={onSkip}
-                  onCancel={() => setShowSkipConfirm(false)}
-                  tooltipStyle={tooltipStyle}
-                />
-              ) : (
-                <TourStepContent
-                  config={config}
-                  tooltipStyle={tooltipStyle}
-                  onNext={onNext}
-                  onRequestSkip={() => setShowSkipConfirm(true)}
-                />
-              )}
-            </AnimatePresence>
+            <motion.div
+              className="px-6 py-5 text-base overflow-hidden"
+              style={tooltipStyle.box}
+              layout
+              transition={{ duration: 0.2 }}
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                {showSkipConfirm ? (
+                  <SkipConfirmContent
+                    onConfirmSkip={onSkip}
+                    onCancel={() => setShowSkipConfirm(false)}
+                    tooltipStyle={tooltipStyle}
+                  />
+                ) : (
+                  <TourStepContent
+                    config={config}
+                    tooltipStyle={tooltipStyle}
+                    onNext={onNext}
+                    onRequestSkip={() => setShowSkipConfirm(true)}
+                  />
+                )}
+              </AnimatePresence>
+            </motion.div>
           </motion.div>
-        </motion.div>
-      </AnimatePresence>
-    </div>
+        </AnimatePresence>
+      )}
+    </motion.div>
   );
 }

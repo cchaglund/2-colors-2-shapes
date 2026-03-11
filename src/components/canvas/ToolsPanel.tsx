@@ -244,7 +244,7 @@ export function ToolsPanel({
         border: 'var(--border-width, 2px) solid var(--color-border)',
         borderRadius: 'var(--radius-lg)',
         boxShadow: 'var(--shadow-card)',
-        maxHeight: 'calc(100vh - 140px)',
+        maxHeight: 'calc(100vh - 8.75rem)',
       }}
       onClick={(e) => { e.stopPropagation(); onToolButtonClick?.(); }}
       onMouseDown={(e) => e.stopPropagation()}

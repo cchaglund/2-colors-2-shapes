@@ -24,7 +24,7 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div style={{
           display: 'flex', flexDirection: 'column', alignItems: 'center',
-          justifyContent: 'center', height: '100vh', gap: '16px',
+          justifyContent: 'center', height: '100vh', gap: '1rem',
           fontFamily: 'system-ui', color: 'var(--color-text-primary, #333)',
         }}>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 600 }}>Something went wrong</h1>
@@ -34,7 +34,7 @@ export class ErrorBoundary extends Component<Props, State> {
           <button
             onClick={() => window.location.reload()}
             style={{
-              padding: '8px 16px', borderRadius: '8px', cursor: 'pointer',
+              padding: '0.5rem 1rem', borderRadius: '0.5rem', cursor: 'pointer',
               background: 'var(--color-accent, #3B82F6)', color: 'white',
               border: 'none', fontSize: '0.875rem', fontWeight: 500,
             }}

@@ -22,7 +22,7 @@ function LightbulbIcon() {
 
 export function TourHint({ children }: { children: ReactNode }) {
   return (
-    <div className="mt-5 flex items-center gap-2 rounded-lg px-3 py-2.5 text-[12px] opacity-75 bg-current/8">
+    <div className="mt-5 flex items-center gap-2 rounded-lg px-3 py-2.5 text-[0.75rem] opacity-75 bg-current/8">
       <LightbulbIcon />
       <span>{children}</span>
     </div>

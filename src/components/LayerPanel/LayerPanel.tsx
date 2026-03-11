@@ -298,7 +298,7 @@ export function LayerPanel({ onToggle }: LayerPanelProps) {
         border: 'var(--border-width, 2px) solid var(--color-border)',
         borderRadius: 'var(--radius-lg)',
         boxShadow: 'var(--shadow-card)',
-        maxHeight: 'calc(100vh - 140px)',
+        maxHeight: 'calc(100vh - 8.75rem)',
       }}
     >
       {/* Header: layers icon + 'Layers' + count badge + group icon button + close button */}
@@ -438,7 +438,7 @@ export function LayerPanel({ onToggle }: LayerPanelProps) {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        style={{ overflow: 'hidden', paddingLeft: 12 }}
+                        style={{ overflow: 'hidden', paddingLeft: '0.75rem' }}
                       >
                         {groupChildren.map((child) => {
                           const shape = child.shape!;

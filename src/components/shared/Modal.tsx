@@ -89,7 +89,7 @@ export function Modal({
     >
       <div
         ref={modalRef}
-        className={`p-4 md:p-6 w-full ${size} mx-4 max-h-[90vh] overflow-y-auto bg-(--color-modal-bg) border-[length:var(--border-width,2px)] border-solid border-(--color-border) rounded-(--radius-lg) shadow-(--shadow-modal) ${className}`}
+        className={`p-4 md:p-6 w-full ${size} mx-4 max-h-[90dvh] overflow-y-auto bg-(--color-modal-bg) border-[length:var(--border-width,2px)] border-solid border-(--color-border) rounded-(--radius-lg) shadow-(--shadow-modal) ${className}`}
       >
         {children}
       </div>

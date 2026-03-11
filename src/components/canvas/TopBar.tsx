@@ -81,7 +81,7 @@ function ThemePill({
         return (
           <button
             key={key}
-            className={`flex items-center justify-center gap-1.5 h-full px-2 text-[11px] font-bold tracking-wide transition-colors cursor-pointer ${
+            className={`flex items-center justify-center gap-1.5 h-full px-2 text-[0.6875rem] font-bold tracking-wide transition-colors cursor-pointer ${
               isActive
                 ? 'text-(--color-text-primary)'
                 : 'text-(--color-text-tertiary) hover:text-(--color-text-primary) hover:bg-(--color-hover)'
@@ -92,8 +92,8 @@ function ThemePill({
             <span
               className="shrink-0 rounded-full transition-all duration-150"
               style={{
-                width: isActive ? 10 : 8,
-                height: isActive ? 10 : 8,
+                width: isActive ? '0.625rem' : '0.5rem',
+                height: isActive ? '0.625rem' : '0.5rem',
                 backgroundColor: accent,
                 boxShadow: isActive ? `0 0 0 2px var(--color-card-bg), 0 0 0 3.5px ${accent}` : 'none',
               }}

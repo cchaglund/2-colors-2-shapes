@@ -68,7 +68,7 @@ export function LayerItem({
         }}
       />
       {/* Shape thumbnail — colored shape with border */}
-      <div className="w-[18px] h-[18px] shrink-0 flex items-center justify-center">
+      <div className="w-4.5 h-4.5 shrink-0 flex items-center justify-center">
         <ShapeIcon
           type={shape.type}
           size={18}

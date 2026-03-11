@@ -160,7 +160,7 @@ export function ColorTester() {
                           outlineOffset: '-2px',
                         }}
                       />
-                      <span className="text-[10px] text-(--color-text-tertiary)">{color}</span>
+                      <span className="text-[0.625rem] text-(--color-text-tertiary)">{color}</span>
                     </div>
                   ))}
                 </div>
@@ -183,7 +183,7 @@ export function ColorTester() {
                     <circle cx="43" cy="21" r="19" fill={entry.colors[1]} stroke="none" />
                     <circle cx="32" cy="41" r="19" fill={entry.colors[2]} stroke="none" />
                   </svg>
-                  <span className="text-[10px] text-(--color-text-tertiary)">
+                  <span className="text-[0.625rem] text-(--color-text-tertiary)">
                     #{entry.paletteIndex}
                   </span>
                 </div>
