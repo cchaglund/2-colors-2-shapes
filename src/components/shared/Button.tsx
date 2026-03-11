@@ -44,36 +44,33 @@ const shadowVariants = new Set<ButtonVariant>(['secondary', 'primary', 'inverse'
 const borderVariants = new Set<ButtonVariant>(['secondary', 'primary', 'ghost', 'inverse', 'danger']);
 
 /**
- * Tooltip button variants — used inside tour tooltips that invert with dark/light mode.
- * Light mode: like regular buttons but border/shadow use deeper purple (#1A1230).
- * Dark mode: regular light-mode button style.
+ * Tooltip button variants — used inside tour tooltips.
+ * Styling comes from --tour-* CSS vars defined per theme+mode in index.css.
  */
-const TOOLTIP_DEEP = { border: '2px solid #1A1230', shadow: '3px 3px 0 #1A1230' };
-const TOOLTIP_REGULAR = { border: '2px solid #2D1B69', shadow: '3px 3px 0 #2D1B69' };
-
-function getTooltipBtnStyle(variant: ButtonVariant): { border: string; boxShadow: string; background?: string; color?: string } | null {
+function getTooltipBtnStyle(variant: ButtonVariant): CSSProperties | null {
   if (variant !== 'tooltipPrimary' && variant !== 'tooltipSecondary' && variant !== 'tooltipDanger') return null;
-  const isDark = document.documentElement.getAttribute('data-mode') === 'dark';
-  const t = isDark ? TOOLTIP_REGULAR : TOOLTIP_DEEP;
+
+  const base = {
+    border: 'var(--tour-btn-border)',
+    boxShadow: 'var(--tour-btn-shadow)',
+  };
 
   if (variant === 'tooltipSecondary') {
     return {
-      border: t.border,
-      boxShadow: t.shadow,
-      background: '#FFFFFF',
-      color: '#2D1B69',
+      ...base,
+      background: 'var(--tour-secondary-bg)',
+      color: 'var(--tour-secondary-text)',
     };
   }
   if (variant === 'tooltipDanger') {
     return {
-      border: t.border,
-      boxShadow: t.shadow,
+      ...base,
       background: 'var(--color-danger)',
       color: '#FFFFFF',
     };
   }
   // tooltipPrimary
-  return { border: t.border, boxShadow: t.shadow };
+  return base;
 }
 
 export type ButtonSize = 'sm' | 'md';

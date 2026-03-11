@@ -206,6 +206,15 @@
       radial-gradient(circle at 60px 60px, #33CCFF 1.5px, transparent 1.5px);
     --pattern-size: 80px 80px;
     --pattern-opacity: 0.03;
+    /* Tour tooltip — custom Pop Art style (intentionally NOT mirroring dark mode) */
+    --tour-bg: #241B3D;
+    --tour-text: #E8E0FF;
+    --tour-border: none;
+    --tour-shadow: 4px 4px 0 #1A1230;
+    --tour-btn-border: 2px solid #1A1230;
+    --tour-btn-shadow: 3px 3px 0 #1A1230;
+    --tour-secondary-bg: #FFFFFF;
+    --tour-secondary-text: #2D1B69;
     color: var(--color-text-primary);
     background-color: var(--color-bg-primary);
   }
@@ -254,6 +263,15 @@
       radial-gradient(circle, rgba(51, 204, 255, 0.04) 1px, transparent 1px);
     --pattern-size: 20px 20px, 33px 33px;
     --pattern-opacity: 0.015;
+    /* Tour tooltip — custom Pop Art style (intentionally NOT mirroring light mode) */
+    --tour-bg: #FFFFFF;
+    --tour-text: #2D1B69;
+    --tour-border: 2px solid #2D1B69;
+    --tour-shadow: 4px 4px 0 #2D1B69;
+    --tour-btn-border: 2px solid #2D1B69;
+    --tour-btn-shadow: 3px 3px 0 #2D1B69;
+    --tour-secondary-bg: #FFFFFF;
+    --tour-secondary-text: #2D1B69;
     color: var(--color-text-primary);
     background-color: var(--color-bg-primary);
   }
@@ -323,6 +341,15 @@
     --sel-hover-fill: rgba(230, 51, 34, 0.08);
     --pattern-image: none;
     --pattern-opacity: 0;
+    /* Tour tooltip — mirrors Swiss dark mode */
+    --tour-bg: #1a1a1a;
+    --tour-text: rgba(255, 255, 255, 0.9);
+    --tour-border: 1px solid #444444;
+    --tour-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --tour-btn-border: 1px solid #444444;
+    --tour-btn-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --tour-secondary-bg: #2a2a2a;
+    --tour-secondary-text: rgba(255, 255, 255, 0.9);
     color: var(--color-text-primary);
     background-color: var(--color-bg-primary);
   }
@@ -368,6 +395,15 @@
     --sel-hover-fill: rgba(230, 51, 34, 0.12);
     --pattern-image: none;
     --pattern-opacity: 0;
+    /* Tour tooltip — mirrors Swiss light mode */
+    --tour-bg: #ffffff;
+    --tour-text: #222222;
+    --tour-border: 1px solid #222222;
+    --tour-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    --tour-btn-border: 1px solid #222222;
+    --tour-btn-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    --tour-secondary-bg: #ffffff;
+    --tour-secondary-text: #222222;
     color: var(--color-text-primary);
     background-color: var(--color-bg-primary);
   }
@@ -437,6 +473,15 @@
     --sel-hover-fill: rgba(157, 196, 176, 0.1);
     --pattern-image: radial-gradient(circle, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
     --pattern-opacity: 1;
+    /* Tour tooltip — mirrors Cloud dark mode */
+    --tour-bg: #2a2520;
+    --tour-text: rgba(255, 255, 255, 0.88);
+    --tour-border: 1px solid rgba(255, 255, 255, 0.12);
+    --tour-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+    --tour-btn-border: 1px solid rgba(255, 255, 255, 0.12);
+    --tour-btn-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    --tour-secondary-bg: #3d362f;
+    --tour-secondary-text: rgba(255, 255, 255, 0.88);
     color: var(--color-text-primary);
     background-color: var(--color-bg-primary);
   }
@@ -482,6 +527,15 @@
     --sel-hover-fill: rgba(157, 196, 176, 0.12);
     --pattern-image: radial-gradient(circle, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
     --pattern-opacity: 1;
+    /* Tour tooltip — mirrors Cloud light mode */
+    --tour-bg: #fdf8f3;
+    --tour-text: #3d3d3d;
+    --tour-border: 1px solid rgba(0, 0, 0, 0.12);
+    --tour-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+    --tour-btn-border: 1px solid rgba(0, 0, 0, 0.12);
+    --tour-btn-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    --tour-secondary-bg: #ffffff;
+    --tour-secondary-text: #3d3d3d;
     color: var(--color-text-primary);
     background-color: var(--color-bg-primary);
   }
@@ -543,6 +597,14 @@
     --sel-hover-fill: rgba(230, 51, 34, 0.08);
     --pattern-image: none;
     --pattern-opacity: 0;
+    --tour-bg: #1a1a1a;
+    --tour-text: rgba(255, 255, 255, 0.9);
+    --tour-border: 1px solid #444444;
+    --tour-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --tour-btn-border: 1px solid #444444;
+    --tour-btn-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --tour-secondary-bg: #2a2a2a;
+    --tour-secondary-text: rgba(255, 255, 255, 0.9);
     color: #222222;
     background-color: #fafafa;
   }

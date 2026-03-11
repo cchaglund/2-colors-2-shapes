@@ -21,40 +21,15 @@ const TOOLTIP_MAX_WIDTH = 380;
 const VIEWPORT_MARGIN = 16;
 
 // --- Tour tooltip styling ---
-// Inverts with mode: dark bg in light mode, light bg in dark mode.
-// Buttons use tooltip* variants from Button component which handle their own mode switching.
-interface TourTooltipStyle {
-  box: React.CSSProperties;
-  skipClass: string;
-}
-
-const TOOLTIP_LIGHT_MODE: TourTooltipStyle = {
-  box: {
-    background: '#241B3D',
-    color: '#E8E0FF',
-    letterSpacing: '0.02em',
-    borderRadius: 'var(--radius-lg)',
-    boxShadow: '4px 4px 0 #1A1230',
-  },
-  skipClass: 'opacity-60 hover:opacity-100',
+// Uses --tour-* CSS vars defined per theme+mode in index.css.
+// Pop Art has custom bespoke styling; Swiss/Cloud mirror their opposite mode.
+const TOOLTIP_BOX_STYLE: React.CSSProperties = {
+  background: 'var(--tour-bg)',
+  color: 'var(--tour-text)',
+  border: 'var(--tour-border)',
+  borderRadius: 'var(--radius-lg)',
+  boxShadow: 'var(--tour-shadow)',
 };
-
-const TOOLTIP_DARK_MODE: TourTooltipStyle = {
-  box: {
-    background: '#FFFFFF',
-    color: '#2D1B69',
-    letterSpacing: '0.02em',
-    border: '2px solid #2D1B69',
-    borderRadius: 'var(--radius-lg)',
-    boxShadow: '4px 4px 0 #2D1B69',
-  },
-  skipClass: 'opacity-50 hover:opacity-80',
-};
-
-function getTooltipStyle(): TourTooltipStyle {
-  const isDark = document.documentElement.getAttribute('data-mode') === 'dark';
-  return isDark ? TOOLTIP_DARK_MODE : TOOLTIP_LIGHT_MODE;
-}
 
 function useTargetRect(selector: string) {
   const [rect, setRect] = useState<DOMRect | null>(null);
@@ -134,11 +109,9 @@ function getSelector(step: TourStep, selectedShapeId: string | null): string {
 function SkipConfirmContent({
   onConfirmSkip,
   onCancel,
-  tooltipStyle,
 }: {
   onConfirmSkip: () => void;
   onCancel: () => void;
-  tooltipStyle: TourTooltipStyle;
 }) {
   return (
     <motion.div
@@ -149,7 +122,7 @@ function SkipConfirmContent({
       transition={{ duration: 0.15 }}
     >
       <p className="font-bold text-base mb-2">Skip the tour?</p>
-      <p className={`text-xs mb-4 leading-relaxed ${tooltipStyle.skipClass}`}>
+      <p className="text-xs mb-4 leading-relaxed opacity-50 hover:opacity-80">
         You can always take it again — click the <strong>?</strong> in the bottom left and select <strong>Replay tour</strong>.
       </p>
       <div className="flex flex-col items-center gap-2">
@@ -166,12 +139,10 @@ function SkipConfirmContent({
 
 function TourStepContent({
   config,
-  tooltipStyle,
   onNext,
   onRequestSkip,
 }: {
   config: ReturnType<typeof getStepConfig>;
-  tooltipStyle: TourTooltipStyle;
   onNext: () => void;
   onRequestSkip: () => void;
 }) {
@@ -192,7 +163,7 @@ function TourStepContent({
         </Button>
         {config.showSkip && (
           <button
-            className={`text-xs hover:underline cursor-pointer transition-all ${tooltipStyle.skipClass}`}
+            className="text-xs hover:underline cursor-pointer transition-all opacity-50 hover:opacity-80"
             onClick={onRequestSkip}
           >
             Skip tour
@@ -231,7 +202,6 @@ export function TourOverlay({ step, selectedShapeId, challenge, onNext, onSkip }
   const selector = isWelcome ? '' : getSelector(step, selectedShapeId);
   const { rect, remeasure } = useTargetRect(selector);
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
-  const tooltipStyle = getTooltipStyle();
 
   // "Spotlight off / reposition / spotlight on" transition
   const [cutoutVisible, setCutoutVisible] = useState(true);
@@ -357,7 +327,7 @@ export function TourOverlay({ step, selectedShapeId, challenge, onNext, onSkip }
         <div className="absolute inset-0 flex items-center justify-center pointer-events-auto">
           <motion.div
             className="px-8 py-7 text-base w-95 max-w-[90vw] overflow-hidden"
-            style={tooltipStyle.box}
+            style={TOOLTIP_BOX_STYLE}
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ opacity: { duration: 0.25, delay: 0.15 }, scale: { duration: 0.25, delay: 0.15 }, y: { duration: 0.25, delay: 0.15 }, layout: { duration: 0.2 } }}
@@ -368,12 +338,12 @@ export function TourOverlay({ step, selectedShapeId, challenge, onNext, onSkip }
                 <SkipConfirmContent
                   onConfirmSkip={onSkip}
                   onCancel={() => setShowSkipConfirm(false)}
-                  tooltipStyle={tooltipStyle}
+
                 />
               ) : (
                 <TourStepContent
                   config={config}
-                  tooltipStyle={tooltipStyle}
+
                   onNext={onNext}
                   onRequestSkip={() => setShowSkipConfirm(true)}
                 />
@@ -402,7 +372,7 @@ export function TourOverlay({ step, selectedShapeId, challenge, onNext, onSkip }
           >
             <motion.div
               className="px-6 py-5 text-base overflow-hidden"
-              style={tooltipStyle.box}
+              style={TOOLTIP_BOX_STYLE}
               layout
               transition={{ duration: 0.2 }}
             >
@@ -411,12 +381,12 @@ export function TourOverlay({ step, selectedShapeId, challenge, onNext, onSkip }
                   <SkipConfirmContent
                     onConfirmSkip={onSkip}
                     onCancel={() => setShowSkipConfirm(false)}
-                    tooltipStyle={tooltipStyle}
+  
                   />
                 ) : (
                   <TourStepContent
                     config={config}
-                    tooltipStyle={tooltipStyle}
+  
                     onNext={onNext}
                     onRequestSkip={() => setShowSkipConfirm(true)}
                   />
