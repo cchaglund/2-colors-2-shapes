@@ -255,39 +255,41 @@ function DefaultRightContent({
       )}
 
       {/* Submit */}
-      {onSave && isLoggedIn ? (
-        <Button
-          variant="primary"
-          className="px-4 font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={onSave}
-          disabled={isSaving || hasSubmittedToday}
-          title={hasSubmittedToday ? 'Already submitted today' : 'Submit your creation'}
-        >
-          {saveLabel}
-        </Button>
-      ) : onSave ? (
-        <>
+      <div data-tour="submit">
+        {onSave && isLoggedIn ? (
           <Button
             variant="primary"
-            className="px-4 font-bold"
-            onClick={() => setShowLoginPrompt(true)}
-            title="Sign in to submit"
+            className="px-4 font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={onSave}
+            disabled={isSaving || hasSubmittedToday}
+            title={hasSubmittedToday ? 'Already submitted today' : 'Submit your creation'}
           >
-            Submit!
+            {saveLabel}
           </Button>
-          {showLoginPrompt && (
-            <LoginPromptModal
-              onClose={() => setShowLoginPrompt(false)}
-              title="Submit Your Creation"
-              message="Sign in to submit your artwork and join today's challenge."
-            />
-          )}
-        </>
-      ) : null}
+        ) : onSave ? (
+          <>
+            <Button
+              variant="primary"
+              className="px-4 font-bold"
+              onClick={() => setShowLoginPrompt(true)}
+              title="Sign in to submit"
+            >
+              Submit!
+            </Button>
+            {showLoginPrompt && (
+              <LoginPromptModal
+                onClose={() => setShowLoginPrompt(false)}
+                title="Submit Your Creation"
+                message="Sign in to submit your artwork and join today's challenge."
+              />
+            )}
+          </>
+        ) : null}
+      </div>
 
       {/* Divider + Gallery — hidden on mobile (available in UserMenuDropdown) */}
       <div className="hidden md:block w-px h-5 bg-(--color-border) mx-1" />
-      <div className="hidden md:block">
+      <div className="hidden md:block" data-hint="gallery">
         <Button as="a" variant="ghost" href="/?view=gallery">
           Gallery
         </Button>

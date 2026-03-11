@@ -14,7 +14,7 @@ import { Link } from './Link';
  * - link:      text-only, no bg/border/shadow (Cancel, dismiss, escape hatches)
  */
 
-export type ButtonVariant = 'secondary' | 'primary' | 'ghost' | 'inverse' | 'danger' | 'link';
+export type ButtonVariant = 'secondary' | 'primary' | 'ghost' | 'inverse' | 'danger' | 'link' | 'tooltipPrimary' | 'tooltipSecondary' | 'tooltipDanger';
 
 const variantClasses: Record<ButtonVariant, string> = {
   secondary:
@@ -29,6 +29,12 @@ const variantClasses: Record<ButtonVariant, string> = {
     'bg-(--color-danger) text-(--color-accent-text) hover:bg-(--color-danger-hover) hover:translate-y-px active:translate-y-0.5',
   link:
     'text-(--color-text-secondary) hover:text-(--color-text-primary) hover:underline',
+  tooltipPrimary:
+    'bg-(--color-accent) text-(--color-accent-text) hover:bg-(--color-accent-hover) hover:translate-y-px active:translate-y-0.5',
+  tooltipSecondary:
+    'hover:translate-y-px active:translate-y-0.5',
+  tooltipDanger:
+    'hover:translate-y-px active:translate-y-0.5',
 };
 
 /** Variants that get the btn-shadow */
@@ -36,6 +42,39 @@ const shadowVariants = new Set<ButtonVariant>(['secondary', 'primary', 'inverse'
 
 /** Variants that get a border */
 const borderVariants = new Set<ButtonVariant>(['secondary', 'primary', 'ghost', 'inverse', 'danger']);
+
+/**
+ * Tooltip button variants — used inside tour tooltips that invert with dark/light mode.
+ * Light mode: like regular buttons but border/shadow use deeper purple (#1A1230).
+ * Dark mode: regular light-mode button style.
+ */
+const TOOLTIP_DEEP = { border: '2px solid #1A1230', shadow: '3px 3px 0 #1A1230' };
+const TOOLTIP_REGULAR = { border: '2px solid #2D1B69', shadow: '3px 3px 0 #2D1B69' };
+
+function getTooltipBtnStyle(variant: ButtonVariant): { border: string; boxShadow: string; background?: string; color?: string } | null {
+  if (variant !== 'tooltipPrimary' && variant !== 'tooltipSecondary' && variant !== 'tooltipDanger') return null;
+  const isDark = document.documentElement.getAttribute('data-mode') === 'dark';
+  const t = isDark ? TOOLTIP_REGULAR : TOOLTIP_DEEP;
+
+  if (variant === 'tooltipSecondary') {
+    return {
+      border: t.border,
+      boxShadow: t.shadow,
+      background: '#FFFFFF',
+      color: '#2D1B69',
+    };
+  }
+  if (variant === 'tooltipDanger') {
+    return {
+      border: t.border,
+      boxShadow: t.shadow,
+      background: 'var(--color-danger)',
+      color: '#FFFFFF',
+    };
+  }
+  // tooltipPrimary
+  return { border: t.border, boxShadow: t.shadow };
+}
 
 export type ButtonSize = 'sm' | 'md';
 
@@ -65,8 +104,9 @@ export function Button<T extends ElementType = 'button'>({
   ...rest
 }: ButtonProps<T>) {
   const Tag = as === 'a' ? Link : (as || 'button');
-  const hasShadow = shadowVariants.has(variant);
-  const hasBorder = borderVariants.has(variant);
+  const tooltipBtnStyle = getTooltipBtnStyle(variant);
+  const hasShadow = !tooltipBtnStyle && shadowVariants.has(variant);
+  const hasBorder = !tooltipBtnStyle && borderVariants.has(variant);
 
   const inverseStyle = variant === 'inverse'
     ? {
@@ -82,6 +122,7 @@ export function Button<T extends ElementType = 'button'>({
         ...(hasBorder ? { border: 'var(--border-width, 2px) solid var(--color-border)' } : { border: 'none' }),
         ...(hasShadow ? { boxShadow: 'var(--shadow-btn)' } : {}),
         ...inverseStyle,
+        ...tooltipBtnStyle,
         ...style,
       }}
       {...rest}

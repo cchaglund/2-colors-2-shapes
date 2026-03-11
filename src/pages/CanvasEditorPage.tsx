@@ -10,7 +10,6 @@ import { useProfile } from '../hooks/auth/useProfile';
 import { useCanvasEditorState } from '../hooks/canvas/useCanvasEditorState';
 import { useSidebarState } from '../hooks/ui/useSidebarState';
 import { useAppModals } from '../hooks/ui/useAppModals';
-import { useWelcomeModal } from '../hooks/ui/useWelcomeModal';
 import { useKeyboardSettings } from '../hooks/ui/useKeyboardSettings';
 import { useWinnerAnnouncement } from '../hooks/ui/useWinnerAnnouncement';
 import { useIsTouchDevice } from '../hooks/ui/useIsTouchDevice';
@@ -30,13 +29,63 @@ import { UndoRedoToast } from '../components/canvas/UndoRedoToast';
 import { CanvasModals } from '../components/canvas/CanvasModals';
 import { LayerPanel } from '../components/LayerPanel';
 import { OnboardingModal } from '../components/modals/OnboardingModal';
-import { WelcomeModal } from '../components/modals/WelcomeModal';
+import { ShapeIcon } from '../components/shared/ShapeIcon';
+import { useTour } from '../hooks/ui/useTour';
+import { TourOverlay } from '../components/tour/TourOverlay';
+import { useDiscoveryHints } from '../hooks/ui/useDiscoveryHints';
+import { DiscoveryHint } from '../components/shared/DiscoveryHint';
 
-function InspirationCenter({ word }: { word: string }) {
+function ChallengeDisplay({ challenge }: { challenge: DailyChallenge }) {
   return (
-    <div className="flex flex-col items-center leading-tight min-w-0">
-      <span className="hidden md:block text-xs uppercase tracking-widest text-(--color-accent)">Today&apos;s Inspiration</span>
-      <span className="text-sm md:text-xl font-semibold text-(--color-text-primary) capitalize font-display truncate max-w-full">{word}</span>
+    <div data-tour="challenge" className="flex items-center gap-6">
+      <span className="text-xs uppercase tracking-widest text-(--color-accent) font-semibold">
+        Today&rsquo;s Challenge:
+      </span>
+      {/* Colors — single swatch rectangle */}
+      <div className="flex flex-col items-center gap-1">
+        <div
+          className="flex h-5 rounded-sm overflow-hidden"
+          style={{ outline: '1.5px solid var(--color-border)' }}
+        >
+          {challenge.colors.map((color, i) => (
+            <div
+              key={i}
+              className="w-5"
+              style={{ backgroundColor: color }}
+            />
+          ))}
+        </div>
+        <span className="text-[9px] uppercase tracking-wider text-(--color-text-tertiary)">
+          Colors
+        </span>
+      </div>
+      {/* Shapes */}
+      <div className="flex flex-col items-center gap-1">
+        <div className="flex items-center gap-1.5 h-5">
+          {challenge.shapes.map((shape, i) => (
+            <ShapeIcon
+              key={i}
+              type={shape.type}
+              size={20}
+              fill="var(--color-text-tertiary)"
+              stroke="var(--color-border)"
+              strokeWidth={1.5}
+            />
+          ))}
+        </div>
+        <span className="text-[9px] uppercase tracking-wider text-(--color-text-tertiary)">
+          Shapes
+        </span>
+      </div>
+      {/* Word */}
+      <div className="flex flex-col items-center gap-1">
+        <span className="text-sm font-semibold text-(--color-text-primary) capitalize font-display truncate leading-5">
+          &ldquo;{challenge.word}&rdquo;
+        </span>
+        <span className="text-[9px] uppercase tracking-wider text-(--color-text-tertiary)">
+          Word
+        </span>
+      </div>
     </div>
   );
 }
@@ -69,7 +118,6 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
     dismissCongrats,
     dismissWinner,
   } = useAppModals();
-  const { isOpen: showWelcome, dismiss: dismissWelcome } = useWelcomeModal();
 
   // Auth state
   const { user } = useAuth();
@@ -189,6 +237,16 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
 
   const isTouchDevice = useIsTouchDevice();
   const isDesktop = useIsDesktop();
+  const tour = useTour();
+  const hints = useDiscoveryHints({ tourActive: tour.active });
+
+  useEffect(() => {
+    hints.onShapeSelectionChange(canvasState.selectedShapeIds.size);
+  }, [canvasState.selectedShapeIds.size]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    hints.onShapeCountChange(canvasState.shapes.length);
+  }, [canvasState.shapes.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Selected color for new shapes
   const [selectedColorIndex, setSelectedColorIndex] = useState<number>(0);
@@ -210,6 +268,17 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
   const handleAddShape = useCallback((shapeIndex: number, colorIndex: number) => {
     addShape(shapeIndex, colorIndex);
   }, [addShape]);
+
+  // When advancing from add-shape step, auto-add a shape if none on canvas
+  const handleTourNext = useCallback(() => {
+    if (tour.step === 'add-shape') {
+      addShape(0, 1);
+      // Delay so shape renders and selectedShapeId propagates before manipulate step
+      requestAnimationFrame(() => tour.next());
+      return;
+    }
+    tour.next();
+  }, [tour, addShape]);
 
   // When a color is clicked, also recolor any selected shapes
   const handleSetSelectedColor = useCallback((colorIndex: number) => {
@@ -233,12 +302,25 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
   }, [marqueeStartRef]);
 
   const showOnboarding = user && profile && !profile.onboarding_complete;
+  const anyModalOpen = !!(showOnboarding || showWinnerAnnouncement || showVotingModal || showResetConfirm || showFriendsModal);
 
   return (
     <CanvasEditorProvider value={editorContext}>
     <div className="flex flex-col h-screen overflow-hidden">
-      {showWelcome && <WelcomeModal onDismiss={dismissWelcome} challenge={challenge} />}
       {showOnboarding && <OnboardingModal onComplete={updateNickname} />}
+
+      {tour.active && !anyModalOpen && (
+        <TourOverlay
+          step={tour.step}
+          selectedShapeId={canvasState.selectedShapeIds.size === 1 ? [...canvasState.selectedShapeIds][0] : null}
+          onNext={handleTourNext}
+          onSkip={tour.skip}
+        />
+      )}
+
+      {hints.activeHint && !tour.active && (
+        <DiscoveryHint hintId={hints.activeHint} onDismiss={hints.dismissHint} />
+      )}
 
       {/* Top bar */}
       <TopBar
@@ -246,7 +328,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
         onSetThemeMode={onSetThemeMode}
         themeName={themeName}
         onSetThemeName={onSetThemeName}
-        centerContent={<InspirationCenter word={challenge.word} />}
+        centerContent={<ChallengeDisplay challenge={challenge} />}
         onReset={handleReset}
         onSave={handleSave}
         isSaving={saving}
@@ -302,6 +384,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
         {/* Left tools panel collapsed toggle */}
         {!leftOpen && (
           <button
+            data-hint="left-toolbar"
             className="absolute left-3 top-3 z-20 w-10 h-10 flex items-center justify-center cursor-pointer transition-colors rounded-(--radius-md) bg-(--color-card-bg) text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary)"
             style={{ border: 'var(--border-width, 2px) solid var(--color-border)', boxShadow: 'var(--shadow-btn)' }}
             onClick={toggleLeft}
@@ -322,6 +405,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
               animate={{ x: 0, opacity: 1, transition: { type: 'spring', stiffness: 400, damping: 30 } }}
               exit={{ x: -60, opacity: 0, transition: { duration: 0.2 } }}
               className="absolute top-3 left-3 z-20"
+              data-hint="left-toolbar"
             >
               <ToolsPanel
                 keyMappings={keyMappings}
@@ -347,6 +431,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
                 onSendBackward={handleSendBackward}
                 onToggleGrid={toggleGrid}
                 onToggleOffCanvas={toggleOffCanvas}
+                onToolButtonClick={hints.onToolbarButtonClick}
               />
             </motion.div>
           )}
@@ -383,6 +468,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
             <KeyboardShortcutsPopover
               keyMappings={keyMappings}
               onOpenSettings={openKeyboardSettings}
+              onReplayTour={tour.replay}
             />
           </div>
         )}
@@ -390,6 +476,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
         {/* Right layers panel collapsed toggle */}
         {!rightOpen && (
           <button
+            data-hint="layers-panel"
             className={`absolute z-20 flex items-center gap-1.5 h-10 px-3.5 cursor-pointer transition-colors rounded-(--radius-md) bg-(--color-card-bg) hover:bg-(--color-hover) text-(--color-text-secondary) ${
               isDesktop ? 'right-3 top-3' : 'right-3 bottom-30'
             }`}

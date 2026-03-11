@@ -54,63 +54,66 @@ export function BottomToolbar({
       }}
     >
       {/* Shape add buttons — one per (color, shape) combo, grouped by color */}
-      <SectionLabel>Add</SectionLabel>
-      <div className="flex items-center gap-1">
-        {challenge.colors.map((color, colorIndex) => (
-          <div key={`color-group-${colorIndex}`} className="flex items-center gap-1">
-            {colorIndex > 0 && <div className="w-px h-4 bg-(--color-border-light) mx-0.5 shrink-0" />}
-            {challenge.shapes.map((shape, shapeIndex) => (
-              <button
-                key={`${colorIndex}-${shape.type}`}
-                className="tool-btn-hover w-8.5 h-8.5 flex items-center justify-center overflow-visible cursor-pointer transition-all duration-150 bg-(--color-card-bg) active:scale-90"
-                onClick={() => onAddShape(shapeIndex, colorIndex)}
-                title={`Add ${shape.name}`}
-              >
-                <ShapeIcon
-                  type={shape.type}
-                  size={16}
-                  fill={color}
-                  stroke="var(--color-border)"
-                  strokeWidth={1.5}
-                />
-              </button>
-            ))}
-          </div>
-        ))}
+      <div data-tour="add-shapes" className="flex items-center gap-1">
+        <SectionLabel>Add</SectionLabel>
+        <div className="flex items-center gap-1">
+          {challenge.colors.map((color, colorIndex) => (
+            <div key={`color-group-${colorIndex}`} className="flex items-center gap-1">
+              {colorIndex > 0 && <div className="w-px h-4 bg-(--color-border-light) mx-0.5 shrink-0" />}
+              {challenge.shapes.map((shape, shapeIndex) => (
+                <button
+                  key={`${colorIndex}-${shape.type}`}
+                  className="tool-btn-hover w-8.5 h-8.5 flex items-center justify-center overflow-visible cursor-pointer transition-all duration-150 bg-(--color-card-bg) active:scale-90"
+                  onClick={() => onAddShape(shapeIndex, colorIndex)}
+                  title={`Add ${shape.name}`}
+                >
+                  <ShapeIcon
+                    type={shape.type}
+                    size={16}
+                    fill={color}
+                    stroke="var(--color-border)"
+                    strokeWidth={1.5}
+                  />
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
 
       <Divider />
 
-      {/* Shape color selection — recolors selected shapes (only active when a shape is selected) */}
-      <SectionLabel>Change</SectionLabel>
-      <div
-        className="flex items-center gap-1.5 px-1.5 py-1 rounded-(--radius-md) transition-opacity duration-150"
-        style={{
-          background: hasSelection ? 'var(--color-selected)' : 'transparent',
-          border: `var(--border-width, 2px) solid ${hasSelection ? 'var(--color-border-light)' : 'transparent'}`,
-          opacity: hasSelection ? 1 : 0.35,
-          pointerEvents: hasSelection ? 'auto' : 'none',
-        }}
-      >
-        {challenge.colors.map((color, i) => (
-          <ColorSwatch
-            key={`color-${i}`}
-            color={color}
-            selected={hasSelection && selectedColorIndex === i}
-            onClick={() => onSetSelectedColor(i)}
-          />
-        ))}
+      {/* Color selection — change shape color + background */}
+      <div data-tour="colors" className="flex items-center gap-1 md:gap-1.5">
+        <SectionLabel>Change</SectionLabel>
+        <div
+          className="flex items-center gap-1.5 px-1.5 py-1 rounded-(--radius-md) transition-opacity duration-150"
+          style={{
+            background: hasSelection ? 'var(--color-selected)' : 'transparent',
+            border: `var(--border-width, 2px) solid ${hasSelection ? 'var(--color-border-light)' : 'transparent'}`,
+            opacity: hasSelection ? 1 : 0.35,
+            pointerEvents: hasSelection ? 'auto' : 'none',
+          }}
+        >
+          {challenge.colors.map((color, i) => (
+            <ColorSwatch
+              key={`color-${i}`}
+              color={color}
+              selected={hasSelection && selectedColorIndex === i}
+              onClick={() => onSetSelectedColor(i)}
+            />
+          ))}
+        </div>
+
+        <Divider />
+
+        <SectionLabel>Background</SectionLabel>
+        <BackgroundColorPicker
+          colors={challenge.colors}
+          selectedIndex={backgroundColorIndex}
+          onSelect={onSetBackground}
+        />
       </div>
-
-      <Divider />
-
-      {/* Background color selection */}
-      <SectionLabel>Background</SectionLabel>
-      <BackgroundColorPicker
-        colors={challenge.colors}
-        selectedIndex={backgroundColorIndex}
-        onSelect={onSetBackground}
-      />
     </motion.div>
   );
 }

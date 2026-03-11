@@ -202,6 +202,7 @@ export interface ToolsPanelProps {
   onSendBackward: () => void;
   onToggleGrid: () => void;
   onToggleOffCanvas: () => void;
+  onToolButtonClick?: () => void;
 }
 
 export function ToolsPanel({
@@ -228,6 +229,7 @@ export function ToolsPanel({
   onSendBackward,
   onToggleGrid,
   onToggleOffCanvas,
+  onToolButtonClick,
 }: ToolsPanelProps) {
   const defaults = getDefaultMappings();
   const getShortcut = (actionId: keyof KeyMappings) => {
@@ -244,7 +246,7 @@ export function ToolsPanel({
         boxShadow: 'var(--shadow-card)',
         maxHeight: 'calc(100vh - 140px)',
       }}
-      onClick={(e) => e.stopPropagation()}
+      onClick={(e) => { e.stopPropagation(); onToolButtonClick?.(); }}
       onMouseDown={(e) => e.stopPropagation()}
     >
       {/* Close */}

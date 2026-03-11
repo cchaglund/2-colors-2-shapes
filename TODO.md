@@ -1,5 +1,13 @@
 # To-Do List
 
+- why can an unloggedin user not see past winners or wall?
+- Why does the gallery button not have the border?
+- a lot of things automatically get keyboard selected, which is ugly,how to disable? e.g. ![alt text](image.png)
+
+
+- add text in the helper thing that says "Change background color (you can also do it later)" or something.
+- the zoom in out when holding the cmd button is too extreme
+
 - forms for submitting feedback, reporting bugs, requesting features
 - search for artist by email (hm, privacy implications?)
 - should be able to comment on submissions from the "single submission page" (maybe a nightmare?)

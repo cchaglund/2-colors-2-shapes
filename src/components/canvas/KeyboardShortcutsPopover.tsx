@@ -7,9 +7,10 @@ import { IS_MAC } from '../../utils/platform';
 interface KeyboardShortcutsPopoverProps {
   keyMappings: KeyMappings;
   onOpenSettings: () => void;
+  onReplayTour?: () => void;
 }
 
-export function KeyboardShortcutsPopover({ keyMappings, onOpenSettings }: KeyboardShortcutsPopoverProps) {
+export function KeyboardShortcutsPopover({ keyMappings, onOpenSettings, onReplayTour }: KeyboardShortcutsPopoverProps) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -45,6 +46,7 @@ export function KeyboardShortcutsPopover({ keyMappings, onOpenSettings }: Keyboa
     <div ref={containerRef} className="relative">
       {/* Trigger button */}
       <button
+        data-hint="keyboard-shortcuts"
         onClick={() => setOpen(prev => !prev)}
         className="w-[30px] h-[30px] flex items-center justify-center cursor-pointer transition-colors rounded-(--radius-md) bg-(--color-card-bg) text-(--color-text-secondary) hover:bg-(--color-hover) hover:text-(--color-text-primary) text-base font-bold"
         style={{ border: 'var(--border-width, 2px) solid var(--color-border)', boxShadow: 'var(--shadow-btn)' }}
@@ -88,7 +90,7 @@ export function KeyboardShortcutsPopover({ keyMappings, onOpenSettings }: Keyboa
             </div>
 
             {/* Footer */}
-            <div className="px-4 pb-3.5 pt-2.5 border-t border-(--color-border-light)">
+            <div className="px-4 pb-3.5 pt-2.5 border-t border-(--color-border-light) flex flex-col gap-2">
               <button
                 onClick={() => {
                   setOpen(false);
@@ -106,6 +108,24 @@ export function KeyboardShortcutsPopover({ keyMappings, onOpenSettings }: Keyboa
                 </svg>
                 Customize shortcuts
               </button>
+              {onReplayTour && (
+                <button
+                  onClick={() => {
+                    setOpen(false);
+                    onReplayTour();
+                  }}
+                  className="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 text-xs font-semibold cursor-pointer transition-colors text-(--color-text-tertiary) hover:bg-(--color-hover) hover:text-(--color-text-primary)"
+                  style={{
+                    border: 'var(--border-width, 2px) solid var(--color-border-light)',
+                    borderRadius: 'var(--radius-sm)',
+                  }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="5 3 19 12 5 21 5 3" />
+                  </svg>
+                  Replay tour
+                </button>
+              )}
             </div>
           </motion.div>
         )}
