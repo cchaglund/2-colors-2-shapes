@@ -203,8 +203,20 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
     hints.onShapeCountChange(canvasState.shapes.length);
   }, [canvasState.shapes.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Selected color for new shapes
-  const [selectedColorIndex, setSelectedColorIndex] = useState<number>(0);
+  // Base color index for new shapes (updated when user clicks a color swatch)
+  const [baseColorIndex, setBaseColorIndex] = useState<number>(0);
+
+  // Derive effective color: if all selected shapes share a color, show that; otherwise use base
+  const selectedColorIndex = useMemo(() => {
+    if (canvasState.selectedShapeIds.size === 0) return baseColorIndex;
+    const selectedShapes = canvasState.shapes.filter((s) =>
+      canvasState.selectedShapeIds.has(s.id)
+    );
+    if (selectedShapes.length === 0) return baseColorIndex;
+    const firstColor = selectedShapes[0].colorIndex;
+    const allSameColor = selectedShapes.every((s) => s.colorIndex === firstColor);
+    return allSameColor ? firstColor : baseColorIndex;
+  }, [canvasState.selectedShapeIds, canvasState.shapes, baseColorIndex]);
 
   const handleAddShape = useCallback((shapeIndex: number, colorIndex: number) => {
     addShape(shapeIndex, colorIndex);
@@ -223,7 +235,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
 
   // When a color is clicked, also recolor any selected shapes
   const handleSetSelectedColor = useCallback((colorIndex: number) => {
-    setSelectedColorIndex(colorIndex);
+    setBaseColorIndex(colorIndex);
     if (canvasState.selectedShapeIds.size > 0) {
       const updates = new Map<string, Partial<Shape>>();
       canvasState.selectedShapeIds.forEach((id: string) => {
