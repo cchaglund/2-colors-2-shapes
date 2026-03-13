@@ -13,7 +13,7 @@ import { useAppModals } from '../hooks/ui/useAppModals';
 import { useKeyboardSettings } from '../hooks/ui/useKeyboardSettings';
 import { useWinnerAnnouncement } from '../hooks/ui/useWinnerAnnouncement';
 import { useIsTouchDevice } from '../hooks/ui/useIsTouchDevice';
-import { useIsDesktop } from '../hooks/ui/useBreakpoint';
+import { useIsDesktop, useBreakpoint } from '../hooks/ui/useBreakpoint';
 import { useSubmissions } from '../hooks/submission/useSubmissions';
 import { useSaveSubmission } from '../hooks/submission/useSaveSubmission';
 import { useSubmissionSync } from '../hooks/submission/useSubmissionSync';
@@ -35,11 +35,17 @@ import { useDiscoveryHints } from '../hooks/ui/useDiscoveryHints';
 import { DiscoveryHint } from '../components/shared/DiscoveryHint';
 
 function ChallengeDisplay({ challenge }: { challenge: DailyChallenge }) {
+  const isSingleRow = useBreakpoint(520);
+  const isWideEnoughForLabel = useBreakpoint(950);
+  // Show label when >=950 (plenty of room) or <500 (two-row, dedicated challenge row)
+  const showLabel = isWideEnoughForLabel || !isSingleRow;
   return (
-    <div data-tour="challenge" className="flex items-center gap-6">
-      <span className="text-xs uppercase tracking-widest text-(--color-accent) font-semibold">
-        Today{'\''}s Challenge:
-      </span>
+    <div data-tour="challenge" className={`flex items-center ${isWideEnoughForLabel ? 'gap-6' : 'gap-3'}`}>
+      {showLabel && (
+        <span className={`uppercase tracking-widest text-(--color-accent) font-semibold whitespace-nowrap ${isSingleRow ? 'text-xs' : 'text-[0.625rem]'}`}>
+          Today{'\''}s Challenge:
+        </span>
+      )}
       <ChallengePreview challenge={challenge} />
     </div>
   );

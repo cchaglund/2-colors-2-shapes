@@ -2,109 +2,13 @@ import { useState } from 'react';
 import type { ThemeMode, ThemeName } from '../../hooks/ui/useThemeState';
 import type { Profile } from '../../hooks/auth/useProfile';
 import { useProfile } from '../../hooks/auth/useProfile';
-import { THEME_META, MODE_CYCLE, MODE_TITLE } from '../../constants/themes';
 import { useAuth } from '../../hooks/auth/useAuth';
 import { UserMenuDropdown } from './UserMenuDropdown';
+import { ThemePill, CollapsedThemePill } from './ThemePill';
 import { Button } from '../shared/Button';
 import { Link } from '../shared/Link';
 import { LoginPromptModal } from '../social/LoginPromptModal';
-import { useIsDesktop } from '../../hooks/ui/useBreakpoint';
-
-// --- Theme Pill (dark mode toggle + divider + theme buttons) ---
-
-function SunIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="5" />
-      <line x1="12" y1="1" x2="12" y2="3" />
-      <line x1="12" y1="21" x2="12" y2="23" />
-      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-      <line x1="1" y1="12" x2="3" y2="12" />
-      <line x1="21" y1="12" x2="23" y2="12" />
-      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-    </svg>
-  );
-}
-
-function MoonIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-    </svg>
-  );
-}
-
-function MonitorIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-      <line x1="8" y1="21" x2="16" y2="21" />
-      <line x1="12" y1="17" x2="12" y2="21" />
-    </svg>
-  );
-}
-
-function ThemePill({
-  mode,
-  onSetMode,
-  theme,
-  onSetTheme,
-}: {
-  mode: ThemeMode;
-  onSetMode: (mode: ThemeMode) => void;
-  theme: ThemeName;
-  onSetTheme: (theme: ThemeName) => void;
-}) {
-  const cycleMode = () => onSetMode(MODE_CYCLE[mode]);
-  const modeIcon = mode === 'light' ? <SunIcon /> : mode === 'dark' ? <MoonIcon /> : <MonitorIcon />;
-
-  return (
-    <div className="flex items-center gap-0 rounded-(--radius-pill) h-8 bg-(--color-card-bg)" style={{ border: 'var(--border-width, 2px) solid var(--color-border)', boxShadow: 'var(--shadow-btn)' }}>
-      {/* Dark mode toggle */}
-      <button
-        className="flex items-center justify-center w-8 h-full rounded-l-(--radius-pill) transition-colors cursor-pointer text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-hover)"
-        onClick={cycleMode}
-        title={MODE_TITLE[mode]}
-      >
-        {modeIcon}
-      </button>
-
-      {/* Divider */}
-      <div className="w-px h-4 bg-(--color-border) mx-0.5" />
-
-      {/* Theme buttons */}
-      {THEME_META.map(({ key, label, accent }, i) => {
-        const isActive = theme === key;
-        const isLast = i === THEME_META.length - 1;
-        return (
-          <button
-            key={key}
-            className={`flex items-center justify-center gap-1.5 h-full px-2 text-[0.6875rem] font-bold tracking-wide transition-colors cursor-pointer ${
-              isActive
-                ? 'text-(--color-text-primary)'
-                : 'text-(--color-text-tertiary) hover:text-(--color-text-primary) hover:bg-(--color-hover)'
-            } ${isLast ? 'rounded-r-(--radius-pill)' : ''}`}
-            onClick={() => onSetTheme(key)}
-            title={`${label} theme`}
-          >
-            <span
-              className="shrink-0 rounded-full transition-all duration-150"
-              style={{
-                width: isActive ? '0.625rem' : '0.5rem',
-                height: isActive ? '0.625rem' : '0.5rem',
-                backgroundColor: accent,
-                boxShadow: isActive ? `0 0 0 2px var(--color-card-bg), 0 0 0 3.5px ${accent}` : 'none',
-              }}
-            />
-            {label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
+import { useIsDesktop, useBreakpoint } from '../../hooks/ui/useBreakpoint';
 
 // --- Top Bar ---
 
@@ -129,6 +33,13 @@ interface TopBarProps {
   profileLoading?: boolean;
 }
 
+const headerStyle = {
+  borderBottom: 'var(--border-width, 2px) solid var(--color-border)',
+  paddingLeft: 'max(1rem, env(safe-area-inset-left))',
+  paddingRight: 'max(1rem, env(safe-area-inset-right))',
+  paddingTop: 'env(safe-area-inset-top)',
+};
+
 export function TopBar({
   themeMode,
   onSetThemeMode,
@@ -147,61 +58,101 @@ export function TopBar({
 }: TopBarProps) {
   const { user, loading: authLoading, signInWithGoogle, signOut } = useAuth();
   const { profile: ownProfile, loading: ownProfileLoading } = useProfile(user?.id);
+  const isSingleRow = useBreakpoint(520);   // single-row header (>=520)
+  const isDesktop = useIsDesktop();          // show logo + pill (>=768)
+  const isWide = useBreakpoint(1150);        // full pill + gallery (>=1150)
 
   // Use props if provided (canvas page passes these), otherwise use own hooks
   const profile = profileProp !== undefined ? profileProp : ownProfile;
   const profileLoading = profileLoadingProp !== undefined ? profileLoadingProp : ownProfileLoading;
 
-  return (
-    <header className="h-14 flex items-center justify-between px-4 bg-(--color-card-bg) shrink-0 z-30 relative" style={{ borderBottom: 'var(--border-width, 2px) solid var(--color-border)', paddingLeft: 'max(1rem, env(safe-area-inset-left))', paddingRight: 'max(1rem, env(safe-area-inset-right))', paddingTop: 'env(safe-area-inset-top)' }}>
-      {/* Left group: logo + theme pill */}
-      <div className="flex items-center gap-2 md:gap-3 shrink-0">
-        <Link href="/" className="flex items-center gap-2 no-underline text-(--color-text-primary)">
-          <span className="hidden md:inline text-base font-semibold">shapepaint.com</span>
-        </Link>
+  const userMenu = (
+    <UserMenuDropdown
+      profile={profile ?? null}
+      loading={!!(authLoading || profileLoading)}
+      isLoggedIn={!!user}
+      onSignIn={signInWithGoogle}
+      onSignOut={signOut}
+      themeMode={themeMode}
+      onSetThemeMode={onSetThemeMode}
+      themeName={themeName}
+      onSetThemeName={onSetThemeName}
+    />
+  );
 
-        <div className="hidden md:block">
-          <ThemePill
-            mode={themeMode}
-            onSetMode={onSetThemeMode}
-            theme={themeName}
-            onSetTheme={onSetThemeName}
-          />
+  const rightGroup = (
+    <>
+      {rightContent ?? (
+        <DefaultRightContent
+          onReset={onReset}
+          onSave={onSave}
+          isSaving={isSaving}
+          saveStatus={saveStatus}
+          hasSubmittedToday={hasSubmittedToday}
+          isLoggedIn={isLoggedIn}
+          showGallery={isWide}
+        />
+      )}
+      {userMenu}
+    </>
+  );
+
+  // Narrow mobile (<500px): two-row layout when centerContent exists
+  if (!isSingleRow) {
+    return (
+      <header className="flex flex-col bg-(--color-card-bg) shrink-0 z-30 relative" style={headerStyle}>
+        {centerContent && (
+          <div className="flex items-center justify-center py-1.5 px-4" style={{ borderBottom: 'var(--border-width, 2px) solid var(--color-border-light)' }}>
+            {centerContent}
+          </div>
+        )}
+        <div className="h-12 flex items-center justify-end px-4 gap-1.5">
+          {rightGroup}
         </div>
-      </div>
+      </header>
+    );
+  }
 
-      {/* Center group — absolute centered, hidden on mobile to prevent overlap */}
+  // Single-row layout (>=500px)
+  return (
+    <header className="h-14 flex items-center bg-(--color-card-bg) shrink-0 z-30 relative" style={headerStyle}>
+      {/* Left group: logo + theme pill (desktop only) */}
+      {isDesktop && (
+        <div className="flex items-center gap-3 shrink-0">
+          <Link href="/" className="flex items-center gap-2 no-underline text-(--color-text-primary)">
+            <span className="text-base font-semibold">shapepaint.com</span>
+          </Link>
+          {isWide ? (
+            <ThemePill
+              mode={themeMode}
+              onSetMode={onSetThemeMode}
+              theme={themeName}
+              onSetTheme={onSetThemeName}
+            />
+          ) : (
+            <CollapsedThemePill
+              mode={themeMode}
+              onSetMode={onSetThemeMode}
+              theme={themeName}
+              onSetTheme={onSetThemeName}
+            />
+          )}
+        </div>
+      )}
+
+      {/* Center group — flex-based centering */}
       {centerContent && (
-        <div className="hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div className="flex-1 flex justify-center min-w-0 px-4 overflow-x-clip">
           {centerContent}
         </div>
       )}
 
-      {/* Right group */}
-      <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
-        {rightContent ?? (
-          <DefaultRightContent
-            onReset={onReset}
-            onSave={onSave}
-            isSaving={isSaving}
-            saveStatus={saveStatus}
-            hasSubmittedToday={hasSubmittedToday}
-            isLoggedIn={isLoggedIn}
-          />
-        )}
+      {/* Spacer when no center content */}
+      {!centerContent && <div className="flex-1" />}
 
-        {/* User menu — always visible */}
-        <UserMenuDropdown
-          profile={profile ?? null}
-          loading={!!(authLoading || profileLoading)}
-          isLoggedIn={!!user}
-          onSignIn={signInWithGoogle}
-          onSignOut={signOut}
-          themeMode={themeMode}
-          onSetThemeMode={onSetThemeMode}
-          themeName={themeName}
-          onSetThemeName={onSetThemeName}
-        />
+      {/* Right group */}
+      <div className="flex items-center gap-2 shrink-0">
+        {rightGroup}
       </div>
     </header>
   );
@@ -216,6 +167,7 @@ function DefaultRightContent({
   saveStatus,
   hasSubmittedToday,
   isLoggedIn,
+  showGallery,
 }: {
   onReset?: () => void;
   onSave?: () => void;
@@ -223,6 +175,7 @@ function DefaultRightContent({
   saveStatus?: 'idle' | 'saved' | 'error';
   hasSubmittedToday?: boolean;
   isLoggedIn?: boolean;
+  showGallery?: boolean;
 }) {
   const isDesktop = useIsDesktop();
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
@@ -287,14 +240,17 @@ function DefaultRightContent({
         ) : null}
       </div>
 
-      {/* Divider + Gallery — hidden on mobile (available in UserMenuDropdown) */}
-      <div className="hidden md:block w-px h-5 bg-(--color-border) mx-1" />
-      <div className="hidden md:block" data-hint="gallery">
-        <Button as="a" variant="ghost" href="/?view=gallery">
-          Gallery
-        </Button>
-      </div>
+      {/* Divider + Gallery — hidden on mobile and narrow desktop (available in UserMenuDropdown) */}
+      {showGallery && (
+        <>
+          <div className="w-px h-5 bg-(--color-border) mx-1" />
+          <div data-hint="gallery">
+            <Button as="a" variant="ghost" href="/?view=gallery">
+              Gallery
+            </Button>
+          </div>
+        </>
+      )}
     </>
   );
 }
-
