@@ -236,7 +236,7 @@ export function UserProfilePage({ userId, themeMode, onSetThemeMode, themeName, 
                     </div>
                   }
                   hideEmptyDayIcon
-                  href={submission && canViewThisDay ? `/?view=submission&date=${dateStr}&user=${userId}` : undefined}
+                  href={submission && canViewThisDay ? `/?view=submission&id=${submission.id}` : undefined}
                 />
               );
             })}
