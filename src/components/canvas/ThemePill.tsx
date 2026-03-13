@@ -1,43 +1,16 @@
 import { useState, useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
+import { Sun, Moon, Monitor, ChevronDown } from 'lucide-react';
 import type { ThemeMode, ThemeName } from '../../hooks/ui/useThemeState';
 import { THEME_META, MODE_CYCLE, MODE_TITLE } from '../../constants/themes';
 import { useClickOutside } from '../../hooks/ui/useClickOutside';
 
-// --- Icons ---
+// --- Mode icon helper ---
 
-function SunIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="5" />
-      <line x1="12" y1="1" x2="12" y2="3" />
-      <line x1="12" y1="21" x2="12" y2="23" />
-      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-      <line x1="1" y1="12" x2="3" y2="12" />
-      <line x1="21" y1="12" x2="23" y2="12" />
-      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-    </svg>
-  );
-}
-
-function MoonIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-    </svg>
-  );
-}
-
-function MonitorIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-      <line x1="8" y1="21" x2="16" y2="21" />
-      <line x1="12" y1="17" x2="12" y2="21" />
-    </svg>
-  );
+function ModeIcon({ mode }: { mode: ThemeMode }) {
+  if (mode === 'light') return <Sun size={16} />;
+  if (mode === 'dark') return <Moon size={16} />;
+  return <Monitor size={16} />;
 }
 
 // --- Shared props ---
@@ -53,7 +26,6 @@ interface ThemePillProps {
 
 export function ThemePill({ mode, onSetMode, theme, onSetTheme }: ThemePillProps) {
   const cycleMode = () => onSetMode(MODE_CYCLE[mode]);
-  const modeIcon = mode === 'light' ? <SunIcon /> : mode === 'dark' ? <MoonIcon /> : <MonitorIcon />;
 
   return (
     <div className="flex items-center gap-0 rounded-(--radius-pill) h-8 bg-(--color-card-bg)" style={{ border: 'var(--border-width, 2px) solid var(--color-border)', boxShadow: 'var(--shadow-btn)' }}>
@@ -63,7 +35,7 @@ export function ThemePill({ mode, onSetMode, theme, onSetTheme }: ThemePillProps
         onClick={cycleMode}
         title={MODE_TITLE[mode]}
       >
-        {modeIcon}
+        <ModeIcon mode={mode} />
       </button>
 
       {/* Divider */}
@@ -129,13 +101,11 @@ export function CollapsedThemePill({ mode, onSetMode, theme, onSetTheme }: Theme
             boxShadow: `0 0 0 2px var(--color-card-bg), 0 0 0 3.5px ${accent}`,
           }}
         />
-        <svg
-          width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+        <ChevronDown
+          size={10}
+          strokeWidth={2.5}
           className={`shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}
-        >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
+        />
       </button>
 
       {/* Dropdown */}
@@ -165,7 +135,6 @@ export function CollapsedThemePill({ mode, onSetMode, theme, onSetTheme }: Theme
 
 function ThemePillDropdownContent({ mode, onSetMode, theme, onSetTheme }: ThemePillProps) {
   const cycleMode = () => onSetMode(MODE_CYCLE[mode]);
-  const modeIcon = mode === 'light' ? <SunIcon /> : mode === 'dark' ? <MoonIcon /> : <MonitorIcon />;
 
   return (
     <div className="flex items-center gap-0 h-8">
@@ -175,7 +144,7 @@ function ThemePillDropdownContent({ mode, onSetMode, theme, onSetTheme }: ThemeP
         onClick={cycleMode}
         title={MODE_TITLE[mode]}
       >
-        {modeIcon}
+        <ModeIcon mode={mode} />
       </button>
 
       {/* Divider */}

@@ -1,3 +1,4 @@
+import { ChevronDown, ChevronUp, ChevronsUp, ChevronsDown, Folder, X } from 'lucide-react';
 import type { GroupHeaderProps } from './types';
 
 /**
@@ -75,18 +76,15 @@ export function GroupHeader({
         }}
         title={group.isCollapsed ? 'Expand group' : 'Collapse group'}
       >
-        <svg
-          width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"
+        <ChevronDown
+          size={10}
+          strokeWidth={3}
           style={{ transform: group.isCollapsed ? 'rotate(-90deg)' : 'rotate(0)', transition: 'transform 0.15s' }}
-        >
-          <path d="M6 9l6 6 6-6"/>
-        </svg>
+        />
       </button>
 
       {/* Folder icon */}
-      <svg className="shrink-0 text-(--color-text-secondary)" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-      </svg>
+      <Folder size={12} strokeWidth={2.5} className="shrink-0 text-(--color-text-secondary)" />
 
       {/* Group name */}
       {editingGroupId === group.id ? (
@@ -143,7 +141,7 @@ export function GroupHeader({
             onMoveGroup(group.id, 'top');
           }}
         >
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m18 11-6-6-6 6"/><path d="M5 19h14"/></svg>
+          <ChevronsUp size={10} strokeWidth={2.5} />
         </button>
         <button
           className="w-3.5 h-3.5 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded-(--radius-sm)"
@@ -154,7 +152,7 @@ export function GroupHeader({
             onMoveGroup(group.id, 'up');
           }}
         >
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+          <ChevronUp size={10} strokeWidth={2.5} />
         </button>
         <button
           className="w-3.5 h-3.5 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded-(--radius-sm)"
@@ -165,7 +163,7 @@ export function GroupHeader({
             onMoveGroup(group.id, 'down');
           }}
         >
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          <ChevronDown size={10} strokeWidth={2.5} />
         </button>
         <button
           className="w-3.5 h-3.5 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-(--color-text-secondary) hover:enabled:text-(--color-text-primary) rounded-(--radius-sm)"
@@ -176,7 +174,7 @@ export function GroupHeader({
             onMoveGroup(group.id, 'bottom');
           }}
         >
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 13 6 6 6-6"/><path d="M5 5h14"/></svg>
+          <ChevronsDown size={10} strokeWidth={2.5} />
         </button>
         <button
           className="w-3.5 h-3.5 p-0 bg-transparent border-none cursor-pointer flex items-center justify-center text-(--color-accent) rounded-(--radius-sm)"
@@ -186,7 +184,7 @@ export function GroupHeader({
             onDeleteGroup(group.id);
           }}
         >
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          <X size={10} strokeWidth={2.5} />
         </button>
       </div>
     </li>

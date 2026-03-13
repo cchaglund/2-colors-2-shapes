@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { Info } from 'lucide-react';
 import cn from "classnames";
 import type { Placement } from '@floating-ui/react';
 import {
@@ -78,11 +79,7 @@ export function InfoTooltip({ text }: { text: string }) {
         className="align-middle inline-flex items-center justify-center w-4 h-4 ml-1.5 cursor-help text-(--color-text-tertiary) hover:text-(--color-accent) transition-colors"
         aria-label="More information"
       >
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
-          <path d="M8 7v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          <circle cx="8" cy="5" r="0.75" fill="currentColor" />
-        </svg>
+        <Info size={16} strokeWidth={1.5} />
       </span>
     </Tooltip>
   );

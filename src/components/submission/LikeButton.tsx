@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Heart } from 'lucide-react';
 import { useAuth } from '../../hooks/auth/useAuth';
 import { useLikes } from '../../hooks/social/useLikes';
 import { LoginPromptModal } from '../social/LoginPromptModal';
@@ -71,19 +72,7 @@ export function LikeButton({ submissionId, submissionUserId, initialLikeCount }:
           border: 'var(--border-width, 2px) solid var(--color-border-light)',
         }}
       >
-        {/* Heart icon - filled when liked, outlined when not */}
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill={isLiked ? 'currentColor' : 'none'}
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-        </svg>
+        <Heart size={14} fill={isLiked ? 'currentColor' : 'none'} />
         <span>{isLiked ? 'Liked' : 'Like'}</span>
         {displayCount !== null && (
           <span>{displayCount}</span>

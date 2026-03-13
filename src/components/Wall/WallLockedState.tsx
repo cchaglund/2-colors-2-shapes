@@ -1,24 +1,11 @@
+import { Lock } from 'lucide-react';
 import { Link } from '../shared/Link';
 import { EmptyState } from '../shared/EmptyState';
 
 export function WallLockedState() {
   return (
     <EmptyState
-      icon={
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="var(--color-text-tertiary)"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-        </svg>
-      }
+      icon={<Lock size={24} color="var(--color-text-tertiary)" />}
       message="Save your art first, in order to see today's submissions"
     >
       <Link

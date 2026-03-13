@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Check } from 'lucide-react';
 import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
 import { fetchWallSubmissions, type WallSubmission } from '../../hooks/challenge/useWallOfTheDay';
 import { Button } from '../shared/Button';
@@ -42,9 +43,7 @@ export function VotingConfirmation({
       ) : (
         <>
           <div className="w-12 h-12 rounded-(--radius-pill) bg-(--color-accent-subtle) flex items-center justify-center mx-auto mb-4">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
+            <Check size={24} color="var(--color-accent)" />
           </div>
           <h2 id="voting-title" className="text-xl font-semibold text-(--color-text-primary) mb-1">
             Artwork saved!
