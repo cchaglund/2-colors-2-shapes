@@ -3,9 +3,9 @@
 // =============================================================================
 // This is the SOURCE OF TRUTH for challenge generation.
 //
-// COLOR GENERATION (V3): Palette-based approach using 365 curated Coolors.co
-// palettes. Each day maps to a palette (by day-of-year), and 3 of 5 colors
-// are picked deterministically using a seeded PRNG based on day + year.
+// COLOR GENERATION (V4): Palette-based approach using 365 curated Coolors.co
+// palettes. Each day maps to a palette (by day-of-year), and the 3 most
+// perceptually diverse colors are picked deterministically (no PRNG needed).
 // Colors are stored as hex strings.
 //
 // After updating logic here, you MUST deploy:
@@ -16,7 +16,7 @@ import { serve } from 'std/http/server.ts';
 import { createClient } from '@supabase/supabase-js';
 import { PALETTES, PALETTE_COUNT } from '../_shared/palettes.ts';
 import { WORDS_ORDER, WORDS_LIST } from '../_shared/words.ts';
-import { pick3WithContrast } from '../_shared/colorPicking.ts';
+import { pickMostContrasting3 } from '../_shared/colorPicking.ts';
 import { areShapesTooSimilar } from '../_shared/shapeSimilarityGroups.ts';
 
 const corsHeaders = {
@@ -184,23 +184,16 @@ function getDayOfYear(dateStr: string): number {
   return Math.floor(diff / (1000 * 60 * 60 * 24)); // 1-365
 }
 
-function getYear(dateStr: string): number {
-  return new Date(dateStr + 'T12:00:00Z').getUTCFullYear();
-}
-
 /**
  * Get 3 colors for a given date from curated palettes.
- * Day-of-year determines which palette, seed from day+year determines which 3 colors.
- * Ensures at least one pair has sufficient contrast so one color stands out.
+ * Day-of-year determines which palette. The 3 most perceptually diverse
+ * colors are picked deterministically (no seed needed).
  */
 function getColorsForDate(dateStr: string): string[] {
   const dayIndex = getDayOfYear(dateStr) - 1; // 0-364
-  const year = getYear(dateStr);
   const paletteIndex = ((dayIndex % PALETTE_COUNT) + PALETTE_COUNT) % PALETTE_COUNT;
   const palette = PALETTES[paletteIndex];
-  const seed = dayIndex * 1000 + year;
-  const random = seededRandom(seed);
-  return pick3WithContrast(palette, random).colors;
+  return pickMostContrasting3(palette).colors;
 }
 
 // =============================================================================

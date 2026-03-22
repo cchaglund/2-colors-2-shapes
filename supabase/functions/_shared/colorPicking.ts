@@ -1,14 +1,5 @@
 // Shared color picking logic used by both the edge function and ColorTester.
-
-/** Pick 3 unique indices from [0..4] using Fisher-Yates shuffle */
-export function pick3From5(random: () => number): [number, number, number] {
-  const indices = [0, 1, 2, 3, 4];
-  for (let i = 0; i < 3; i++) {
-    const j = i + Math.floor(random() * (5 - i));
-    [indices[i], indices[j]] = [indices[j], indices[i]];
-  }
-  return [indices[0], indices[1], indices[2]];
-}
+// Picks the 3 most perceptually diverse colors from a 5-color palette.
 
 /** All 10 possible 3-element combinations from [0..4] */
 export const ALL_COMBOS: [number, number, number][] = [
@@ -16,11 +7,85 @@ export const ALL_COMBOS: [number, number, number][] = [
   [0,3,4],[1,2,3],[1,2,4],[1,3,4],[2,3,4],
 ];
 
-/** Convert hex color to relative luminance (WCAG 2.x) */
-function relativeLuminance(hex: string): number {
+// ---------------------------------------------------------------------------
+// Color conversion helpers
+// ---------------------------------------------------------------------------
+
+function hexToRgb(hex: string): [number, number, number] {
   const r = parseInt(hex.slice(1, 3), 16) / 255;
   const g = parseInt(hex.slice(3, 5), 16) / 255;
   const b = parseInt(hex.slice(5, 7), 16) / 255;
+  return [r, g, b];
+}
+
+/** Convert hex to HSL. H in [0,360), S and L in [0,1]. */
+function hexToHsl(hex: string): [number, number, number] {
+  const [r, g, b] = hexToRgb(hex);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+
+  if (max === min) return [0, 0, l];
+
+  const d = max - min;
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+  let h: number;
+  if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) * 60;
+  else if (max === g) h = ((b - r) / d + 2) * 60;
+  else h = ((r - g) / d + 4) * 60;
+
+  return [h, s, l];
+}
+
+/** Circular hue distance in degrees, range [0, 180]. */
+function hueDist(h1: number, h2: number): number {
+  const d = Math.abs(h1 - h2);
+  return d > 180 ? 360 - d : d;
+}
+
+/**
+ * Perceptual distance between two colors.
+ * Weighted combination of hue, saturation, and lightness differences.
+ * Hue is weighted most heavily since the user cares about hue diversity.
+ */
+function colorDistance(hex1: string, hex2: string): number {
+  const [h1, s1, l1] = hexToHsl(hex1);
+  const [h2, s2, l2] = hexToHsl(hex2);
+
+  // Normalize hue distance to [0,1] (180° = max distance)
+  const hDist = hueDist(h1, h2) / 180;
+  const sDist = Math.abs(s1 - s2);
+  const lDist = Math.abs(l1 - l2);
+
+  // Weight hue most, then lightness, then saturation.
+  // Desaturated colors (low chroma) make hue less meaningful,
+  // so scale hue contribution by average saturation.
+  const avgSat = (s1 + s2) / 2;
+  const effectiveHue = hDist * (0.3 + 0.7 * avgSat); // hue matters less when grey
+
+  return effectiveHue * 3.0 + lDist * 2.0 + sDist * 1.0;
+}
+
+/**
+ * Score a combination of 3 colors by summing all pairwise distances.
+ * Higher = more diverse / contrasting.
+ */
+function comboScore(colors: string[]): number {
+  return (
+    colorDistance(colors[0], colors[1]) +
+    colorDistance(colors[0], colors[2]) +
+    colorDistance(colors[1], colors[2])
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
+
+/** Convert hex color to relative luminance (WCAG 2.x) */
+function relativeLuminance(hex: string): number {
+  const [r, g, b] = hexToRgb(hex);
   const toLinear = (c: number) => c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
   return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
 }
@@ -34,49 +99,28 @@ export function contrastRatio(hex1: string, hex2: string): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-/** Minimum contrast ratio for at least one pair — ensures one color stands out */
-export const MIN_CONTRAST = 2.5;
-
-/** Check if at least one pair in a set of colors meets the contrast threshold */
-export function hasEnoughContrast(colors: string[]): boolean {
-  for (let i = 0; i < colors.length; i++) {
-    for (let j = i + 1; j < colors.length; j++) {
-      if (contrastRatio(colors[i], colors[j]) >= MIN_CONTRAST) return true;
-    }
-  }
-  return false;
-}
-
 /**
- * Pick 3 colors from a 5-color palette, ensuring at least one pair has
- * sufficient contrast. Falls back to the initial pick if no combination works.
- * @param palette - 5-color hex array
- * @param random - RNG function returning 0-1 (seeded or Math.random)
+ * Pick the 3 most perceptually diverse colors from a 5-color palette.
+ * Deterministic — always returns the same result for the same palette.
  */
-export function pick3WithContrast(palette: string[], random: () => number): {
+export function pickMostContrasting3(palette: string[]): {
   colors: string[];
   pickedIndices: [number, number, number];
 } {
-  const picked = pick3From5(random);
-  const initialColors = picked.map(i => palette[i]);
+  let bestScore = -1;
+  let bestCombo: [number, number, number] = ALL_COMBOS[0];
 
-  if (hasEnoughContrast(initialColors)) {
-    return { colors: initialColors, pickedIndices: picked };
-  }
-
-  // Try all 10 combinations in a shuffled (deterministic) order
-  const shuffled = [...ALL_COMBOS];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  for (const combo of shuffled) {
+  for (const combo of ALL_COMBOS) {
     const colors = combo.map(i => palette[i]);
-    if (hasEnoughContrast(colors)) {
-      return { colors, pickedIndices: combo };
+    const score = comboScore(colors);
+    if (score > bestScore) {
+      bestScore = score;
+      bestCombo = combo;
     }
   }
 
-  // No combination has enough contrast — use the original pick
-  return { colors: initialColors, pickedIndices: picked };
+  return {
+    colors: bestCombo.map(i => palette[i]),
+    pickedIndices: bestCombo,
+  };
 }

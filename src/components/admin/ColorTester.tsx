@@ -1,20 +1,20 @@
 import { useState, useCallback } from 'react';
 import { Link } from '../shared';
 import { PALETTES, PALETTE_COUNT } from '../../../supabase/functions/_shared/palettes';
-import { pick3WithContrast } from '../../../supabase/functions/_shared/colorPicking';
+import { pickMostContrasting3 } from '../../../supabase/functions/_shared/colorPicking';
 
 // =============================================================================
 // ColorTester - Preview palette-based color selection
 // =============================================================================
-// Uses the same palettes and contrast-aware picking logic as the edge function.
-// Day index determines the palette row; 3 of 5 colors are picked randomly,
-// ensuring at least one pair has sufficient contrast.
+// Uses the same palettes and max-contrast picking logic as the edge function.
+// Day index determines the palette row; the 3 most perceptually diverse colors
+// are picked deterministically from the 5-color palette.
 // =============================================================================
 
 function getColorsForDay(dayIndex: number): { colors: string[]; paletteIndex: number; fullPalette: string[]; pickedIndices: number[] } {
   const paletteIndex = dayIndex % PALETTE_COUNT;
   const palette = PALETTES[paletteIndex];
-  const { colors, pickedIndices } = pick3WithContrast(palette, Math.random);
+  const { colors, pickedIndices } = pickMostContrasting3(palette);
   return { colors, paletteIndex, fullPalette: palette, pickedIndices };
 }
 
@@ -62,7 +62,7 @@ export function ColorTester() {
           <h1 className="text-3xl font-bold mb-2 text-(--color-text-primary)">Color Tester</h1>
           <p className="text-sm text-(--color-text-secondary)">
             Preview palette-based color selection from <strong>{PALETTE_COUNT} Coolors.co palettes</strong>.
-            Each day picks a palette, then 3 of 5 colors are selected randomly.
+            Each day picks a palette, then the 3 most contrasting colors are selected.
           </p>
         </header>
 
@@ -82,7 +82,7 @@ export function ColorTester() {
               />
             </div>
             <p className="text-xs text-(--color-text-tertiary) mt-2">
-              {PALETTE_COUNT} palettes available. Each generate picks a random 3 of 5 from the palette.
+              {PALETTE_COUNT} palettes available. Each picks the 3 most contrasting from the palette.
             </p>
           </div>
 
