@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import {
   countSubmissions,
   countOtherSubmissions,
@@ -34,6 +34,54 @@ interface UseVotingReturn {
   initializeVoting: () => Promise<void>;
 }
 
+/** Resolve a pair of submission IDs into a full VotingPair, or null */
+async function resolvePair(
+  userId: string,
+  challengeDate: string,
+): Promise<{ pair: VotingPair; noMore: false } | { pair: null; noMore: true }> {
+  const pairData = await fetchNextVotingPair(userId, challengeDate);
+
+  if (!pairData || pairData.length === 0) {
+    return { pair: null, noMore: true };
+  }
+
+  const raw = pairData[0];
+  const submissions = await fetchSubmissionPair(raw.submission_a_id, raw.submission_b_id);
+
+  if (!submissions || submissions.length < 2) {
+    return { pair: null, noMore: true };
+  }
+
+  const subA = submissions.find((s) => s.id === raw.submission_a_id) as SubmissionRow | undefined;
+  const subB = submissions.find((s) => s.id === raw.submission_b_id) as SubmissionRow | undefined;
+
+  if (!subA || !subB) {
+    return { pair: null, noMore: true };
+  }
+
+  return {
+    noMore: false,
+    pair: {
+      submissionA: {
+        id: subA.id,
+        user_id: subA.user_id,
+        shapes: subA.shapes as Shape[],
+        background_color_index: subA.background_color_index,
+      },
+      submissionB: {
+        id: subB.id,
+        user_id: subB.user_id,
+        shapes: subB.shapes as Shape[],
+        background_color_index: subB.background_color_index,
+      },
+    },
+  };
+}
+
+function pairIds(pair: VotingPair): string {
+  return [pair.submissionA.id, pair.submissionB.id].sort().join(',');
+}
+
 export function useVoting(userId: string | undefined, challengeDate: string): UseVotingReturn {
   const [currentPair, setCurrentPair] = useState<VotingPair | null>(null);
   const [loading, setLoading] = useState(false);
@@ -44,6 +92,40 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
   const [noMorePairs, setNoMorePairs] = useState(false);
   const [noSubmissions, setNoSubmissions] = useState(false);
   const [submissionCount, setSubmissionCount] = useState(0);
+
+  // Prefetch buffer: holds the next pair fetched in the background
+  const prefetchedRef = useRef<{ pair: VotingPair | null; noMore: boolean } | null>(null);
+  const prefetchingRef = useRef<Promise<void> | null>(null);
+  // Track current pair IDs to avoid prefetch returning the same pair
+  const currentPairIdsRef = useRef<string | null>(null);
+
+  /** Kick off a background prefetch of the next pair (non-blocking). */
+  const startPrefetch = useCallback(() => {
+    if (!userId || noSubmissions || submissionCount < 2) return;
+    // Don't start another prefetch if one is already in progress
+    if (prefetchingRef.current) return;
+
+    prefetchedRef.current = null;
+    prefetchingRef.current = resolvePair(userId, challengeDate)
+      .then((result) => {
+        // Discard if the prefetched pair is the same as what's currently displayed
+        if (
+          result.pair &&
+          currentPairIdsRef.current &&
+          pairIds(result.pair) === currentPairIdsRef.current
+        ) {
+          prefetchedRef.current = null;
+        } else {
+          prefetchedRef.current = result;
+        }
+      })
+      .catch(() => {
+        prefetchedRef.current = null;
+      })
+      .finally(() => {
+        prefetchingRef.current = null;
+      });
+  }, [userId, challengeDate, noSubmissions, submissionCount]);
 
   // Initialize daily rankings for the challenge date if needed
   const initializeVoting = useCallback(async () => {
@@ -91,91 +173,101 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
     setLoading(false);
   }, [userId, challengeDate]);
 
-  // Fetch the next pair to vote on
+  // Fetch the next pair to vote on (used for initial load and fallback)
   const fetchNextPair = useCallback(async () => {
     if (!userId || noSubmissions || submissionCount < 2) return;
 
     setLoading(true);
 
     try {
-      const pairData = await fetchNextVotingPair(userId, challengeDate);
+      const result = await resolvePair(userId, challengeDate);
 
-      if (!pairData || pairData.length === 0) {
+      if (result.noMore) {
         setNoMorePairs(true);
         setCurrentPair(null);
-        setLoading(false);
-        return;
+      } else {
+        setCurrentPair(result.pair);
+        currentPairIdsRef.current = pairIds(result.pair);
+        setNoMorePairs(false);
+        // Start prefetching the next pair while user views this one
+        startPrefetch();
       }
-
-      const pair = pairData[0];
-      const submissions = await fetchSubmissionPair(pair.submission_a_id, pair.submission_b_id);
-
-      if (!submissions || submissions.length < 2) {
-        setNoMorePairs(true);
-        setCurrentPair(null);
-        setLoading(false);
-        return;
-      }
-
-      const subA = submissions.find((s) => s.id === pair.submission_a_id) as SubmissionRow | undefined;
-      const subB = submissions.find((s) => s.id === pair.submission_b_id) as SubmissionRow | undefined;
-
-      if (!subA || !subB) {
-        setNoMorePairs(true);
-        setCurrentPair(null);
-        setLoading(false);
-        return;
-      }
-
-      setCurrentPair({
-        submissionA: {
-          id: subA.id,
-          user_id: subA.user_id,
-          shapes: subA.shapes as Shape[],
-          background_color_index: subA.background_color_index,
-        },
-        submissionB: {
-          id: subB.id,
-          user_id: subB.user_id,
-          shapes: subB.shapes as Shape[],
-          background_color_index: subB.background_color_index,
-        },
-      });
-      setNoMorePairs(false);
     } catch (error) {
       console.error('Error fetching next pair:', error);
     }
 
     setLoading(false);
-  }, [userId, challengeDate, noSubmissions, submissionCount]);
+  }, [userId, challengeDate, noSubmissions, submissionCount, startPrefetch]);
 
-  // Submit a vote
+  /** Apply a prefetched pair or fall back to fetching one. Starts next prefetch. */
+  const advanceToNextPair = useCallback(async () => {
+    // Wait for any in-progress prefetch to finish
+    if (prefetchingRef.current) {
+      await prefetchingRef.current;
+    }
+
+    const cached = prefetchedRef.current;
+    prefetchedRef.current = null;
+
+    if (cached) {
+      if (cached.noMore) {
+        setNoMorePairs(true);
+        setCurrentPair(null);
+      } else if (cached.pair) {
+        setCurrentPair(cached.pair);
+        currentPairIdsRef.current = pairIds(cached.pair);
+        setNoMorePairs(false);
+        // Prefetch the one after this
+        startPrefetch();
+      }
+    } else {
+      // No cached pair available — fetch synchronously
+      await fetchNextPair();
+      // After fetchNextPair sets the new pair, kick off prefetch for the one after
+      startPrefetch();
+    }
+  }, [fetchNextPair, startPrefetch]);
+
+  // Submit a vote — optimistic: show next pair immediately, process vote in background
   const vote = useCallback(
     async (winnerId: string) => {
       if (!userId || !currentPair) return;
 
       setSubmitting(true);
 
-      try {
-        const result = await processVote(
-          currentPair.submissionA.id,
-          currentPair.submissionB.id,
-          winnerId
-        );
+      // Capture current pair for the background vote
+      const votedPair = currentPair;
 
-        setVoteCount(result.voteCount);
-        if (result.requiredVotes !== undefined) setRequiredVotes(result.requiredVotes);
-        const effectiveRequired = result.requiredVotes ?? requiredVotes;
-        setHasEnteredRanking(result.enteredRanking || result.voteCount >= effectiveRequired);
-
-        await fetchNextPair();
-      } catch (error) {
-        console.error('Error submitting vote:', error);
+      // Optimistically update vote count
+      const optimisticCount = voteCount + 1;
+      setVoteCount(optimisticCount);
+      const effectiveRequired = requiredVotes;
+      if (optimisticCount >= effectiveRequired) {
+        setHasEnteredRanking(true);
       }
 
+      // Show the next pair immediately (don't wait for processVote)
+      await advanceToNextPair();
       setSubmitting(false);
+
+      // Process the vote in the background
+      processVote(votedPair.submissionA.id, votedPair.submissionB.id, winnerId)
+        .then((result) => {
+          // Reconcile with server truth
+          setVoteCount(result.voteCount);
+          if (result.requiredVotes !== undefined) setRequiredVotes(result.requiredVotes);
+          const serverRequired = result.requiredVotes ?? effectiveRequired;
+          setHasEnteredRanking(result.enteredRanking || result.voteCount >= serverRequired);
+
+          // Now that the vote is recorded, we can start a fresh prefetch
+          // (the server will correctly exclude this voted pair)
+          startPrefetch();
+        })
+        .catch((error) => {
+          console.error('Error submitting vote:', error);
+        });
     },
-    [userId, currentPair, fetchNextPair]
+    [userId, currentPair, voteCount, requiredVotes, advanceToNextPair, startPrefetch]
   );
 
   // Skip the current pair (doesn't count toward vote requirement)
@@ -184,20 +276,22 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
 
     setSubmitting(true);
 
-    try {
-      await processVote(
-        currentPair.submissionA.id,
-        currentPair.submissionB.id,
-        null
-      );
+    // Capture current pair for the background skip
+    const skippedPair = currentPair;
 
-      await fetchNextPair();
-    } catch (error) {
-      console.error('Error skipping pair:', error);
-    }
-
+    // Show the next pair immediately
+    await advanceToNextPair();
     setSubmitting(false);
-  }, [userId, currentPair, fetchNextPair]);
+
+    // Record the skip in the background
+    processVote(skippedPair.submissionA.id, skippedPair.submissionB.id, null)
+      .then(() => {
+        startPrefetch();
+      })
+      .catch((error) => {
+        console.error('Error skipping pair:', error);
+      });
+  }, [userId, currentPair, advanceToNextPair, startPrefetch]);
 
   return {
     currentPair,
