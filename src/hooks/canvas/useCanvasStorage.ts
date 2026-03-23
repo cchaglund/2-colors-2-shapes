@@ -34,7 +34,7 @@ function saveToStorage(data: StoredData): void {
 export const initialCanvasState: CanvasState = {
   shapes: [],
   groups: [],
-  backgroundColorIndex: 0,
+  backgroundColorIndex: Math.floor(Math.random() * 3),
   selectedShapeIds: new Set<string>(),
 };
 
