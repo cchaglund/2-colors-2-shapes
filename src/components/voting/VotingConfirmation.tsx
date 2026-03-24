@@ -9,8 +9,9 @@ import type { VotingConfirmationProps } from './types';
 export function VotingConfirmation({
   isEntered,
   wallDate,
-  canContinueVoting,
-  onContinue,
+  // TODO: re-enable continue voting
+  // canContinueVoting,
+  // onContinue,
   onDone,
   userId,
 }: VotingConfirmationProps) {
@@ -54,42 +55,43 @@ export function VotingConfirmation({
         </>
       )}
 
-      {challenge && previewSubmissions.length > 0 && (
-        <div className="relative mb-4 overflow-hidden rounded-(--radius-sm)">
-          <div className="grid grid-cols-3 gap-1.5">
-            {previewSubmissions.map((s) => (
-              <div key={s.id} className="aspect-square">
-                <SubmissionThumbnail
-                  shapes={s.shapes}
-                  groups={s.groups}
-                  challenge={challenge}
-                  backgroundColorIndex={s.background_color_index}
-                  fill
-                />
-              </div>
-            ))}
-          </div>
-          <div
-            className="absolute inset-x-0 bottom-0 h-2/5 pointer-events-none"
-            style={{ background: 'linear-gradient(to bottom, transparent, var(--color-bg-primary))' }}
-          />
-        </div>
-      )}
-
       <div className="flex flex-col gap-3 w-full">
         <div className="flex gap-3 w-full">
+          {/* TODO: re-enable continue voting
           {canContinueVoting && (
             <Button variant="secondary" fullWidth size='md' onClick={onContinue}>
               Continue Voting
             </Button>
           )}
+          */}
           <Button variant="primary" fullWidth size="md" onClick={onDone}>
             Done
           </Button>
         </div>
-        <Button as="a" variant="link" href={wallUrl}>
-          See what others submitted
-        </Button>
+
+        {challenge && previewSubmissions.length > 0 && (
+          <div className="flex flex-col gap-2 mt-3 pt-3">
+            <div className="w-[65%] mx-auto border-t border-(--color-border)/40 mb-3" />
+            <Button as="a" variant="link" href={wallUrl}>
+              See what others submitted:
+            </Button>
+            <div className="overflow-hidden rounded-(--radius-sm)">
+              <div className="grid grid-cols-3 gap-1.5">
+                {previewSubmissions.map((s) => (
+                  <div key={s.id} className="aspect-square">
+                    <SubmissionThumbnail
+                      shapes={s.shapes}
+                      groups={s.groups}
+                      challenge={challenge}
+                      backgroundColorIndex={s.background_color_index}
+                      fill
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

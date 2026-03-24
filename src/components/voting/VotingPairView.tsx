@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '../shared/Button';
 import { InfoTooltip } from '../shared/InfoTooltip';
 import { SubmissionThumbnail } from '../shared/SubmissionThumbnail';
@@ -14,6 +15,7 @@ export function VotingPairView({
   onSkipVoting,
 }: VotingPairViewProps) {
   const isDesktop = useIsDesktop();
+  const [showSkipConfirm, setShowSkipConfirm] = useState(false);
   const thumbnailSize = isDesktop ? 260 : undefined; // undefined = full width
   const remaining = Math.max(0, requiredVotes - voteCount);
   const percentage = requiredVotes > 0 ? Math.min((voteCount / requiredVotes) * 100, 100) : 100;
@@ -69,9 +71,11 @@ export function VotingPairView({
           </div>
 
           {submitting && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 mb-6">
-              <div className="w-6 h-6 border-2 border-(--color-text-tertiary) border-t-(--color-accent) rounded-full animate-spin" />
-              <span className="text-sm font-medium text-(--color-text-secondary)">Loading next pair…</span>
+            <div className="absolute inset-0 flex items-center justify-center mb-6">
+              <div className="flex flex-col items-center gap-3 px-6 py-4 rounded-(--radius-lg) bg-(--color-bg-primary)/90 shadow-(--shadow-card) border border-(--color-border)">
+                <div className="w-5 h-5 border-2 border-(--color-border) border-t-(--color-accent) rounded-full animate-spin" />
+                <span className="text-sm font-medium text-(--color-text-primary)">Loading next pair…</span>
+              </div>
             </div>
           )}
         </div>
@@ -101,10 +105,26 @@ export function VotingPairView({
         <p className="text-sm text-(--color-text-secondary) text-center max-w-md mx-auto mb-4">
           Compete for the leaderboard by voting on others' submissions. Vote to participate, or skip if you prefer not to enter today.
         </p>
-        <div className="flex justify-center">
-          <Button variant="danger" onClick={onSkipVoting}>
-            Skip participation
-          </Button>
+        <div className="flex flex-col items-center gap-2">
+          {showSkipConfirm ? (
+            <>
+              <p className="text-sm font-medium text-(--color-text-primary) mb-1">
+                Skip voting? Your artwork won't be entered into today's competition.
+              </p>
+              <div className="flex gap-3">
+                <Button variant="secondary" onClick={() => setShowSkipConfirm(false)}>
+                  Keep voting
+                </Button>
+                <Button variant="danger" onClick={onSkipVoting}>
+                  Skip
+                </Button>
+              </div>
+            </>
+          ) : (
+            <Button variant="danger" onClick={() => setShowSkipConfirm(true)}>
+              Skip participation
+            </Button>
+          )}
         </div>
       </div>
     </div>

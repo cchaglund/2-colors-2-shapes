@@ -8,7 +8,8 @@
  * tests verify real component behavior.
  */
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { getTodayDateUTC } from '../utils/dailyChallenge';
 
 import {
   VotingPairView,
@@ -110,6 +111,7 @@ const SCENARIOS: Record<TestScenario, ScenarioConfig> = {
 };
 
 export function VotingTestPage() {
+  const todayDate = useMemo(() => getTodayDateUTC(), []);
   const [activeScenario, setActiveScenario] = useState<TestScenario | null>(null);
   const [voteCount, setVoteCount] = useState(0);
   const [currentPairIndex, setCurrentPairIndex] = useState(0);
@@ -121,6 +123,7 @@ export function VotingTestPage() {
   const [flowPairIndex, setFlowPairIndex] = useState(0);
   const [flowShowConfirmation, setFlowShowConfirmation] = useState(false);
   const [flowHasEnteredRanking, setFlowHasEnteredRanking] = useState(false);
+  const [flowSubmitting, setFlowSubmitting] = useState(false);
 
   const flowRequiredVotes = calculateRequiredVotes(flowSubmissionCount);
   const flowTotalPairs = calculateTotalPairs(flowSubmissionCount);
@@ -132,18 +135,22 @@ export function VotingTestPage() {
 
   const currentPair = MOCK_VOTING_PAIRS[currentPairIndex];
 
-  // Interactive flow handlers
+  // Interactive flow handlers — simulate production delay
   const handleFlowVote = () => {
-    const newVoteCount = flowVoteCount + 1;
-    const newPairIndex = flowPairIndex + 1;
-    setFlowVoteCount(newVoteCount);
-    setFlowPairIndex(newPairIndex);
+    setFlowSubmitting(true);
+    setTimeout(() => {
+      const newVoteCount = flowVoteCount + 1;
+      const newPairIndex = flowPairIndex + 1;
+      setFlowVoteCount(newVoteCount);
+      setFlowPairIndex(newPairIndex);
+      setFlowSubmitting(false);
 
-    // Check if just reached the threshold
-    if (newVoteCount >= flowRequiredVotes && !flowHasEnteredRanking) {
-      setFlowHasEnteredRanking(true);
-      setFlowShowConfirmation(true);
-    }
+      // Check if just reached the threshold
+      if (newVoteCount >= flowRequiredVotes && !flowHasEnteredRanking) {
+        setFlowHasEnteredRanking(true);
+        setFlowShowConfirmation(true);
+      }
+    }, 1500);
   };
 
 
@@ -295,7 +302,7 @@ export function VotingTestPage() {
                   challenge={MOCK_CHALLENGE}
                   voteCount={flowVoteCount}
                   requiredVotes={flowRequiredVotes}
-                  submitting={false}
+                  submitting={flowSubmitting}
                   onVote={handleFlowVote}
                   onSkipVoting={() => {}}
                 />
@@ -324,15 +331,35 @@ export function VotingTestPage() {
 
       case 'voting-confirmation':
         return (
-          <div className="flex items-center justify-center min-h-100">
-            <VotingConfirmation
-              isEntered={true}
-              wallDate={MOCK_CHALLENGE.date}
-              canContinueVoting={true}
-              onContinue={() => {}}
-              onDone={() => {}}
-              userId="mock-user-id"
-            />
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <p className="text-sm text-(--color-text-secondary) mb-2">
+                  Entered ranking (with other submissions)
+                </p>
+                <VotingConfirmation
+                  isEntered={true}
+                  wallDate={todayDate}
+                  canContinueVoting={false}
+                  onContinue={() => {}}
+                  onDone={() => {}}
+                  userId="mock-user-id"
+                />
+              </div>
+              <div>
+                <p className="text-sm text-(--color-text-secondary) mb-2">
+                  Entered ranking (no other submissions)
+                </p>
+                <VotingConfirmation
+                  isEntered={true}
+                  wallDate="1999-01-01"
+                  canContinueVoting={false}
+                  onContinue={() => {}}
+                  onDone={() => {}}
+                  userId="mock-user-id"
+                />
+              </div>
+            </div>
           </div>
         );
 
