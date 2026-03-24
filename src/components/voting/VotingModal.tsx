@@ -135,8 +135,9 @@ export function VotingModal({
     if (loading || !currentPair || !challenge) {
       return (
         <div className="bg-(--color-bg-primary) border border-(--color-border) rounded-(--radius-xl) p-6 w-full max-w-3xl mx-auto shadow-(--shadow-modal)">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-(--color-text-secondary)">Loading...</div>
+          <div className="flex flex-col items-center justify-center h-64 gap-3">
+            <div className="w-6 h-6 border-2 border-(--color-text-tertiary) border-t-(--color-accent) rounded-full animate-spin" />
+            <div className="text-sm text-(--color-text-secondary)">Loading next pair…</div>
           </div>
         </div>
       );
