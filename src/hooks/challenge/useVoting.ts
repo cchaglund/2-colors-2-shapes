@@ -89,9 +89,6 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
   const [noSubmissions, setNoSubmissions] = useState(false);
   const [submissionCount, setSubmissionCount] = useState(0);
 
-  // Tracks the in-flight processVote call so we can ensure it completes
-  // before prefetching (the server must record the vote first).
-  const lastVotePromiseRef = useRef<Promise<void> | null>(null);
   // Prefetch buffer: holds the next pair fetched after the previous vote was recorded.
   const prefetchedRef = useRef<{ pair: VotingPair | null; noMore: boolean } | null>(null);
   const prefetchingRef = useRef<Promise<void> | null>(null);
@@ -232,30 +229,23 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
         setHasEnteredRanking(true);
       }
 
-      // Ensure any prior background vote has completed before we proceed
-      if (lastVotePromiseRef.current) {
-        await lastVotePromiseRef.current;
+      // If we have a prefetched pair ready, show it immediately for snappy UX.
+      // The prefetch was started after the PREVIOUS vote was recorded, so it's safe.
+      const hasPrefetch = prefetchedRef.current != null || prefetchingRef.current != null;
+      if (hasPrefetch) {
+        await showNextPair();
       }
 
-      // Fire processVote and fetchNextPair in parallel.
-      // processVote records the vote; fetchNextPair gets the next pair.
-      // get_next_pair might return the same pair since the vote isn't recorded yet,
-      // but this is extremely unlikely with many submissions, and the UNIQUE constraint
-      // on comparisons will catch duplicates safely.
-      const votePromise = processVote(
+      // Record the vote — must complete before any fresh fetch of the next pair,
+      // otherwise get_next_pair may return the pair we just voted on (409 duplicate).
+      const result = await processVote(
         votedPair.submissionA.id,
         votedPair.submissionB.id,
         winnerId
-      );
-
-      // Show the next pair (from prefetch cache or fresh fetch) in parallel with processVote
-      const [result] = await Promise.all([
-        votePromise.catch((error) => {
-          console.error('Error submitting vote:', error);
-          return null;
-        }),
-        showNextPair(),
-      ]);
+      ).catch((error) => {
+        console.error('Error submitting vote:', error);
+        return null;
+      });
 
       // Reconcile with server truth
       if (result) {
@@ -265,9 +255,14 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
         setHasEnteredRanking(result.enteredRanking || result.voteCount >= serverRequired);
       }
 
+      // If no prefetch was available, fetch now (vote is recorded so get_next_pair is safe)
+      if (!hasPrefetch) {
+        await showNextPair();
+      }
+
       setSubmitting(false);
 
-      // Now that the vote IS recorded on the server, prefetch the next pair safely
+      // Prefetch the next pair for the following vote
       startPrefetch();
     },
     [userId, currentPair, voteCount, requiredVotes, showNextPair, startPrefetch]
@@ -281,19 +276,22 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
 
     const skippedPair = currentPair;
 
-    // Ensure any prior background vote has completed
-    if (lastVotePromiseRef.current) {
-      await lastVotePromiseRef.current;
+    // Show prefetched pair immediately if available
+    const hasPrefetch = prefetchedRef.current != null || prefetchingRef.current != null;
+    if (hasPrefetch) {
+      await showNextPair();
     }
 
-    // Record skip and fetch next pair in parallel
-    await Promise.all([
-      processVote(skippedPair.submissionA.id, skippedPair.submissionB.id, null)
-        .catch((error) => {
-          console.error('Error skipping pair:', error);
-        }),
-      showNextPair(),
-    ]);
+    // Record skip — must complete before any fresh fetch
+    await processVote(skippedPair.submissionA.id, skippedPair.submissionB.id, null)
+      .catch((error) => {
+        console.error('Error skipping pair:', error);
+      });
+
+    // If no prefetch was available, fetch now (skip is recorded)
+    if (!hasPrefetch) {
+      await showNextPair();
+    }
 
     setSubmitting(false);
 
