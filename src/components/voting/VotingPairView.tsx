@@ -31,40 +31,49 @@ export function VotingPairView({
         </p>
 
         {/* Side by side comparison (stacks vertically on mobile) */}
-        <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-6">
-          <button
-            onClick={() => onVote(currentPair.submissionA.id)}
-            disabled={submitting}
-            className="cursor-pointer group relative border border-(--color-border) rounded-(--radius-lg) overflow-hidden hover:border-(--color-accent) transition-all focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto"
-          >
-            <SubmissionThumbnail
-              shapes={currentPair.submissionA.shapes}
-              groups={currentPair.submissionA.groups}
-              challenge={challenge}
-              backgroundColorIndex={currentPair.submissionA.background_color_index}
-              size={thumbnailSize}
-            />
-            <div className="absolute inset-0 flex items-center justify-center bg-(--color-accent)/85 text-(--color-accent-text) text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-              Choose this one
-            </div>
-          </button>
+        <div className="relative">
+          <div className={`flex flex-col md:flex-row justify-center items-center gap-4 mb-6 transition-opacity ${submitting ? 'opacity-40' : ''}`}>
+            <button
+              onClick={() => onVote(currentPair.submissionA.id)}
+              disabled={submitting}
+              className="cursor-pointer group relative border border-(--color-border) rounded-(--radius-lg) overflow-hidden hover:border-(--color-accent) transition-all focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 disabled:cursor-not-allowed w-full md:w-auto"
+            >
+              <SubmissionThumbnail
+                shapes={currentPair.submissionA.shapes}
+                groups={currentPair.submissionA.groups}
+                challenge={challenge}
+                backgroundColorIndex={currentPair.submissionA.background_color_index}
+                size={thumbnailSize}
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-(--color-accent)/85 text-(--color-accent-text) text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                Choose this one
+              </div>
+            </button>
 
-          <button
-            onClick={() => onVote(currentPair.submissionB.id)}
-            disabled={submitting}
-            className="cursor-pointer group relative border border-(--color-border) rounded-(--radius-lg) overflow-hidden hover:border-(--color-accent) transition-all focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto"
-          >
-            <SubmissionThumbnail
-              shapes={currentPair.submissionB.shapes}
-              groups={currentPair.submissionB.groups}
-              challenge={challenge}
-              backgroundColorIndex={currentPair.submissionB.background_color_index}
-              size={thumbnailSize}
-            />
-            <div className="absolute inset-0 flex items-center justify-center bg-(--color-accent)/85 text-(--color-accent-text) text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-              Choose this one
+            <button
+              onClick={() => onVote(currentPair.submissionB.id)}
+              disabled={submitting}
+              className="cursor-pointer group relative border border-(--color-border) rounded-(--radius-lg) overflow-hidden hover:border-(--color-accent) transition-all focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 disabled:cursor-not-allowed w-full md:w-auto"
+            >
+              <SubmissionThumbnail
+                shapes={currentPair.submissionB.shapes}
+                groups={currentPair.submissionB.groups}
+                challenge={challenge}
+                backgroundColorIndex={currentPair.submissionB.background_color_index}
+                size={thumbnailSize}
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-(--color-accent)/85 text-(--color-accent-text) text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                Choose this one
+              </div>
+            </button>
+          </div>
+
+          {submitting && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 mb-6">
+              <div className="w-6 h-6 border-2 border-(--color-text-tertiary) border-t-(--color-accent) rounded-full animate-spin" />
+              <span className="text-sm font-medium text-(--color-text-secondary)">Loading next pair…</span>
             </div>
-          </button>
+          )}
         </div>
 
         {/* Vote progress */}
