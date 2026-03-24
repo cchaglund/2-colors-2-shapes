@@ -50,7 +50,7 @@ export function useSubmissions(userId: string | undefined, todayDate?: string) {
         return { success: false, error: 'Not authenticated — try refreshing the page' };
       }
 
-      const MAX_SHAPES = 200;
+      const MAX_SHAPES = 1000;
       if (params.shapes.length > MAX_SHAPES) {
         console.error(`[saveSubmission] Shape limit exceeded: ${params.shapes.length}/${MAX_SHAPES}`);
         return { success: false, error: `Maximum ${MAX_SHAPES} shapes per canvas` };
