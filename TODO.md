@@ -2,10 +2,11 @@
 
 - why can an unloggedin user not see past winners or wall?
 - Why does the gallery button not have the border?
+- likes should be emhasized more, where can you see them? Make them more visible, maybe a modal pops up that tells you if your submission has been liked?
+- maybe a sidebar that shows what your followed artists have created recently?
 
 
 
-- add text in the helper thing that says "Change background color (you can also do it later)" or something.
 - the zoom in out when holding the cmd button is too extreme
 
 - forms for submitting feedback, reporting bugs, requesting features

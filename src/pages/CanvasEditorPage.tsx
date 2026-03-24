@@ -401,8 +401,8 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
           />
         </div>
 
-        {/* Zoom controls — bottom right (raised on mobile to avoid BottomToolbar) */}
-        <div className="absolute bottom-18 md:bottom-4 right-4 z-10">
+        {/* Zoom controls — bottom right (raised on narrow screens to avoid BottomToolbar) */}
+        <div className="absolute bottom-18 xl:bottom-4 right-4 z-10">
           <ZoomControls
             zoom={viewport.zoom}
             onZoomIn={handleZoomIn}

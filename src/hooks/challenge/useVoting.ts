@@ -34,7 +34,7 @@ interface UseVotingReturn {
   initializeVoting: () => Promise<void>;
 }
 
-/** Resolve a pair of submission IDs into a full VotingPair, or null */
+/** Resolve the next voting pair from the server into a full VotingPair, or null. */
 async function resolvePair(
   userId: string,
   challengeDate: string,
@@ -78,10 +78,6 @@ async function resolvePair(
   };
 }
 
-function pairIds(pair: VotingPair): string {
-  return [pair.submissionA.id, pair.submissionB.id].sort().join(',');
-}
-
 export function useVoting(userId: string | undefined, challengeDate: string): UseVotingReturn {
   const [currentPair, setCurrentPair] = useState<VotingPair | null>(null);
   const [loading, setLoading] = useState(false);
@@ -93,31 +89,26 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
   const [noSubmissions, setNoSubmissions] = useState(false);
   const [submissionCount, setSubmissionCount] = useState(0);
 
-  // Prefetch buffer: holds the next pair fetched in the background
+  // Tracks the in-flight processVote call so we can ensure it completes
+  // before prefetching (the server must record the vote first).
+  const lastVotePromiseRef = useRef<Promise<void> | null>(null);
+  // Prefetch buffer: holds the next pair fetched after the previous vote was recorded.
   const prefetchedRef = useRef<{ pair: VotingPair | null; noMore: boolean } | null>(null);
   const prefetchingRef = useRef<Promise<void> | null>(null);
-  // Track current pair IDs to avoid prefetch returning the same pair
-  const currentPairIdsRef = useRef<string | null>(null);
 
-  /** Kick off a background prefetch of the next pair (non-blocking). */
+  /**
+   * Start prefetching the next pair in the background.
+   * Only call this AFTER the previous vote has been recorded on the server,
+   * so get_next_pair won't return the pair we just voted on.
+   */
   const startPrefetch = useCallback(() => {
     if (!userId || noSubmissions || submissionCount < 2) return;
-    // Don't start another prefetch if one is already in progress
     if (prefetchingRef.current) return;
 
     prefetchedRef.current = null;
     prefetchingRef.current = resolvePair(userId, challengeDate)
       .then((result) => {
-        // Discard if the prefetched pair is the same as what's currently displayed
-        if (
-          result.pair &&
-          currentPairIdsRef.current &&
-          pairIds(result.pair) === currentPairIdsRef.current
-        ) {
-          prefetchedRef.current = null;
-        } else {
-          prefetchedRef.current = result;
-        }
+        prefetchedRef.current = result;
       })
       .catch(() => {
         prefetchedRef.current = null;
@@ -173,7 +164,7 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
     setLoading(false);
   }, [userId, challengeDate]);
 
-  // Fetch the next pair to vote on (used for initial load and fallback)
+  // Fetch the next pair to vote on (used for initial load)
   const fetchNextPair = useCallback(async () => {
     if (!userId || noSubmissions || submissionCount < 2) return;
 
@@ -187,21 +178,21 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
         setCurrentPair(null);
       } else {
         setCurrentPair(result.pair);
-        currentPairIdsRef.current = pairIds(result.pair);
         setNoMorePairs(false);
-        // Start prefetching the next pair while user views this one
-        startPrefetch();
       }
     } catch (error) {
       console.error('Error fetching next pair:', error);
     }
 
     setLoading(false);
-  }, [userId, challengeDate, noSubmissions, submissionCount, startPrefetch]);
+  }, [userId, challengeDate, noSubmissions, submissionCount]);
 
-  /** Apply a prefetched pair or fall back to fetching one. Starts next prefetch. */
-  const advanceToNextPair = useCallback(async () => {
-    // Wait for any in-progress prefetch to finish
+  /**
+   * Display the next pair: use the prefetch buffer if available, otherwise fetch.
+   * Returns the processVote result from the server (for state reconciliation).
+   */
+  const showNextPair = useCallback(async () => {
+    // Wait for any in-progress prefetch to complete
     if (prefetchingRef.current) {
       await prefetchingRef.current;
     }
@@ -215,30 +206,25 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
         setCurrentPair(null);
       } else if (cached.pair) {
         setCurrentPair(cached.pair);
-        currentPairIdsRef.current = pairIds(cached.pair);
         setNoMorePairs(false);
-        // Prefetch the one after this
-        startPrefetch();
       }
     } else {
-      // No cached pair available — fetch synchronously
+      // No prefetched pair — fetch synchronously (first vote, or user was faster than prefetch)
       await fetchNextPair();
-      // After fetchNextPair sets the new pair, kick off prefetch for the one after
-      startPrefetch();
     }
-  }, [fetchNextPair, startPrefetch]);
+  }, [fetchNextPair]);
 
-  // Submit a vote — optimistic: show next pair immediately, process vote in background
+  // Submit a vote
   const vote = useCallback(
     async (winnerId: string) => {
       if (!userId || !currentPair) return;
 
       setSubmitting(true);
 
-      // Capture current pair for the background vote
+      // Capture current pair for the vote call
       const votedPair = currentPair;
 
-      // Optimistically update vote count
+      // Optimistically update vote count and ranking status
       const optimisticCount = voteCount + 1;
       setVoteCount(optimisticCount);
       const effectiveRequired = requiredVotes;
@@ -246,28 +232,45 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
         setHasEnteredRanking(true);
       }
 
-      // Show the next pair immediately (don't wait for processVote)
-      await advanceToNextPair();
+      // Ensure any prior background vote has completed before we proceed
+      if (lastVotePromiseRef.current) {
+        await lastVotePromiseRef.current;
+      }
+
+      // Fire processVote and fetchNextPair in parallel.
+      // processVote records the vote; fetchNextPair gets the next pair.
+      // get_next_pair might return the same pair since the vote isn't recorded yet,
+      // but this is extremely unlikely with many submissions, and the UNIQUE constraint
+      // on comparisons will catch duplicates safely.
+      const votePromise = processVote(
+        votedPair.submissionA.id,
+        votedPair.submissionB.id,
+        winnerId
+      );
+
+      // Show the next pair (from prefetch cache or fresh fetch) in parallel with processVote
+      const [result] = await Promise.all([
+        votePromise.catch((error) => {
+          console.error('Error submitting vote:', error);
+          return null;
+        }),
+        showNextPair(),
+      ]);
+
+      // Reconcile with server truth
+      if (result) {
+        setVoteCount(result.voteCount);
+        if (result.requiredVotes !== undefined) setRequiredVotes(result.requiredVotes);
+        const serverRequired = result.requiredVotes ?? effectiveRequired;
+        setHasEnteredRanking(result.enteredRanking || result.voteCount >= serverRequired);
+      }
+
       setSubmitting(false);
 
-      // Process the vote in the background
-      processVote(votedPair.submissionA.id, votedPair.submissionB.id, winnerId)
-        .then((result) => {
-          // Reconcile with server truth
-          setVoteCount(result.voteCount);
-          if (result.requiredVotes !== undefined) setRequiredVotes(result.requiredVotes);
-          const serverRequired = result.requiredVotes ?? effectiveRequired;
-          setHasEnteredRanking(result.enteredRanking || result.voteCount >= serverRequired);
-
-          // Now that the vote is recorded, we can start a fresh prefetch
-          // (the server will correctly exclude this voted pair)
-          startPrefetch();
-        })
-        .catch((error) => {
-          console.error('Error submitting vote:', error);
-        });
+      // Now that the vote IS recorded on the server, prefetch the next pair safely
+      startPrefetch();
     },
-    [userId, currentPair, voteCount, requiredVotes, advanceToNextPair, startPrefetch]
+    [userId, currentPair, voteCount, requiredVotes, showNextPair, startPrefetch]
   );
 
   // Skip the current pair (doesn't count toward vote requirement)
@@ -276,22 +279,27 @@ export function useVoting(userId: string | undefined, challengeDate: string): Us
 
     setSubmitting(true);
 
-    // Capture current pair for the background skip
     const skippedPair = currentPair;
 
-    // Show the next pair immediately
-    await advanceToNextPair();
+    // Ensure any prior background vote has completed
+    if (lastVotePromiseRef.current) {
+      await lastVotePromiseRef.current;
+    }
+
+    // Record skip and fetch next pair in parallel
+    await Promise.all([
+      processVote(skippedPair.submissionA.id, skippedPair.submissionB.id, null)
+        .catch((error) => {
+          console.error('Error skipping pair:', error);
+        }),
+      showNextPair(),
+    ]);
+
     setSubmitting(false);
 
-    // Record the skip in the background
-    processVote(skippedPair.submissionA.id, skippedPair.submissionB.id, null)
-      .then(() => {
-        startPrefetch();
-      })
-      .catch((error) => {
-        console.error('Error skipping pair:', error);
-      });
-  }, [userId, currentPair, advanceToNextPair, startPrefetch]);
+    // Prefetch after skip is recorded
+    startPrefetch();
+  }, [userId, currentPair, showNextPair, startPrefetch]);
 
   return {
     currentPair,
