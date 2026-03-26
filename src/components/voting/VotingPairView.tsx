@@ -166,7 +166,7 @@ export function VotingPairView({
 
           {/* Vote progress */}
           <div className="mt-6 mb-8 flex flex-col items-center">
-            <div className="w-full" style={{ maxWidth: isDesktop ? `${thumbnailSize * 2 + 24}px` : undefined }}>
+            <div className="w-full" style={{ maxWidth: isDesktop && thumbnailSize ? `${thumbnailSize * 2 + 24}px` : undefined }}>
               <p className="text-sm text-center text-(--color-text-secondary) mb-3">
                 {remaining > 0
                   ? `${remaining} more vote${remaining !== 1 ? 's' : ''} to enter competition`
