@@ -394,43 +394,5 @@ export function generateId(): string {
   return `shape-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
-// Shape display names
-export const SHAPE_NAMES: Record<ShapeType, string> = {
-  circle: 'Circle',
-  square: 'Square',
-  triangle: 'Triangle',
-  pentagon: 'Pentagon',
-  hexagon: 'Hexagon',
-  star: 'Star',
-  // Sophisticated shapes
-  rightTriangle: 'Right Triangle',
-  trapezoid: 'Trapezoid',
-  parallelogram: 'Parallelogram',
-  kite: 'Kite',
-  heptagon: 'Heptagon',
-  cross: 'Cross',
-  arrow: 'Arrow',
-  semicircle: 'Semicircle',
-  quarterCircle: 'Quarter Circle',
-  ellipse: 'Ellipse',
-  lens: 'Lens',
-  arch: 'Arch',
-  // Irregular abstract shapes
-  wedge: 'Wedge',
-  wave: 'Wave',
-  hook: 'Hook',
-  crescent: 'Crescent',
-  pill: 'Pill',
-  splinter: 'Splinter',
-  // Mixed straight/curved shapes
-  fang: 'Fang',
-  fin: 'Fin',
-  keyhole: 'Keyhole',
-  notch: 'Notch',
-  drop: 'Drop',
-  scoop: 'Scoop',
-  ridge: 'Ridge',
-  bean: 'Bean',
-  hourglass: 'Hourglass',
-  claw: 'Claw',
-};
+// Shape display names — re-exported from the single source of truth
+export { SHAPE_NAMES } from '../../../supabase/functions/_shared/shapes';

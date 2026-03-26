@@ -1,41 +1,5 @@
-export type ShapeType =
-  | 'circle'
-  | 'square'
-  | 'triangle'
-  | 'pentagon'
-  | 'hexagon'
-  | 'star'
-  // Sophisticated shapes
-  | 'rightTriangle'
-  | 'trapezoid'
-  | 'parallelogram'
-  | 'kite'
-  | 'heptagon'
-  | 'cross'
-  | 'arrow'
-  | 'semicircle'
-  | 'quarterCircle'
-  | 'ellipse'
-  | 'lens'
-  | 'arch'
-  // Irregular abstract shapes
-  | 'wedge'
-  | 'wave'
-  | 'hook'
-  | 'crescent'
-  | 'pill'
-  | 'splinter'
-  // New mixed straight/curved shapes
-  | 'fang'
-  | 'fin'
-  | 'keyhole'
-  | 'notch'
-  | 'drop'
-  | 'scoop'
-  | 'ridge'
-  | 'bean'
-  | 'hourglass'
-  | 'claw';
+import type { ShapeType } from '../../supabase/functions/_shared/shapes';
+export type { ShapeType };
 
 export interface Shape {
   id: string;

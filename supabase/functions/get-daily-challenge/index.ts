@@ -18,6 +18,8 @@ import { PALETTES, PALETTE_COUNT } from '../_shared/palettes.ts';
 import { WORDS_ORDER, WORDS_LIST } from '../_shared/words.ts';
 import { pickMostContrasting3 } from '../_shared/colorPicking.ts';
 import { areShapesTooSimilar } from '../_shared/shapeSimilarityGroups.ts';
+import { SHAPE_NAMES, ALL_SHAPES } from '../_shared/shapes.ts';
+import type { ShapeType } from '../_shared/shapes.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -40,42 +42,6 @@ function getWordForDate(dateStr: string): string {
 // =============================================================================
 // Types
 // =============================================================================
-
-type ShapeType =
-  | 'circle'
-  | 'square'
-  | 'triangle'
-  | 'pentagon'
-  | 'hexagon'
-  | 'star'
-  | 'rightTriangle'
-  | 'trapezoid'
-  | 'parallelogram'
-  | 'kite'
-  | 'heptagon'
-  | 'cross'
-  | 'arrow'
-  | 'semicircle'
-  | 'quarterCircle'
-  | 'ellipse'
-  | 'lens'
-  | 'arch'
-  | 'wedge'
-  | 'fan'
-  | 'hook'
-  | 'wave'
-  | 'crescent'
-  | 'pill'
-  | 'splinter'
-  | 'fang'
-  | 'claw'
-  | 'fin'
-  | 'keyhole'
-  | 'notch'
-  | 'spike'
-  | 'bulge'
-  | 'scoop'
-  | 'ridge';
 
 interface ShapeData {
   type: ShapeType;
@@ -101,49 +67,6 @@ interface ChallengeRow {
   harmony_rule: string | null;
   created_at: string;
 }
-
-// =============================================================================
-// Shape Data
-// =============================================================================
-
-const SHAPE_NAMES: Record<ShapeType, string> = {
-  circle: 'Circle',
-  square: 'Square',
-  triangle: 'Triangle',
-  pentagon: 'Pentagon',
-  hexagon: 'Hexagon',
-  star: 'Star',
-  rightTriangle: 'Right Triangle',
-  trapezoid: 'Trapezoid',
-  parallelogram: 'Parallelogram',
-  kite: 'Kite',
-  heptagon: 'Heptagon',
-  cross: 'Cross',
-  arrow: 'Arrow',
-  semicircle: 'Semicircle',
-  quarterCircle: 'Quarter Circle',
-  ellipse: 'Ellipse',
-  lens: 'Lens',
-  arch: 'Arch',
-  wedge: 'Wedge',
-  fan: 'Fan',
-  hook: 'Hook',
-  wave: 'Wave',
-  crescent: 'Crescent',
-  pill: 'Pill',
-  splinter: 'Splinter',
-  fang: 'Fang',
-  claw: 'Claw',
-  fin: 'Fin',
-  keyhole: 'Keyhole',
-  notch: 'Notch',
-  spike: 'Spike',
-  bulge: 'Bulge',
-  scoop: 'Scoop',
-  ridge: 'Ridge',
-};
-
-const ALL_SHAPES: ShapeType[] = Object.keys(SHAPE_NAMES) as ShapeType[];
 
 function createShapeData(type: ShapeType): ShapeData {
   return {
