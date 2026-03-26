@@ -159,7 +159,7 @@ export function VotingModal({
   return (
     <Modal
       onClose={handleClose}
-      size="max-w-3xl"
+      size="max-w-4xl"
       className="p-0! border-0! bg-transparent! rounded-none! shadow-none! overflow-visible!"
       ariaLabelledBy="voting-title"
       dataTestId="voting-modal"
