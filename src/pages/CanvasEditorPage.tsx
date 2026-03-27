@@ -265,7 +265,7 @@ export function CanvasEditorPage({ challenge, todayDate, themeMode, onSetThemeMo
 
   return (
     <CanvasEditorProvider value={editorContext}>
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col h-dvh overflow-hidden">
       {showOnboarding && <OnboardingModal onComplete={updateNickname} />}
 
       <AnimatePresence>
