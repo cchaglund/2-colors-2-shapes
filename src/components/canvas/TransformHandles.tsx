@@ -35,17 +35,13 @@ const BASE_ROTATION_ZONE_PAD = 12;
 const BASE_STROKE_WIDTH = 1;
 const BASE_DASH_STROKE_WIDTH = 2;
 
-/** 8 resize handles: 4 corners + 4 midpoints */
+/** 4 corner resize handles */
 function getResizeHandles(width: number, height: number) {
   return [
     { id: 'nw', x: 0, y: 0 },
-    { id: 'n', x: width / 2, y: 0 },
     { id: 'ne', x: width, y: 0 },
-    { id: 'e', x: width, y: height / 2 },
     { id: 'se', x: width, y: height },
-    { id: 's', x: width / 2, y: height },
     { id: 'sw', x: 0, y: height },
-    { id: 'w', x: 0, y: height / 2 },
   ];
 }
 
@@ -226,7 +222,7 @@ export function TransformInteractionLayer({
         onTouchStart={onMoveStart}
       />
 
-      {/* Invisible resize handles (8: corners + midpoints) */}
+      {/* Invisible resize handles (corners only) */}
       {resizeHandles.map((handle) => (
         <rect
           key={handle.id}
@@ -319,7 +315,7 @@ export function TransformVisualLayer({
         outlineElement
       )}
 
-      {/* Resize handles (8: corners + midpoints) */}
+      {/* Resize handles (corners only) */}
       {resizeHandles.map((handle) => (
         <rect
           key={handle.id}
@@ -414,7 +410,7 @@ export function MultiSelectTransformLayer({
           outlineElement
         ))}
 
-        {/* Resize handles (8: corners + midpoints) */}
+        {/* Resize handles (corners only) */}
         {showBoundingRect && resizeHandles.map((handle) => (
           <rect
             key={handle.id}
@@ -498,7 +494,7 @@ export function MultiSelectTransformLayer({
         />
       )}
 
-      {/* Resize handles (8: corners + midpoints) */}
+      {/* Resize handles (corners only) */}
       {showBoundingRect && resizeHandles.map((handle) => (
         <rect
           key={handle.id}
@@ -585,7 +581,7 @@ export function MultiSelectInteractionLayer({
         />
       ))}
 
-      {/* Invisible resize handles (8: corners + midpoints) */}
+      {/* Invisible resize handles (corners only) */}
       {resizeHandles.map((handle) => (
         <rect
           key={handle.id}
