@@ -132,13 +132,12 @@ interface PreviousChallenge {
   shapes: [ShapeType, ShapeType];
 }
 
-function haveSameShapes(
+function haveAnyShapeOverlap(
   shapes1: [ShapeType, ShapeType],
   shapes2: [ShapeType, ShapeType]
 ): boolean {
-  const set1 = new Set(shapes1);
   const set2 = new Set(shapes2);
-  return shapes1.every((s) => set2.has(s)) && shapes2.every((s) => set1.has(s));
+  return shapes1.some((s) => set2.has(s));
 }
 
 function generateChallengeForDate(
@@ -154,8 +153,8 @@ function generateChallengeForDate(
     const random = seededRandom(baseSeed + attempt * 1000003);
     const shapes = generateShapes(random);
 
-    // Don't repeat the same two shapes as yesterday
-    if (previousChallenges.length > 0 && haveSameShapes(shapes, previousChallenges[0].shapes)) {
+    // Don't repeat any shape from yesterday
+    if (previousChallenges.length > 0 && haveAnyShapeOverlap(shapes, previousChallenges[0].shapes)) {
       continue;
     }
 
