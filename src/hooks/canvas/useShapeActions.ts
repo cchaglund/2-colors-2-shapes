@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, type RefObject } from 'react';
 import type { Shape } from '../../types';
 
 interface UseShapeActionsOptions {
@@ -6,6 +6,7 @@ interface UseShapeActionsOptions {
   selectedShapeIds: Set<string>;
   updateShapes: (updates: Map<string, Partial<Shape>>, addToHistory?: boolean, label?: string) => void;
   duplicateShapes: (ids: string[]) => void;
+  lastDuplicatedIdsRef: RefObject<string[]>;
   mirrorHorizontal: (ids: string[]) => void;
   mirrorVertical: (ids: string[]) => void;
 }
@@ -18,6 +19,7 @@ export function useShapeActions({
   selectedShapeIds,
   updateShapes,
   duplicateShapes,
+  lastDuplicatedIdsRef,
   mirrorHorizontal,
   mirrorVertical,
 }: UseShapeActionsOptions) {
@@ -39,9 +41,18 @@ export function useShapeActions({
   );
 
   const handleDuplicate = useCallback(() => {
-    if (selectedShapeIds.size === 0) return;
-    duplicateShapes(Array.from(selectedShapeIds));
-  }, [selectedShapeIds, duplicateShapes]);
+    if (selectedShapeIds.size > 0) {
+      duplicateShapes(Array.from(selectedShapeIds));
+    } else if (lastDuplicatedIdsRef.current.length > 0) {
+      // Re-duplicate the shapes created by the last duplication
+      const stillExist = lastDuplicatedIdsRef.current.filter(id =>
+        shapes.some(s => s.id === id)
+      );
+      if (stillExist.length > 0) {
+        duplicateShapes(stillExist);
+      }
+    }
+  }, [selectedShapeIds, shapes, duplicateShapes, lastDuplicatedIdsRef]);
 
   const handleMirrorHorizontal = useCallback(() => {
     if (selectedShapeIds.size === 0) return;

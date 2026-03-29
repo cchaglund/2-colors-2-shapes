@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import type { Shape, CanvasState, DailyChallenge, ShapeType } from '../../types';
 import { generateId, SHAPE_NAMES } from '../../utils/shapes';
 
@@ -21,6 +21,10 @@ export function useShapeCRUD(
   challenge: DailyChallenge | null,
   setCanvasState: SetCanvasState,
 ) {
+  // Track the IDs of shapes created by the last duplicate operation,
+  // so pressing duplicate with no selection re-duplicates them.
+  const lastDuplicatedIdsRef = useRef<string[]>([]);
+
   const addShape = useCallback(
     (shapeIndex: number, colorIndex: number, options?: { x?: number; y?: number; size?: number }) => {
       if (!challenge) return;
@@ -69,10 +73,10 @@ export function useShapeCRUD(
           ...shape,
           id: generateId(),
           name: generateShapeName(shape.type, prev.shapes),
-          x: shape.x + 20,
-          y: shape.y + 20,
           zIndex: shape.zIndex + 1,
         };
+
+        lastDuplicatedIdsRef.current = [id];
 
         return {
           ...prev,
@@ -81,7 +85,7 @@ export function useShapeCRUD(
         };
       }, true, 'Duplicate');
     },
-    [challenge, setCanvasState]
+    [setCanvasState]
   );
 
   const duplicateShapes = useCallback(
@@ -120,8 +124,6 @@ export function useShapeCRUD(
             ...shape,
             id: generateId(),
             name: generateShapeName(shape.type, allShapes),
-            x: shape.x + 20,
-            y: shape.y + 20,
             zIndex: effectiveOrigZ + 1,
           };
 
@@ -130,6 +132,8 @@ export function useShapeCRUD(
           cumulativeShift++;
         }
 
+        lastDuplicatedIdsRef.current = ids;
+
         return {
           ...prev,
           shapes: [...currentShapes, ...newShapes],
@@ -137,7 +141,7 @@ export function useShapeCRUD(
         };
       }, true, 'Duplicate');
     },
-    [challenge, duplicateShape, setCanvasState]
+    [duplicateShape, setCanvasState]
   );
 
   const updateShape = useCallback(
@@ -193,6 +197,7 @@ export function useShapeCRUD(
     addShape,
     duplicateShape,
     duplicateShapes,
+    lastDuplicatedIdsRef,
     updateShape,
     updateShapes,
     deleteShape,

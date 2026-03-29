@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, type RefObject } from 'react';
 import type { Shape } from '../../types';
 import { type KeyMappings, matchesBinding } from '../../constants/keyboardActions';
 
 interface UseCanvasKeyboardShortcutsOptions {
+  shapes: Shape[];
   selectedShapes: Shape[];
   hasSelection: boolean;
   keyMappings: KeyMappings;
@@ -10,6 +11,7 @@ interface UseCanvasKeyboardShortcutsOptions {
   onUndo: () => void;
   onRedo: () => void;
   onDuplicateShapes: (ids: string[]) => void;
+  lastDuplicatedIdsRef: RefObject<string[]>;
   onDeleteSelectedShapes: () => void;
   onMirrorHorizontal: (ids: string[]) => void;
   onMirrorVertical: (ids: string[]) => void;
@@ -20,6 +22,7 @@ interface UseCanvasKeyboardShortcutsOptions {
  * Hook for handling keyboard shortcuts (movement, rotation, undo/redo, duplicate, etc.)
  */
 export function useCanvasKeyboardShortcuts({
+  shapes,
   selectedShapes,
   hasSelection,
   keyMappings,
@@ -27,6 +30,7 @@ export function useCanvasKeyboardShortcuts({
   onUndo,
   onRedo,
   onDuplicateShapes,
+  lastDuplicatedIdsRef,
   onDeleteSelectedShapes,
   onMirrorHorizontal,
   onMirrorVertical,
@@ -57,13 +61,22 @@ export function useCanvasKeyboardShortcuts({
         return;
       }
 
-      // Check for duplicate binding - only when shapes are selected
+      // Check for duplicate binding - selected shapes, or re-duplicate last duplicated
       const duplicateBinding = keyMappings.duplicate;
       if (duplicateBinding && matchesBinding(e, duplicateBinding)) {
         if (selectedShapes.length > 0) {
           e.preventDefault();
           onDuplicateShapes(selectedShapes.map(s => s.id));
           return;
+        }
+        const lastIds = lastDuplicatedIdsRef.current;
+        if (lastIds.length > 0) {
+          const stillExist = lastIds.filter(id => shapes.some(s => s.id === id));
+          if (stillExist.length > 0) {
+            e.preventDefault();
+            onDuplicateShapes(stillExist);
+            return;
+          }
         }
       }
 
@@ -174,6 +187,7 @@ export function useCanvasKeyboardShortcuts({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [
+    shapes,
     selectedShapes,
     hasSelection,
     keyMappings,
@@ -181,6 +195,7 @@ export function useCanvasKeyboardShortcuts({
     onUndo,
     onRedo,
     onDuplicateShapes,
+    lastDuplicatedIdsRef,
     onDeleteSelectedShapes,
     onMirrorHorizontal,
     onMirrorVertical,

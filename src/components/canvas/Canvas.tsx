@@ -4,7 +4,7 @@ import type { Shape } from '../../types';
 import { CANVAS_SIZE } from '../../types/canvas';
 import { getShapeDimensions } from '../../utils/shapes';
 import { getVisibleShapes } from '../../utils/visibility';
-import { useCanvasEditor } from '../../contexts/CanvasEditorContext';
+import { useCanvasEditor } from '../../contexts/useCanvasEditor';
 import { ShapeElement } from './ShapeElement';
 import {
   TransformInteractionLayer,
@@ -39,6 +39,7 @@ export function Canvas({ marqueeStartRef }: CanvasProps) {
     updateShapes: onUpdateShapes,
     commitToHistory: onCommitToHistory,
     duplicateShapes: onDuplicateShapes,
+    lastDuplicatedIdsRef,
     deleteSelectedShapes: onDeleteSelectedShapes,
     undo: onUndo, redo: onRedo,
     mirrorHorizontal: onMirrorHorizontal,
@@ -68,19 +69,22 @@ export function Canvas({ marqueeStartRef }: CanvasProps) {
   // Subsequent renders detect new IDs (user-placed shapes → animate).
   // Bulk loads (>3 new shapes, e.g. Supabase hydration) skip animation.
   // NOTE: ref is updated in useEffect (not during render) to survive StrictMode double-renders.
-  const knownShapeIdsRef = useRef<Set<string> | null>(null);
+  // Track newly added shapes for entrance animations.
+  // Uses "setState during render" pattern (React-recommended for derived state).
+  // First render seeds with all IDs (no animation). Bulk loads (>3) skip animation.
+  const [knownShapeIds, setKnownShapeIds] = useState(() => new Set(shapes.map(s => s.id)));
+  const currentIds = useMemo(() => new Set(shapes.map(s => s.id)), [shapes]);
   const newShapeIds: ReadonlySet<string> = useMemo(() => {
-    if (knownShapeIdsRef.current === null) return new Set<string>();
     const added = new Set<string>();
-    for (const s of shapes) {
-      if (!knownShapeIdsRef.current.has(s.id)) added.add(s.id);
+    for (const id of currentIds) {
+      if (!knownShapeIds.has(id)) added.add(id);
     }
     return added.size > 3 ? new Set<string>() : added;
-  }, [shapes]);
+  }, [currentIds, knownShapeIds]);
 
-  useEffect(() => {
-    knownShapeIdsRef.current = new Set(shapes.map(s => s.id));
-  }, [shapes]);
+  if (currentIds !== knownShapeIds && (newShapeIds.size > 0 || currentIds.size !== knownShapeIds.size)) {
+    setKnownShapeIds(currentIds);
+  }
 
   // Use extracted hooks
   const { getSVGPoint, getClientPoint } = useCanvasCoordinates(svgRef);
@@ -110,13 +114,16 @@ export function Canvas({ marqueeStartRef }: CanvasProps) {
   });
 
   // Expose startMarqueeAt to parent so marquee can start from outside the SVG
-  if (marqueeStartRef) {
-    marqueeStartRef.current = startMarqueeAt;
-  }
+  useEffect(() => {
+    if (marqueeStartRef) {
+      marqueeStartRef.current = startMarqueeAt;
+    }
+  }, [marqueeStartRef, startMarqueeAt]);
 
   useWheelZoom(svgRef, onZoomAtPoint, onPan, viewport);
 
   useCanvasKeyboardShortcuts({
+    shapes,
     selectedShapes,
     hasSelection,
     keyMappings,
@@ -124,6 +131,7 @@ export function Canvas({ marqueeStartRef }: CanvasProps) {
     onUndo,
     onRedo,
     onDuplicateShapes,
+    lastDuplicatedIdsRef,
     onDeleteSelectedShapes,
     onMirrorHorizontal,
     onMirrorVertical,

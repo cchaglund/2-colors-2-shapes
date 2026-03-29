@@ -6,7 +6,7 @@ import { IS_MAC } from '../../utils/platform';
 import type { LayerPanelProps, LayerItem } from './types';
 import { LayerItem as LayerItemComponent } from './LayerItem';
 import { GroupHeader } from './GroupHeader';
-import { useCanvasEditor } from '../../contexts/CanvasEditorContext';
+import { useCanvasEditor } from '../../contexts/useCanvasEditor';
 
 export function LayerPanel({ onToggle }: LayerPanelProps) {
   const {
