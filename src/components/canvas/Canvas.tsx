@@ -65,26 +65,27 @@ export function Canvas({ marqueeStartRef }: CanvasProps) {
   }, [visibleShapes, selectedShapeIds]);
 
   // Track newly added shapes for entrance animation.
-  // First render seeds with all current IDs (no animation for loaded shapes).
-  // Subsequent renders detect new IDs (user-placed shapes → animate).
-  // Bulk loads (>3 new shapes, e.g. Supabase hydration) skip animation.
-  // NOTE: ref is updated in useEffect (not during render) to survive StrictMode double-renders.
   // Track newly added shapes for entrance animations.
-  // Uses "setState during render" pattern (React-recommended for derived state).
-  // First render seeds with all IDs (no animation). Bulk loads (>3) skip animation.
+  // knownShapeIds holds all IDs from the previous render cycle. New IDs that
+  // aren't in this set trigger the bounce-in animation on ShapeElement.
+  // The state update is deferred to an effect so the render that first detects
+  // new IDs can pass them to ShapeElement before they become "known".
+  // Bulk loads (>3 new shapes, e.g. Supabase hydration) skip animation.
   const [knownShapeIds, setKnownShapeIds] = useState(() => new Set(shapes.map(s => s.id)));
-  const currentIds = useMemo(() => new Set(shapes.map(s => s.id)), [shapes]);
   const newShapeIds: ReadonlySet<string> = useMemo(() => {
     const added = new Set<string>();
-    for (const id of currentIds) {
-      if (!knownShapeIds.has(id)) added.add(id);
+    for (const s of shapes) {
+      if (!knownShapeIds.has(s.id)) added.add(s.id);
     }
     return added.size > 3 ? new Set<string>() : added;
-  }, [currentIds, knownShapeIds]);
+  }, [shapes, knownShapeIds]);
 
-  if (currentIds !== knownShapeIds && (newShapeIds.size > 0 || currentIds.size !== knownShapeIds.size)) {
-    setKnownShapeIds(currentIds);
-  }
+  useEffect(() => {
+    // Intentionally deferred: the render that first detects new IDs must
+    // complete before we mark them as known, so ShapeElement can animate.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setKnownShapeIds(new Set(shapes.map(s => s.id)));
+  }, [shapes]);
 
   // Use extracted hooks
   const { getSVGPoint, getClientPoint } = useCanvasCoordinates(svgRef);
