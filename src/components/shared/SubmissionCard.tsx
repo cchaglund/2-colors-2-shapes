@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from './Link';
 import { SubmissionThumbnail } from './SubmissionThumbnail';
+import { CardLikeButton } from './CardLikeButton';
 import type { Shape, ShapeGroup, DailyChallenge } from '../../types';
 
 interface SubmissionCardProps {
@@ -13,7 +14,9 @@ interface SubmissionCardProps {
   onClick?: () => void;
   href?: string;
   likeCount?: number;
-  showLikeCount?: boolean;
+  isLiked?: boolean;
+  isOwnSubmission?: boolean;
+  onLikeToggle?: () => void;
 }
 
 export function SubmissionCard({
@@ -26,20 +29,13 @@ export function SubmissionCard({
   onClick,
   href,
   likeCount,
-  showLikeCount = false,
+  isLiked,
+  isOwnSubmission,
+  onLikeToggle,
 }: SubmissionCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
-  const displayLikeCount = likeCount !== undefined && likeCount > 9999 ? '9999+' : likeCount;
-
-  const likeCountOverlay = showLikeCount && likeCount !== undefined && likeCount > 0 && (
-    <div className="absolute bottom-1 right-1 flex items-center gap-0.5 bg-(--color-overlay) text-(--color-accent-text) text-xs font-medium rounded-(--radius-sm) px-1 py-0.5">
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-      </svg>
-      <span>{displayLikeCount}</span>
-    </div>
-  );
+  const showFooter = (showNickname && nickname) || onLikeToggle;
 
   const cardStyle: React.CSSProperties = {
     borderRadius: 'var(--radius-lg)',
@@ -53,21 +49,31 @@ export function SubmissionCard({
 
   const cardInner = (
     <>
-      <div className="relative">
-        <SubmissionThumbnail
-          shapes={shapes}
-          groups={groups}
-          challenge={challenge}
-          backgroundColorIndex={backgroundColorIndex}
-          fill
-        />
-        {likeCountOverlay}
-      </div>
-      {showNickname && nickname && (
-        <div style={{ padding: 'var(--space-2) var(--space-3)' }}>
-          <span className="truncate block text-sm font-bold text-(--color-text-primary)">
-            {nickname}
-          </span>
+      <SubmissionThumbnail
+        shapes={shapes}
+        groups={groups}
+        challenge={challenge}
+        backgroundColorIndex={backgroundColorIndex}
+        fill
+      />
+      {showFooter && (
+        <div
+          style={{ padding: 'var(--space-2) var(--space-3)' }}
+          className="flex items-center gap-1"
+        >
+          {showNickname && nickname && (
+            <span className="truncate text-sm font-bold text-(--color-text-primary)">
+              {nickname}
+            </span>
+          )}
+          {onLikeToggle && likeCount !== undefined && (
+            <CardLikeButton
+              isLiked={isLiked ?? false}
+              likeCount={likeCount}
+              disabled={isOwnSubmission}
+              onToggle={onLikeToggle}
+            />
+          )}
         </div>
       )}
     </>

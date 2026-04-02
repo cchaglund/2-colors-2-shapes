@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Like Button Prototypes — Wall Thumbnails</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&display=swap');
+
+  :root {
+    --color-danger: #c45c4a;
+    --color-danger-hover: #a84a3a;
+    --color-text-secondary: #6b7280;
+    --color-text-primary: #1e1b4b;
+    --color-border: #2d2a6e;
+    --color-border-light: #d1d5db;
+    --color-card-bg: #ffffff;
+    --color-bg-primary: #fdf5f0;
+    --radius-pill: 999px;
+    --radius-lg: 12px;
+    --shadow-btn: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-card: 0 8px 24px rgba(0,0,0,0.12);
+    --font-family: 'Nunito', system-ui, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--color-bg-primary);
+    font-family: var(--font-family);
+    padding: 2rem;
+    color: var(--color-text-primary);
+  }
+
+  h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  h2 { font-size: 1.1rem; margin-bottom: 0.75rem; color: var(--color-text-secondary); font-weight: 700; }
+  .section { margin-bottom: 3rem; }
+  .description { color: var(--color-text-secondary); font-size: 0.85rem; margin-bottom: 1rem; max-width: 600px; line-height: 1.5; }
+
+  .cards-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  /* Fake submission card */
+  .card {
+    width: 220px;
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--color-border);
+    background: var(--color-card-bg);
+    box-shadow: var(--shadow-btn);
+    overflow: hidden;
+  }
+  .card-img {
+    width: 100%;
+    aspect-ratio: 1;
+    background: linear-gradient(135deg, #3a6b4a 0%, #8fbc8f 50%, #f5deb3 100%);
+  }
+  .card-img.alt { background: linear-gradient(135deg, #f5c6aa 0%, #c45c4a 50%, #2d2a6e 100%); }
+  .card-img.alt2 { background: linear-gradient(135deg, #2d2a6e 0%, #fdf5f0 50%, #c45c4a 100%); }
+  .card-footer {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 40px;
+  }
+  .card-nickname {
+    font-size: 0.875rem;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ===== HEART SVG ===== */
+  .heart-svg {
+    flex-shrink: 0;
+    display: block;
+  }
+
+  /* =========================================================
+     VARIANT A — Pill Morph
+     Heart+count is a tight pill. On hover it smoothly widens
+     and the count cross-fades into "Like" text.
+     ========================================================= */
+  .like-a {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 3px 8px 3px 6px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-family);
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--color-danger);
+    position: relative;
+    transition: background 0.2s ease, transform 0.15s ease;
+    white-space: nowrap;
+    margin-left: auto;
+  }
+  .like-a:hover {
+    background: rgba(196, 92, 74, 0.08);
+    transform: scale(1.05);
+  }
+  .like-a:active {
+    transform: scale(0.92);
+  }
+  .like-a .heart-svg {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .like-a:hover .heart-svg {
+    transform: scale(1.2);
+  }
+  /* Text container with crossfade — compact at rest, expands on hover */
+  .like-a .text-wrap {
+    position: relative;
+    display: inline-block;
+    /* Animate width expansion on hover */
+    transition: min-width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 0;
+  }
+  .like-a:hover .text-wrap {
+    min-width: 2.2em;
+  }
+  .like-a.is-liked:hover .text-wrap {
+    min-width: 3em;
+  }
+  .like-a .text-count {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .like-a .text-label {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.2s ease 0.05s, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .like-a:hover .text-count {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  .like-a:hover .text-label {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Liked state (filled heart) */
+  .like-a.is-liked .heart-svg path {
+    fill: var(--color-danger);
+    stroke: var(--color-danger);
+  }
+  /* Unliked state */
+  .like-a:not(.is-liked) .heart-svg path {
+    fill: none;
+    stroke: var(--color-danger);
+    stroke-width: 2;
+  }
+
+  /* =========================================================
+     VARIANT B — Slide Reveal
+     Count is always visible. "Like" slides in from the right
+     on hover, pushing the layout wider. Pill bg appears.
+     ========================================================= */
+  .like-b {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    /* Always has border — just transparent when not hovered. No size change on hover. */
+    border: 1.5px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    padding: 3px 8px 3px 6px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-family);
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--color-danger);
+    position: relative;
+    transition: border-color 0.25s ease, background 0.25s ease;
+    white-space: nowrap;
+    margin-left: auto;
+  }
+  .like-b:hover {
+    border-color: var(--color-danger);
+    background: rgba(196, 92, 74, 0.06);
+  }
+  .like-b:active {
+    transform: scale(0.92);
+    transition: transform 0.1s ease;
+  }
+  .like-b .heart-svg {
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .like-b:hover .heart-svg {
+    transform: scale(1.15) rotate(-12deg);
+  }
+  /* Compact at rest, expands on hover */
+  .like-b .text-wrap-b {
+    position: relative;
+    display: inline-block;
+    transition: min-width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 0;
+  }
+  .like-b:hover .text-wrap-b {
+    min-width: 2.2em;
+  }
+  .like-b.is-liked:hover .text-wrap-b {
+    min-width: 3em;
+  }
+  .like-b .count {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .like-b .slide-label {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    transform: translateX(4px);
+    transition: opacity 0.2s ease 0.05s, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .like-b:hover .slide-label {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .like-b:hover .count {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+
+  .like-b.is-liked .heart-svg path { fill: var(--color-danger); stroke: var(--color-danger); }
+  .like-b:not(.is-liked) .heart-svg path { fill: none; stroke: var(--color-danger); stroke-width: 2; }
+
+  /* =========================================================
+     VARIANT C — Bounce Pop
+     Minimal: just heart+count. On hover, heart does a playful
+     bounce-wobble, count fades to "Like", bg pops in with
+     a spring scale from center.
+     ========================================================= */
+  .like-c {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 4px 8px 4px 6px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-family);
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--color-danger);
+    position: relative;
+    white-space: nowrap;
+    margin-left: auto;
+    isolation: isolate;
+  }
+  /* Background pill that pops in */
+  .like-c::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-pill);
+    background: rgba(196, 92, 74, 0.1);
+    transform: scale(0.6);
+    opacity: 0;
+    /* OUT: bg lingers while text swaps, then fades */
+    transition: transform 0.2s ease 0.2s, opacity 0.15s ease 0.2s;
+    z-index: -1;
+  }
+  .like-c:hover::before {
+    transform: scale(1);
+    opacity: 1;
+    /* IN: spring pop */
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+  }
+  .like-c:active {
+    transform: scale(0.9);
+    transition: transform 0.1s ease;
+  }
+
+  /* Heart bounce wobble */
+  .like-c .heart-svg {
+    transition: transform 0.15s ease;
+  }
+  .like-c:hover .heart-svg {
+    animation: heartWobble 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes heartWobble {
+    0% { transform: scale(1) rotate(0deg); }
+    20% { transform: scale(1.3) rotate(-8deg); }
+    40% { transform: scale(0.95) rotate(4deg); }
+    60% { transform: scale(1.15) rotate(-3deg); }
+    80% { transform: scale(1) rotate(1deg); }
+    100% { transform: scale(1.1) rotate(0deg); }
+  }
+
+  /* Text swap — compact at rest, expands on hover.
+     OUT transitions (default state): text fades fast, width shrinks after a delay.
+     IN transitions (hover state): width expands immediately, text fades in with slight delay. */
+  .like-c .text-wrap {
+    position: relative;
+    display: inline-block;
+    min-width: 0;
+    overflow: hidden;
+    /* OUT: shrink width AFTER text has faded (0.15s delay = text fade duration) */
+    transition: min-width 0.2s ease 0.1s;
+  }
+  .like-c:hover .text-wrap {
+    min-width: 2.2em;
+    overflow: visible;
+    /* IN: expand width immediately with spring */
+    transition: min-width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .like-c.is-liked:hover .text-wrap {
+    min-width: 3em;
+  }
+  .like-c .text-count {
+    /* OUT: count reappears AFTER label has faded out */
+    transition: opacity 0.15s ease 0.12s, transform 0.15s ease 0.12s;
+  }
+  .like-c:hover .text-count {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.8);
+    /* IN: count fades out quickly */
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+  .like-c .text-label {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    transform: translateY(10px) scale(0.8);
+    /* OUT: label fades out (same speed as fade in) */
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .like-c:hover .text-label {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    /* IN: label springs up with delay (after count fades) */
+    transition: opacity 0.15s ease 0.08s, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s;
+  }
+
+  .like-c.is-liked .heart-svg path { fill: var(--color-danger); stroke: var(--color-danger); }
+  .like-c:not(.is-liked) .heart-svg path { fill: none; stroke: var(--color-danger); stroke-width: 2; }
+
+  /* ===== Click ripple effect (shared) ===== */
+  @keyframes likeRipple {
+    0% { transform: scale(0); opacity: 0.5; }
+    100% { transform: scale(2.5); opacity: 0; }
+  }
+  .ripple-circle {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--color-danger);
+    opacity: 0;
+    pointer-events: none;
+    animation: likeRipple 0.5s ease-out forwards;
+  }
+
+  /* ===== Heart burst particles (on click) ===== */
+  @keyframes particleBurst {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { opacity: 0; }
+  }
+  .heart-particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--color-danger);
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  /* Toggle states */
+  .state-grid {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1rem;
+  }
+  .state-label {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+
+<h1>Like Button Prototypes — Wall Thumbnails</h1>
+<p class="description" style="margin-bottom: 2.5rem;">
+  3 variants for the compressed like button on wall submission cards. Each shows a heart + count in resting state, and expands to show "Like" on hover. Click any button to toggle liked state.
+</p>
+
+<!-- ==================== VARIANT A ==================== -->
+<div class="section">
+  <h2>Variant A — Pill Crossfade</h2>
+  <p class="description">Count cross-fades vertically into "Like" text on hover. Subtle bg tint + slight scale. Clean and minimal.</p>
+
+  <div class="state-grid">
+    <div>
+      <div class="state-label">Unliked (3 likes)</div>
+      <div class="cards-row">
+        <div class="card">
+          <div class="card-img"></div>
+          <div class="card-footer">
+            <span class="card-nickname">Chris</span>
+            <button class="like-a" onclick="toggleLike(this)" data-count="3">
+              <svg class="heart-svg" width="14" height="14" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="none" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              <span class="text-wrap">
+                <span class="text-count">3</span>
+                <span class="text-label">Like</span>
+              </span>
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-img alt"></div>
+          <div class="card-footer">
+            <span class="card-nickname">diskosimpa</span>
+            <button class="like-a is-liked" onclick="toggleLike(this)" data-count="7">
+              <svg class="heart-svg" width="14" height="14" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="currentColor" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              <span class="text-wrap">
+                <span class="text-count">7</span>
+                <span class="text-label">Unlike</span>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== VARIANT B ==================== -->
+<div class="section">
+  <h2>Variant B — Slide Reveal</h2>
+  <p class="description">Count stays visible, then on hover the count is replaced by "Like" which slides in as a bordered pill appears. Heart tilts playfully.</p>
+
+  <div class="state-grid">
+    <div>
+      <div class="state-label">Unliked / Liked</div>
+      <div class="cards-row">
+        <div class="card">
+          <div class="card-img alt2"></div>
+          <div class="card-footer">
+            <span class="card-nickname">Dumbledore</span>
+            <button class="like-b" onclick="toggleLike(this)" data-count="2">
+              <svg class="heart-svg" width="14" height="14" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="none" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              <span class="text-wrap-b">
+                <span class="count">2</span>
+                <span class="slide-label">Like</span>
+              </span>
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-img"></div>
+          <div class="card-footer">
+            <span class="card-nickname">Moa</span>
+            <button class="like-b is-liked" onclick="toggleLike(this)" data-count="12">
+              <svg class="heart-svg" width="14" height="14" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="currentColor" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              <span class="text-wrap-b">
+                <span class="count">12</span>
+                <span class="slide-label">Unlike</span>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== VARIANT C ==================== -->
+<div class="section">
+  <h2>Variant C — Bounce Pop</h2>
+  <p class="description">Heart does a playful bounce-wobble on hover. Count springs down as "Like" springs up. Background pill pops in from center with overshoot. Most playful variant.</p>
+
+  <div class="state-grid">
+    <div>
+      <div class="state-label">Unliked / Liked</div>
+      <div class="cards-row">
+        <div class="card">
+          <div class="card-img alt"></div>
+          <div class="card-footer">
+            <span class="card-nickname">Chris</span>
+            <button class="like-c" onclick="toggleLike(this)" data-count="5">
+              <svg class="heart-svg" width="14" height="14" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="none" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              <span class="text-wrap">
+                <span class="text-count">5</span>
+                <span class="text-label">Like</span>
+              </span>
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-img alt2"></div>
+          <div class="card-footer">
+            <span class="card-nickname">diskosimpa</span>
+            <button class="like-c is-liked" onclick="toggleLike(this)" data-count="21">
+              <svg class="heart-svg" width="14" height="14" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="currentColor" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              <span class="text-wrap">
+                <span class="text-count">21</span>
+                <span class="text-label">Unlike</span>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleLike(btn) {
+    const isLiked = btn.classList.toggle('is-liked');
+    let count = parseInt(btn.dataset.count);
+    const path = btn.querySelector('.heart-svg path');
+
+    if (isLiked) {
+      count++;
+      path.setAttribute('fill', 'currentColor');
+      path.setAttribute('stroke', 'currentColor');
+      // Burst effect
+      createBurst(btn);
+    } else {
+      count = Math.max(0, count - 1);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', 'currentColor');
+    }
+
+    btn.dataset.count = count;
+
+    // Update count text
+    const countEl = btn.querySelector('.text-count, .count');
+    if (countEl) countEl.textContent = count;
+
+    // Update label text
+    const labelEl = btn.querySelector('.text-label, .slide-label');
+    if (labelEl) labelEl.textContent = isLiked ? 'Unlike' : 'Like';
+  }
+
+  function createBurst(btn) {
+    const rect = btn.getBoundingClientRect();
+    const heartRect = btn.querySelector('.heart-svg').getBoundingClientRect();
+    const cx = heartRect.left - rect.left + heartRect.width / 2;
+    const cy = heartRect.top - rect.top + heartRect.height / 2;
+
+    for (let i = 0; i < 6; i++) {
+      const particle = document.createElement('span');
+      particle.className = 'heart-particle';
+      const angle = (i / 6) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
+      const dist = 12 + Math.random() * 10;
+      const tx = Math.cos(angle) * dist;
+      const ty = Math.sin(angle) * dist;
+      particle.style.left = cx + 'px';
+      particle.style.top = cy + 'px';
+      particle.style.animation = `particleBurst 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`;
+      particle.style.setProperty('--tx', tx + 'px');
+      particle.style.setProperty('--ty', ty + 'px');
+      // Use individual keyframes via style
+      particle.animate([
+        { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+        { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }
+      ], { duration: 450, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)', fill: 'forwards' });
+      btn.appendChild(particle);
+      setTimeout(() => particle.remove(), 500);
+    }
+  }
+</script>
+</body>
+</html>

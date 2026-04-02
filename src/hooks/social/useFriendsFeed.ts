@@ -22,6 +22,7 @@ export interface FriendsSubmission {
   background_color_index: number | null;
   created_at: string;
   final_rank?: number;
+  like_count: number;
 }
 
 export interface UseFriendsFeedOptions {
@@ -118,6 +119,7 @@ async function fetchFriendsSubmissions(
       background_color_index: s.background_color_index,
       created_at: s.created_at,
       final_rank: rankMap.get(s.id),
+      like_count: s.like_count ?? 0,
     }));
 
     if (sortMode === 'ranked') {

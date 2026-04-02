@@ -1,13 +1,16 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '../components/shared/Button';
 import { Link } from '../components/shared/Link';
+import { CardLikeButton } from '../components/shared/CardLikeButton';
 import { useAuth } from '../hooks/auth/useAuth';
 import { useSubmissions } from '../hooks/submission/useSubmissions';
 import { useRanking } from '../hooks/challenge/useRanking';
 import { useDailyChallenge } from '../hooks/challenge/useDailyChallenge';
 import { useSubmissionDetail } from '../hooks/submission/useSubmissionDetail';
 import { useExportActions } from '../hooks/submission/useExportActions';
+import { useLikes } from '../hooks/social/useLikes';
 import { FollowButton } from '../components/social/FollowButton';
+import { LoginPromptModal } from '../components/social/LoginPromptModal';
 import {
   SubmissionCanvas,
   SubmissionNavigation,
@@ -15,7 +18,6 @@ import {
   RankingCard,
   SubmissionStatsCard,
   ExportActionsCard,
-  LikeButton,
 } from '../components/submission';
 import { TopBar } from '../components/canvas/TopBar';
 import { LoadingSpinner } from '../components/shared/LoadingSpinner';
@@ -52,6 +54,23 @@ export function SubmissionDetailPage({ date, submissionId, themeMode, onSetTheme
 
   // Export actions
   const { downloadSVG, downloadPNG, copyShareLink } = useExportActions(svgRef, challengeDate);
+
+  // Like state
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const { isLiked, likeCount, toggleLike } = useLikes({
+    userId: user?.id,
+    submissionId: submission?.id,
+    initialLikeCount: submission?.like_count ?? 0,
+  });
+  const isOwnSubmission = user?.id === submission?.user_id;
+
+  const handleLikeToggle = () => {
+    if (!user) {
+      setShowLoginModal(true);
+      return;
+    }
+    toggleLike();
+  };
 
   const formattedDate = challengeDate
     ? new Date(challengeDate).toLocaleDateString('en-US', {
@@ -173,10 +192,11 @@ export function SubmissionDetailPage({ date, submissionId, themeMode, onSetTheme
               </div>
               {/* Like button */}
               <div className="flex items-center">
-                <LikeButton
-                  submissionId={submission.id}
-                  submissionUserId={submission.user_id}
-                  initialLikeCount={submission.like_count}
+                <CardLikeButton
+                  isLiked={isLiked}
+                  likeCount={likeCount}
+                  disabled={isOwnSubmission}
+                  onToggle={handleLikeToggle}
                 />
               </div>
             </div>
@@ -196,6 +216,13 @@ export function SubmissionDetailPage({ date, submissionId, themeMode, onSetTheme
           </div>
         </div>
       </div>
+      {showLoginModal && (
+        <LoginPromptModal
+          onClose={() => setShowLoginModal(false)}
+          title="Sign In to Like"
+          message="You need to be logged in to like submissions."
+        />
+      )}
     </div>
   );
 }

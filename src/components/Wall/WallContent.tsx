@@ -1,14 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useWallOfTheDay, type SortMode } from '../../hooks/challenge/useWallOfTheDay';
 import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
 import { useCalendarMonth } from '../../hooks/challenge/useCalendarMonth';
 import { useCalendarChallenges } from '../../hooks/challenge/useCalendarChallenges';
+import { useAuth } from '../../hooks/auth/useAuth';
+import { useBatchLikedStatus } from '../../hooks/social/useBatchLikedStatus';
 import { WallSortControls } from './WallSortControls';
 import { WallLockedState } from './WallLockedState';
 import { WallEmptyState } from './WallEmptyState';
 import { SubmissionCard, TrophyBadge, ViewToggle, LoadingSpinner, LoadMoreButton } from '../shared';
 import { ContentNavigation } from '../Calendar/ContentNavigation';
 import { ContentCalendarGrid } from '../Calendar/ContentCalendarGrid';
+import { LoginPromptModal } from '../social/LoginPromptModal';
 import { formatDate, getDaysInMonth } from '../../utils/calendarUtils';
 import { fetchSubmissionCountsByDateRange } from '../../lib/api';
 type ViewType = 'grid' | 'calendar';
@@ -36,6 +39,9 @@ export function WallContent({
   const [viewType, setViewType] = useState<ViewType>('grid');
   const [submissionCounts, setSubmissionCounts] = useState<SubmissionCountByDate>({});
   const [calendarLoading, setCalendarLoading] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  const { user } = useAuth();
 
   const {
     calendarYear,
@@ -68,6 +74,18 @@ export function WallContent({
 
   // Fetch challenge data for the date to get colors from DB
   const { challenge } = useDailyChallenge(date);
+
+  // Batch like status
+  const submissionIds = useMemo(() => submissions.map(s => s.id), [submissions]);
+  const { likedSet, countAdjustments, toggleLiked } = useBatchLikedStatus(user?.id, submissionIds);
+
+  const handleLikeToggle = useCallback((submissionId: string) => {
+    if (!user) {
+      setShowLoginModal(true);
+      return;
+    }
+    toggleLiked(submissionId);
+  }, [user, toggleLiked]);
 
   // Fetch submission counts for calendar view
   const fetchSubmissionCounts = useCallback(async () => {
@@ -218,8 +236,10 @@ export function WallContent({
                   nickname={submission.nickname}
                   href={onSubmissionClick ? undefined : getSubmissionHref(submission.id)}
                   onClick={onSubmissionClick ? () => onSubmissionClick(submission.id) : undefined}
-                  likeCount={submission.like_count}
-                  showLikeCount={sortMode === 'likes'}
+                  likeCount={submission.like_count + (countAdjustments.get(submission.id) ?? 0)}
+                  isLiked={likedSet.has(submission.id)}
+                  isOwnSubmission={user?.id === submission.user_id}
+                  onLikeToggle={() => handleLikeToggle(submission.id)}
                 />
               </div>
             ))}
@@ -233,6 +253,13 @@ export function WallContent({
           )}
           </>
         ) : null
+      )}
+      {showLoginModal && (
+        <LoginPromptModal
+          onClose={() => setShowLoginModal(false)}
+          title="Sign In to Like"
+          message="You need to be logged in to like submissions."
+        />
       )}
     </div>
   );

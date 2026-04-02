@@ -1,12 +1,14 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, SubmissionCard, TrophyBadge, ViewToggle, EmptyState, LoadingSpinner, LoadMoreButton } from '../shared';
 import { useFriendsFeed, type SortMode } from '../../hooks/social/useFriendsFeed';
 import { useDailyChallenge } from '../../hooks/challenge/useDailyChallenge';
 import { useCalendarMonth } from '../../hooks/challenge/useCalendarMonth';
 import { useCalendarChallenges } from '../../hooks/challenge/useCalendarChallenges';
+import { useBatchLikedStatus } from '../../hooks/social/useBatchLikedStatus';
 import { WallSortControls } from '../Wall/WallSortControls';
 import { ContentNavigation } from '../Calendar/ContentNavigation';
 import { ContentCalendarGrid } from '../Calendar/ContentCalendarGrid';
+import { LoginPromptModal } from '../social/LoginPromptModal';
 import { useAuth } from '../../hooks/auth/useAuth';
 import { useFollows } from '../../hooks/social/useFollows';
 import { countFriendsSubmissionsByDate, fetchFriendsSubmissionsByDateRange } from '../../lib/api';
@@ -70,6 +72,19 @@ export function FriendsFeedContent({
 
   // Fetch challenge data for the date to get colors from DB
   const { challenge } = useDailyChallenge(date);
+
+  // Batch like status
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const submissionIds = useMemo(() => submissions.map(s => s.id), [submissions]);
+  const { likedSet, countAdjustments, toggleLiked } = useBatchLikedStatus(user?.id, submissionIds);
+
+  const handleLikeToggle = useCallback((submissionId: string) => {
+    if (!user) {
+      setShowLoginModal(true);
+      return;
+    }
+    toggleLiked(submissionId);
+  }, [user, toggleLiked]);
 
   // Format submission time for tooltip
   const formatTime = (createdAt: string) => {
@@ -313,6 +328,10 @@ export function FriendsFeedContent({
                       nickname={submission.nickname}
                       href={onSubmissionClick ? undefined : getSubmissionHref(submission.id)}
                       onClick={onSubmissionClick ? () => onSubmissionClick(submission.id) : undefined}
+                      likeCount={submission.like_count + (countAdjustments.get(submission.id) ?? 0)}
+                      isLiked={likedSet.has(submission.id)}
+                      isOwnSubmission={user?.id === submission.user_id}
+                      onLikeToggle={() => handleLikeToggle(submission.id)}
                     />
                   </div>
                 ))}
@@ -328,6 +347,13 @@ export function FriendsFeedContent({
           ) : null}
           </>
         )
+      )}
+      {showLoginModal && (
+        <LoginPromptModal
+          onClose={() => setShowLoginModal(false)}
+          title="Sign In to Like"
+          message="You need to be logged in to like submissions."
+        />
       )}
     </div>
   );

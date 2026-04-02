@@ -279,7 +279,7 @@ export type FriendsSortMode = 'newest' | 'oldest' | 'ranked';
 export async function fetchFriendsSubmissionsFromDB(date: string, followingIds: string[], limit: number, sortMode: FriendsSortMode = 'newest') {
   let query = supabase
     .from('submissions')
-    .select('id, user_id, shapes, groups, background_color_index, created_at')
+    .select('id, user_id, shapes, groups, background_color_index, created_at, like_count')
     .eq('challenge_date', date)
     .eq('included_in_ranking', true)
     .in('user_id', followingIds);
@@ -645,6 +645,16 @@ export async function checkLikeExists(userId: string, submissionId: string): Pro
     .eq('submission_id', submissionId)
     .maybeSingle();
   return !!data;
+}
+
+export async function checkLikesExistBatch(userId: string, submissionIds: string[]): Promise<Set<string>> {
+  if (!submissionIds.length) return new Set();
+  const { data } = await supabase
+    .from('likes')
+    .select('submission_id')
+    .eq('user_id', userId)
+    .in('submission_id', submissionIds);
+  return new Set((data ?? []).map(r => r.submission_id));
 }
 
 export async function insertLike(userId: string, submissionId: string): Promise<void> {
