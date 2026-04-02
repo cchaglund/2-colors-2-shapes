@@ -8,7 +8,7 @@ import type { Profile } from '../../hooks/auth/useProfile';
 import type { ThemeMode, ThemeName } from '../../hooks/ui/useThemeState';
 import { FollowsProvider } from '../../contexts/FollowsContext';
 import { useFollows } from '../../hooks/social/useFollows';
-import { useIsDesktop } from '../../hooks/ui/useBreakpoint';
+import { useBreakpoint } from '../../hooks/ui/useBreakpoint';
 import { useClickOutside } from '../../hooks/ui/useClickOutside';
 import { THEME_NAMES, MODE_CYCLE, MODE_TITLE } from '../../constants/themes';
 
@@ -27,7 +27,7 @@ interface UserMenuDropdownProps {
 export function UserMenuDropdown({ profile, loading, isLoggedIn, onSignIn, onSignOut, themeMode, onSetThemeMode, themeName, onSetThemeName }: UserMenuDropdownProps) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const isDesktop = useIsDesktop();
+  const showGalleryInHeader = useBreakpoint(900);
 
   useClickOutside(containerRef, open, () => setOpen(false));
 
@@ -82,7 +82,7 @@ export function UserMenuDropdown({ profile, loading, isLoggedIn, onSignIn, onSig
                 profile={profile}
                 onSignOut={() => { setOpen(false); onSignOut(); }}
                 onClose={() => setOpen(false)}
-                isDesktop={isDesktop}
+                showGalleryInHeader={showGalleryInHeader}
                 themeMode={themeMode}
                 onSetThemeMode={onSetThemeMode}
                 themeName={themeName}
@@ -102,7 +102,7 @@ function UserMenuContent({
   profile,
   onSignOut,
   onClose,
-  isDesktop,
+  showGalleryInHeader,
   themeMode,
   onSetThemeMode,
   themeName,
@@ -111,7 +111,7 @@ function UserMenuContent({
   profile: Profile;
   onSignOut: () => void;
   onClose: () => void;
-  isDesktop: boolean;
+  showGalleryInHeader: boolean;
   themeMode?: ThemeMode;
   onSetThemeMode?: (mode: ThemeMode) => void;
   themeName?: ThemeName;
@@ -272,8 +272,8 @@ function UserMenuContent({
         )}
       </div>
 
-      {/* Mobile-only: Gallery link + theme switcher */}
-      {!isDesktop && (
+      {/* Gallery link (when header button hidden) + theme switcher (mobile) */}
+      {!showGalleryInHeader && (
         <div className="px-3 py-2 border-t border-(--color-border-light) flex flex-col gap-2">
           <Link
             href="/?view=gallery"

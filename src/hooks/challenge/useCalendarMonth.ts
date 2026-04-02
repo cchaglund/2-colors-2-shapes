@@ -65,7 +65,7 @@ export function useCalendarMonth(date: string, onDateChange: (date: string) => v
   const shortDateLabel = useMemo(() => {
     const d = new Date(date + 'T00:00:00Z');
     return d.toLocaleDateString('en-US', {
-      month: 'short',
+      month: 'long',
       day: 'numeric',
       year: 'numeric',
       timeZone: 'UTC',

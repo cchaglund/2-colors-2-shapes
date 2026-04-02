@@ -63,7 +63,8 @@ export function TopBar({
   const { profile: ownProfile, loading: ownProfileLoading } = useProfile(user?.id);
   const isSingleRow = useBreakpoint(520);   // single-row header (>=520)
   const isDesktop = useIsDesktop();          // show logo + pill (>=768)
-  const isWide = useBreakpoint(1150);        // full pill + gallery (>=1150)
+  const showGallery = useBreakpoint(900);    // gallery button in header (>=900)
+  const isWide = useBreakpoint(1200);        // full theme pill (>=1200)
 
   // Use props if provided (canvas page passes these), otherwise use own hooks
   const profile = profileProp !== undefined ? profileProp : ownProfile;
@@ -94,7 +95,7 @@ export function TopBar({
           saveError={saveError}
           hasSubmittedToday={hasSubmittedToday}
           isLoggedIn={isLoggedIn}
-          showGallery={isWide}
+          showGallery={showGallery}
         />
       )}
       {userMenu}
@@ -146,7 +147,7 @@ export function TopBar({
 
       {/* Center group — flex-based centering */}
       {centerContent && (
-        <div className="flex-1 flex justify-center min-w-0 px-4 overflow-x-clip">
+        <div className="flex-1 flex justify-center items-end min-w-0 px-4 overflow-x-clip self-stretch pb-3">
           {centerContent}
         </div>
       )}

@@ -84,7 +84,20 @@ function useTargetRect(selector: string) {
   return { rect, remeasure: measure };
 }
 
-function getTooltipPosition(targetRect: DOMRect, padding: number) {
+function getTooltipPosition(targetRect: DOMRect, padding: number, step: TourStep) {
+  // On short viewports, place the "manipulate" tooltip to the left of the shape, otherwise it gets cut off
+  if (step === 'manipulate' && window.innerHeight < 1050) {
+    const cutoutTop = targetRect.y - padding;
+    const cutoutHeight = targetRect.height + padding * 2;
+    const left = targetRect.x - padding - TOOLTIP_GAP - TOOLTIP_MAX_WIDTH;
+    return {
+      top: cutoutTop,
+      left: Math.max(VIEWPORT_MARGIN, left),
+      placement: 'left' as const,
+      cutoutHeight,
+    };
+  }
+
   const targetCenterY = targetRect.y + targetRect.height / 2;
   const isInBottomHalf = targetCenterY > window.innerHeight / 2;
   const placement = isInBottomHalf ? 'above' as const : 'below' as const;
@@ -239,7 +252,7 @@ export function TourOverlay({ step, selectedShapeId, challenge, onNext, onSkip }
   const cutout = hasCutout ? (frozenCutout ?? computeCutout(rect, step)) : null;
   const isShapeStep = step === 'manipulate';
   const padding = isShapeStep ? CUTOUT_PADDING_SHAPE : CUTOUT_PADDING;
-  const tooltip = hasCutout ? getTooltipPosition(rect, padding) : null;
+  const tooltip = hasCutout ? getTooltipPosition(rect, padding, step) : null;
 
   return (
     <motion.div
@@ -358,16 +371,17 @@ export function TourOverlay({ step, selectedShapeId, challenge, onNext, onSkip }
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
-            className="absolute pointer-events-auto"
+            className={`absolute pointer-events-auto ${tooltip.placement === 'left' ? 'flex items-center' : ''}`}
             style={{
               top: tooltip.placement === 'above' ? undefined : tooltip.top,
               bottom: tooltip.placement === 'above' ? window.innerHeight - tooltip.top : undefined,
               left: tooltip.left,
               width: TOOLTIP_MAX_WIDTH,
+              ...('cutoutHeight' in tooltip && { height: tooltip.cutoutHeight }),
             }}
-            initial={{ opacity: 0, y: tooltip.placement === 'above' ? 8 : -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: tooltip.placement === 'above' ? 8 : -8 }}
+            initial={{ opacity: 0, y: tooltip.placement === 'above' ? 8 : tooltip.placement === 'below' ? -8 : 0, x: tooltip.placement === 'left' ? 8 : 0 }}
+            animate={{ opacity: 1, y: 0, x: 0 }}
+            exit={{ opacity: 0, y: tooltip.placement === 'above' ? 8 : tooltip.placement === 'below' ? -8 : 0, x: tooltip.placement === 'left' ? 8 : 0 }}
             transition={{ duration: 0.2 }}
           >
             <motion.div

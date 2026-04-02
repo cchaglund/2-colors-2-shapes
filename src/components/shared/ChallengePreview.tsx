@@ -47,46 +47,50 @@ const styles: Record<string, VariantStyle> = {
 export function ChallengePreview({ challenge, variant = 'default', className = '' }: ChallengePreviewProps) {
   const s = styles[variant];
   return (
-    <div className={`flex items-center justify-center gap-5 ${className}`}>
+    <div className={`flex items-end justify-center gap-5 ${className}`}>
       {/* Colors */}
-      <div className="flex flex-col items-center gap-1">
-        <div
-          className="flex h-5 rounded-sm overflow-hidden"
-          style={{ outline: s.outline }}
-        >
-          {challenge.colors.map((color, i) => (
-            <div key={i} className="w-5" style={{ backgroundColor: color }} />
-          ))}
+      <div className="flex flex-col items-center gap-0.5">
+        <div className="h-4 flex items-center">
+          <div
+            className="flex h-3 rounded-sm overflow-hidden"
+            style={{ outline: s.outline }}
+          >
+            {challenge.colors.map((color, i) => (
+              <div key={i} className="w-3" style={{ backgroundColor: color }} />
+            ))}
+          </div>
         </div>
-        <span className={`text-[0.5625rem] uppercase tracking-wider ${s.labelClass}`} style={s.labelStyle}>
+        <span className={`text-[0.5625rem] leading-none uppercase tracking-wider ${s.labelClass}`} style={s.labelStyle}>
           Colors
         </span>
       </div>
       {/* Shapes */}
-      <div className="flex flex-col items-center gap-1">
-        <div className="flex items-center gap-1.5 h-5">
+      <div className="flex flex-col items-center gap-0.5">
+        <div className="flex items-center justify-center gap-1.5 h-4">
           {challenge.shapes.map((shape, i) => (
             <ShapeIcon
               key={i}
               type={shape.type}
-              size={20}
+              size={15}
               fill={s.shapeFill}
               stroke={s.shapeStroke}
               strokeWidth={1.5}
             />
           ))}
         </div>
-        <span className={`text-[0.5625rem] uppercase tracking-wider ${s.labelClass}`} style={s.labelStyle}>
+        <span className={`text-[0.5625rem] leading-none uppercase tracking-wider ${s.labelClass}`} style={s.labelStyle}>
           Shapes
         </span>
       </div>
       {/* Word */}
-      <div className="flex flex-col items-center gap-1">
-        <span className={`text-sm font-semibold capitalize font-display truncate leading-5 ${s.wordClass}`} style={s.wordStyle}>
-          {'"'}{challenge.word}{'"'}
-        </span>
-        <span className={`text-[0.5625rem] uppercase tracking-wider ${s.labelClass}`} style={s.labelStyle}>
-          Word
+      <div className="flex flex-col items-center gap-0.5">
+        <div className="h-4 flex items-center">
+          <span className={`text-sm font-semibold capitalize font-display truncate leading-none ${s.wordClass}`} style={s.wordStyle}>
+            {'"'}{challenge.word}{'"'}
+          </span>
+        </div>
+        <span className={`text-[0.5625rem] leading-none uppercase tracking-wider ${s.labelClass}`} style={s.labelStyle}>
+          Inspiration
         </span>
       </div>
     </div>

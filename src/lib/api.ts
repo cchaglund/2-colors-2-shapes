@@ -243,8 +243,7 @@ export async function fetchWallSubmissionsFromDB(date: string, limit: number, so
   let query = supabase
     .from('submissions')
     .select('id, user_id, shapes, groups, background_color_index, created_at, like_count')
-    .eq('challenge_date', date)
-    .eq('included_in_ranking', true);
+    .eq('challenge_date', date);
 
   switch (sortMode) {
     case 'newest':

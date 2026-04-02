@@ -69,7 +69,7 @@ export function WallSortControls({
 
       {isOpen && (
         <div
-          className="absolute right-0 top-full mt-1 py-1 min-w-30 z-10"
+          className="absolute right-0 top-full mt-1 py-1 min-w-30 z-20"
           style={dropdownStyle}
         >
           {options.map((mode) => {

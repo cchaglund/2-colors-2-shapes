@@ -174,6 +174,13 @@ export function useWallOfTheDay(options: UseWallOfTheDayOptions): UseWallOfTheDa
   const isRankedAvailable = !isDateWithinLastTwoDays(date);
   const adjacentDates = getAdjacentDates(date);
 
+  // Reset to 'newest' if current sort mode isn't applicable for this day
+  useEffect(() => {
+    if (sortMode === 'ranked' && !isRankedAvailable) {
+      setSortMode('newest');
+    }
+  }, [isRankedAvailable, sortMode]);
+
   const fetchData = useCallback(async () => {
     if (!canViewCurrentDay) {
       setSubmissions([]);

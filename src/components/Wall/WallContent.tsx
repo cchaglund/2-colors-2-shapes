@@ -135,6 +135,7 @@ export function WallContent({
       {showNavigation && (
         <ContentNavigation
           label={viewType === 'calendar' ? monthYearLabel : shortDateLabel}
+          subtitle={viewType === 'grid' && challenge?.word ? `Word of the day: \u201C${challenge.word}\u201D` : undefined}
           onPrev={viewType === 'calendar' ? goToPreviousMonth : () => adjacentDates.prev && onDateChange(adjacentDates.prev)}
           onNext={viewType === 'calendar' ? goToNextMonth : () => adjacentDates.next && onDateChange(adjacentDates.next)}
           onToday={goToToday}
@@ -142,15 +143,6 @@ export function WallContent({
           canGoNext={viewType === 'calendar' ? canGoNext : !!adjacentDates.next}
           showToday={!isToday}
         />
-      )}
-
-      {/* Word of the day */}
-      {challenge?.word && (
-        <div className="flex justify-center">
-          <span className="text-sm font-medium text-(--color-text-secondary)">
-            Word of the day: &ldquo;{challenge.word}&rdquo;
-          </span>
-        </div>
       )}
 
       {/* View toggle and sort controls */}

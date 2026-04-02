@@ -65,7 +65,8 @@ export function GalleryPage({ tab: initialTab, year: initialYear, month: initial
   const todayStr = useMemo(() => getTodayDateUTC(), []);
   const { loadSubmissionsForMonth, loading, hasSubmittedToday: submittedToday, hasCheckedSubmission } = useSubmissions(user?.id, todayStr);
   // Optimistic: assume submitted while check is pending to avoid flashing locked state
-  const hasSubmittedToday = !hasCheckedSubmission || submittedToday;
+  // But for logged-out users (no check will ever run), default to false
+  const hasSubmittedToday = user ? (!hasCheckedSubmission || submittedToday) : false;
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [rankings, setRankings] = useState<Map<string, number>>(new Map());
   const [currentYear, setCurrentYear] = useState(() => initialYear ?? new Date().getFullYear());

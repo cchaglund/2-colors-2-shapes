@@ -2,6 +2,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ContentNavigationProps {
   label: string;
+  subtitle?: string;
   onPrev: () => void;
   onNext: () => void;
   onToday: () => void;
@@ -29,6 +30,7 @@ const todayBtnStyle: React.CSSProperties = {
 
 export function ContentNavigation({
   label,
+  subtitle,
   onPrev,
   onNext,
   onToday,
@@ -60,6 +62,11 @@ export function ContentNavigation({
             >
               Today
             </button>
+          )}
+          {subtitle && (
+            <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 whitespace-nowrap uppercase tracking-widest text-(--color-accent) font-semibold text-[0.625rem]">
+              {subtitle}
+            </div>
           )}
         </div>
 

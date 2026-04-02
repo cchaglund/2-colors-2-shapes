@@ -447,8 +447,8 @@ export function Canvas({ marqueeStartRef }: CanvasProps) {
         width={CANVAS_SIZE}
         height={CANVAS_SIZE}
         viewBox={`${viewBoxX} ${viewBoxY} ${viewBoxSize} ${viewBoxSize}`}
-        className="touch-none overflow-visible"
-        style={{ cursor: marqueeState ? 'crosshair' : cursorStyle }}
+        className="touch-none overflow-visible max-h-[calc(100dvh-16rem)] max-w-[calc(100vw-8rem)] w-auto h-auto"
+        style={{ cursor: marqueeState ? 'crosshair' : cursorStyle, aspectRatio: '1 / 1' }}
         onMouseDown={handleCanvasMouseDown}
         onTouchStart={handleCanvasTouchStart}
         onTouchMove={handleCanvasTouchMove}
