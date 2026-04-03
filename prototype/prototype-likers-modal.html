@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="a" data-mode="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Likers Modal Prototypes — 2 Colors 2 Shapes</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fredoka:wght@400;500;600;700;800&family=Lilita+One&family=Nunito:wght@400;500;600;700;800&display=swap');
+
+  /* ─── Theme tokens — exact values from the real index.css ─── */
+
+  /* Theme A (Pop) Light */
+  :root[data-theme="a"][data-mode="light"] {
+    --font-body: 'Fredoka', sans-serif;
+    --font-display: 'Lilita One', cursive;
+    --color-accent: #FF3366;
+    --color-accent-hover: #e62e5c;
+    --color-accent-light: rgba(255, 51, 102, 0.08);
+    --color-bg-primary: #FFFBF7;
+    --color-modal-bg: #ffffff;
+    --color-modal-overlay: rgba(45, 27, 105, 0.5);
+    --color-text-primary: #2D1B69;
+    --color-text-secondary: #6B5B8D;
+    --color-text-tertiary: #9B8FB8;
+    --color-border: #2D1B69;
+    --color-border-light: rgba(45, 27, 105, 0.12);
+    --color-hover: rgba(45, 27, 105, 0.04);
+    --radius-sm: 0.375rem;
+    --radius-lg: 1rem;
+    --radius-pill: 1.25rem;
+    --border-width: 2px;
+    --shadow-modal: 8px 8px 0 #2D1B69;
+    --color-selected: #F0EDFF;
+    --color-selected-hover: #E0DBFF;
+    --shadow-card: 3px 3px 0 0 rgba(45, 27, 105, 0.10);
+  }
+  :root[data-theme="a"][data-mode="dark"] {
+    --font-body: 'Fredoka', sans-serif;
+    --font-display: 'Lilita One', cursive;
+    --color-accent: #FF3366;
+    --color-accent-hover: #e62e5c;
+    --color-accent-light: rgba(255, 51, 102, 0.12);
+    --color-bg-primary: #1A1230;
+    --color-modal-bg: #2D2248;
+    --color-modal-overlay: rgba(0, 0, 0, 0.6);
+    --color-text-primary: #E8E0FF;
+    --color-text-secondary: #A89BC8;
+    --color-text-tertiary: #7B6F9A;
+    --color-border: #E8E0FF;
+    --color-border-light: rgba(232, 224, 255, 0.12);
+    --color-hover: rgba(232, 224, 255, 0.06);
+    --radius-sm: 0.375rem;
+    --radius-lg: 1rem;
+    --radius-pill: 1.25rem;
+    --border-width: 2px;
+    --shadow-modal: 8px 8px 0 rgba(0, 0, 0, 0.4);
+    --color-selected: rgba(255, 51, 102, 0.2);
+    --color-selected-hover: rgba(255, 51, 102, 0.3);
+    --shadow-card: 3px 3px 0 0 rgba(0, 0, 0, 0.25);
+  }
+
+  /* Theme B (Swiss) Light */
+  :root[data-theme="b"][data-mode="light"] {
+    --font-body: 'DM Sans', sans-serif;
+    --font-display: 'DM Sans', sans-serif;
+    --color-accent: #E63322;
+    --color-accent-hover: #cc2b1c;
+    --color-accent-light: rgba(230, 51, 34, 0.06);
+    --color-bg-primary: #fafafa;
+    --color-modal-bg: #ffffff;
+    --color-modal-overlay: rgba(0, 0, 0, 0.4);
+    --color-text-primary: #222222;
+    --color-text-secondary: #666666;
+    --color-text-tertiary: #999999;
+    --color-border: #222222;
+    --color-border-light: rgba(0, 0, 0, 0.08);
+    --color-hover: rgba(0, 0, 0, 0.03);
+    --radius-sm: 0.125rem;
+    --radius-lg: 0.25rem;
+    --radius-pill: 0.1875rem;
+    --border-width: 1px;
+    --shadow-modal: 0 2px 8px rgba(0, 0, 0, 0.12);
+    --color-selected: rgba(230, 51, 34, 0.1);
+    --color-selected-hover: rgba(230, 51, 34, 0.16);
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
+  }
+  :root[data-theme="b"][data-mode="dark"] {
+    --font-body: 'DM Sans', sans-serif;
+    --font-display: 'DM Sans', sans-serif;
+    --color-accent: #E63322;
+    --color-accent-hover: #cc2b1c;
+    --color-accent-light: rgba(230, 51, 34, 0.1);
+    --color-bg-primary: #1a1a1a;
+    --color-modal-bg: #222222;
+    --color-modal-overlay: rgba(0, 0, 0, 0.6);
+    --color-text-primary: rgba(255, 255, 255, 0.9);
+    --color-text-secondary: rgba(255, 255, 255, 0.55);
+    --color-text-tertiary: rgba(255, 255, 255, 0.35);
+    --color-border: rgba(255, 255, 255, 0.9);
+    --color-border-light: rgba(255, 255, 255, 0.08);
+    --color-hover: rgba(255, 255, 255, 0.04);
+    --radius-sm: 0.125rem;
+    --radius-lg: 0.25rem;
+    --radius-pill: 0.1875rem;
+    --border-width: 1px;
+    --shadow-modal: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --color-selected: rgba(230, 51, 34, 0.2);
+    --color-selected-hover: rgba(230, 51, 34, 0.3);
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Theme C (Cloud) Light */
+  :root[data-theme="c"][data-mode="light"] {
+    --font-body: 'Nunito', sans-serif;
+    --font-display: 'Nunito', sans-serif;
+    --color-accent: #E07A5F;
+    --color-accent-hover: #cc6a50;
+    --color-accent-light: rgba(224, 122, 95, 0.08);
+    --color-bg-primary: #fdf8f3;
+    --color-modal-bg: #ffffff;
+    --color-modal-overlay: rgba(0, 0, 0, 0.35);
+    --color-text-primary: #3d3d3d;
+    --color-text-secondary: #7a7a7a;
+    --color-text-tertiary: #aaaaaa;
+    --color-border: #3d3d3d;
+    --color-border-light: rgba(0, 0, 0, 0.08);
+    --color-hover: rgba(0, 0, 0, 0.03);
+    --radius-sm: 0.5rem;
+    --radius-lg: 1.25rem;
+    --radius-pill: 9999px;
+    --border-width: 1px;
+    --shadow-modal: 0 8px 40px rgba(0, 0, 0, 0.08);
+    --color-selected: rgba(224, 122, 95, 0.12);
+    --color-selected-hover: rgba(224, 122, 95, 0.2);
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+  :root[data-theme="c"][data-mode="dark"] {
+    --font-body: 'Nunito', sans-serif;
+    --font-display: 'Nunito', sans-serif;
+    --color-accent: #E07A5F;
+    --color-accent-hover: #cc6a50;
+    --color-accent-light: rgba(224, 122, 95, 0.1);
+    --color-bg-primary: #2a2520;
+    --color-modal-bg: #352f29;
+    --color-modal-overlay: rgba(0, 0, 0, 0.5);
+    --color-text-primary: rgba(255, 255, 255, 0.88);
+    --color-text-secondary: rgba(255, 255, 255, 0.5);
+    --color-text-tertiary: rgba(255, 255, 255, 0.3);
+    --color-border: rgba(255, 255, 255, 0.88);
+    --color-border-light: rgba(255, 255, 255, 0.08);
+    --color-hover: rgba(255, 255, 255, 0.04);
+    --radius-sm: 0.5rem;
+    --radius-lg: 1.25rem;
+    --radius-pill: 9999px;
+    --border-width: 1px;
+    --shadow-modal: 0 8px 40px rgba(0, 0, 0, 0.3);
+    --color-selected: rgba(224, 122, 95, 0.18);
+    --color-selected-hover: rgba(224, 122, 95, 0.28);
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    padding: 32px;
+    transition: background 0.25s ease, color 0.25s ease;
+    line-height: 1.5;
+  }
+
+  /* ─── Theme Switcher ─── */
+  .theme-bar {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 32px;
+    padding: 12px 16px; background: var(--color-modal-bg);
+    border: var(--border-width) solid var(--color-border-light);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-card);
+  }
+  .theme-bar-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.6px; color: var(--color-text-tertiary); margin-right: 4px;
+  }
+  .theme-btn {
+    font-family: var(--font-body); font-size: 13px; font-weight: 600;
+    padding: 6px 14px; border-radius: 9999px;
+    border: var(--border-width) solid var(--color-border-light);
+    background: transparent; color: var(--color-text-primary); cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .theme-btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
+  .theme-btn.active { background: var(--color-accent); color: white; border-color: var(--color-accent); }
+  .theme-sep { width: 1px; height: 20px; background: var(--color-border-light); margin: 0 4px; }
+
+  h1 { font-family: var(--font-display); font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+  .page-subtitle { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 36px; }
+
+  .prototypes { display: flex; flex-direction: column; gap: 48px; max-width: 900px; }
+
+  .proto-section {
+    background: var(--color-modal-bg); border: var(--border-width) solid var(--color-border-light);
+    border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-card);
+  }
+  .proto-section h2 { font-family: var(--font-display); font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .proto-section .reasoning {
+    font-style: italic; font-size: 13px; color: var(--color-text-secondary);
+    line-height: 1.6; margin-bottom: 20px;
+  }
+
+  /* ─── Trigger button ─── */
+  .trigger-btn {
+    font-family: var(--font-body); font-size: 13px; font-weight: 600;
+    color: var(--color-accent); background: var(--color-accent-light);
+    border: var(--border-width) solid transparent;
+    padding: 8px 18px; border-radius: var(--radius-pill); cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .trigger-btn:hover { border-color: var(--color-accent); }
+  .trigger-btn:active { transform: scale(0.97); }
+
+  /* ─── Liker row (shared) ─── */
+  .liker-row {
+    display: flex; align-items: center; gap: 12px; padding: 8px 4px;
+    border-radius: var(--radius-sm); transition: background 0.12s ease;
+    cursor: pointer; text-decoration: none; color: inherit;
+  }
+  .liker-row:hover { background: var(--color-hover); }
+  .liker-avatar {
+    width: 36px; height: 36px; border-radius: 9999px; flex-shrink: 0;
+    border: var(--border-width) solid var(--color-border-light);
+  }
+  .liker-name {
+    font-size: 14px; font-weight: 600; flex: 1; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  /* Follow button — exact match of Button variant="ghost" size="sm"
+     with compact overrides (h-auto, py-1, text-xs) from FollowButton.tsx.
+     Ghost: bg-selected, text-primary, border solid color-border, no shadow.
+     Hover: bg-selected-hover, translateY(1px). */
+  .follow-btn {
+    font-family: var(--font-body); font-size: 12px; font-weight: 600;
+    padding: 4px 12px; border-radius: var(--radius-pill);
+    background: var(--color-selected); color: var(--color-text-primary);
+    border: var(--border-width) solid var(--color-border);
+    cursor: pointer; flex-shrink: 0;
+    transition: all 0.15s ease;
+  }
+  .follow-btn:hover {
+    background: var(--color-selected-hover);
+    transform: translateY(1px);
+  }
+  .follow-btn:active { transform: translateY(2px); }
+
+  /* ─── Modal header (shared) ─── */
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px; border-bottom: 1px solid var(--color-border-light); flex-shrink: 0;
+  }
+  .modal-header h3 { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+  /* CloseButton — matches CloseButton.tsx: lucide X icon, no background,
+     color transitions from text-secondary to text-primary on hover.
+     No bg, no border, no border-radius — just a bare icon button. */
+  .modal-close {
+    display: flex; align-items: center; justify-content: center;
+    border: none; background: transparent; padding: 0;
+    color: var(--color-text-secondary); cursor: pointer;
+    transition: color 0.15s ease;
+  }
+  .modal-close:hover { color: var(--color-text-primary); }
+
+  /* ─── Liker list container ─── */
+  .liker-list { padding: 8px 16px; overflow-y: auto; flex: 1; }
+
+  /* ─── Cross-platform scrollbar styling ───
+     macOS hides scrollbars by default and shows thin overlays.
+     Windows/Linux show permanent, chunky scrollbars that look bad.
+     These rules create a thin, themed scrollbar on all platforms.
+
+     Firefox: scrollbar-width + scrollbar-color (standard)
+     Chrome/Safari/Edge: ::-webkit-scrollbar rules */
+  .liker-list {
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-light) transparent;
+  }
+  /* Chrome, Safari, Edge */
+  .liker-list::-webkit-scrollbar { width: 6px; }
+  .liker-list::-webkit-scrollbar-track { background: transparent; }
+  .liker-list::-webkit-scrollbar-thumb {
+    background: var(--color-border-light);
+    border-radius: 3px;
+  }
+  .liker-list::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-tertiary);
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     MODAL — matches Modal.tsx exactly:
+     - bg: --color-modal-bg
+     - border: --border-width solid --color-border
+     - border-radius: --radius-lg
+     - box-shadow: --shadow-modal
+     - backdrop: --color-modal-overlay (no blur)
+     - max-h: 90dvh, overflow-y: auto
+     ═══════════════════════════════════════════════════════ */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--color-modal-overlay);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    /* No backdrop-filter — the real Modal.tsx doesn't use blur */
+  }
+  .overlay.open { display: flex; }
+
+  .modal {
+    background: var(--color-modal-bg);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-modal);
+    width: 100%;
+    max-width: 400px;
+    margin: 0 16px;
+    max-height: min(520px, 80vh);
+    display: flex;
+    flex-direction: column;
+    animation: modalIn 0.2s ease-out;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  /* ─── Notes section ─── */
+  .notes {
+    margin-top: 48px; padding: 20px; border-top: 1px solid var(--color-border-light);
+    font-size: 13px; color: var(--color-text-secondary); line-height: 1.7;
+  }
+  .notes h3 { font-family: var(--font-display); font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--color-text-primary); }
+  .notes code { font-size: 12px; background: var(--color-hover); padding: 1px 5px; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="theme-bar">
+  <span class="theme-bar-label">Theme</span>
+  <button class="theme-btn active" data-group="theme" onclick="setTheme('a', this)">Pop</button>
+  <button class="theme-btn" data-group="theme" onclick="setTheme('b', this)">Swiss</button>
+  <button class="theme-btn" data-group="theme" onclick="setTheme('c', this)">Cloud</button>
+  <div class="theme-sep"></div>
+  <span class="theme-bar-label">Mode</span>
+  <button class="theme-btn active" data-group="mode" onclick="setMode('light', this)">Light</button>
+  <button class="theme-btn" data-group="mode" onclick="setMode('dark', this)">Dark</button>
+</div>
+
+<h1>Likers Modal — "View all likes"</h1>
+<p class="page-subtitle">
+  <strong>CHOSEN: Option 1 — Clean List Modal</strong>, styled to exactly match
+  the existing <code>Modal.tsx</code> component. Click "View all" to open.
+</p>
+
+<div class="prototypes">
+
+  <div class="proto-section">
+    <h2>Clean List Modal</h2>
+    <p class="reasoning">
+      Matches the existing modal pattern used by FriendsModal, KeyboardSettingsModal, etc.
+      Same structure: p-0 override on the Modal content, fixed header with border-bottom,
+      scrollable content area, and CloseButton in top-right. Border, shadow, radius, and
+      backdrop color all come from the theme's CSS variables (--shadow-modal, --color-modal-bg,
+      --color-modal-overlay, --color-border, --radius-lg, --border-width).
+      <br><br>
+      <strong>Scrollbar:</strong> Uses <code>scrollbar-width: thin</code> +
+      <code>scrollbar-color</code> for Firefox, and <code>::-webkit-scrollbar</code>
+      rules for Chrome/Safari/Edge. This gives a thin, themed scrollbar on Windows/Linux
+      instead of the chunky OS default, while macOS users see their normal overlay scrollbar.
+    </p>
+    <button class="trigger-btn" onclick="openModal()">View all 15 likes</button>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="overlay" id="overlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Liked by</h3>
+      <button class="modal-close" onclick="closeModal()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="liker-list" id="likerList"></div>
+  </div>
+</div>
+
+<div class="notes">
+  <h3>UI/UX Decisions & Component Notes</h3>
+
+  <strong>How this modal is reached:</strong> User hovers the like button on <code>SubmissionDetailPage</code> →
+  likers tooltip appears (see <code>prototype/prototype-likers-popup.html</code>) → user clicks
+  "View all N likes" → this modal opens.<br><br>
+
+  <strong>Modal styling:</strong> Uses the existing <code>Modal</code> component (<code>src/components/shared/Modal.tsx</code>).
+  All border, shadow, radius, and backdrop values come from theme CSS variables
+  (<code>--color-modal-bg</code>, <code>--color-border</code>, <code>--radius-lg</code>,
+  <code>--shadow-modal</code>, <code>--color-modal-overlay</code>). No custom values.
+  Follow <code>FriendsModal</code> structure: <code>p-0</code>, fixed header with border-bottom,
+  scrollable <code>flex-1 overflow-y-auto</code> content area.<br><br>
+
+  <strong>Reusable components — do NOT create new ones:</strong>
+  <ul style="margin: 8px 0 0 20px;">
+    <li><code>Modal</code> (<code>src/components/shared/Modal.tsx</code>) — shared wrapper</li>
+    <li><code>CloseButton</code> (<code>src/components/shared/CloseButton.tsx</code>) — lucide X icon, no background, hover color transition</li>
+    <li><code>FollowButton</code> (<code>src/components/social/FollowButton.tsx</code>) — uses <code>variant="ghost"</code> with compact sizing. Handles follow/unfollow/loading/disabled states internally</li>
+    <li><code>AvatarImage</code> (<code>src/components/shared/AvatarImage.tsx</code>) — Google avatar with initial-letter fallback</li>
+  </ul>
+  <br>
+
+  <strong>Follow button rules:</strong>
+  <ul style="margin: 8px 0 0 20px;">
+    <li>Only show for users the current user is NOT already following</li>
+    <li>Don't show for the current user's own row</li>
+    <li>After following, the button should disappear from that row</li>
+    <li>Button says "Follow" (not following) or "Unfollow" (following) — no "Following" intermediate state</li>
+  </ul>
+  <br>
+
+  <strong>Each liker row:</strong> Avatar + nickname (clickable, navigates to their profile) + optional FollowButton (right-aligned).
+  Rows have subtle hover background. Nicknames truncate with ellipsis.<br><br>
+
+  <strong>Cross-platform scrollbar styling (critical for Windows/Linux):</strong>
+  <ul style="margin: 8px 0 0 20px;">
+    <li><strong>Firefox:</strong> <code>scrollbar-width: thin; scrollbar-color: var(--color-border-light) transparent;</code></li>
+    <li><strong>Chrome/Safari/Edge:</strong> <code>::-webkit-scrollbar</code> 6px width, <code>var(--color-border-light)</code> thumb, rounded corners</li>
+    <li>Consider adding a <code>scrollbar-thin</code> utility in <code>src/index.css</code> alongside existing <code>scrollbar-hide</code></li>
+  </ul>
+</div>
+
+<script>
+  const LIKERS = [
+    { name: 'PixelWitch', seed: 'pixelwitch' },
+    { name: 'CircleKing', seed: 'circleking' },
+    { name: 'DotMatrix', seed: 'dotmatrix' },
+    { name: 'NeonBloom', seed: 'neonbloom' },
+    { name: 'ShapeMaster', seed: 'shapemaster' },
+    { name: 'VectorVibes', seed: 'vectorvibes' },
+    { name: 'PaletteJoy', seed: 'palettejoy' },
+    { name: 'GeoBrush', seed: 'geobrush' },
+    { name: 'TinyCanvas', seed: 'tinycanvas' },
+    { name: 'HueHunter', seed: 'huehunter' },
+    { name: 'GridSnap', seed: 'gridsnap' },
+    { name: 'ArcAngel', seed: 'arcangel' },
+    { name: 'SketchNova', seed: 'sketchnova' },
+    { name: 'ChroMagic', seed: 'chromagic' },
+    { name: 'FormFlow', seed: 'formflow' },
+  ];
+  const COLORS = ['b6e3f4', 'c0aede', 'd1d4f9', 'ffd5dc', 'ffdfbf'];
+
+  // Indices of likers the user is already following (no Follow button shown)
+  const ALREADY_FOLLOWING = new Set([0, 2, 5, 8, 11, 13]);
+
+  function buildList() {
+    const container = document.getElementById('likerList');
+    container.innerHTML = '';
+    LIKERS.forEach((liker, i) => {
+      const row = document.createElement('a');
+      row.href = '#';
+      row.className = 'liker-row';
+      row.onclick = (e) => e.preventDefault();
+      const followBtn = ALREADY_FOLLOWING.has(i)
+        ? ''
+        : `<button class="follow-btn" onclick="event.preventDefault(); event.stopPropagation(); toggleFollow(this)">Follow</button>`;
+      row.innerHTML = `
+        <img class="liker-avatar" src="https://api.dicebear.com/7.x/thumbs/svg?seed=${liker.seed}&backgroundColor=${COLORS[i % COLORS.length]}" alt="${liker.name}" loading="lazy">
+        <span class="liker-name">${liker.name}</span>
+        ${followBtn}
+      `;
+      container.appendChild(row);
+    });
+  }
+
+  function toggleFollow(btn) {
+    btn.classList.toggle('following');
+    btn.textContent = btn.classList.contains('following') ? 'Following' : 'Follow';
+  }
+
+  buildList();
+
+  function openModal() {
+    document.getElementById('overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal(event) {
+    if (event && event.target !== event.currentTarget) return;
+    document.getElementById('overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  function setTheme(name, btn) {
+    document.documentElement.setAttribute('data-theme', name);
+    document.querySelectorAll('[data-group="theme"]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  function setMode(mode, btn) {
+    document.documentElement.setAttribute('data-mode', mode);
+    document.querySelectorAll('[data-group="mode"]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+</script>
+
+</body>
+</html>

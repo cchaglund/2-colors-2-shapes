@@ -9,8 +9,11 @@ import { useDailyChallenge } from '../hooks/challenge/useDailyChallenge';
 import { useSubmissionDetail } from '../hooks/submission/useSubmissionDetail';
 import { useExportActions } from '../hooks/submission/useExportActions';
 import { useLikes } from '../hooks/social/useLikes';
+import { useLikers } from '../hooks/social/useLikers';
 import { FollowButton } from '../components/social/FollowButton';
 import { AvatarImage } from '../components/shared/AvatarImage';
+import { LikersTooltip } from '../components/social/LikersTooltip';
+import { LikersModal } from '../components/social/LikersModal';
 import { LoginPromptModal } from '../components/social/LoginPromptModal';
 import {
   SubmissionCanvas,
@@ -58,12 +61,16 @@ export function SubmissionDetailPage({ date, submissionId, themeMode, onSetTheme
 
   // Like state
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showLikersModal, setShowLikersModal] = useState(false);
   const { isLiked, likeCount, toggleLike } = useLikes({
     userId: user?.id,
     submissionId: submission?.id,
     initialLikeCount: submission?.like_count ?? 0,
   });
   const isOwnSubmission = user?.id === submission?.user_id;
+
+  // Likers data (fetched on page load)
+  const { likers } = useLikers(submission?.id);
 
   const handleLikeToggle = () => {
     if (!user) {
@@ -190,15 +197,21 @@ export function SubmissionDetailPage({ date, submissionId, themeMode, onSetTheme
                   svgRef={svgRef}
                 />
               </div>
-              {/* Like button */}
-              <div className="flex items-center">
-                <CardLikeButton
-                  isLiked={isLiked}
-                  likeCount={likeCount}
-                  disabled={isOwnSubmission}
-                  size="lg"
-                  onToggle={handleLikeToggle}
-                />
+              {/* Like button with likers tooltip */}
+              <div className="flex items-center pt-1">
+                <LikersTooltip
+                  likers={likers}
+                  totalCount={likeCount}
+                  onViewAll={() => setShowLikersModal(true)}
+                >
+                  <CardLikeButton
+                    isLiked={isLiked}
+                    likeCount={likeCount}
+                    disabled={isOwnSubmission}
+                    size="lg"
+                    onToggle={handleLikeToggle}
+                  />
+                </LikersTooltip>
               </div>
             </div>
 
@@ -222,6 +235,12 @@ export function SubmissionDetailPage({ date, submissionId, themeMode, onSetTheme
           onClose={() => setShowLoginModal(false)}
           title="Sign In to Like"
           message="You need to be logged in to like submissions."
+        />
+      )}
+      {showLikersModal && (
+        <LikersModal
+          likers={likers}
+          onClose={() => setShowLikersModal(false)}
         />
       )}
     </div>

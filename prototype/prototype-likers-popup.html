@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="a" data-mode="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Likers Popup Prototypes</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800&family=Lilita+One&display=swap');
+
+  /* ─── Theme Tokens ─── */
+  :root[data-theme="a"][data-mode="light"] {
+    --color-accent: #FF3366;
+    --color-bg-primary: #FFFBF7;
+    --color-bg-secondary: #FFF5EE;
+    --color-text-primary: #2D1B69;
+    --color-text-secondary: #6B5B8D;
+    --color-text-tertiary: #9B8FB8;
+    --color-border: #2D1B69;
+    --color-border-light: rgba(45, 27, 105, 0.12);
+    --color-hover: rgba(45, 27, 105, 0.04);
+    --font-body: 'Fredoka', sans-serif;
+    --font-display: 'Lilita One', sans-serif;
+    --radius-sm: 0.375rem;
+    --radius-md: 0.625rem;
+    --radius-lg: 1rem;
+    --radius-pill: 1.25rem;
+    --border-width: 2px;
+    --shadow-card: 3px 3px 0 0 rgba(45, 27, 105, 0.10);
+    --shadow-popup: 4px 4px 0 0 rgba(45, 27, 105, 0.12);
+  }
+  :root[data-theme="a"][data-mode="dark"] {
+    --color-accent: #FF3366;
+    --color-bg-primary: #1A1230;
+    --color-bg-secondary: #241A3E;
+    --color-text-primary: #E8E0FF;
+    --color-text-secondary: #A89BC8;
+    --color-text-tertiary: #7B6F9A;
+    --color-border: #E8E0FF;
+    --color-border-light: rgba(232, 224, 255, 0.12);
+    --color-hover: rgba(232, 224, 255, 0.06);
+    --font-body: 'Fredoka', sans-serif;
+    --font-display: 'Lilita One', sans-serif;
+    --radius-sm: 0.375rem;
+    --radius-md: 0.625rem;
+    --radius-lg: 1rem;
+    --radius-pill: 1.25rem;
+    --border-width: 2px;
+    --shadow-card: 3px 3px 0 0 rgba(0, 0, 0, 0.25);
+    --shadow-popup: 4px 4px 0 0 rgba(0, 0, 0, 0.3);
+  }
+  :root[data-theme="b"][data-mode="light"] {
+    --color-accent: #E63322;
+    --color-bg-primary: #fafafa;
+    --color-bg-secondary: #f0f0f0;
+    --color-text-primary: #222222;
+    --color-text-secondary: #666666;
+    --color-text-tertiary: #999999;
+    --color-border: #222222;
+    --color-border-light: rgba(0, 0, 0, 0.08);
+    --color-hover: rgba(0, 0, 0, 0.03);
+    --font-body: 'DM Sans', sans-serif;
+    --font-display: 'DM Sans', sans-serif;
+    --radius-sm: 0.125rem;
+    --radius-md: 0.1875rem;
+    --radius-lg: 0.25rem;
+    --radius-pill: 0.1875rem;
+    --border-width: 1.5px;
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
+    --shadow-popup: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  :root[data-theme="b"][data-mode="dark"] {
+    --color-accent: #E63322;
+    --color-bg-primary: #1a1a1a;
+    --color-bg-secondary: #252525;
+    --color-text-primary: rgba(255, 255, 255, 0.9);
+    --color-text-secondary: rgba(255, 255, 255, 0.55);
+    --color-text-tertiary: rgba(255, 255, 255, 0.35);
+    --color-border: rgba(255, 255, 255, 0.9);
+    --color-border-light: rgba(255, 255, 255, 0.08);
+    --color-hover: rgba(255, 255, 255, 0.04);
+    --font-body: 'DM Sans', sans-serif;
+    --font-display: 'DM Sans', sans-serif;
+    --radius-sm: 0.125rem;
+    --radius-md: 0.1875rem;
+    --radius-lg: 0.25rem;
+    --radius-pill: 0.1875rem;
+    --border-width: 1.5px;
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.2);
+    --shadow-popup: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  :root[data-theme="c"][data-mode="light"] {
+    --color-accent: #E07A5F;
+    --color-bg-primary: #fdf8f3;
+    --color-bg-secondary: #f5ede4;
+    --color-text-primary: #3d3d3d;
+    --color-text-secondary: #7a7a7a;
+    --color-text-tertiary: #aaaaaa;
+    --color-border: #3d3d3d;
+    --color-border-light: rgba(0, 0, 0, 0.08);
+    --color-hover: rgba(0, 0, 0, 0.03);
+    --font-body: 'Nunito', sans-serif;
+    --font-display: 'Nunito', sans-serif;
+    --radius-sm: 0.5rem;
+    --radius-md: 0.875rem;
+    --radius-lg: 1.25rem;
+    --radius-pill: 9999px;
+    --border-width: 1.5px;
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --shadow-popup: 0 6px 20px rgba(0, 0, 0, 0.08);
+  }
+  :root[data-theme="c"][data-mode="dark"] {
+    --color-accent: #E07A5F;
+    --color-bg-primary: #2a2520;
+    --color-bg-secondary: #352f28;
+    --color-text-primary: rgba(255, 255, 255, 0.88);
+    --color-text-secondary: rgba(255, 255, 255, 0.5);
+    --color-text-tertiary: rgba(255, 255, 255, 0.3);
+    --color-border: rgba(255, 255, 255, 0.88);
+    --color-border-light: rgba(255, 255, 255, 0.08);
+    --color-hover: rgba(255, 255, 255, 0.04);
+    --font-body: 'Nunito', sans-serif;
+    --font-display: 'Nunito', sans-serif;
+    --radius-sm: 0.5rem;
+    --radius-md: 0.875rem;
+    --radius-lg: 1.25rem;
+    --radius-pill: 9999px;
+    --border-width: 1.5px;
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --shadow-popup: 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    padding: 32px;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ─── Theme Switcher ─── */
+  .theme-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    background: var(--color-bg-secondary);
+    border-bottom: var(--border-width) solid var(--color-border-light);
+    z-index: 100;
+    flex-wrap: wrap;
+  }
+  .theme-bar-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-tertiary);
+    margin-right: 4px;
+  }
+  .theme-btn {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border: var(--border-width) solid var(--color-border-light);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .theme-btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
+  .theme-btn.active { background: var(--color-accent); border-color: var(--color-accent); color: white; }
+  .theme-bar-sep { width: 1px; height: 20px; background: var(--color-border-light); margin: 0 4px; }
+
+  .page { padding-top: 56px; max-width: 1000px; margin: 0 auto; }
+
+  h1 { font-family: var(--font-display); font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 32px; line-height: 1.6; }
+
+  .proto-grid { display: grid; grid-template-columns: 1fr; gap: 40px; }
+  .proto-section {
+    background: var(--color-bg-secondary);
+    border: var(--border-width) solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow-card);
+  }
+  .proto-section h2 { font-family: var(--font-display); font-size: 17px; font-weight: 700; margin-bottom: 2px; }
+  .proto-desc { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; line-height: 1.6; }
+  .proto-reasoning {
+    font-size: 11px; color: var(--color-text-tertiary); margin-bottom: 20px; line-height: 1.6;
+    padding-left: 12px; border-left: 2px solid var(--color-border-light); font-style: italic;
+  }
+  .demo-area { display: flex; gap: 48px; align-items: flex-start; flex-wrap: wrap; }
+  .demo-item { display: flex; flex-direction: column; gap: 6px; }
+  .demo-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-text-tertiary); }
+
+  /* ═══════════════════════════════════════════════════
+     PRODUCTION LIKE BUTTON — exact copy from index.css
+     ═══════════════════════════════════════════════════ */
+  .card-like-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 4px 8px 4px 6px;
+    border-radius: var(--radius-pill);
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--color-accent);
+    position: relative;
+    white-space: nowrap;
+    margin-left: auto;
+    isolation: isolate;
+  }
+  .card-like-btn.is-disabled { cursor: default; opacity: 0.45; pointer-events: none; }
+  .card-like-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-pill);
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+    transform: scale(0.6);
+    opacity: 0;
+    transition: transform 0.2s ease 0.2s, opacity 0.15s ease 0.2s;
+    z-index: -1;
+  }
+  .card-like-btn:hover::before {
+    transform: scale(1);
+    opacity: 1;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+  }
+  .card-like-btn:active:not(.is-disabled) { transform: scale(0.9); transition: transform 0.1s ease; }
+  .card-like-heart { flex-shrink: 0; display: block; transition: transform 0.15s ease; }
+  .card-like-btn:hover .card-like-heart { animation: cardLikeWobble 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  @keyframes cardLikeWobble {
+    0%   { transform: scale(1) rotate(0deg); }
+    20%  { transform: scale(1.3) rotate(-8deg); }
+    40%  { transform: scale(0.95) rotate(4deg); }
+    60%  { transform: scale(1.15) rotate(-3deg); }
+    80%  { transform: scale(1) rotate(1deg); }
+    100% { transform: scale(1.1) rotate(0deg); }
+  }
+  .card-like-text-wrap {
+    position: relative;
+    display: inline-block;
+    min-width: 0;
+    overflow: hidden;
+    transition: min-width 0.2s ease 0.1s;
+  }
+  .card-like-btn:hover .card-like-text-wrap {
+    min-width: 2.2em;
+    overflow: visible;
+    transition: min-width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .card-like-btn.is-liked:hover .card-like-text-wrap { min-width: 3em; }
+  .card-like-count { transition: opacity 0.15s ease 0.12s, transform 0.15s ease 0.12s; }
+  .card-like-btn:hover .card-like-count {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.8);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+  .card-like-label {
+    position: absolute;
+    left: 0; top: 0;
+    opacity: 0;
+    transform: translateY(10px) scale(0.8);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .card-like-btn:hover .card-like-label {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transition: opacity 0.15s ease 0.08s, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s;
+  }
+  .card-like-particle {
+    position: absolute; width: 4px; height: 4px; border-radius: 50%;
+    background: var(--color-accent); pointer-events: none; opacity: 0;
+  }
+  /* Large variant */
+  .card-like-btn.card-like-lg { gap: 4px; padding: 5px 10px 5px 8px; font-size: 1rem; margin-left: 0; }
+  .card-like-btn.card-like-lg .card-like-particle { width: 5px; height: 5px; }
+
+  /* ─── Shared: Avatar ─── */
+  .avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid var(--color-bg-primary); }
+  .avatar-sm { width: 22px; height: 22px; }
+  .avatar-lg { width: 32px; height: 32px; }
+
+  /* ─── Shared: Popup Wrapper ───
+     The .popup-wrap contains the button AND the popup.
+     Hover on the wrapper keeps the popup visible while
+     the user moves between button and popup.
+     An invisible bridge (::after on the button) fills
+     the gap between button and popup so hover isn't lost. */
+  .popup-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+  }
+  .popup-wrap .popup {
+    position: absolute;
+    z-index: 50;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .popup-wrap:hover .popup {
+    pointer-events: auto;
+    opacity: 1;
+  }
+  /* Keep the like button hover effects active while popup is shown */
+  .popup-wrap:hover .card-like-btn::before {
+    transform: scale(1);
+    opacity: 1;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+  }
+  .popup-wrap:hover .card-like-heart { animation: cardLikeWobble 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .popup-wrap:hover .card-like-text-wrap {
+    min-width: 2.2em;
+    overflow: visible;
+    transition: min-width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .popup-wrap:hover .card-like-btn.is-liked .card-like-text-wrap { min-width: 3em; }
+  .popup-wrap:hover .card-like-count {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.8);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+  .popup-wrap:hover .card-like-label {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transition: opacity 0.15s ease 0.08s, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s;
+  }
+
+  .hover-hint { font-size: 10px; font-weight: 600; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 8px; }
+
+  /* ═══════════════════════════════════════════
+     PROTOTYPE A — Classic Dropdown List
+     ═══════════════════════════════════════════ */
+  .popup-a {
+    top: calc(100% + 8px);
+    left: 0;
+    transform: translateY(4px);
+    min-width: 220px;
+  }
+  .popup-wrap:hover .popup-a { transform: translateY(0); }
+  /* Invisible bridge: fills the gap between button bottom and popup top */
+  .popup-a-bridge {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    height: 10px;
+  }
+  .popup-a-card {
+    background: var(--color-bg-primary);
+    border: var(--border-width) solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-popup);
+    overflow: hidden;
+  }
+  .popup-a-header {
+    padding: 8px 12px 6px;
+    font-size: 11px; font-weight: 700; color: var(--color-text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.4px;
+    border-bottom: 1px solid var(--color-border-light);
+  }
+  .popup-a-list { list-style: none; max-height: 200px; overflow-y: auto; }
+  .popup-a-item {
+    display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+    transition: background 0.1s ease; cursor: pointer; text-decoration: none; color: inherit;
+  }
+  .popup-a-item:hover { background: var(--color-hover); }
+  .popup-a-name { font-size: 13px; font-weight: 600; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .popup-a-footer { padding: 6px 12px 8px; font-size: 11px; color: var(--color-text-tertiary); border-top: 1px solid var(--color-border-light); text-align: center; }
+  .popup-a-list::-webkit-scrollbar { width: 4px; }
+  .popup-a-list::-webkit-scrollbar-track { background: transparent; }
+  .popup-a-list::-webkit-scrollbar-thumb { background: var(--color-border-light); border-radius: 4px; }
+
+  /* ═══════════════════════════════════════════
+     PROTOTYPE B — Facepile + Expanding Dropdown
+     ═══════════════════════════════════════════ */
+  .facepile-row {
+    display: inline-flex; align-items: center; gap: 0; margin-left: 4px;
+  }
+  .facepile-row .avatar {
+    margin-left: -6px; transition: transform 0.15s ease; border: 2px solid var(--color-bg-primary);
+  }
+  .facepile-row .avatar:first-child { margin-left: 0; }
+  .facepile-row .avatar:hover { transform: scale(1.15); z-index: 2; }
+  .facepile-more {
+    margin-left: -4px; width: 28px; height: 28px; border-radius: 50%;
+    background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+    color: var(--color-accent); font-size: 10px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid var(--color-bg-primary); flex-shrink: 0;
+  }
+  .popup-b {
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translate(-50%, 4px) scale(0.95);
+    min-width: 200px;
+  }
+  .popup-wrap:hover .popup-b { transform: translate(-50%, 0) scale(1); }
+  .popup-b-bridge { position: absolute; bottom: 100%; left: 0; right: 0; height: 10px; }
+  .popup-b-card {
+    background: var(--color-bg-primary);
+    border: var(--border-width) solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-popup);
+    padding: 8px 4px;
+  }
+  .popup-b-item {
+    display: flex; align-items: center; gap: 8px; padding: 5px 10px;
+    border-radius: var(--radius-sm); transition: background 0.1s ease; cursor: pointer;
+  }
+  .popup-b-item:hover { background: var(--color-hover); }
+  .popup-b-name { font-size: 12.5px; font-weight: 600; color: var(--color-text-primary); }
+  .popup-b-handle { font-size: 11px; color: var(--color-text-tertiary); margin-left: auto; }
+
+  /* ═══════════════════════════════════════════
+     PROTOTYPE C — Avatar Grid Card
+     ═══════════════════════════════════════════ */
+  .popup-c {
+    top: calc(100% + 10px);
+    left: 0;
+    transform: translateY(6px) scale(0.97);
+    min-width: 260px;
+  }
+  .popup-wrap:hover .popup-c { transform: translateY(0) scale(1); }
+  .popup-c-bridge { position: absolute; bottom: 100%; left: 0; right: 0; height: 12px; }
+  .popup-c-card {
+    background: var(--color-bg-primary);
+    border: var(--border-width) solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-popup);
+    padding: 14px;
+  }
+  .popup-c-title {
+    font-size: 12px; font-weight: 700; color: var(--color-accent);
+    margin-bottom: 12px; display: flex; align-items: center; gap: 5px;
+  }
+  .popup-c-title svg { flex-shrink: 0; }
+  .popup-c-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+  .popup-c-person {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    width: 52px; cursor: pointer; text-decoration: none; color: inherit;
+  }
+  .popup-c-person .avatar-lg {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    border: 2px solid var(--color-border-light);
+  }
+  .popup-c-person:hover .avatar-lg { transform: scale(1.1); box-shadow: 0 0 0 2px var(--color-accent); border-color: var(--color-accent); }
+  .popup-c-person-name { font-size: 10px; font-weight: 600; color: var(--color-text-secondary); text-align: center; max-width: 52px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .popup-c-person:hover .popup-c-person-name { color: var(--color-accent); }
+  .popup-c-more { display: flex; align-items: center; justify-content: center; width: 52px; font-size: 12px; font-weight: 700; color: var(--color-text-tertiary); cursor: pointer; }
+  .popup-c-more:hover { color: var(--color-accent); }
+
+  /* ═══════════════════════════════════════════
+     PROTOTYPE D — Inverted Tooltip (Above)
+     NOTE: In production, use @floating-ui/react
+     (already in use via InfoTooltip.tsx) — it
+     supports flip() middleware which automatically
+     repositions the tooltip if there's no room
+     above. This prototype hard-codes "above" for
+     visual demo purposes.
+     ═══════════════════════════════════════════ */
+  .popup-d {
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translate(-50%, 4px);
+    min-width: 180px;
+  }
+  .popup-wrap:hover .popup-d { transform: translate(-50%, 0); }
+  /* Invisible bridge: fills the gap between popup bottom edge and button top edge.
+     This is critical — without it, moving the mouse upward from button to popup
+     crosses a gap of empty space where neither element is hovered, causing flicker. */
+  .popup-d-bridge {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 10px;
+  }
+  .popup-d-card {
+    background: var(--color-text-primary);
+    color: var(--color-bg-primary);
+    border-radius: var(--radius-md);
+    padding: 8px 6px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+    position: relative;
+  }
+  /* Arrow as a separate element on .popup-wrap, so left:50%
+     is directly relative to the button — no indirection
+     through the wider popup card. */
+  .popup-d-arrow {
+    position: absolute;
+    bottom: calc(100% + 2px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 7px solid var(--color-text-primary);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 51;
+    transition: opacity 0.15s ease;
+  }
+  .popup-wrap:hover .popup-d-arrow { opacity: 1; }
+  .popup-d-item {
+    display: flex; align-items: center; gap: 8px; padding: 4px 8px;
+    border-radius: var(--radius-sm); transition: background 0.1s ease; cursor: pointer;
+  }
+  .popup-d-item:hover { background: rgba(255, 255, 255, 0.1); }
+  .popup-d-item .avatar-sm { border-color: transparent; }
+  .popup-d-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .popup-d-footer {
+    padding: 6px 8px 4px;
+    font-size: 10.5px;
+    font-weight: 600;
+    opacity: 0.55;
+    text-align: center;
+    cursor: pointer;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 2px;
+    transition: opacity 0.1s ease;
+  }
+  .popup-d-footer:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+
+<!-- Theme Switcher -->
+<div class="theme-bar">
+  <span class="theme-bar-label">Theme</span>
+  <button class="theme-btn active" data-group="theme" onclick="setTheme('a', this)">Pop</button>
+  <button class="theme-btn" data-group="theme" onclick="setTheme('b', this)">Swiss</button>
+  <button class="theme-btn" data-group="theme" onclick="setTheme('c', this)">Cloud</button>
+  <div class="theme-bar-sep"></div>
+  <span class="theme-bar-label">Mode</span>
+  <button class="theme-btn active" data-group="mode" onclick="setMode('light', this)">Light</button>
+  <button class="theme-btn" data-group="mode" onclick="setMode('dark', this)">Dark</button>
+</div>
+
+<div class="page">
+
+<h1>Likers Popup Prototypes</h1>
+<p class="subtitle">
+  <strong>CHOSEN: Variant D — Inverted Tooltip (Above).</strong> The other variants (A, B, C) are archived below for reference.
+</p>
+
+<div style="font-size: 12px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 32px; padding: 16px; background: var(--color-hover); border-radius: var(--radius-lg);">
+  <strong style="color: var(--color-text-primary);">UI/UX Decisions & Notes</strong><br><br>
+
+  <strong>Trigger &amp; positioning:</strong> The tooltip appears on hover of the <code>CardLikeButton</code>
+  (<code>size="lg"</code>) on <code>SubmissionDetailPage</code>. It must be centered on the button's
+  full width (including the expanded "Like"/"Unlike" text that appears on hover). The like button's
+  existing hover animation (count slides out, label slides in) fires simultaneously with the tooltip appearing.
+  Use <code>@floating-ui/react</code> (already used in <code>InfoTooltip.tsx</code>) with <code>flip()</code>
+  to auto-reposition when near viewport edges, and <code>safePolygon()</code> for reliable hover bridging.<br><br>
+
+  <strong>Tooltip styling:</strong> Dark inverted colors (<code>--color-text-primary</code> bg,
+  <code>--color-bg-primary</code> text) — matches the existing <code>Tooltip</code> in <code>InfoTooltip.tsx</code>.
+  Each row: small avatar (22px, use <code>AvatarImage</code> component) + nickname.
+  Arrow points down, centered on the button. Rows are clickable (navigate to user profile).<br><br>
+
+  <strong>Content rules:</strong> Show at most ~5 likers. If there are more, show a "View all N likes"
+  footer link. Clicking that footer opens the Likers Modal (see <code>prototype/prototype-likers-modal.html</code>).
+  The footer has a subtle separator line and underlines on hover.<br><br>
+
+  <strong>Companion modal:</strong> The "View all N likes" click opens a full likers modal — see
+  <code>prototype/prototype-likers-modal.html</code> for that design. It shows ALL likers with avatars,
+  nicknames, and Follow buttons (only for non-followed users).
+</div>
+
+<div class="proto-grid">
+
+  <!-- ═══ PROTOTYPE A: Classic Dropdown List ═══ -->
+  <div class="proto-section">
+    <h2>A — Classic Dropdown List</h2>
+    <p class="proto-desc">Vertical list anchored below the button. Each row shows avatar + nickname. Header label, scrollable body, "+ N more" footer.</p>
+    <p class="proto-reasoning">
+      <strong>Why:</strong> Most scannable layout for names — users identify specific people fastest in a vertical list.
+      The header ("Liked by") gives context. Capped height with scroll prevents the popup from dominating the page.
+      Most accessible: screen readers traverse linearly, keyboard nav works. Row hover gives clear affordance each user is clickable.
+      <br><br>
+      <strong>Interaction note:</strong> The like button expands on hover (count slides out, "Like" slides in). This popup
+      appears below, so the button's shape change doesn't conflict — the popup just shifts down slightly as the button widens.
+    </p>
+    <div class="demo-area">
+      <div class="demo-item">
+        <span class="demo-label">Few likers</span>
+        <div class="popup-wrap">
+          <button class="card-like-btn is-liked card-like-lg" onclick="this.classList.toggle('is-liked')">
+            <svg class="card-like-heart" width="18" height="18" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="currentColor" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span class="card-like-text-wrap">
+              <span class="card-like-count">3</span>
+              <span class="card-like-label">Unlike</span>
+            </span>
+          </button>
+          <div class="popup popup-a">
+            <div class="popup-a-bridge"></div>
+            <div class="popup-a-card">
+              <div class="popup-a-header">Liked by</div>
+              <ul class="popup-a-list">
+                <a class="popup-a-item"><img class="avatar" src="https://api.dicebear.com/7.x/thumbs/svg?seed=alice&backgroundColor=b6e3f4" alt=""><span class="popup-a-name">alice_creates</span></a>
+                <a class="popup-a-item"><img class="avatar" src="https://api.dicebear.com/7.x/thumbs/svg?seed=bob&backgroundColor=c0aede" alt=""><span class="popup-a-name">bob_draws</span></a>
+                <a class="popup-a-item"><img class="avatar" src="https://api.dicebear.com/7.x/thumbs/svg?seed=carol&backgroundColor=ffdfbf" alt=""><span class="popup-a-name">carol_paints</span></a>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <span class="hover-hint">Hover the like button</span>
+      </div>
+
+      <div class="demo-item">
+        <span class="demo-label">Many likers (scrollable)</span>
+        <div class="popup-wrap">
+          <button class="card-like-btn card-like-lg" onclick="this.classList.toggle('is-liked')">
+            <svg class="card-like-heart" width="18" height="18" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="none" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span class="card-like-text-wrap">
+              <span class="card-like-count">14</span>
+              <span class="card-like-label">Like</span>
+            </span>
+          </button>
+          <div class="popup popup-a">
+            <div class="popup-a-bridge"></div>
+            <div class="popup-a-card">
+              <div class="popup-a-header">Liked by</div>
+              <ul class="popup-a-list">
+                <a class="popup-a-item"><img class="avatar" src="https://api.dicebear.com/7.x/thumbs/svg?seed=alice&backgroundColor=b6e3f4" alt=""><span class="popup-a-name">alice_creates</span></a>
+                <a class="popup-a-item"><img class="avatar" src="https://api.dicebear.com/7.x/thumbs/svg?seed=bob&backgroundColor=c0aede" alt=""><span class="popup-a-name">bob_draws</span></a>
+                <a class="popup-a-item"><img class="avatar" src="https://api.dicebear.com/7.x/thumbs/svg?seed=carol&backgroundColor=ffdfbf" alt=""><span class="popup-a-name">carol_paints</span></a>
+                <a class="popup-a-item"><img class="avatar" src="https://api.dicebear.com/7.x/thumbs/svg?seed=dave&backgroundColor=d1d4f9" alt=""><span class="popup-a-name">dave_makes</span></a>
+                <a class="popup-a-item"><img class="avatar" src="https://api.dicebear.com/7.x/thumbs/svg?seed=eve&backgroundColor=ffd5dc" alt=""><span class="popup-a-name">eve_designs</span></a>
+                <a class="popup-a-item"><img class="avatar" src="https://api.dicebear.com/7.x/thumbs/svg?seed=frank&backgroundColor=c0aede" alt=""><span class="popup-a-name">frank_the_artist</span></a>
+              </ul>
+              <div class="popup-a-footer">+ 8 more</div>
+            </div>
+          </div>
+        </div>
+        <span class="hover-hint">Hover — scroll inside popup</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PROTOTYPE B: Facepile + Expanding Dropdown ═══ -->
+  <div class="proto-section">
+    <h2>B — Facepile with Expanding Dropdown</h2>
+    <p class="proto-desc">Overlapping avatar circles sit persistently next to the like button. Hovering the facepile reveals a named list.</p>
+    <p class="proto-reasoning">
+      <strong>Why:</strong> Faces are always visible as social proof — psychologically more motivating than a bare number.
+      The overlapping layout is compact and distinctive. This is the only prototype where likers are partially visible <em>without</em> hovering.
+      <br><br>
+      <strong>Interaction note:</strong> Here the popup is on the facepile, not the like button itself, so the button's
+      hover expansion doesn't interfere. The button and facepile sit side-by-side — the button does its count-to-label
+      thing independently while the facepile has its own hover dropdown.
+    </p>
+    <div class="demo-area">
+      <div class="demo-item">
+        <span class="demo-label">Few likers</span>
+        <div style="display:flex; align-items:center; gap: 6px;">
+          <button class="card-like-btn is-liked card-like-lg" onclick="this.classList.toggle('is-liked')">
+            <svg class="card-like-heart" width="18" height="18" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="currentColor" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span class="card-like-text-wrap">
+              <span class="card-like-count">3</span>
+              <span class="card-like-label">Unlike</span>
+            </span>
+          </button>
+          <div class="popup-wrap">
+            <div class="facepile-row">
+              <img class="avatar" src="https://api.dicebear.com/7.x/thumbs/svg?seed=alice&backgroundColor=b6e3f4" alt="">
+              <img class="avatar" src="https://api.dicebear.com/7.x/thumbs/svg?seed=bob&backgroundColor=c0aede" alt="">
+              <img class="avatar" src="https://api.dicebear.com/7.x/thumbs/svg?seed=carol&backgroundColor=ffdfbf" alt="">
+            </div>
+            <div class="popup popup-b">
+              <div class="popup-b-bridge"></div>
+              <div class="popup-b-card">
+                <div class="popup-b-item"><img class="avatar-sm" src="https://api.dicebear.com/7.x/thumbs/svg?seed=alice&backgroundColor=b6e3f4" alt="" style="border-radius:50%"><span class="popup-b-name">alice_creates</span></div>
+                <div class="popup-b-item"><img class="avatar-sm" src="https://api.dicebear.com/7.x/thumbs/svg?seed=bob&backgroundColor=c0aede" alt="" style="border-radius:50%"><span class="popup-b-name">bob_draws</span></div>
+                <div class="popup-b-item"><img class="avatar-sm" src="https://api.dicebear.com/7.x/thumbs/svg?seed=carol&backgroundColor=ffdfbf" alt="" style="border-radius:50%"><span class="popup-b-name">carol_paints</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="hover-hint">Hover facepile for names</span>
+      </div>
+
+      <div class="demo-item">
+        <span class="demo-label">Many likers</span>
+        <div style="display:flex; align-items:center; gap: 6px;">
+          <button class="card-like-btn card-like-lg" onclick="this.classList.toggle('is-liked')">
+            <svg class="card-like-heart" width="18" height="18" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="none" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span class="card-like-text-wrap">
+              <span class="card-like-count">14</span>
+              <span class="card-like-label">Like</span>
+            </span>
+          </button>
+          <div class="popup-wrap">
+            <div class="facepile-row">
+              <img class="avatar" src="https://api.dicebear.com/7.x/thumbs/svg?seed=alice&backgroundColor=b6e3f4" alt="">
+              <img class="avatar" src="https://api.dicebear.com/7.x/thumbs/svg?seed=bob&backgroundColor=c0aede" alt="">
+              <img class="avatar" src="https://api.dicebear.com/7.x/thumbs/svg?seed=carol&backgroundColor=ffdfbf" alt="">
+              <img class="avatar" src="https://api.dicebear.com/7.x/thumbs/svg?seed=dave&backgroundColor=d1d4f9" alt="">
+              <span class="facepile-more">+10</span>
+            </div>
+            <div class="popup popup-b">
+              <div class="popup-b-bridge"></div>
+              <div class="popup-b-card">
+                <div class="popup-b-item"><img class="avatar-sm" src="https://api.dicebear.com/7.x/thumbs/svg?seed=alice&backgroundColor=b6e3f4" alt="" style="border-radius:50%"><span class="popup-b-name">alice_creates</span><span class="popup-b-handle">@alice</span></div>
+                <div class="popup-b-item"><img class="avatar-sm" src="https://api.dicebear.com/7.x/thumbs/svg?seed=bob&backgroundColor=c0aede" alt="" style="border-radius:50%"><span class="popup-b-name">bob_draws</span><span class="popup-b-handle">@bob</span></div>
+                <div class="popup-b-item"><img class="avatar-sm" src="https://api.dicebear.com/7.x/thumbs/svg?seed=carol&backgroundColor=ffdfbf" alt="" style="border-radius:50%"><span class="popup-b-name">carol_paints</span><span class="popup-b-handle">@carol</span></div>
+                <div class="popup-b-item"><img class="avatar-sm" src="https://api.dicebear.com/7.x/thumbs/svg?seed=dave&backgroundColor=d1d4f9" alt="" style="border-radius:50%"><span class="popup-b-name">dave_makes</span><span class="popup-b-handle">@dave</span></div>
+                <div class="popup-b-item" style="justify-content:center; color: var(--color-text-tertiary); font-size: 11px; font-weight: 600; padding-top: 2px;">View all 14 likes</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="hover-hint">Hover facepile for names</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PROTOTYPE C: Avatar Grid Card ═══ -->
+  <div class="proto-section">
+    <h2>C — Avatar Grid Card</h2>
+    <p class="proto-desc">Wider floating card with avatars in a flowing grid, names beneath each, accent-colored header with heart icon.</p>
+    <p class="proto-reasoning">
+      <strong>Why:</strong> Emphasizes faces over text — fits a visual/creative community. The 2D grid scales better than a
+      1D list for high like counts. Avatar hover rings add micro-delight. Feels like content discovery rather than a utility dropdown.
+      <br><br>
+      <strong>Interaction note:</strong> Appears below. The button's expansion is small enough (~20px wider) that the popup
+      doesn't need to reposition. However, the wider card format means the popup extends well beyond the button width — it
+      anchors to the left edge.
+    </p>
+    <div class="demo-area">
+      <div class="demo-item">
+        <span class="demo-label">Several likers</span>
+        <div class="popup-wrap">
+          <button class="card-like-btn is-liked card-like-lg" onclick="this.classList.toggle('is-liked')">
+            <svg class="card-like-heart" width="18" height="18" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="currentColor" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span class="card-like-text-wrap">
+              <span class="card-like-count">7</span>
+              <span class="card-like-label">Unlike</span>
+            </span>
+          </button>
+          <div class="popup popup-c">
+            <div class="popup-c-bridge"></div>
+            <div class="popup-c-card">
+              <div class="popup-c-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                Liked by 7 people
+              </div>
+              <div class="popup-c-grid">
+                <a class="popup-c-person"><img class="avatar-lg" src="https://api.dicebear.com/7.x/thumbs/svg?seed=alice&backgroundColor=b6e3f4" alt="" style="border-radius:50%"><span class="popup-c-person-name">alice</span></a>
+                <a class="popup-c-person"><img class="avatar-lg" src="https://api.dicebear.com/7.x/thumbs/svg?seed=bob&backgroundColor=c0aede" alt="" style="border-radius:50%"><span class="popup-c-person-name">bob</span></a>
+                <a class="popup-c-person"><img class="avatar-lg" src="https://api.dicebear.com/7.x/thumbs/svg?seed=carol&backgroundColor=ffdfbf" alt="" style="border-radius:50%"><span class="popup-c-person-name">carol</span></a>
+                <a class="popup-c-person"><img class="avatar-lg" src="https://api.dicebear.com/7.x/thumbs/svg?seed=dave&backgroundColor=d1d4f9" alt="" style="border-radius:50%"><span class="popup-c-person-name">dave</span></a>
+                <a class="popup-c-person"><img class="avatar-lg" src="https://api.dicebear.com/7.x/thumbs/svg?seed=eve&backgroundColor=ffd5dc" alt="" style="border-radius:50%"><span class="popup-c-person-name">eve</span></a>
+                <a class="popup-c-person"><img class="avatar-lg" src="https://api.dicebear.com/7.x/thumbs/svg?seed=frank&backgroundColor=c0aede" alt="" style="border-radius:50%"><span class="popup-c-person-name">frank</span></a>
+                <a class="popup-c-person"><img class="avatar-lg" src="https://api.dicebear.com/7.x/thumbs/svg?seed=grace&backgroundColor=b6e3f4" alt="" style="border-radius:50%"><span class="popup-c-person-name">grace</span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="hover-hint">Hover the like button</span>
+      </div>
+
+      <div class="demo-item">
+        <span class="demo-label">Many likers (with overflow)</span>
+        <div class="popup-wrap">
+          <button class="card-like-btn card-like-lg" onclick="this.classList.toggle('is-liked')">
+            <svg class="card-like-heart" width="18" height="18" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="none" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span class="card-like-text-wrap">
+              <span class="card-like-count">23</span>
+              <span class="card-like-label">Like</span>
+            </span>
+          </button>
+          <div class="popup popup-c">
+            <div class="popup-c-bridge"></div>
+            <div class="popup-c-card">
+              <div class="popup-c-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                Liked by 23 people
+              </div>
+              <div class="popup-c-grid">
+                <a class="popup-c-person"><img class="avatar-lg" src="https://api.dicebear.com/7.x/thumbs/svg?seed=alice&backgroundColor=b6e3f4" alt="" style="border-radius:50%"><span class="popup-c-person-name">alice</span></a>
+                <a class="popup-c-person"><img class="avatar-lg" src="https://api.dicebear.com/7.x/thumbs/svg?seed=bob&backgroundColor=c0aede" alt="" style="border-radius:50%"><span class="popup-c-person-name">bob</span></a>
+                <a class="popup-c-person"><img class="avatar-lg" src="https://api.dicebear.com/7.x/thumbs/svg?seed=carol&backgroundColor=ffdfbf" alt="" style="border-radius:50%"><span class="popup-c-person-name">carol</span></a>
+                <a class="popup-c-person"><img class="avatar-lg" src="https://api.dicebear.com/7.x/thumbs/svg?seed=dave&backgroundColor=d1d4f9" alt="" style="border-radius:50%"><span class="popup-c-person-name">dave</span></a>
+                <a class="popup-c-person"><img class="avatar-lg" src="https://api.dicebear.com/7.x/thumbs/svg?seed=eve&backgroundColor=ffd5dc" alt="" style="border-radius:50%"><span class="popup-c-person-name">eve</span></a>
+                <a class="popup-c-person"><img class="avatar-lg" src="https://api.dicebear.com/7.x/thumbs/svg?seed=frank&backgroundColor=c0aede" alt="" style="border-radius:50%"><span class="popup-c-person-name">frank</span></a>
+                <a class="popup-c-person"><img class="avatar-lg" src="https://api.dicebear.com/7.x/thumbs/svg?seed=grace&backgroundColor=b6e3f4" alt="" style="border-radius:50%"><span class="popup-c-person-name">grace</span></a>
+                <a class="popup-c-person"><img class="avatar-lg" src="https://api.dicebear.com/7.x/thumbs/svg?seed=henry&backgroundColor=ffdfbf" alt="" style="border-radius:50%"><span class="popup-c-person-name">henry</span></a>
+                <span class="popup-c-more">+15 more</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="hover-hint">Hover the like button</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PROTOTYPE D: Inverted Tooltip (Above) ═══ -->
+  <div class="proto-section">
+    <h2>D — Inverted Tooltip (Above)</h2>
+    <p class="proto-desc">
+      Compact dark tooltip appearing above the button with small avatars and names. Matches the existing Tooltip component's inverted color scheme.
+    </p>
+    <p class="proto-reasoning">
+      <strong>Why:</strong> Lightest-weight option and most consistent with existing patterns (InfoTooltip uses dark-bg/light-text inverted scheme).
+      Appearing above avoids obscuring the canvas artwork below the like button. The inverted colors create clear
+      visual separation from page content. Best when the liker list is supplementary info.
+      <br><br>
+      <strong>Interaction consideration:</strong> The button's hover expansion (count slides up and out, "Like"/"Unlike" slides in)
+      happens simultaneously with the tooltip appearing above. Because the tooltip is above and the button expands horizontally,
+      there's no visual collision — they complement each other. The arrow is left-aligned to point at the heart icon.
+      <br><br>
+      <strong>"+N more" behavior:</strong> The footer is a clickable link (hover to see underline). Options for what it does:
+      <strong>(a)</strong> Scroll the page to a dedicated "Likes" section below the artwork (if one existed).
+      <strong>(b)</strong> Open a small modal/drawer listing all likers with follow buttons — this is what Instagram does.
+      <strong>(c)</strong> Simply show more rows inline in the tooltip (lazy-load the next batch). This keeps the user in
+      context but risks the tooltip growing too tall. Recommendation: <strong>(b)</strong> — a modal is the cleanest
+      separation between "quick peek" (tooltip) and "full list" (modal with scroll + follow buttons).
+      <br><br>
+      <strong>Production note:</strong> Use <code>@floating-ui/react</code> with <code>flip()</code> + <code>offset(8)</code> + <code>shift()</code>.
+      The <code>flip()</code> middleware handles the case where the button is near the top of the viewport — the tooltip
+      will automatically appear below instead. The invisible bridge element won't be needed in production because
+      floating-ui's <code>useHover</code> has a built-in <code>handleClose</code> option (safePolygon) that keeps the
+      popup open while the cursor moves between trigger and popup.
+    </p>
+    <div class="demo-area">
+      <div class="demo-item" style="padding-top: 130px;">
+        <span class="demo-label">Few likers</span>
+        <div class="popup-wrap">
+          <button class="card-like-btn is-liked card-like-lg" onclick="this.classList.toggle('is-liked')">
+            <svg class="card-like-heart" width="18" height="18" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="currentColor" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span class="card-like-text-wrap">
+              <span class="card-like-count">3</span>
+              <span class="card-like-label">Unlike</span>
+            </span>
+          </button>
+          <div class="popup-d-arrow"></div>
+          <div class="popup popup-d">
+            <div class="popup-d-bridge"></div>
+            <div class="popup-d-card">
+              <div class="popup-d-item"><img class="avatar-sm" src="https://api.dicebear.com/7.x/thumbs/svg?seed=alice&backgroundColor=b6e3f4" alt="" style="border-radius:50%"><span class="popup-d-name">alice_creates</span></div>
+              <div class="popup-d-item"><img class="avatar-sm" src="https://api.dicebear.com/7.x/thumbs/svg?seed=bob&backgroundColor=c0aede" alt="" style="border-radius:50%"><span class="popup-d-name">bob_draws</span></div>
+              <div class="popup-d-item"><img class="avatar-sm" src="https://api.dicebear.com/7.x/thumbs/svg?seed=carol&backgroundColor=ffdfbf" alt="" style="border-radius:50%"><span class="popup-d-name">carol_paints</span></div>
+            </div>
+          </div>
+        </div>
+        <span class="hover-hint">Hover the like button</span>
+      </div>
+
+      <div class="demo-item" style="padding-top: 170px;">
+        <span class="demo-label">Many likers</span>
+        <div class="popup-wrap">
+          <button class="card-like-btn card-like-lg" onclick="this.classList.toggle('is-liked')">
+            <svg class="card-like-heart" width="18" height="18" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="none" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span class="card-like-text-wrap">
+              <span class="card-like-count">12</span>
+              <span class="card-like-label">Like</span>
+            </span>
+          </button>
+          <div class="popup-d-arrow"></div>
+          <div class="popup popup-d">
+            <div class="popup-d-bridge"></div>
+            <div class="popup-d-card">
+              <div class="popup-d-item"><img class="avatar-sm" src="https://api.dicebear.com/7.x/thumbs/svg?seed=alice&backgroundColor=b6e3f4" alt="" style="border-radius:50%"><span class="popup-d-name">alice_creates</span></div>
+              <div class="popup-d-item"><img class="avatar-sm" src="https://api.dicebear.com/7.x/thumbs/svg?seed=bob&backgroundColor=c0aede" alt="" style="border-radius:50%"><span class="popup-d-name">bob_draws</span></div>
+              <div class="popup-d-item"><img class="avatar-sm" src="https://api.dicebear.com/7.x/thumbs/svg?seed=carol&backgroundColor=ffdfbf" alt="" style="border-radius:50%"><span class="popup-d-name">carol_paints</span></div>
+              <div class="popup-d-item"><img class="avatar-sm" src="https://api.dicebear.com/7.x/thumbs/svg?seed=dave&backgroundColor=d1d4f9" alt="" style="border-radius:50%"><span class="popup-d-name">dave_makes</span></div>
+              <div class="popup-d-item"><img class="avatar-sm" src="https://api.dicebear.com/7.x/thumbs/svg?seed=eve&backgroundColor=ffd5dc" alt="" style="border-radius:50%"><span class="popup-d-name">eve_designs</span></div>
+              <div class="popup-d-footer">View all 12 likes</div>
+            </div>
+          </div>
+        </div>
+        <span class="hover-hint">Hover the like button</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /proto-grid -->
+</div><!-- /page -->
+
+<script>
+  function setTheme(name, btn) {
+    document.documentElement.setAttribute('data-theme', name);
+    document.querySelectorAll('[data-group="theme"]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  function setMode(mode, btn) {
+    document.documentElement.setAttribute('data-mode', mode);
+    document.querySelectorAll('[data-group="mode"]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+</script>
+
+</body>
+</html>

@@ -673,6 +673,31 @@ export async function deleteLike(userId: string, submissionId: string): Promise<
   if (error) throw error;
 }
 
+export interface Liker {
+  id: string;
+  nickname: string;
+  avatar_url: string | null;
+}
+
+export async function fetchSubmissionLikers(submissionId: string): Promise<Liker[]> {
+  const { data, error } = await supabase
+    .from('likes')
+    .select('user_id, created_at, profiles!user_id(nickname, avatar_url)')
+    .eq('submission_id', submissionId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => {
+    const profile = row.profiles as unknown as { nickname: string; avatar_url: string | null } | null;
+    return {
+      id: row.user_id,
+      nickname: profile?.nickname ?? 'Anonymous',
+      avatar_url: profile?.avatar_url ?? null,
+    };
+  });
+}
+
 // =============================================================================
 // Follows
 // =============================================================================
